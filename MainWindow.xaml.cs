@@ -30,9 +30,7 @@ namespace StockApp
             //rootFrame.Navigate(typeof(Test.TestPage), null);
 
             // GEM STORE:
-            //var gemStoreWindow = new GemStore.GemStoreWindow();
-            //gemStoreWindow.Activate();
-
+            //rootFrame.Navigate(typeof(GemStore.GemStoreWindow), null);
         }
 
         void OnNavigationFailed(object sender, NavigationFailedEventArgs e)

@@ -6,7 +6,7 @@ using GemStore.ViewModels;
 
 namespace GemStore
 {
-    public sealed partial class GemStoreWindow : Window
+    public sealed partial class GemStoreWindow : Page
     {
         private StoreViewModel viewModel;
 
@@ -37,7 +37,7 @@ namespace GemStore
                     Content = dialogContent,
                     PrimaryButtonText = "Buy",
                     CloseButtonText = "Cancel",
-                    XamlRoot = this.Content.XamlRoot
+                    XamlRoot = rootGrid.XamlRoot
                 };
 
                 ContentDialogResult result = await confirmDialog.ShowAsync();
@@ -61,7 +61,7 @@ namespace GemStore
                 Title = "Error",
                 Content = message,
                 CloseButtonText = "OK",
-                XamlRoot = this.Content.XamlRoot
+                XamlRoot = rootGrid.XamlRoot
             };
             await errorDialog.ShowAsync();
         }
@@ -73,7 +73,7 @@ namespace GemStore
                 Title = "Success",
                 Content = message,
                 CloseButtonText = "OK",
-                XamlRoot = this.Content.XamlRoot
+                XamlRoot = rootGrid.XamlRoot
             };
             await successDialog.ShowAsync();
         }
@@ -108,7 +108,7 @@ namespace GemStore
                 Content = dialogContent,
                 PrimaryButtonText = "Sell",
                 CloseButtonText = "Cancel",
-                XamlRoot = this.Content.XamlRoot
+                XamlRoot = rootGrid.XamlRoot
             };
 
             ContentDialogResult result = await sellDialog.ShowAsync();

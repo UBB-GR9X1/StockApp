@@ -1,11 +1,10 @@
-<Window
+<Page
     x:Class="GemStore.GemStoreWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:models="using:GemStore.Models"
-    Title="Gem Store">
+    xmlns:models="using:GemStore.Models">
 
-    <Grid Margin="20" Background="#081708">
+    <Grid x:Name="rootGrid" Margin="20" Background="#081708">
         <Grid.RowDefinitions>
             <RowDefinition Height="70" />
             <RowDefinition Height="*" />
@@ -88,4 +87,4 @@
             </StackPanel>
         </Grid>
     </Grid>
-</Window>
+</Page>
