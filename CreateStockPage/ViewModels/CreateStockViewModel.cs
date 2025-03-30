@@ -1,10 +1,10 @@
-﻿using ISS_CreateStockPage.Commands;
-using ISS_CreateStockPage.Models;
+﻿using CreateStockPage.Commands;
+using CreateStockPage.Models;
 using StockApp.Views;
 using System.Collections.ObjectModel;
 using System.Text.RegularExpressions;
 
-namespace ISS_CreateStockPage.ViewModels
+namespace CreateStockPage.ViewModels
 {
     public class CreateStockViewModel
     {

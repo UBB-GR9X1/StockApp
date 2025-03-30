@@ -1,7 +1,7 @@
-<Window x:Class="ISS_CreateStockPage.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="ISS CreateStockPage">
+<Page x:Class="CreateStockPage.MainPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Title="CreateStockPage">
 
     <Grid x:Name="RootGrid" Background="#A9A9A9" Padding="20" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
@@ -65,4 +65,4 @@
         </StackPanel>
 
     </Grid>
-</Window>
+</Page>

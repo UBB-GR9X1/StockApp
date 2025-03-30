@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ISS_CreateStockPage.Models
+namespace CreateStockPage.Models
 {
     class StockManager
     {

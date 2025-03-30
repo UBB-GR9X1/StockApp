@@ -1,17 +1,16 @@
-using ISS_CreateStockPage.ViewModels;
+using CreateStockPage.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using StockApp.Views;
 using System;
 using System.Text.RegularExpressions;
 
-namespace ISS_CreateStockPage
+namespace CreateStockPage
 {
-    public partial class MainWindow : Window
+    public partial class MainPage : Page
     {
         CreateStockViewModel viewModel;
 
-        public MainWindow()
+        public MainPage()
         {
             this.InitializeComponent();
             viewModel = new CreateStockViewModel();
