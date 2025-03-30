@@ -19,20 +19,13 @@ using Microsoft.UI.Xaml.Navigation;
 namespace StockApp
 {
     /// <summary>
-    /// An empty window that can be used on its own or navigated to within a Frame.
+    /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class MainWindow : Window
+    public sealed partial class MainPage : Page
     {
-        public MainWindow()
+        public MainPage()
         {
             this.InitializeComponent();
-            rootFrame.Navigate(typeof(MainPage), null);
-            // rootFrame.Navigate(typeof(Test.TestPage), null);
-        }
-
-        void OnNavigationFailed(object sender, NavigationFailedEventArgs e)
-        {
-            throw new Exception("Failed to load Page: " + e.SourcePageType.FullName);
         }
     }
 }
