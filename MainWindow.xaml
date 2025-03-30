@@ -9,6 +9,6 @@
     mc:Ignorable="d"
     Title="StockApp">
 
-    <Frame x:Name="rootFrame" NavigationFailed="OnNavigationFailed"></Frame>
+    <Frame x:Name="rootFrame" NavigationFailed="OnNavigationFailed"/></Frame>
 
 </Window>

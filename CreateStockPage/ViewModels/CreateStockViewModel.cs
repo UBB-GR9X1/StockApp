@@ -1,5 +1,4 @@
-﻿using CreateStockPage.Commands;
-using CreateStockPage.Models;
+﻿using CreateStockPage.Models;
 using StockApp.Views;
 using System.Collections.ObjectModel;
 using System.Text.RegularExpressions;

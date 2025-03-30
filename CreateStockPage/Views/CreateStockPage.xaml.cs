@@ -1,6 +1,7 @@
 using CreateStockPage.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using StockApp.Views;
 using System;
 using System.Text.RegularExpressions;
 
@@ -16,16 +17,9 @@ namespace CreateStockPage
             viewModel = new CreateStockViewModel();
         }
 
-        private async void GoBack_Click(object sender, RoutedEventArgs e)
+        private void GoBack_Click(object sender, RoutedEventArgs e)
         {
-            ContentDialog dialog = new ContentDialog
-            {
-                Title = "Navigation",
-                Content = "Go back to the previous page.",
-                CloseButtonText = "OK",
-                XamlRoot = this.Content.XamlRoot
-            };
-            await dialog.ShowAsync();
+            Frame.GoBack();
         }
 
         private async void CreateStock_Click(object sender, RoutedEventArgs e)
@@ -61,13 +55,16 @@ namespace CreateStockPage
             {
                 viewModel.AddStock(stock);
                 await ShowDialog("Stock added successfully!");
+
+                StockNameTextBox.Text = "";
+                StockQuantityTextBox.Text = "";
+                StockSymbolTextBox.Text = "";
+                AuthorCNPTextBox.Text = "";
+                StockPriceTextBox.Text = "";
+
             }
 
-            StockNameTextBox.Text = "";
-            StockQuantityTextBox.Text = "";
-            StockSymbolTextBox.Text = "";
-            AuthorCNPTextBox.Text = "";
-            StockPriceTextBox.Text = "";
+           
         }
 
         private async System.Threading.Tasks.Task ShowDialog(string message)
