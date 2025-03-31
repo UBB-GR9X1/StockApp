@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
-using StocksHomepage.Model;
 using System.Threading.Tasks;
+using StocksHomepage.Model;
 
 namespace StocksHomepage.Service
 {
@@ -51,4 +51,4 @@ namespace StocksHomepage.Service
         }
 
     }
-}
+} 

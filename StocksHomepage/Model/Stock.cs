@@ -14,14 +14,24 @@ namespace StocksHomepage.Model
         public required string Name { get; set; }
         public required string Price { get; set; }
         public required string Change { get; set; }
+        public required bool isFavorite { get; set; }
+        public Stock()
+        {
+            Symbol = "";
+            Name = "";
+            Price = "";
+            Change = "";
+            isFavorite = false;
+        }
         public SolidColorBrush ChangeColor
         {
             get => Change.StartsWith("+") ? new SolidColorBrush(Colors.Green) : new SolidColorBrush(Colors.Red);
         }
-        public required bool isFavorite { get; set; }
         public string FavoriteStar
         {
             get => isFavorite ? "★" : "☆";
         }
     }
 }
+
+

@@ -1,168 +1,187 @@
-﻿//using System;
-//using System.Collections.Generic;
-//using System.Collections.ObjectModel;
-//using StocksHomepage.Model;
-//using StocksHomepage.Service;
-//using System.Linq;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Windows.Input;
+using System;
+using System.Linq;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml;
+using System.Diagnostics;
+using System.Xml.Linq;
+using StocksHomepage.Model;
 
-//namespace StocksHomepage.ViewModel
-//{
-//    public class HomepageViewModel
-//    {
-//        public ObservableCollection<Stock> FavoriteFilteredStocks { get; set; }
-//        public ObservableCollection<Stock> AllFilteredStocks { get; set; }
+// return new global::StocksHomepage.Model.Stock { Change="", isFavorite=false, Name="", Price="", Symbol="" };
 
-//        private HomepageService _service;
+namespace StocksHomepage.ViewModel
+{
+    public class HomepageViewModel : INotifyPropertyChanged
+    {
+        public ObservableCollection<Stock> FavoriteStocks { get; private set; }
+        public ObservableCollection<Stock> AllStocks { get; private set; }
 
-//        public HomepageViewModel()
-//        {
-//            _service = new HomepageService();
-//            InitializeStocks();
-//        }
+        public ObservableCollection<Stock> FilteredAllStocks { get; private set; }
+        public ObservableCollection<Stock> FilteredFavoriteStocks { get; private set; }
 
-//        // Initialize stocks from the service (in-memory)
-//        private void InitializeStocks()
-//        {
-//            var allStocks = _service.GetAllStocks();
-//            var favoriteStocks = _service.GetFavoriteStocks();
+        private string _searchQuery = "";
+        public string SearchQuery
+        {
+            get => _searchQuery;
+            set
+            {
+                _searchQuery = value;
+                OnPropertyChanged();
+                FilterStocks();
+            }
+        }
 
-//            // Initialize ObservableCollections with the fetched data
-//            FavoriteFilteredStocks = new ObservableCollection<Stock>(favoriteStocks);
-//            AllFilteredStocks = new ObservableCollection<Stock>(allStocks.Where(stock => !favoriteStocks.Contains(stock)));
-//        }
+        private string _selectedSortOption;
+        public string SelectedSortOption
+        {
+            get => _selectedSortOption;
+            set
+            {
+                _selectedSortOption = value;
+                OnPropertyChanged();
+                FilterStocks();
+            }
+        }
 
-//        public void FilterStocks(string query, string sortOption)
-//        {
-//            // Get all stocks and favorites from the service
-//            var allStocks = _service.GetAllStocks();
-//            var favoriteStocks = _service.GetFavoriteStocks();
+        public ICommand FavoriteCommand { get; }
 
-//            // Filter the stocks based on the query (using LINQ)
-//            var filteredAll = allStocks.Where(stock => stock.Name.Contains(query, StringComparison.OrdinalIgnoreCase)).ToList();
-//            var filteredFavorites = favoriteStocks.Where(stock => stock.Name.Contains(query, StringComparison.OrdinalIgnoreCase)).ToList();
+        public HomepageViewModel()
+        {
+            FavoriteStocks = new ObservableCollection<Stock>();
+            AllStocks = new ObservableCollection<Stock>();
 
-//            // Apply sorting
-//            ApplySorting(filteredAll, filteredFavorites, sortOption);
+            FilteredAllStocks = new ObservableCollection<Stock>();
+            FilteredFavoriteStocks = new ObservableCollection<Stock>();
 
-//            // Update ObservableCollections
-//            FavoriteFilteredStocks.Clear();
-//            AllFilteredStocks.Clear();
+            LoadStocks();
+            FavoriteCommand = new RelayCommand<Stock>(ToggleFavorite);
+        }
 
-//            foreach (var stock in filteredAll)
-//            {
-//                AllFilteredStocks.Add(stock);
-//            }
+        private void LoadStocks()
+        {
+            // Populate stocks
+            var initialFavorites = new List<Stock>
+        {
+            new Stock { Symbol = "AAPL", Name = "Apple Inc.", Price = "$175.00", Change = "+1.2%", isFavorite = true },
+            new Stock { Symbol = "MSFT", Name = "Microsoft Corp.", Price = "$320.00", Change = "-0.8%", isFavorite = true },
+            new Stock { Symbol = "NVDA", Name = "NVIDIA Corporation", Price = "$600.00", Change = "+3.1%", isFavorite = true },
+            new Stock { Symbol = "TSM", Name = "Taiwan Semiconductor", Price = "$110.00", Change = "+1.5%" , isFavorite = true }
+        };
 
-//            foreach (var stock in filteredFavorites)
-//            {
-//                FavoriteFilteredStocks.Add(stock);
-//            }
-//        }
+            var initialStocks = new List<Stock>
+        {
+            new Stock { Symbol = "GOOGL", Name = "Alphabet Inc.", Price = "$2800.00", Change = "+0.5%", isFavorite = false },
+                new Stock { Symbol = "AMZN", Name = "Amazon.com Inc.", Price = "$3500.00", Change = "-1.0%", isFavorite = false },
+                new Stock { Symbol = "TSLA", Name = "Tesla Inc.", Price = "$700.00", Change = "+2.3%", isFavorite = false },
+                new Stock { Symbol = "META", Name = "Meta Platforms, Inc.", Price = "$340.00", Change = "+0.8%", isFavorite = false },
+                new Stock { Symbol = "DIS", Name = "The Walt Disney Company", Price = "$190.00", Change = "-2.0%", isFavorite = false },
+                new Stock { Symbol = "NFLX", Name = "Netflix, Inc.", Price = "$500.00", Change = "+2.8%", isFavorite = false },
+                new Stock { Symbol = "INTC", Name = "Intel Corporation", Price = "$50.00", Change = "-0.5%", isFavorite = false },
+                new Stock { Symbol = "CSCO", Name = "Cisco Systems, Inc.", Price = "$55.00", Change = "+0.2%", isFavorite = false },
+                new Stock { Symbol = "QCOM", Name = "QUALCOMM Incorporated", Price = "$150.00", Change = "-0.1%", isFavorite = false },
+                new Stock { Symbol = "IBM", Name = "International Business Machines Corporation", Price = "$120.00", Change = "+0.3%", isFavorite = false },
+                new Stock { Symbol = "ORCL", Name = "Oracle Corporation", Price = "$80.00", Change = "-0.4%", isFavorite = false },
+                new Stock { Symbol = "ADBE", Name = "Adobe Inc.", Price = "$600.00", Change = "+1.0%", isFavorite = false },
+                new Stock { Symbol = "CRM", Name = "Salesforce.com, inc.", Price = "$250.00", Change = "-0.3%", isFavorite = false },
+                new Stock { Symbol = "NOW", Name = "ServiceNow, Inc.", Price = "$500.00", Change = "+0.7%", isFavorite = false },
+                new Stock { Symbol = "SAP", Name = "SAP SE", Price = "$150.00", Change = "-0.2%", isFavorite = false },
+                new Stock { Symbol = "UBER", Name = "Uber Technologies, Inc.", Price = "$40.00", Change = "+0.9%", isFavorite = false },
+                new Stock { Symbol = "LYFT", Name = "Lyft, Inc.", Price = "$50.00", Change = "-0.6%", isFavorite = false },
+                new Stock { Symbol = "ZM", Name = "Zoom Video Communications, Inc.", Price = "$200.00", Change = "+1.2%", isFavorite = false },
+                new Stock { Symbol = "DOCU", Name = "DocuSign, Inc.", Price = "$150.00", Change = "-0.8%", isFavorite = false }
+        };
 
-//        private void ApplySorting(List<Stock> allFiltered, List<Stock> favoriteFiltered, string sortOption)
-//        {
-//            switch (sortOption)
-//            {
-//                case "Sort by Name":
-//                    allFiltered.Sort((x, y) => string.Compare(x.Name, y.Name, StringComparison.OrdinalIgnoreCase));
-//                    favoriteFiltered.Sort((x, y) => string.Compare(x.Name, y.Name, StringComparison.OrdinalIgnoreCase));
-//                    break;
-//                case "Sort by Price":
-//                    allFiltered.Sort((x, y) => decimal.Compare(decimal.Parse(x.Price.Trim('$')), decimal.Parse(y.Price.Trim('$'))));
-//                    favoriteFiltered.Sort((x, y) => decimal.Compare(decimal.Parse(x.Price.Trim('$')), decimal.Parse(y.Price.Trim('$'))));
-//                    break;
-//                case "Sort by Change":
-//                    allFiltered.Sort((x, y) => decimal.Compare(decimal.Parse(x.Change.Trim('%')), decimal.Parse(y.Change.Trim('%'))));
-//                    favoriteFiltered.Sort((x, y) => decimal.Compare(decimal.Parse(x.Change.Trim('%')), decimal.Parse(y.Change.Trim('%'))));
-//                    break;
-//            }
+            foreach (var stock in initialFavorites)
+                FavoriteStocks.Add(stock);
+            foreach (var stock in initialStocks)
+                AllStocks.Add(stock);
 
-//            // Clear the existing ObservableCollection
-//            FavoriteFilteredStocks.Clear();
-//            AllFilteredStocks.Clear();
+            FilterStocks(); // Initialize filtered lists
+        }
 
-//            // Add the sorted items back to the ObservableCollection
-//            foreach (var stock in allFiltered)
-//            {
-//                AllFilteredStocks.Add(stock);
-//            }
+        private void ToggleFavorite(Stock stock)
+        {
+            if (stock.isFavorite)
+            {
+                FavoriteStocks.Remove(stock);
+                stock.isFavorite = false;
+                AllStocks.Add(stock);
+            }
+            else
+            {
+                AllStocks.Remove(stock);
+                stock.isFavorite = true;
+                FavoriteStocks.Add(stock);
+            }
+            FilterStocks();
+        }
 
-//            foreach (var stock in favoriteFiltered)
-//            {
-//                FavoriteFilteredStocks.Add(stock);
-//            }
-//        }
+        private void FilterStocks()
+        {
+            var query = SearchQuery.ToLower();
 
-//        public void AddToFavorites(Stock stock)
-//        {
-//            // Check if the stock is already in favorites
-//            if (!FavoriteFilteredStocks.Contains(stock))
-//            {
-//                // Add to favorites (in-memory service update)
-//                _service.AddToFavorites(stock);
+            var filteredAll = AllStocks.Where(stock =>
+                stock.Name.ToLower().Contains(query) || stock.Symbol.ToLower().Contains(query)).ToList();
 
-//                // Remove from AllFilteredStocks if it's there
-//                if (AllFilteredStocks.Contains(stock))
-//                {
-//                    AllFilteredStocks.Remove(stock);
-//                }
+            var filteredFavorites = FavoriteStocks.Where(stock =>
+                stock.Name.ToLower().Contains(query) || stock.Symbol.ToLower().Contains(query)).ToList();
 
-//                // Add to FavoriteFilteredStocks
-//                FavoriteFilteredStocks.Add(stock);
-//            }
-//            else
-//            {
-//                // If it's already in favorites, do nothing
-//                // Optionally, you could add a check here to alert the user or provide feedback
-//            }
-//        }
+            switch (SelectedSortOption)
+            {
+                case "Sort by Name":
+                    filteredAll = filteredAll.OrderBy(stock => stock.Name).ToList();
+                    filteredFavorites = filteredFavorites.OrderBy(stock => stock.Name).ToList();
+                    break;
+                case "Sort by Price":
+                    filteredAll = filteredAll.OrderBy(stock => decimal.Parse(stock.Price.Trim('$'))).ToList();
+                    filteredFavorites = filteredFavorites.OrderBy(stock => decimal.Parse(stock.Price.Trim('$'))).ToList();
+                    break;
+                case "Sort by Change":
+                    filteredAll = filteredAll.OrderBy(stock => decimal.Parse(stock.Change.Trim('%'))).ToList();
+                    filteredFavorites = filteredFavorites.OrderBy(stock => decimal.Parse(stock.Change.Trim('%'))).ToList();
+                    break;
+            }
 
-//        public void RemoveFromFavorites(Stock stock)
-//        {
-//            // Check if the stock is in favorites
-//            if (FavoriteFilteredStocks.Contains(stock))
-//            {
-//                // Remove from favorites (in-memory service update)
-//                _service.RemoveFromFavorites(stock);
+            // Clear and update filtered collections
+            FilteredAllStocks.Clear();
+            FilteredFavoriteStocks.Clear();
 
-//                // Remove from FavoriteFilteredStocks
-//                FavoriteFilteredStocks.Remove(stock);
+            foreach (var stock in filteredAll)
+                FilteredAllStocks.Add(stock);
+            foreach (var stock in filteredFavorites)
+                FilteredFavoriteStocks.Add(stock);
+        }
 
-//                // Add back to AllFilteredStocks (only if it should be in there)
-//                if (!AllFilteredStocks.Contains(stock))
-//                {
-//                    AllFilteredStocks.Add(stock);
-//                }
-//            }
-//            else
-//            {
-//                // If it's not in favorites, do nothing
-//                // You can optionally add a check here to notify the user
-//            }
-//        }
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void OnPropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
 
+        public class RelayCommand<T> : ICommand
+        {
+            private readonly Action<T> _execute;
+            public event EventHandler CanExecuteChanged;
 
-//        // Refresh stocks after modification
-//        private void RefreshStocks()
-//        {
-//            var allStocks = _service.GetAllStocks();
-//            var favoriteStocks = _service.GetFavoriteStocks();
+            public RelayCommand(Action<T> execute)
+            {
+                _execute = execute;
+            }
 
-//            // Clear current ObservableCollections
-//            FavoriteFilteredStocks.Clear();
-//            AllFilteredStocks.Clear();
+            public bool CanExecute(object parameter) => true;
 
-//            // Add favorite stocks to FavoriteFilteredStocks
-//            foreach (var stock in favoriteStocks)
-//            {
-//                FavoriteFilteredStocks.Add(stock);
-//            }
+            public void Execute(object parameter)
+            {
+                if (parameter is T castParameter)
+                {
+                    _execute(castParameter);
+                }
+            }
+        }
 
-//            // Add all stocks (excluding favorites) to AllFilteredStocks
-//            foreach (var stock in allStocks.Where(stock => !favoriteStocks.Contains(stock)).ToList())
-//            {
-//                AllFilteredStocks.Add(stock);
-//            }
-//        }
-//    }
-//}
+    }
+}
