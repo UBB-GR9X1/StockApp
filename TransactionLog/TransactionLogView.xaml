@@ -23,7 +23,7 @@
                 <!-- Right (Export Section) -->
             </Grid.ColumnDefinitions>
 
-            <Button Content="Back" Width="80" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,15,0"/>
+            <Button Content="Back" Width="80" Grid.Column="0" HorizontalAlignment="Left" Click="GoBack" Margin="0,0,15,0"/>
 
             <TextBlock Grid.Column="1" Text="Transaction Log"
                        HorizontalAlignment="Center" VerticalAlignment="Center"

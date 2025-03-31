@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StockApp.Model
 {
-    class Transaction
+    class Transaction : BaseStock
     {
         private string transactionType;
         private int amount;
@@ -15,7 +15,7 @@ namespace StockApp.Model
         private DateTime transactionDate;
         private string transactionAuthorCNP;
 
-        public Transaction(string transactionType, int amount, int pricePerStock, int totalValue, DateTime transactionDate, string transactionAuthorCNP)
+        public Transaction(string name, string symbol, string author_cnp, string transactionType, int amount, int pricePerStock, int totalValue, DateTime transactionDate, string transactionAuthorCNP) : base(name, symbol, author_cnp)
         {
             this.transactionType = transactionType;
             this.amount = amount;
