@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Remove="MainPage.xaml" />
+    <None Remove="StockPage\StockPage.xaml" />
     <None Remove="Test\TestPage.xaml" />
   </ItemGroup>
 
@@ -87,5 +88,10 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="TransactionLog\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="StockPage\StockPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 </Project>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="StockApp.StockPage.StockPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:StockApp.StockPage"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+        <StackPanel Orientation="Horizontal" Height="60" HorizontalAlignment="Stretch" VerticalAlignment="Top" Background="#2D2D2D">
+            <Button Content="Return" Width="100" Height="40" Margin="10" Click="ReturnButton_Click" VerticalAlignment="Center" />
+            <TextBlock x:Name="StockSymbol" Text="{Binding StockSymbol}" FontSize="16" Margin="0,0,10,0" Foreground="White" VerticalAlignment="Center" />
+            <TextBlock x:Name="StockName" Text="{Binding StockName}" FontSize="16" Foreground="White" VerticalAlignment="Center" />
+            <Button x:Name="AuthorButton" Content="Author" Width="100" Height="40" Margin="10" Click="AuthorButton_Click"  VerticalAlignment="Center" />
+        </StackPanel>
+    </Grid>
+</Page>
