@@ -35,6 +35,9 @@ namespace StockApp
 
             // GEM STORE:
             //rootFrame.Navigate(typeof(GemStore.GemStoreWindow), null);
+
+            // TRANSACTION LOG:
+            //rootFrame.Navigate(typeof(TransactionLog.TransactionLogView), null);
         }
 
         void OnNavigationFailed(object sender, NavigationFailedEventArgs e)
