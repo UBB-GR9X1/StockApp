@@ -27,7 +27,10 @@ namespace StockApp
         {
             this.InitializeComponent();
             rootFrame.Navigate(typeof(MainPage), null);
-            // rootFrame.Navigate(typeof(Test.TestPage), null);
+            //rootFrame.Navigate(typeof(Test.TestPage), null);
+
+            // GEM STORE:
+            //rootFrame.Navigate(typeof(GemStore.GemStoreWindow), null);
         }
 
         void OnNavigationFailed(object sender, NavigationFailedEventArgs e)
