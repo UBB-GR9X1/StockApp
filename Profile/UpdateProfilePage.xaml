@@ -31,7 +31,7 @@
             <Border Width="350" Height="250" Padding="20" CornerRadius="10" BorderBrush="Black" BorderThickness="1">
                 <StackPanel Spacing="30" Padding="50" HorizontalAlignment="Center" VerticalAlignment="Center">
 
-                    <TextBlock Text="Fill up all of the fields!!" FontSize="16" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Incorrect input!!" FontSize="16" HorizontalAlignment="Center"/>
                     <Button Content="Close" Click="ClosePopUpUpdate"/>
 
                 </StackPanel>

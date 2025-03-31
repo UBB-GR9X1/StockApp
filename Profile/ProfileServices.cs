@@ -44,6 +44,7 @@ namespace StocksApp.Services
 
         public void updateUser(string newUsername, string newImage, string newDescription, bool newHidden)
         {
+
             _user.Username = newUsername;
             _user.Image = newImage;
             _user.Description = newDescription;
