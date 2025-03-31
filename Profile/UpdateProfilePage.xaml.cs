@@ -56,7 +56,15 @@ namespace StocksApp
             }
             else
             {
-                profServ.updateUser(newUsername, newImage, newDescription, newHidden);
+                if(newUsername.Length >= 8 && newUsername.Length <= 24 && newDescription.Length >= 0 && newDescription.Length <= 100)
+                {
+                    profServ.updateUser(newUsername, newImage, newDescription, newHidden);
+                }
+                else
+                {
+                    MyPopupUpdate.IsOpen = true;
+                }
+
             }
         }
 
