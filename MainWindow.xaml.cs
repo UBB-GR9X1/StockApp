@@ -28,9 +28,9 @@ namespace StockApp
         public MainWindow()
         {
             this.InitializeComponent();
+            // rootFrame.Navigate(typeof(ProfilePage), null);
             // rootFrame.Navigate(typeof(MainPage), null);
 
-<<<<<<< HEAD
             // string stockName = "stock1";
 
             // rootFrame.Navigate(typeof(StockPage.StockPage), stockName);  
@@ -38,15 +38,15 @@ namespace StockApp
             // rootFrame.Navigate(typeof(CreateStockPage.MainPage), null);
 
             rootFrame.Navigate(typeof(StocksHomepage.MainPage), null);
-=======
-            string stockName = "stock1";
 
-            rootFrame.Navigate(typeof(StockPage.StockPage), stockName);  
+            // string stockName = "stock1";
+
+            // rootFrame.Navigate(typeof(StockPage.StockPage), stockName);  
 
             // rootFrame.Navigate(typeof(CreateStockPage.MainPage), null);
 
             // rootFrame.Navigate(typeof(StocksHomepage.MainPage), null);
->>>>>>> 3de763e6ea91aae67ab6d78576e55fa474fbba4a
+
             // rootFrame.Navigate(typeof(Test.TestPage), null);
 
 
