@@ -13,6 +13,12 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="Homepage\**" />
+    <EmbeddedResource Remove="Homepage\**" />
+    <None Remove="Homepage\**" />
+    <Page Remove="Homepage\**" />
+  </ItemGroup>
+  <ItemGroup>
     <None Remove="MainPage.xaml" />
     <None Remove="Test\TestPage.xaml" />
   </ItemGroup>
@@ -53,9 +59,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Homepage\" />
-  </ItemGroup>
 
   <!--
     Defining the "HasPackageAndPublishMenuAddedByProject" property here allows the Solution
@@ -73,4 +76,7 @@
     <PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
     <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
   </PropertyGroup>
+  <ItemGroup>
+    <PRIResource Remove="Homepage\**" />
+  </ItemGroup>
 </Project>
