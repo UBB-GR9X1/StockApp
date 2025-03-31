@@ -12,7 +12,8 @@ using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
-using StocksApp;
+using StockNewsPage.Services;
+using StockNewsPage.Views;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -27,8 +28,37 @@ namespace StockApp
         public MainWindow()
         {
             this.InitializeComponent();
-            rootFrame.Navigate(typeof(ProfilePage), null);
+            // rootFrame.Navigate(typeof(ProfilePage), null);
+            // rootFrame.Navigate(typeof(MainPage), null);
+
+            // string stockName = "stock1";
+
+            // rootFrame.Navigate(typeof(StockPage.StockPage), stockName);  
+
+            // rootFrame.Navigate(typeof(CreateStockPage.MainPage), null);
+
+            rootFrame.Navigate(typeof(StocksHomepage.MainPage), null);
+
+            // string stockName = "stock1";
+
+            // rootFrame.Navigate(typeof(StockPage.StockPage), stockName);  
+
+            // rootFrame.Navigate(typeof(CreateStockPage.MainPage), null);
+
+            // rootFrame.Navigate(typeof(StocksHomepage.MainPage), null);
+
             // rootFrame.Navigate(typeof(Test.TestPage), null);
+
+
+            // <news>
+            // NavigationService.Instance.Initialize(rootFrame);
+            // NavigationService.Instance.Navigate(typeof(NewsListView));
+
+            // GEM STORE:
+            //rootFrame.Navigate(typeof(GemStore.GemStoreWindow), null);
+
+            // TRANSACTION LOG:
+            //rootFrame.Navigate(typeof(TransactionLog.TransactionLogView), null);
         }
 
         void OnNavigationFailed(object sender, NavigationFailedEventArgs e)

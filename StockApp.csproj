@@ -13,11 +13,20 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="Homepage\**" />
+    <EmbeddedResource Remove="Homepage\**" />
+    <None Remove="Homepage\**" />
+    <Page Remove="Homepage\**" />
+  </ItemGroup>
+  <ItemGroup>
     <None Remove="MainPage.xaml" />
+    <None Remove="StockPage\StockPage.xaml" />
     <None Remove="Test\TestPage.xaml" />
   </ItemGroup>
 
-  <ItemGroup>
+
+
+	<ItemGroup>
     <Content Include="Assets\SplashScreen.scale-200.png" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
     <Content Include="Assets\Square150x150Logo.scale-200.png" />
@@ -40,9 +49,13 @@
     <ProjectCapability Include="Msix" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="LiveChartsCore" Version="2.0.0-rc5.4" />
+    <PackageReference Include="LiveChartsCore.SkiaSharpView" Version="2.0.0-rc5.3" />
+    <PackageReference Include="LiveChartsCore.SkiaSharpView.WinUI" Version="2.0.0-rc5.3" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.250310001" />
   </ItemGroup>
+
   <ItemGroup>
     <Page Update="MainPage.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -52,6 +65,9 @@
     <Page Update="Test\TestPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="StockNews\" />
   </ItemGroup>
 
   <!--
@@ -70,4 +86,15 @@
     <PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
     <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
   </PropertyGroup>
+  <ItemGroup>
+    <PRIResource Remove="Homepage\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="TransactionLog\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="StockPage\StockPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
 </Project>
