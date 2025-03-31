@@ -27,7 +27,9 @@ namespace StockApp
         {
             this.InitializeComponent();
             rootFrame.Navigate(typeof(MainPage), null);
-
+            
+            // rootFrame.Navigate(typeof(CreateStockPage.MainPage), null);
+            
             // rootFrame.Navigate(typeof(StocksHomepage.MainPage), null);
             // rootFrame.Navigate(typeof(Test.TestPage), null);
 
