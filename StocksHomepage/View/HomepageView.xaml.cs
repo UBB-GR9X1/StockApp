@@ -14,6 +14,8 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using System.Collections.ObjectModel;
 using StocksHomepage.Model;
+using StockNewsPage.Services;
+using StockNewsPage.Views;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -153,6 +155,32 @@ namespace StocksHomepage
             {
                 favoriteFilteredStocks.Add(stock);
             }
+        }
+
+        public void GoToNews(object sender, RoutedEventArgs e)
+        {
+            NavigationService.Instance.Initialize(this.Frame);
+            NavigationService.Instance.Navigate(typeof(NewsListView));
+        }
+
+        public void GoToCreateStock(object sender, RoutedEventArgs e)
+        {
+            this.Frame.Navigate(typeof(CreateStockPage.MainPage), null);
+        }
+
+        public void GoToHistory(object sender, RoutedEventArgs e)
+        {
+            this.Frame.Navigate(typeof(TransactionLog.TransactionLogView), null);
+        }
+
+        public void GoToProfile(object sender, RoutedEventArgs e)
+        {
+            // this.Frame.Navigate(typeof(TransactionLog.TransactionLogView), null);
+        }
+
+        public void GoToStore(object sender, RoutedEventArgs e)
+        {
+            this.Frame.Navigate(typeof(GemStore.GemStoreWindow), null);
         }
 
     }

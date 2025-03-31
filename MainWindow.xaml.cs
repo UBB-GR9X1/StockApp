@@ -28,18 +28,22 @@ namespace StockApp
         public MainWindow()
         {
             this.InitializeComponent();
-            rootFrame.Navigate(typeof(MainPage), null);
-            
+            // rootFrame.Navigate(typeof(MainPage), null);
+
+            // string stockName = "stock1";
+
+            // rootFrame.Navigate(typeof(StockPage.StockPage), stockName);  
+
             // rootFrame.Navigate(typeof(CreateStockPage.MainPage), null);
-            
-            // rootFrame.Navigate(typeof(StocksHomepage.MainPage), null);
+
+            rootFrame.Navigate(typeof(StocksHomepage.MainPage), null);
             // rootFrame.Navigate(typeof(Test.TestPage), null);
 
 
             // <news>
             // NavigationService.Instance.Initialize(rootFrame);
             // NavigationService.Instance.Navigate(typeof(NewsListView));
-            
+
             // GEM STORE:
             //rootFrame.Navigate(typeof(GemStore.GemStoreWindow), null);
 

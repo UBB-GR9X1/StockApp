@@ -9,6 +9,8 @@ namespace StockApp
 {
     class Repository
     {
+        private static Repository _instance;
+        
         private List<Stock> stocks = new List<Stock>();
         private List<Stock> history = new List<Stock>();
         // Tuple<string cnp, UserStock>
@@ -52,12 +54,12 @@ namespace StockApp
             userStocks.Add(new Tuple<string, UserStock>("1234567890126", new UserStock("stock1", "STK1", "1234567890123", 10)));
             userStocks.Add(new Tuple<string, UserStock>("1234567890127", new UserStock("stock1", "STK1", "1234567890123", 10)));
 
-            // Transaction has no STOCK NAME??? kms
-            transactions.Add(new Transaction("BUY", 10, 120, 1200, DateTime.Now, "1234567890123"));
-            transactions.Add(new Transaction("BUY", 10, 120, 1200, DateTime.Now, "1234567890123"));
-            transactions.Add(new Transaction("BUY", 10, 120, 1200, DateTime.Now, "1234567890123"));
-            transactions.Add(new Transaction("BUY", 10, 120, 1200, DateTime.Now, "1234567890123"));
-            transactions.Add(new Transaction("BUY", 10, 120, 1200, DateTime.Now, "1234567890123"));
+            // Transaction has no STOCK NAME??? km
+            transactions.Add(new Transaction("stock1", "STK1", "1234567890123", "buy", 10, 120, 1200, DateTime.Now, "1234567890123"));
+            transactions.Add(new Transaction("stock1", "STK1", "1234567890124", "buy", 10, 120, 1200, DateTime.Now, "1234567890124"));
+            transactions.Add(new Transaction("stock1", "STK1", "1234567890125", "buy", 10, 120, 1200, DateTime.Now, "1234567890125"));
+            transactions.Add(new Transaction("stock1", "STK1", "1234567890126", "buy", 10, 120, 1200, DateTime.Now, "1234567890126"));
+            transactions.Add(new Transaction("stock1", "STK1", "1234567890127", "buy", 10, 120, 1200, DateTime.Now, "1234567890127"));
 
             favorites.Add(new Tuple<string, string>("1234567890123", "stock1"));
             favorites.Add(new Tuple<string, string>("1234567890123", "stock2"));
@@ -67,6 +69,18 @@ namespace StockApp
             deals.Add(new GemDeal("deal2", 150, 130, false));
             deals.Add(new GemDeal("deal3", 150, 130, false));
             deals.Add(new GemDeal("deal4", 150, 130, false));
+        }
+
+        public static Repository Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = new Repository();
+                }
+                return _instance;
+            }
         }
 
         public List<Stock> getStockList()

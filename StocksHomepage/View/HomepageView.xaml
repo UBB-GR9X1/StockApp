@@ -15,11 +15,11 @@
 
             <!-- Navigation bar -->
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="15">
-                <Button Content="News" Width="150"/>
-                <Button Content="Create Stock" Width="150"/>
-                <Button Content="History" Width="150"/>
-                <Button Content="Profile" Width="150"/>
-                <Button Content="Store" Width="150"/>
+                <Button Content="News" Width="150" Click="GoToNews" />
+                <Button Content="Create Stock" Click="GoToCreateStock" Width="150"/>
+                <Button Content="History" Click="GoToHistory" Width="150"/>
+                <Button Content="Profile" Click="GoToProfile" Width="150"/>
+                <Button Content="Store" Click="GoToStore" Width="150"/>
             </StackPanel>
 
             <!-- Search & Sorting -->
