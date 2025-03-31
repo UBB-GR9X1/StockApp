@@ -1,6 +1,7 @@
 using CreateStockPage.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using StockApp.Repositories;
 using StockApp.Views;
 using System;
 using System.Text.RegularExpressions;
@@ -46,7 +47,6 @@ namespace CreateStockPage
 
             Stock stock = new Stock(stockName, stockSymbol, stockQuantity, stockPrice, authorCNP);
             string errorMessage = viewModel.validateStock(stock);
-
             if (!string.IsNullOrEmpty(errorMessage))
             {
                 await ShowDialog(errorMessage);

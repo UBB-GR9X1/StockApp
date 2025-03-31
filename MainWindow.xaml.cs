@@ -12,6 +12,10 @@ using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
+using StockApp.Database;
+using CreateStockPage.ViewModels;
+using StockApp.Model;
+using StockApp.Repositories;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -26,15 +30,17 @@ namespace StockApp
         public MainWindow()
         {
             this.InitializeComponent();
+            DatabaseHelper.InitializeDatabase();
             rootFrame.Navigate(typeof(MainPage), null);
-            
-            // rootFrame.Navigate(typeof(CreateStockPage.MainPage), null);
-            
+
+            //rootFrame.Navigate(typeof(CreateStockPage.MainPage), null);
+
             // rootFrame.Navigate(typeof(StocksHomepage.MainPage), null);
             // rootFrame.Navigate(typeof(Test.TestPage), null);
 
             // GEM STORE:
             //rootFrame.Navigate(typeof(GemStore.GemStoreWindow), null);
+
         }
 
         void OnNavigationFailed(object sender, NavigationFailedEventArgs e)
