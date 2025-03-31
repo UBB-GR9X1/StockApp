@@ -16,6 +16,7 @@ using System.Collections.ObjectModel;
 using StocksHomepage.Model;
 using StockNewsPage.Services;
 using StockNewsPage.Views;
+using StocksApp;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -175,7 +176,7 @@ namespace StocksHomepage
 
         public void GoToProfile(object sender, RoutedEventArgs e)
         {
-            // this.Frame.Navigate(typeof(TransactionLog.TransactionLogView), null);
+            this.Frame.Navigate(typeof(ProfilePage), null);
         }
 
         public void GoToStore(object sender, RoutedEventArgs e)

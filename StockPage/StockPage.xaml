@@ -16,8 +16,6 @@
 
 
     <Grid>
-        
-    <Grid>
         <lvc:CartesianChart 
             Series="{Binding Series}" 
             HorizontalAlignment="Stretch" 
@@ -30,8 +28,3 @@
 
     <!-- <lvc:CartesianChart Series="{Binding Series}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" /> -->
 </Page>
-
-=======
-    </Grid>
-</Page>
->>>>>>> 3de763e6ea91aae67ab6d78576e55fa474fbba4a

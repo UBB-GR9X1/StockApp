@@ -6,7 +6,7 @@
     <StackPanel Padding="50" Spacing="30">
 
         <Popup x:Name="MyPopupAdmin" IsLightDismissEnabled="True" HorizontalAlignment="Center">
-            <Border Background="BurlyWood" Width="350" Height="250" Padding="20" CornerRadius="10" BorderBrush="Black" BorderThickness="1">
+            <Border Width="350" Height="250" Padding="20" CornerRadius="10" BorderBrush="Black" BorderThickness="1">
                 <StackPanel Spacing="30" Padding="50" HorizontalAlignment="Center" VerticalAlignment="Center">
 
                     <TextBlock Text="You are now ADMIN!" FontSize="16" HorizontalAlignment="Center"/>
@@ -17,7 +17,7 @@
         </Popup>
 
         <Popup x:Name="MyPopupAdminNOT" IsLightDismissEnabled="True" HorizontalAlignment="Center">
-            <Border Background="BurlyWood" Width="350" Height="250" Padding="20" CornerRadius="10" BorderBrush="Black" BorderThickness="1">
+            <Border Width="350" Height="250" Padding="20" CornerRadius="10" BorderBrush="Black" BorderThickness="1">
                 <StackPanel Spacing="30" Padding="50" HorizontalAlignment="Center" VerticalAlignment="Center">
 
                     <TextBlock Text="Incorrect Password!!" FontSize="16" HorizontalAlignment="Center"/>
@@ -28,7 +28,7 @@
         </Popup>
 
         <Popup x:Name="MyPopupUpdate" IsLightDismissEnabled="True" HorizontalAlignment="Center">
-            <Border Background="BurlyWood" Width="350" Height="250" Padding="20" CornerRadius="10" BorderBrush="Black" BorderThickness="1">
+            <Border Width="350" Height="250" Padding="20" CornerRadius="10" BorderBrush="Black" BorderThickness="1">
                 <StackPanel Spacing="30" Padding="50" HorizontalAlignment="Center" VerticalAlignment="Center">
 
                     <TextBlock Text="Fill up all of the fields!!" FontSize="16" HorizontalAlignment="Center"/>

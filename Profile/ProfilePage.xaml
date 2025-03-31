@@ -8,13 +8,13 @@
     mc:Ignorable="d">
 
     <StackPanel Padding="50" Spacing="50">
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="300" Background="BlanchedAlmond" Padding="10">
-            <Button Name="backButton" CornerRadius="10" Padding="5" Background="BurlyWood">Back</Button>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="300" Padding="10">
+            <Button Name="backButton" CornerRadius="10" Padding="5" Click="goBack">Back</Button>
             <TextBlock Text="Profile" FontSize="20"/>
-            <Button Name="updateWindowButton" CornerRadius="10" Click="GoToUpdatePage" Padding="10" Background="BurlyWood" >Update Profile</Button>
+            <Button Name="updateWindowButton" CornerRadius="10" Click="GoToUpdatePage" Padding="10" >Update Profile</Button>
         </StackPanel>
         
-        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20" Background="Bisque" CornerRadius="10" Padding="10">
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20" CornerRadius="10" Padding="10">
             <StackPanel Orientation="Horizontal" Spacing="20">
                 <TextBlock x:Name="ProfileImage" />
                 <TextBlock x:Name="UsernameTextBlock" />
@@ -22,7 +22,7 @@
             <TextBlock x:Name="ProfileDescription" />
         </StackPanel>
 
-        <StackPanel  Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20" Background="Beige" CornerRadius="10" Padding="10">
+        <StackPanel  Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20" CornerRadius="10" Padding="10">
             <ListView x:Name="StocksListView" SelectionMode="Single">
                 <ListView.ItemTemplate>
                     <DataTemplate>
@@ -33,7 +33,7 @@
         </StackPanel>
         
         <StackPanel  Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20">
-            <Button Name="EnterStockButton" Content="Enter" CornerRadius="10" Click="getSelectedStock" Padding="5" Background="BurlyWood"/>
+            <Button Name="EnterStockButton" Content="Enter" CornerRadius="10" Click="getSelectedStock" Padding="5" />
         </StackPanel>
         
         <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20">

@@ -44,5 +44,10 @@ namespace StocksApp
             ProfileImage.Visibility = Visibility.Collapsed;
             EnterStockButton.Visibility = Visibility.Collapsed;
         }
+
+        public void goBack(object sender, RoutedEventArgs e)
+        {
+            Frame.GoBack();
+        }
     }
 }
