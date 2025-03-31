@@ -82,4 +82,7 @@
   <ItemGroup>
     <PRIResource Remove="Homepage\**" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="TransactionLog\" />
+  </ItemGroup>
 </Project>
