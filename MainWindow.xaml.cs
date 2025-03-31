@@ -12,6 +12,7 @@ using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
+using StocksApp;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -26,7 +27,7 @@ namespace StockApp
         public MainWindow()
         {
             this.InitializeComponent();
-            rootFrame.Navigate(typeof(MainPage), null);
+            rootFrame.Navigate(typeof(ProfilePage), null);
             // rootFrame.Navigate(typeof(Test.TestPage), null);
         }
 
