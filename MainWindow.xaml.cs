@@ -29,11 +29,22 @@ namespace StockApp
         {
             this.InitializeComponent();
             rootFrame.Navigate(typeof(MainPage), null);
+            
+            // rootFrame.Navigate(typeof(CreateStockPage.MainPage), null);
+            
+            // rootFrame.Navigate(typeof(StocksHomepage.MainPage), null);
             // rootFrame.Navigate(typeof(Test.TestPage), null);
+
 
             // <news>
             // NavigationService.Instance.Initialize(rootFrame);
             // NavigationService.Instance.Navigate(typeof(NewsListView));
+            
+            // GEM STORE:
+            //rootFrame.Navigate(typeof(GemStore.GemStoreWindow), null);
+
+            // TRANSACTION LOG:
+            //rootFrame.Navigate(typeof(TransactionLog.TransactionLogView), null);
         }
 
         void OnNavigationFailed(object sender, NavigationFailedEventArgs e)
