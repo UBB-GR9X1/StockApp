@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
@@ -13,11 +13,19 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="Homepage\**" />
+    <EmbeddedResource Remove="Homepage\**" />
+    <None Remove="Homepage\**" />
+    <Page Remove="Homepage\**" />
+  </ItemGroup>
+  <ItemGroup>
     <None Remove="MainPage.xaml" />
     <None Remove="Test\TestPage.xaml" />
   </ItemGroup>
 
-  <ItemGroup>
+
+
+	<ItemGroup>
     <Content Include="Assets\SplashScreen.scale-200.png" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
     <Content Include="Assets\Square150x150Logo.scale-200.png" />
@@ -43,6 +51,7 @@
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.250310001" />
   </ItemGroup>
+
   <ItemGroup>
     <Page Update="MainPage.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -70,4 +79,7 @@
     <PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
     <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
   </PropertyGroup>
+  <ItemGroup>
+    <PRIResource Remove="Homepage\**" />
+  </ItemGroup>
 </Project>
