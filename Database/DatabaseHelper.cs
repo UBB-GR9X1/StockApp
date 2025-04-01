@@ -9,7 +9,7 @@ namespace StockApp.Database
     {
         private static string databasePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "StockApp_DB.db");
         private static string connectionString = "Data Source=" + databasePath + ";Version=3;";
-        private static SQLiteConnection _connection;
+        private SQLiteConnection _connection;
         private static DatabaseHelper _instance;
 
         public static DatabaseHelper Instance
@@ -196,7 +196,7 @@ namespace StockApp.Database
             }
         }
 
-        private static void EnsureDatabaseExists()
+        private void EnsureDatabaseExists()
         {
             if (!File.Exists(databasePath))
             {
