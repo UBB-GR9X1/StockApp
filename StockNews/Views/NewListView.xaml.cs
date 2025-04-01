@@ -1,6 +1,7 @@
 using Microsoft.UI.Xaml.Controls;
 using StockNewsPage.ViewModels;
 using Microsoft.UI.Xaml.Input;
+using StockNewsPage.Services;
 
 namespace StockNewsPage.Views
 {
@@ -36,6 +37,12 @@ namespace StockNewsPage.Views
             {
                 ViewModel.RefreshCommand.Execute(null);
             }
+        }
+
+        //back button
+        private void BackButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+        {
+            NavigationService.Instance.GoBack();
         }
     }
 }
