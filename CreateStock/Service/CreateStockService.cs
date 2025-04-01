@@ -1,29 +1,37 @@
 ﻿using StockApp.Model;
 using StockApp.Repositories;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 namespace StockApp.CreateStock.Service
 {
     internal class CreateStockService
     {
         private readonly BaseStocksRepository _stocksRepository;
-
-        public CreateStockService()
+        public CreateStockService(BaseStocksRepository stocksRepository = null)
         {
-            _stocksRepository = new BaseStocksRepository();
+            _stocksRepository = stocksRepository ?? new BaseStocksRepository();
         }
 
         public string AddStock(string stockName, string stockSymbol, string authorCNP)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(stockName) || string.IsNullOrWhiteSpace(stockSymbol) || string.IsNullOrWhiteSpace(authorCNP))
+                if (string.IsNullOrWhiteSpace(stockName) ||
+                    string.IsNullOrWhiteSpace(stockSymbol) ||
+                    string.IsNullOrWhiteSpace(authorCNP))
                 {
                     return "All fields are required!";
+                }
+
+                if (!Regex.IsMatch(stockSymbol, @"^[A-Z]{1,5}$"))
+                {
+                    return "Stock symbol must be 1-5 uppercase letters!";
+                }
+
+                if (!Regex.IsMatch(authorCNP, @"^\d{13}$"))
+                {
+                    return "Invalid CNP! It must be exactly 13 digits.";
                 }
 
                 var stock = new BaseStock(stockName, stockSymbol, authorCNP);
@@ -32,7 +40,7 @@ namespace StockApp.CreateStock.Service
             }
             catch (Exception ex)
             {
-                return $"Error: {ex.Message}";
+                return $"Failed to add stock: {ex.Message}";
             }
         }
     }

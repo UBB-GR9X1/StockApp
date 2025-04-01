@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.Common;
 using System.Data.SQLite;
 using System.IO;
 
@@ -8,10 +9,10 @@ namespace StockApp.Database
     {
         private static string databasePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "StockApp_DB.db");
         private static string connectionString = "Data Source=" + databasePath + ";Version=3;";
-
+        private static SQLiteConnection _connection;
         private static DatabaseHelper _instance;
 
-        public DatabaseHelper Instance
+        public static DatabaseHelper Instance
         {
             get
             {
@@ -23,6 +24,13 @@ namespace StockApp.Database
             }
         }
 
+        private  DatabaseHelper()
+        {
+            EnsureDatabaseExists();
+            OpenConnection();
+        }
+
+        
 
         public static void InitializeDatabase()
         {
@@ -161,5 +169,42 @@ namespace StockApp.Database
         {
             return connectionString;
         }
+
+        public void CloseConnection()
+        {
+            if (_connection != null && _connection.State == System.Data.ConnectionState.Open)
+            {
+                _connection.Close();
+            }
+        }
+
+        public SQLiteConnection GetConnection()
+        {
+            if (_connection == null || _connection.State == System.Data.ConnectionState.Closed)
+            {
+                OpenConnection();
+            }
+            return _connection;
+        }
+
+        private void OpenConnection()
+        {
+            if (_connection == null)
+            {
+                _connection = new SQLiteConnection(connectionString);
+                _connection.Open();
+            }
+        }
+
+        private static void EnsureDatabaseExists()
+        {
+            if (!File.Exists(databasePath))
+            {
+                SQLiteConnection.CreateFile(databasePath);
+                InitializeDatabase();
+            }
+        }
+
+
     }
 }
