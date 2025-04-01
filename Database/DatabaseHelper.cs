@@ -6,13 +6,14 @@ namespace StockApp.Database
 {
     internal class DatabaseHelper
     {
-        private static string connectionString = @"Data Source=C:\Users\Johnnyboy\Desktop\Faculty\ANU 2\sem2\ISS\StockApp\Database\StockApp_DB.db;Version=3;";
+        private static string databasePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "StockApp_DB.db");
+        private static string connectionString = "Data Source=" + databasePath + ";Version=3;";
 
         public static void InitializeDatabase()
         {
-            if (!File.Exists(@"C:\Users\Johnnyboy\Desktop\Faculty\ANU 2\sem2\ISS\StockApp\Database\StockApp_DB.db"))
+            if (!File.Exists(databasePath))
             {
-                SQLiteConnection.CreateFile(@"C:\Users\Johnnyboy\Desktop\Faculty\ANU 2\sem2\ISS\StockApp\Database\StockApp_DB.db");
+                SQLiteConnection.CreateFile(databasePath);
 
                 using (var connectionTOBD = new SQLiteConnection(connectionString))
                 {

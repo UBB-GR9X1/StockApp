@@ -6,12 +6,12 @@ using System.Data.SQLite;
 
 namespace StockApp.Repositories
 {
-    internal class StocksRepository
+    internal class BaseStocksRepository
     {
         private List<BaseStock> stocks = new List<BaseStock>();
         private string connectionString = DatabaseHelper.getConnectionString();
 
-        public StocksRepository() {
+        public BaseStocksRepository() {
             LoadStocks();
             if (stocks.Count == 0)
             {
