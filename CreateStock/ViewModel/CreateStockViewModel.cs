@@ -18,7 +18,7 @@ namespace StockApp.CreateStock.ViewModel
         private string _authorCNP;
         private string _message;
         private bool _suppressValidation = false;
-        private readonly StocksRepository _stocksRepository;
+        private readonly BaseStocksRepository _stocksRepository;
         private bool _isAdmin; 
 
         
@@ -29,7 +29,7 @@ namespace StockApp.CreateStock.ViewModel
 
         public CreateStockViewModel()
         {
-            _stocksRepository = new StocksRepository();
+            _stocksRepository = new BaseStocksRepository();
             CreateStockCommand = new RelayCommand(CreateStock, CanCreateStock);
             IsAdmin = CheckIfUserIsAdmin();
         }
