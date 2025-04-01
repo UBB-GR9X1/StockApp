@@ -71,6 +71,6 @@ namespace StocksHomepage
         {
             this.Frame.Navigate(typeof(GemStore.GemStoreWindow), null);
         }
-
+        
     }
 }

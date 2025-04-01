@@ -10,6 +10,8 @@ using System.Xml.Linq;
 using StockApp;
 using StocksHomepage.Model;
 using StocksHomepage.Repositories;
+using System.Data.Common;
+using System.Data.SQLite;
 
 namespace StocksHomepage.Service
 {
@@ -101,6 +103,10 @@ namespace StocksHomepage.Service
             _repo.AddToFavorites(stock);
             FavoriteStocks.Add(stock);
             stock.isFavorite = true;
+        }
+        public bool IsGuestUser(string userCNP)
+        {
+            return _repo.IsGuestUser(userCNP);
         }
     }
 }

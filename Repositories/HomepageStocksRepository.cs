@@ -14,11 +14,23 @@ namespace StocksHomepage.Repositories
         public HomepageStocksRepository()
         {
             this.userCNP = GetUserCNP();
+            Console.WriteLine("User CNP: " + userCNP);
             //RemoveValuesFromDB();
             //PopulateDatabase();
             LoadStocks();
         }
-            public string GetUserCNP()
+        public bool IsGuestUser(string userCNP)
+        {
+            string query = "SELECT COUNT(*) FROM HARDCODED_CNPS WHERE CNP = @UserCNP";
+            using (var command = new SQLiteCommand(query, dbConnection))
+            {
+                command.Parameters.AddWithValue("@UserCNP", userCNP);
+                long count = (long)command.ExecuteScalar();
+                Console.WriteLine("Count: " + count);
+                return count > 0; 
+            }
+        }
+        public string GetUserCNP()
                 {
                 string insertQuery = "INSERT OR IGNORE INTO HARDCODED_CNPS (CNP) VALUES ('1234567890')";
                 using (var insertCommand = new SQLiteCommand(insertQuery, dbConnection))
