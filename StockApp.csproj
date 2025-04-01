@@ -48,9 +48,11 @@
     <ProjectCapability Include="Msix" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Catel.MVVM" Version="6.0.7" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.250310001" />
     <PackageReference Include="System.Data.SQLite" Version="1.0.119" />
+    <PackageReference Include="System.ObjectModel" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -82,5 +84,13 @@
   </PropertyGroup>
   <ItemGroup>
     <PRIResource Remove="Homepage\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="CreateStock\View\CreateStockPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="CreateStock\View\" />
   </ItemGroup>
 </Project>

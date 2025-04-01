@@ -20,7 +20,7 @@ namespace StockApp.Database
 
                     string createUserTableQuery =
                         "CREATE TABLE USER (" +
-                        "CNP TEXT PRIMARY KEY," +
+                        " CNP TEXT PRIMARY KEY," +
                         " NAME TEXT," +
                         " DESCRIPTION TEXT," +
                         " IS_HIDDEN INTEGER," +
@@ -43,7 +43,7 @@ namespace StockApp.Database
 
                     string createUserStockTableQuery =
                         "CREATE TABLE USER_STOCK (" +
-                        "USER_CNP TEXT," +
+                        " USER_CNP TEXT," +
                         " STOCK_NAME TEXT," +
                         " QUANTITY INTEGER," +
                         " FOREIGN KEY (USER_CNP) REFERENCES USER(CNP)," +
@@ -79,6 +79,34 @@ namespace StockApp.Database
                         " TOGGLE INTEGER," +
                         " FOREIGN KEY (STOCK_NAME) REFERENCES STOCK(STOCK_NAME))";
 
+                    string createNewsArticleTableQuery =
+                        "CREATE TABLE NEWS_ARTICLE (" +
+                        "ARTICLE_ID TEXT PRIMRY KEY," +
+                        " TITLE TEXT NOT NULL," +
+                        " SUMMARY TEXT," +
+                        " CONTEXT TEXT NOT NULL," +
+                        " SOURCE TEXT," +
+                        " PUBLISH_DATE TEXT NOT NULL," +
+                        " IS_READ INTEGER," +
+                        " IS_WATCHLIST_RELATED INTEGER," +
+                        " CATEGORY TEXT)";
+                    string createUserArticleTableQuery =
+                        "CREATE TABLE USER_ARTICLE (" +
+                        " ARTICLE_ID TEXT PRIMARY KEY," +
+                        " TITLE TEXT NOT NULL," +
+                        " CONTENT TEXT NOT NULL," +
+                        " AUTHOR_CNP TEXT," +
+                        " SUBMISSTION_DATE TEXT," +
+                        " STATUS TEXT," +
+                        " TOPIC TEXT," +
+                        " FOREIGN KEY (AUTHOR_CNP) REFERENCES USER(CNP))";
+                    string createRelatedStocksTableQuery =
+                        "CREATE TABLE RELATED_STOCKS (" +
+                        " SERIAL_ID INTEGER PRIMARY KEY AUTOINCREMENT," +
+                        " STOCK_NAME TEXT NOT NULL," +
+                        " ARTICLE_ID TEXT NOT NULL," +
+                        " FOREIGN KEY (ARTICLE_ID) REFERENCES NEWS_ARTICLE(ARTICLE_ID)," +
+                        " FOREIGN KEY (STOCK_NAME) REFERENCES STOCK(STOCK_NAME))";
                     using (var command = new SQLiteCommand(connectionTOBD))
                     {
                         command.CommandText = createUserTableQuery;
@@ -95,26 +123,15 @@ namespace StockApp.Database
                         command.ExecuteNonQuery();
                         command.CommandText = createAlertsTableQuery;
                         command.ExecuteNonQuery();
+                        command.CommandText = createNewsArticleTableQuery;
+                        command.ExecuteNonQuery();
+                        command.CommandText = createUserArticleTableQuery;
+                        command.ExecuteNonQuery();
+                        command.CommandText = createRelatedStocksTableQuery;
+                        command.ExecuteNonQuery();
+
                     }
 
-
-                    string insertUsersQuery =
-                       "INSERT INTO USER (CNP, NAME, DESCRIPTION, IS_HIDDEN, IS_ADMIN, PROFILE_PICTURE, GEM_BALANCE) VALUES " +
-                       "('1234567890123', 'Admin', 'System Administrator', 0, 1, 'C:/Users/Johnnyboy/Desktop/ProfilePic.png', 1000), " +
-                       "('9876543210987', 'John Doe', 'Regular User', 0, 0, 'C:/Users/Johnnyboy/Desktop/UserPic.png', 500);";
-
-                    string insertStocksQuery =
-                        "INSERT INTO STOCK (STOCK_NAME, STOCK_SYMBOL, AUTHOR_CNP) VALUES " +
-                        "('Tesla Inc.', 'TSLA', '1234567890123'), " +
-                        "('Apple Inc.', 'AAPL', '9876543210987');";
-
-                    using (var command = new SQLiteCommand(connectionTOBD))
-                    {
-                        command.CommandText = insertUsersQuery;
-                        command.ExecuteNonQuery();
-                        command.CommandText = insertStocksQuery;
-                        command.ExecuteNonQuery();
-                    }
                 }
             }
         }
