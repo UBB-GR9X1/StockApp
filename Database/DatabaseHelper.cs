@@ -26,8 +26,10 @@ namespace StockApp.Database
 
         private  DatabaseHelper()
         {
-            EnsureDatabaseExists();
-            OpenConnection();
+            Console.WriteLine("NEW DATABASE FILE AT: " + databasePath);
+            InitializeDatabase();
+            this._connection = new SQLiteConnection(connectionString);
+            this._connection.Open();
         }
 
         
@@ -162,49 +164,22 @@ namespace StockApp.Database
                         command.ExecuteNonQuery();
                     }
 
+                    connectionTOBD.Close();
                 }
             }
-        }
-        public static string getConnectionString()
-        {
-            return connectionString;
         }
 
         public void CloseConnection()
         {
-            if (_connection != null && _connection.State == System.Data.ConnectionState.Open)
+            if (this._connection != null && this._connection.State == System.Data.ConnectionState.Open)
             {
-                _connection.Close();
+                this._connection.Close();
             }
         }
 
         public SQLiteConnection GetConnection()
         {
-            if (_connection == null || _connection.State == System.Data.ConnectionState.Closed)
-            {
-                OpenConnection();
-            }
             return _connection;
         }
-
-        private void OpenConnection()
-        {
-            if (_connection == null)
-            {
-                _connection = new SQLiteConnection(connectionString);
-                _connection.Open();
-            }
-        }
-
-        private void EnsureDatabaseExists()
-        {
-            if (!File.Exists(databasePath))
-            {
-                SQLiteConnection.CreateFile(databasePath);
-                InitializeDatabase();
-            }
-        }
-
-
     }
 }
