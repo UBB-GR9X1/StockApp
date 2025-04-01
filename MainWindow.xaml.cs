@@ -32,7 +32,6 @@ namespace StockApp
         public MainWindow()
         {
             this.InitializeComponent();
-
             DatabaseHelper.InitializeDatabase();
 
             rootFrame.Navigate(typeof(CreateStockPage), null);

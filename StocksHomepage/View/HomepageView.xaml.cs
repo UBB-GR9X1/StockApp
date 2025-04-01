@@ -17,6 +17,7 @@ using StocksHomepage.Model;
 using StockNewsPage.Services;
 using StockNewsPage.Views;
 using StocksApp;
+using CreateStock;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -166,7 +167,7 @@ namespace StocksHomepage
 
         public void GoToCreateStock(object sender, RoutedEventArgs e)
         {
-            this.Frame.Navigate(typeof(CreateStockPage.MainPage), null);
+            this.Frame.Navigate(typeof(CreateStockPage), null);
         }
 
         public void GoToHistory(object sender, RoutedEventArgs e)
