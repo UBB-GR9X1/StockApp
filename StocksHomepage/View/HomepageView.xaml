@@ -61,7 +61,7 @@
             <!-- Binding Favorite Stocks as ListView items -->
             <ListView x:Name="FavoritesList" ItemsSource="{Binding FilteredFavoriteStocks}">
                 <ListView.ItemTemplate>
-                    <DataTemplate x:DataType="model:Stock">
+                    <DataTemplate x:DataType="model:HomepageStock">
                         <StackPanel Orientation="Horizontal" Spacing="20">
                             <TextBlock Text="{x:Bind Symbol}" FontSize="16" FontWeight="Bold" Width="100"/>
                             <TextBlock Text="{x:Bind Name}" Width="450"/>
@@ -89,7 +89,7 @@
             <!-- Binding All Stocks as ListView items -->
             <ListView x:Name="StocksList" ItemsSource="{Binding FilteredAllStocks}">
                 <ListView.ItemTemplate>
-                    <DataTemplate x:DataType="model:Stock">
+                    <DataTemplate x:DataType="model:HomepageStock">
                         <StackPanel Orientation="Horizontal" Spacing="20">
                             <TextBlock Text="{x:Bind Symbol}" FontSize="16" FontWeight="Bold" Width="100"/>
                             <TextBlock Text="{x:Bind Name}" Width="450"/>

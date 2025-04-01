@@ -27,7 +27,7 @@ namespace StocksHomepage
 
         private void FavoriteButton_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is Button button && button.Tag is Stock stock)
+            if (sender is Button button && button.Tag is HomepageStock stock)
             {
                 ViewModel.FavoriteCommand.Execute(stock);
             }

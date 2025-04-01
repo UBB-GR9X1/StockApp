@@ -19,22 +19,16 @@ namespace StocksHomepage.ViewModel
     public class HomepageViewModel : INotifyPropertyChanged
     {
         private HomepageService _service;
-        private ObservableCollection<Stock> _filteredAllStocks;
-        private ObservableCollection<Stock> _filteredFavoriteStocks;
+        private ObservableCollection<HomepageStock> _filteredAllStocks;
+        private ObservableCollection<HomepageStock> _filteredFavoriteStocks;
         private string _searchQuery;
         private string _selectedSortOption;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        //private void OnPropertyChanged([CallerMemberName] string propertyName = "")
-        //{
-        //    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        //}
-
         public ICommand FavoriteCommand { get; }
 
-
-        public ObservableCollection<Stock> FilteredAllStocks
+        public ObservableCollection<HomepageStock> FilteredAllStocks
         {
             get => _filteredAllStocks;
             private set
@@ -44,7 +38,7 @@ namespace StocksHomepage.ViewModel
             }
         }
 
-        public ObservableCollection<Stock> FilteredFavoriteStocks
+        public ObservableCollection<HomepageStock> FilteredFavoriteStocks
         {
             get => _filteredFavoriteStocks;
             private set
@@ -79,9 +73,9 @@ namespace StocksHomepage.ViewModel
         public HomepageViewModel()
         {
             _service = new HomepageService();
-            FilteredAllStocks = new ObservableCollection<Stock>(_service.GetAllStocks());
-            FilteredFavoriteStocks = new ObservableCollection<Stock>(_service.GetFavoriteStocks());
-            FavoriteCommand = new RelayCommand<Stock>(ToggleFavorite);
+            FilteredAllStocks = new ObservableCollection<HomepageStock>(_service.GetAllStocks());
+            FilteredFavoriteStocks = new ObservableCollection<HomepageStock>(_service.GetFavoriteStocks());
+            FavoriteCommand = new RelayCommand<HomepageStock>(ToggleFavorite);
         }
 
         private void OnPropertyChanged(string propertyName)
@@ -103,7 +97,7 @@ namespace StocksHomepage.ViewModel
             FilteredFavoriteStocks = _service.FilteredFavoriteStocks;
         }
 
-        private void ToggleFavorite(Stock stock)
+        private void ToggleFavorite(HomepageStock stock)
         {
             if (stock.isFavorite)
             {
@@ -119,8 +113,8 @@ namespace StocksHomepage.ViewModel
 
         private void RefreshStocks()
         {
-            FilteredAllStocks = new ObservableCollection<Stock>(_service.GetAllStocks());
-            FilteredFavoriteStocks = new ObservableCollection<Stock>(_service.GetFavoriteStocks());
+            FilteredAllStocks = new ObservableCollection<HomepageStock>(_service.GetAllStocks());
+            FilteredFavoriteStocks = new ObservableCollection<HomepageStock>(_service.GetFavoriteStocks());
         }
 
         public class RelayCommand<T> : ICommand

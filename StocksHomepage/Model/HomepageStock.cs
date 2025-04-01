@@ -8,18 +8,18 @@ using System.Threading.Tasks;
 
 namespace StocksHomepage.Model
 {
-    public class Stock
+    public class HomepageStock
     {
-        public required string Symbol { get; set; }
-        public required string Name { get; set; }
-        public required string Price { get; set; }
-        public required string Change { get; set; }
-        public required bool isFavorite { get; set; }
-        public Stock()
+        public string Symbol { get; set; }
+        public string Name { get; set; }
+        public int Price { get; set; }
+        public string Change { get; set; }
+        public bool isFavorite { get; set; }
+        public HomepageStock()
         {
             Symbol = "";
             Name = "";
-            Price = "";
+            Price = 0;
             Change = "";
             isFavorite = false;
         }
