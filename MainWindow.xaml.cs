@@ -12,6 +12,10 @@ using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
+using StockApp.Database;
+using StockApp.Model;
+using StockApp.Repositories;
+using CreateStock;
 using StockNewsPage.Services;
 using StockNewsPage.Views;
 
@@ -28,6 +32,10 @@ namespace StockApp
         public MainWindow()
         {
             this.InitializeComponent();
+
+            DatabaseHelper.InitializeDatabase();
+
+            rootFrame.Navigate(typeof(CreateStockPage), null);
             // rootFrame.Navigate(typeof(ProfilePage), null);
             // rootFrame.Navigate(typeof(MainPage), null);
 
