@@ -10,5 +10,4 @@
     Title="StockApp">
 
     <Frame x:Name="rootFrame" NavigationFailed="OnNavigationFailed"/>
-
 </Window>

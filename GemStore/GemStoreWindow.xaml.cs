@@ -123,6 +123,7 @@ namespace GemStore
         private void OnBackButtonClicked(object sender, RoutedEventArgs e)
         {
             // TODO: Implement navigation to Home Page
+            this.Frame.GoBack();
         }
     }
 }
