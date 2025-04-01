@@ -12,6 +12,10 @@ using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
+using StockApp.Database;
+using StockApp.Model;
+using StockApp.Repositories;
+using CreateStock;
 using StockNewsPage.Services;
 using StockNewsPage.Views;
 
@@ -28,18 +32,35 @@ namespace StockApp
         public MainWindow()
         {
             this.InitializeComponent();
-            rootFrame.Navigate(typeof(MainPage), null);
-            
+            DatabaseHelper.InitializeDatabase();
+
+            rootFrame.Navigate(typeof(CreateStockPage), null);
+            // rootFrame.Navigate(typeof(ProfilePage), null);
+            // rootFrame.Navigate(typeof(MainPage), null);
+
+            string stockName = "stock1";
+
+            rootFrame.Navigate(typeof(StockPage.StockPage), stockName);  
+
             // rootFrame.Navigate(typeof(CreateStockPage.MainPage), null);
-            
+
             // rootFrame.Navigate(typeof(StocksHomepage.MainPage), null);
+
+            // string stockName = "stock1";
+
+            // rootFrame.Navigate(typeof(StockPage.StockPage), stockName);  
+
+            // rootFrame.Navigate(typeof(CreateStockPage.MainPage), null);
+
+            // rootFrame.Navigate(typeof(StocksHomepage.MainPage), null);
+
             // rootFrame.Navigate(typeof(Test.TestPage), null);
 
 
             // <news>
             // NavigationService.Instance.Initialize(rootFrame);
             // NavigationService.Instance.Navigate(typeof(NewsListView));
-            
+
             // GEM STORE:
             //rootFrame.Navigate(typeof(GemStore.GemStoreWindow), null);
 

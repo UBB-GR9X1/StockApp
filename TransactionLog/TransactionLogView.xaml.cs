@@ -79,5 +79,10 @@ namespace TransactionLog
                 System.Diagnostics.Debug.WriteLine("Page is now activated and Window.Current is available.");
             }
         }
+
+        public void GoBack(object sender, RoutedEventArgs e)
+        {
+            this.Frame.GoBack();
+        }
     }
 }

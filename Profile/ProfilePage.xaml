@@ -1,0 +1,44 @@
+<Page
+    x:Class="StocksApp.ProfilePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:StocksApp"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <StackPanel Padding="50" Spacing="50">
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="300" Padding="10">
+            <Button Name="backButton" CornerRadius="10" Padding="5" Click="goBack">Back</Button>
+            <TextBlock Text="Profile" FontSize="20"/>
+            <Button Name="updateWindowButton" CornerRadius="10" Click="GoToUpdatePage" Padding="10" >Update Profile</Button>
+        </StackPanel>
+        
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20" CornerRadius="10" Padding="10">
+            <StackPanel Orientation="Horizontal" Spacing="20">
+                <TextBlock x:Name="ProfileImage" />
+                <TextBlock x:Name="UsernameTextBlock" />
+            </StackPanel>
+            <TextBlock x:Name="ProfileDescription" />
+        </StackPanel>
+
+        <StackPanel  Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20" CornerRadius="10" Padding="10">
+            <ListView x:Name="StocksListView" SelectionMode="Single">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}" Padding="10" />
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </StackPanel>
+        
+        <StackPanel  Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20">
+            <Button Name="EnterStockButton" Content="Enter" CornerRadius="10" Click="getSelectedStock" Padding="5" />
+        </StackPanel>
+        
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20">
+            <TextBlock x:Name="StockName" />
+        </StackPanel>
+    </StackPanel>
+
+</Page>
