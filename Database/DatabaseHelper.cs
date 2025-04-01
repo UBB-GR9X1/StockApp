@@ -9,6 +9,21 @@ namespace StockApp.Database
         private static string databasePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "StockApp_DB.db");
         private static string connectionString = "Data Source=" + databasePath + ";Version=3;";
 
+        private static DatabaseHelper _instance;
+
+        public DatabaseHelper Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = new DatabaseHelper();
+                }
+                return _instance;
+            }
+        }
+
+
         public static void InitializeDatabase()
         {
             if (!File.Exists(databasePath))
@@ -108,6 +123,11 @@ namespace StockApp.Database
                         " ARTICLE_ID TEXT NOT NULL," +
                         " FOREIGN KEY (ARTICLE_ID) REFERENCES NEWS_ARTICLE(ARTICLE_ID)," +
                         " FOREIGN KEY (STOCK_NAME) REFERENCES STOCK(STOCK_NAME))";
+                   
+                    string createHardcodedCNPsTableQuery =
+                        "CREATE TABLE HARDCODED_CNPS (" +
+                        " CNP TEXT PRIMARY KEY)";
+
                     using (var command = new SQLiteCommand(connectionTOBD))
                     {
                         command.CommandText = createUserTableQuery;
@@ -130,7 +150,8 @@ namespace StockApp.Database
                         command.ExecuteNonQuery();
                         command.CommandText = createRelatedStocksTableQuery;
                         command.ExecuteNonQuery();
-
+                        command.CommandText = createHardcodedCNPsTableQuery;
+                        command.ExecuteNonQuery();
                     }
 
                 }
@@ -140,6 +161,5 @@ namespace StockApp.Database
         {
             return connectionString;
         }
-
     }
 }
