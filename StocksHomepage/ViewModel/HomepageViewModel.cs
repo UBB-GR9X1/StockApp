@@ -10,6 +10,7 @@ using Microsoft.UI.Xaml;
 using System.Diagnostics;
 using System.Xml.Linq;
 using StocksHomepage.Model;
+using StocksHomepage.Service;
 
 // return new global::StocksHomepage.Model.Stock { Change="", isFavorite=false, Name="", Price="", Symbol="" };
 
@@ -17,149 +18,109 @@ namespace StocksHomepage.ViewModel
 {
     public class HomepageViewModel : INotifyPropertyChanged
     {
-        public ObservableCollection<Stock> FavoriteStocks { get; private set; }
-        public ObservableCollection<Stock> AllStocks { get; private set; }
+        private HomepageService _service;
+        private ObservableCollection<Stock> _filteredAllStocks;
+        private ObservableCollection<Stock> _filteredFavoriteStocks;
+        private string _searchQuery;
+        private string _selectedSortOption;
 
-        public ObservableCollection<Stock> FilteredAllStocks { get; private set; }
-        public ObservableCollection<Stock> FilteredFavoriteStocks { get; private set; }
+        public event PropertyChangedEventHandler PropertyChanged;
 
-        private string _searchQuery = "";
+        //private void OnPropertyChanged([CallerMemberName] string propertyName = "")
+        //{
+        //    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        //}
+
+        public ICommand FavoriteCommand { get; }
+
+
+        public ObservableCollection<Stock> FilteredAllStocks
+        {
+            get => _filteredAllStocks;
+            private set
+            {
+                _filteredAllStocks = value;
+                OnPropertyChanged("FilteredAllStocks");
+            }
+        }
+
+        public ObservableCollection<Stock> FilteredFavoriteStocks
+        {
+            get => _filteredFavoriteStocks;
+            private set
+            {
+                _filteredFavoriteStocks = value;
+                OnPropertyChanged("FilteredFavoriteStocks");
+            }
+        }
+
         public string SearchQuery
         {
             get => _searchQuery;
             set
             {
                 _searchQuery = value;
-                OnPropertyChanged();
-                FilterStocks();
+                OnPropertyChanged("SearchQuery");
+                ApplyFilter();
             }
         }
 
-        private string _selectedSortOption;
         public string SelectedSortOption
         {
             get => _selectedSortOption;
             set
             {
                 _selectedSortOption = value;
-                OnPropertyChanged();
-                FilterStocks();
+                OnPropertyChanged("SelectedSortOption");
+                ApplySort();
             }
         }
 
-        public ICommand FavoriteCommand { get; }
-
         public HomepageViewModel()
         {
-            FavoriteStocks = new ObservableCollection<Stock>();
-            AllStocks = new ObservableCollection<Stock>();
-
-            FilteredAllStocks = new ObservableCollection<Stock>();
-            FilteredFavoriteStocks = new ObservableCollection<Stock>();
-
-            LoadStocks();
+            _service = new HomepageService();
+            FilteredAllStocks = new ObservableCollection<Stock>(_service.GetAllStocks());
+            FilteredFavoriteStocks = new ObservableCollection<Stock>(_service.GetFavoriteStocks());
             FavoriteCommand = new RelayCommand<Stock>(ToggleFavorite);
         }
 
-        private void LoadStocks()
+        private void OnPropertyChanged(string propertyName)
         {
-            // Populate stocks
-            var initialFavorites = new List<Stock>
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public void ApplyFilter()
         {
-            new Stock { Symbol = "AAPL", Name = "Apple Inc.", Price = "$175.00", Change = "+1.2%", isFavorite = true },
-            new Stock { Symbol = "MSFT", Name = "Microsoft Corp.", Price = "$320.00", Change = "-0.8%", isFavorite = true },
-            new Stock { Symbol = "NVDA", Name = "NVIDIA Corporation", Price = "$600.00", Change = "+3.1%", isFavorite = true },
-            new Stock { Symbol = "TSM", Name = "Taiwan Semiconductor", Price = "$110.00", Change = "+1.5%" , isFavorite = true }
-        };
+            _service.FilterStocks(SearchQuery);
+            FilteredAllStocks = _service.FilteredAllStocks;
+            FilteredFavoriteStocks = _service.FilteredFavoriteStocks;
+        }
 
-            var initialStocks = new List<Stock>
+        public void ApplySort()
         {
-            new Stock { Symbol = "GOOGL", Name = "Alphabet Inc.", Price = "$2800.00", Change = "+0.5%", isFavorite = false },
-                new Stock { Symbol = "AMZN", Name = "Amazon.com Inc.", Price = "$3500.00", Change = "-1.0%", isFavorite = false },
-                new Stock { Symbol = "TSLA", Name = "Tesla Inc.", Price = "$700.00", Change = "+2.3%", isFavorite = false },
-                new Stock { Symbol = "META", Name = "Meta Platforms, Inc.", Price = "$340.00", Change = "+0.8%", isFavorite = false },
-                new Stock { Symbol = "DIS", Name = "The Walt Disney Company", Price = "$190.00", Change = "-2.0%", isFavorite = false },
-                new Stock { Symbol = "NFLX", Name = "Netflix, Inc.", Price = "$500.00", Change = "+2.8%", isFavorite = false },
-                new Stock { Symbol = "INTC", Name = "Intel Corporation", Price = "$50.00", Change = "-0.5%", isFavorite = false },
-                new Stock { Symbol = "CSCO", Name = "Cisco Systems, Inc.", Price = "$55.00", Change = "+0.2%", isFavorite = false },
-                new Stock { Symbol = "QCOM", Name = "QUALCOMM Incorporated", Price = "$150.00", Change = "-0.1%", isFavorite = false },
-                new Stock { Symbol = "IBM", Name = "International Business Machines Corporation", Price = "$120.00", Change = "+0.3%", isFavorite = false },
-                new Stock { Symbol = "ORCL", Name = "Oracle Corporation", Price = "$80.00", Change = "-0.4%", isFavorite = false },
-                new Stock { Symbol = "ADBE", Name = "Adobe Inc.", Price = "$600.00", Change = "+1.0%", isFavorite = false },
-                new Stock { Symbol = "CRM", Name = "Salesforce.com, inc.", Price = "$250.00", Change = "-0.3%", isFavorite = false },
-                new Stock { Symbol = "NOW", Name = "ServiceNow, Inc.", Price = "$500.00", Change = "+0.7%", isFavorite = false },
-                new Stock { Symbol = "SAP", Name = "SAP SE", Price = "$150.00", Change = "-0.2%", isFavorite = false },
-                new Stock { Symbol = "UBER", Name = "Uber Technologies, Inc.", Price = "$40.00", Change = "+0.9%", isFavorite = false },
-                new Stock { Symbol = "LYFT", Name = "Lyft, Inc.", Price = "$50.00", Change = "-0.6%", isFavorite = false },
-                new Stock { Symbol = "ZM", Name = "Zoom Video Communications, Inc.", Price = "$200.00", Change = "+1.2%", isFavorite = false },
-                new Stock { Symbol = "DOCU", Name = "DocuSign, Inc.", Price = "$150.00", Change = "-0.8%", isFavorite = false }
-        };
-
-            foreach (var stock in initialFavorites)
-                FavoriteStocks.Add(stock);
-            foreach (var stock in initialStocks)
-                AllStocks.Add(stock);
-
-            FilterStocks(); // Initialize filtered lists
+            _service.SortStocks(SelectedSortOption);
+            FilteredAllStocks = _service.FilteredAllStocks;
+            FilteredFavoriteStocks = _service.FilteredFavoriteStocks;
         }
 
         private void ToggleFavorite(Stock stock)
         {
             if (stock.isFavorite)
             {
-                FavoriteStocks.Remove(stock);
-                stock.isFavorite = false;
-                AllStocks.Add(stock);
+                _service.RemoveFromFavorites(stock);
+                RefreshStocks();
             }
             else
             {
-                AllStocks.Remove(stock);
-                stock.isFavorite = true;
-                FavoriteStocks.Add(stock);
+                _service.AddToFavorites(stock);
+                RefreshStocks();
             }
-            FilterStocks();
         }
 
-        private void FilterStocks()
+        private void RefreshStocks()
         {
-            var query = SearchQuery.ToLower();
-
-            var filteredAll = AllStocks.Where(stock =>
-                stock.Name.ToLower().Contains(query) || stock.Symbol.ToLower().Contains(query)).ToList();
-
-            var filteredFavorites = FavoriteStocks.Where(stock =>
-                stock.Name.ToLower().Contains(query) || stock.Symbol.ToLower().Contains(query)).ToList();
-
-            switch (SelectedSortOption)
-            {
-                case "Sort by Name":
-                    filteredAll = filteredAll.OrderBy(stock => stock.Name).ToList();
-                    filteredFavorites = filteredFavorites.OrderBy(stock => stock.Name).ToList();
-                    break;
-                case "Sort by Price":
-                    filteredAll = filteredAll.OrderBy(stock => decimal.Parse(stock.Price.Trim('$'))).ToList();
-                    filteredFavorites = filteredFavorites.OrderBy(stock => decimal.Parse(stock.Price.Trim('$'))).ToList();
-                    break;
-                case "Sort by Change":
-                    filteredAll = filteredAll.OrderBy(stock => decimal.Parse(stock.Change.Trim('%'))).ToList();
-                    filteredFavorites = filteredFavorites.OrderBy(stock => decimal.Parse(stock.Change.Trim('%'))).ToList();
-                    break;
-            }
-
-            // Clear and update filtered collections
-            FilteredAllStocks.Clear();
-            FilteredFavoriteStocks.Clear();
-
-            foreach (var stock in filteredAll)
-                FilteredAllStocks.Add(stock);
-            foreach (var stock in filteredFavorites)
-                FilteredFavoriteStocks.Add(stock);
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        private void OnPropertyChanged([CallerMemberName] string propertyName = "")
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            FilteredAllStocks = new ObservableCollection<Stock>(_service.GetAllStocks());
+            FilteredFavoriteStocks = new ObservableCollection<Stock>(_service.GetFavoriteStocks());
         }
 
         public class RelayCommand<T> : ICommand
@@ -182,6 +143,8 @@ namespace StocksHomepage.ViewModel
                 }
             }
         }
+
+
 
     }
 }

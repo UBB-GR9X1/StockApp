@@ -8,6 +8,7 @@ namespace StocksHomepage
 {
     public sealed partial class MainPage : Page
     {
+        // add the view model as a property
         public HomepageViewModel ViewModel { get; }
 
         public MainPage()
