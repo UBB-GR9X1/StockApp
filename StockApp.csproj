@@ -93,6 +93,9 @@
     <PRIResource Remove="Homepage\**" />
   </ItemGroup>
   <ItemGroup>
+    <Page Update="Alert\View\AlertView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <None Update="CreateStock\View\CreateStockPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </None>
