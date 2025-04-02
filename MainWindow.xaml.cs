@@ -66,6 +66,10 @@ namespace StockApp
 
             // TRANSACTION LOG:
             //rootFrame.Navigate(typeof(TransactionLog.TransactionLogView), null);
+
+
+            // ALERTS
+            rootFrame.Navigate(typeof(Alerts.AlertWindow), null);
         }
 
         void OnNavigationFailed(object sender, NavigationFailedEventArgs e)
