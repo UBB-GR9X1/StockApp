@@ -14,11 +14,16 @@ namespace StockApp.StockPage
 {
     class StockPageViewModel : INotifyPropertyChanged
     {
-        Repository _repo = Repository.Instance;
+        StockPageRepository _repo;
         Stock _stock;
 
         private string _stockName;
         private string _stockSymbol;
+
+        public StockPageViewModel()
+        {
+            _repo = new StockPageRepository();
+        }
 
 
         public ISeries[] Series { get; set; } = [
@@ -30,7 +35,7 @@ namespace StockApp.StockPage
 
         public void SetStockByName(string stockName)
         {
-            _repo.getStockList().ForEach(stock =>
+            /*_repo.getStockList().ForEach(stock =>
             {
                 if (stock.Name == stockName)
                 {
@@ -38,8 +43,9 @@ namespace StockApp.StockPage
                     this.StockName = stock.Name;
                     this.StockSymbol = stock.Symbol;
                 }
-            });
+            }); */
         }
+
         public string StockName
         {
             get { return _stockName; }

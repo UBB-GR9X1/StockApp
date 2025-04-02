@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.Common;
 using System.Data.SQLite;
 using System.IO;
 
@@ -8,6 +9,30 @@ namespace StockApp.Database
     {
         private static string databasePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "StockApp_DB.db");
         private static string connectionString = "Data Source=" + databasePath + ";Version=3;";
+        private SQLiteConnection _connection;
+        private static DatabaseHelper _instance;
+
+        public static DatabaseHelper Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = new DatabaseHelper();
+                }
+                return _instance;
+            }
+        }
+
+        private  DatabaseHelper()
+        {
+            Console.WriteLine("NEW DATABASE FILE AT: " + databasePath);
+            InitializeDatabase();
+            this._connection = new SQLiteConnection(connectionString);
+            this._connection.Open();
+        }
+
+        
 
         public static void InitializeDatabase()
         {
@@ -108,6 +133,11 @@ namespace StockApp.Database
                         " ARTICLE_ID TEXT NOT NULL," +
                         " FOREIGN KEY (ARTICLE_ID) REFERENCES NEWS_ARTICLE(ARTICLE_ID)," +
                         " FOREIGN KEY (STOCK_NAME) REFERENCES STOCK(STOCK_NAME))";
+                   
+                    string createHardcodedCNPsTableQuery =
+                        "CREATE TABLE HARDCODED_CNPS (" +
+                        " CNP TEXT PRIMARY KEY)";
+
                     using (var command = new SQLiteCommand(connectionTOBD))
                     {
                         command.CommandText = createUserTableQuery;
@@ -130,16 +160,26 @@ namespace StockApp.Database
                         command.ExecuteNonQuery();
                         command.CommandText = createRelatedStocksTableQuery;
                         command.ExecuteNonQuery();
-
+                        command.CommandText = createHardcodedCNPsTableQuery;
+                        command.ExecuteNonQuery();
                     }
 
+                    connectionTOBD.Close();
                 }
             }
         }
-        public static string getConnectionString()
+
+        public void CloseConnection()
         {
-            return connectionString;
+            if (this._connection != null && this._connection.State == System.Data.ConnectionState.Open)
+            {
+                this._connection.Close();
+            }
         }
 
+        public SQLiteConnection GetConnection()
+        {
+            return _connection;
+        }
     }
 }
