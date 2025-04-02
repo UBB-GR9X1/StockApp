@@ -99,8 +99,8 @@ namespace StockNewsPage.ViewModels
         }
 
         // user and auth properties
-        private User _currentUser;
-        public User CurrentUser
+        private StockApp.Model.User _currentUser;
+        public StockApp.Model.User CurrentUser
         {
             get => _currentUser;
             set
@@ -113,7 +113,7 @@ namespace StockNewsPage.ViewModels
             }
         }
 
-        public bool IsAdmin => CurrentUser?.IsAdmin ?? false;
+        public bool IsAdmin => CurrentUser?.IsModerator ?? false;
         public bool IsLoggedIn => CurrentUser != null;
 
         // commands

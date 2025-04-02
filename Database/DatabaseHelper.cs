@@ -9,7 +9,6 @@ namespace StockApp.Database
     {
         private static string databasePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "StockApp_DB.db");
         private static string connectionString = "Data Source=" + databasePath + ";Version=3;";
-        private SQLiteConnection _connection;
         private static DatabaseHelper _instance;
 
         public static DatabaseHelper Instance
@@ -28,11 +27,7 @@ namespace StockApp.Database
         {
             Console.WriteLine("NEW DATABASE FILE AT: " + databasePath);
             InitializeDatabase();
-            this._connection = new SQLiteConnection(connectionString);
-            this._connection.Open();
         }
-
-        
 
         public static void InitializeDatabase()
         {
@@ -107,10 +102,10 @@ namespace StockApp.Database
 
                     string createNewsArticleTableQuery =
                         "CREATE TABLE NEWS_ARTICLE (" +
-                        "ARTICLE_ID TEXT PRIMRY KEY," +
+                        "ARTICLE_ID TEXT PRIMARY KEY," +
                         " TITLE TEXT NOT NULL," +
                         " SUMMARY TEXT," +
-                        " CONTEXT TEXT NOT NULL," +
+                        " CONTENT TEXT NOT NULL," +
                         " SOURCE TEXT," +
                         " PUBLISH_DATE TEXT NOT NULL," +
                         " IS_READ INTEGER," +
@@ -120,9 +115,10 @@ namespace StockApp.Database
                         "CREATE TABLE USER_ARTICLE (" +
                         " ARTICLE_ID TEXT PRIMARY KEY," +
                         " TITLE TEXT NOT NULL," +
+                        " SUMMARY TEXT," +
                         " CONTENT TEXT NOT NULL," +
                         " AUTHOR_CNP TEXT," +
-                        " SUBMISSTION_DATE TEXT," +
+                        " SUBMISSION_DATE TEXT," +
                         " STATUS TEXT," +
                         " TOPIC TEXT," +
                         " FOREIGN KEY (AUTHOR_CNP) REFERENCES USER(CNP))";
@@ -169,17 +165,27 @@ namespace StockApp.Database
             }
         }
 
-        public void CloseConnection()
+        public void CloseConnection(SQLiteConnection connection)
         {
-            if (this._connection != null && this._connection.State == System.Data.ConnectionState.Open)
+            if (connection != null && connection.State == System.Data.ConnectionState.Open)
             {
-                this._connection.Close();
+                connection.Close();
             }
         }
 
         public SQLiteConnection GetConnection()
         {
-            return _connection;
+            var connection = new SQLiteConnection(connectionString);
+            try
+            {
+                connection.Open();
+                return connection;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error opening SQLite connection: {ex.Message}");
+                throw;
+            }
         }
     }
 }

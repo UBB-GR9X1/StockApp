@@ -157,7 +157,7 @@ namespace StockNewsPage.ViewModels
                 {
                     ArticleId = previewId,
                     Title = Title,
-                    Summary = Summary,
+                    Summary = Summary ?? "",
                     Content = Content,
                     Source = $"User: {_appState.CurrentUser?.Username ?? "Anonymous"}",
                     PublishedDate = DateTime.Now.ToString("MMMM dd, yyyy"),
@@ -172,7 +172,7 @@ namespace StockNewsPage.ViewModels
                 {
                     ArticleId = previewId,
                     Title = Title,
-                    Summary = Summary,
+                    Summary = Summary ?? "",
                     Content = Content,
                     Author = _appState.CurrentUser?.Username ?? "Anonymous",
                     SubmissionDate = DateTime.Now,
@@ -180,6 +180,7 @@ namespace StockNewsPage.ViewModels
                     Topic = SelectedTopic,
                     RelatedStocks = ParseRelatedStocks()
                 };
+
                 // store preview in service
                 _newsService.StorePreviewArticle(article, userArticle);
 
@@ -211,7 +212,7 @@ namespace StockNewsPage.ViewModels
                 {
                     ArticleId = Guid.NewGuid().ToString(),
                     Title = Title,
-                    Summary = Summary,
+                    Summary = Summary ?? "",
                     Content = Content,
                     Author = _appState.CurrentUser?.Username ?? "Anonymous",
                     SubmissionDate = DateTime.Now,

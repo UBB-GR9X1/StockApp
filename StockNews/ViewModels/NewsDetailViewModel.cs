@@ -96,54 +96,78 @@ namespace StockNewsPage.ViewModels
 
             IsLoading = true;
 
-            // check if this is a preview
-            if (articleId.StartsWith("preview:"))
-            {
-                _isPreviewMode = true;
-                _previewId = articleId.Substring(8); // remove "preview:"
-                _currentArticleId = _previewId;
-
-                // set admin preview
-                IsAdminPreview = true;
-
-                // get the user article for status
-                var userArticle = _newsService.GetUserArticleForPreview(_previewId);
-                if (userArticle != null)
-                {
-                    ArticleStatus = userArticle.Status;
-
-                    CanApprove = userArticle.Status != "Approved";
-
-                    CanReject = userArticle.Status != "Rejected";
-                }
-            }
-            else
-            {
-                _isPreviewMode = false;
-                _currentArticleId = articleId;
-                IsAdminPreview = false;
-            }
-
             try
             {
-                var article = await _newsService.GetNewsArticleByIdAsync(_isPreviewMode ? _previewId : articleId);
-
-                _dispatcherQueue.TryEnqueue(() =>
+                // if this is a preview
+                if (articleId.StartsWith("preview:"))
                 {
-                    if (article != null)
-                    {
-                        Article = article;
-                        HasRelatedStocks = article.RelatedStocks != null && article.RelatedStocks.Any();
+                    _isPreviewMode = true;
+                    _previewId = articleId.Substring(8); // Remove "preview:"
+                    _currentArticleId = _previewId;
 
-                        // mark as read if not in preview mode
+                    // admin preview
+                    IsAdminPreview = true;
+
+                    var userArticle = _newsService.GetUserArticleForPreview(_previewId);
+                    if (userArticle != null)
+                    {
+                        ArticleStatus = userArticle.Status;
+                        CanApprove = userArticle.Status != "Approved";
+                        CanReject = userArticle.Status != "Rejected";
+                    }
+
+                    var article = await _newsService.GetNewsArticleByIdAsync(articleId);
+
+                    _dispatcherQueue.TryEnqueue(() =>
+                    {
+                        if (article != null)
+                        {
+                            Article = article;
+                            HasRelatedStocks = article.RelatedStocks != null && article.RelatedStocks.Any();
+                        }
+                        else
+                        {
+                            // Article not found
+                            Article = new NewsArticle
+                            {
+                                Title = "Article Not Found",
+                                Summary = "The requested preview article could not be found.",
+                                Content = "The preview article you are looking for may no longer be available."
+                            };
+                            System.Diagnostics.Debug.WriteLine("Preview article not found");
+                        }
+
+                        IsLoading = false;
+                    });
+
+                    return; // Return early after handling preview
+                }
+                else
+                {
+                    _isPreviewMode = false;
+                    _currentArticleId = articleId;
+                    IsAdminPreview = false;
+                }
+
+                // For non-preview articles, continue with existing logic
+                var regularArticle = await _newsService.GetNewsArticleByIdAsync(articleId);
+
+                _dispatcherQueue.TryEnqueue(async () =>
+                {
+                    if (regularArticle != null)
+                    {
+                        Article = regularArticle;
+                        HasRelatedStocks = regularArticle.RelatedStocks != null && regularArticle.RelatedStocks.Any();
+
+                        // Mark as read if not in preview mode
                         if (!_isPreviewMode)
                         {
-                            _newsService.MarkArticleAsReadAsync(articleId);
+                            await _newsService.MarkArticleAsReadAsync(articleId);
                         }
                     }
                     else
                     {
-                        // article not found
+                        // Article not found
                         Article = new NewsArticle
                         {
                             Title = "Article Not Found",
@@ -172,8 +196,6 @@ namespace StockNewsPage.ViewModels
                 });
             }
         }
-
-
 
         private async Task ApproveArticleAsync()
         {

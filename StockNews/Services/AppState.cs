@@ -9,10 +9,11 @@ namespace StockNewsPage.Services
 
         public static AppState Instance => _instance.Value;
 
-        public User CurrentUser { get; set; }
+        public StockApp.Model.User CurrentUser { get; set; }
 
         private AppState()
         {
+            CurrentUser = new StockApp.Model.User("1234567890", "Caramel", "asdf", false, "imagine", false);
         }
     }
 }
