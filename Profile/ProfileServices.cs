@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using StockApp.Model;
 
-namespace StocksApp.Services
+namespace StockApp.Profile
 {
     public class ProfieServices
     {

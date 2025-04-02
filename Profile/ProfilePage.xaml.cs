@@ -1,29 +1,30 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using StocksApp.Services;
+using StockApp.Profile;
 
 namespace StocksApp
 {
     public sealed partial class ProfilePage : Page
     {
-        private ProfieServices profServ = ProfieServices.Instance;
+        private ProfilePageViewModel viewModel = new ProfilePageViewModel();
 
         public ProfilePage()
         {
             this.InitializeComponent();
             this.showUserInformation();
-            StocksListView.ItemsSource = profServ.getUserStocks();
-            if(profServ.isHidden() == true)
+            StocksListView.ItemsSource = viewModel.getUserStocks();
+            if(viewModel.isHidden() == true)
             {
                 this.hideProfile();
             }
+            userStocksShowUsername();
         }
 
         private void showUserInformation()
         {
-            UsernameTextBlock.Text = profServ.getUsername();
-            ProfileImage.Text = profServ.getImage();
-            ProfileDescription.Text = "DESCRIPTION: " + profServ.getDescription();
+            UsernameTextBlock.Text = viewModel.getUsername();
+            ProfileImage.Text = viewModel.getImage();
+            ProfileDescription.Text = "DESCRIPTION: " + viewModel.getDescription();
         }
 
         private void GoToUpdatePage(object sender, RoutedEventArgs e)
@@ -48,6 +49,11 @@ namespace StocksApp
         public void goBack(object sender, RoutedEventArgs e)
         {
             Frame.GoBack();
+        }
+
+        public void userStocksShowUsername()
+        {
+            UsernameMyStocks.Text = viewModel.getUsername() + "'s STOCKS: ";
         }
     }
 }
