@@ -176,7 +176,11 @@ namespace StockApp.CreateStock.ViewModel
 
         protected virtual bool CheckIfUserIsAdmin()
         {
-            return true; 
+            // This method should check if the user is an admin.
+            // For now, let's assume the user is an admin.
+            bool isAdmin = true;
+
+            return isAdmin;
         }
 
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
