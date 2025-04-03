@@ -14,11 +14,17 @@ namespace GemStore
         {
             this.InitializeComponent();
             viewModel = new StoreViewModel();
-            gemDealsListView.DataContext = viewModel;
+            this.DataContext = viewModel;
         }
 
         private async void OnBuyClicked(object sender, RoutedEventArgs e)
         {
+            if (viewModel.IsGuest())
+            {
+                ShowErrorDialog("Guests are not allowed to buy gems.");
+                return;
+            }
+
             if (sender is Button button && button.CommandParameter is GemDeal selectedDeal)
             {
                 ComboBox bankAccountDropdown = new ComboBox
@@ -44,7 +50,7 @@ namespace GemStore
                 if (result == ContentDialogResult.Primary)
                 {
                     string selectedAccount = bankAccountDropdown.SelectedItem.ToString();
-                    string purchaseResult = viewModel.BuyGems(selectedDeal, selectedAccount);
+                    string purchaseResult = await viewModel.BuyGemsAsync(selectedDeal, selectedAccount);
                     ShowSuccessDialog(purchaseResult);
                 }
             }
@@ -80,6 +86,12 @@ namespace GemStore
 
         private async void OnSellClicked(object sender, RoutedEventArgs e)
         {
+            if (viewModel.IsGuest())
+            {
+                ShowErrorDialog("Guests are not allowed to sell gems.");
+                return;
+            }
+
             if (!int.TryParse(sellInput.Text, out int gemsToSell) || gemsToSell <= 0)
             {
                 ShowErrorDialog("Enter a valid number of Gems.");
@@ -115,14 +127,13 @@ namespace GemStore
             if (result == ContentDialogResult.Primary)
             {
                 string selectedAccount = bankAccountDropdown.SelectedItem.ToString();
-                string sellResult = viewModel.SellGems(gemsToSell, selectedAccount);
+                string sellResult = await viewModel.SellGemsAsync(gemsToSell, selectedAccount);
                 ShowSuccessDialog(sellResult);
             }
         }
 
         private void OnBackButtonClicked(object sender, RoutedEventArgs e)
         {
-            // TODO: Implement navigation to Home Page
             this.Frame.GoBack();
         }
     }

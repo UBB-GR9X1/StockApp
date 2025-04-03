@@ -1,59 +1,69 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using GemStore.Repositories;
 using GemStore.Models;
+using System.Threading.Tasks;
 
 namespace GemStore
 {
     public class StoreService
     {
-        public async Task<string> BuyGems(string userType, GemDeal deal, string selectedAccountId)
+        private readonly GemStoreRepository repository = new GemStoreRepository();
+
+        public void PopulateHardcodedCnps() => repository.PopulateHardcodedCnps();
+
+        public void PopulateUserTable() => repository.PopulateUserTable();
+
+        public bool IsGuest(string cnp)
         {
-            if (userType == "Guest")
-                return "Guests cannot buy gems.";
-
-            // Simulate bank account transaction
-            bool transactionSuccess = await ProcessBankTransaction(selectedAccountId, -deal.Price);
-
-            if (transactionSuccess)
-            {
-                return $"Successfully purchased {deal.GemAmount} gems for {deal.Price}€";
-            }
-            else
-            {
-                return "Transaction failed. Please check your bank account balance.";
-            }
+            return repository.IsGuest(cnp);
         }
 
-        public async Task<string> SellGems(string userType, int gemAmount, string selectedAccountId)
+        public int GetUserGemBalance(string cnp)
         {
-            if (userType == "Guest")
+            return repository.GetUserGemBalance(cnp);
+        }
+
+        public void UpdateUserGemBalance(string cnp, int newBalance)
+        {
+            repository.UpdateUserGemBalance(cnp, newBalance);
+        }
+
+        public async Task<string> BuyGems(string cnp, GemDeal deal, string selectedAccountId)
+        {
+            if (IsGuest(cnp))
+                return "Guests cannot buy gems.";
+
+            bool transactionSuccess = await ProcessBankTransaction(selectedAccountId, -deal.Price);
+            if (!transactionSuccess)
+                return "Transaction failed. Please check your bank account balance.";
+
+            int currentBalance = GetUserGemBalance(cnp);
+            UpdateUserGemBalance(cnp, currentBalance + deal.GemAmount);
+
+            return $"Successfully purchased {deal.GemAmount} gems for {deal.Price}€";
+        }
+
+        public async Task<string> SellGems(string cnp, int gemAmount, string selectedAccountId)
+        {
+            if (IsGuest(cnp))
                 return "Guests cannot sell gems.";
 
-            double moneyEarned = gemAmount / 100.0; // 100 Gems = 1€
+            int currentBalance = GetUserGemBalance(cnp);
+            if (gemAmount > currentBalance)
+                return "Not enough Gems.";
 
-            // Simulate bank account transaction
+            double moneyEarned = gemAmount / 100.0;
             bool transactionSuccess = await ProcessBankTransaction(selectedAccountId, moneyEarned);
-
-            if (transactionSuccess)
-            {
-                return $"Successfully sold {gemAmount} gems for {moneyEarned}€";
-            }
-            else
-            {
+            if (!transactionSuccess)
                 return "Transaction failed. Unable to deposit funds.";
-            }
+
+            UpdateUserGemBalance(cnp, currentBalance - gemAmount);
+            return $"Successfully sold {gemAmount} gems for {moneyEarned}€";
         }
 
         private async Task<bool> ProcessBankTransaction(string accountId, double amount)
         {
-            // Simulating bank transaction delay
             await Task.Delay(1000);
-
-            // TODO: Integrate with the actual banking system
-            return true; // Simulating successful transaction for now
+            return true;
         }
     }
 }

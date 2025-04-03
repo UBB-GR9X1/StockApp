@@ -51,5 +51,10 @@ namespace StockApp.StockPage
                 this.DataContext = _viewModel;
             }
         }
+
+        public void FavoriteButtonClick(object sender, RoutedEventArgs e)
+        {
+            _viewModel.ToggleFavorite();
+        } 
     }
 }
