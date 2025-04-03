@@ -99,8 +99,8 @@ namespace StockNewsPage.ViewModels
         }
 
         // user and auth properties
-        private User _currentUser;
-        public User CurrentUser
+        private StockApp.Model.User _currentUser;
+        public StockApp.Model.User CurrentUser
         {
             get => _currentUser;
             set
@@ -113,7 +113,7 @@ namespace StockNewsPage.ViewModels
             }
         }
 
-        public bool IsAdmin => CurrentUser?.IsAdmin ?? false;
+        public bool IsAdmin => CurrentUser?.IsModerator ?? false;
         public bool IsLoggedIn => CurrentUser != null;
 
         // commands
@@ -310,8 +310,6 @@ namespace StockNewsPage.ViewModels
             NavigationService.Instance.Navigate(typeof(AdminNewsControlView));
         }
 
-        // login/logout methods, this should be removed and be bound to the main page instead, but since i don't have the main page code, i'll just leave it here,
-        // this is just a temporary solution, please remove this and bind it to the main page, i couldn't do it since i don't have the main page code/access to the repo
         private async Task ShowLoginDialogAsync()
         {
             try

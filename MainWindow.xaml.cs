@@ -34,17 +34,25 @@ namespace StockApp
             this.InitializeComponent();
             DatabaseHelper.InitializeDatabase();
 
-            rootFrame.Navigate(typeof(CreateStockPage), null);
+            //rootFrame.Navigate(typeof(CreateStockPage), null);
             // rootFrame.Navigate(typeof(ProfilePage), null);
             // rootFrame.Navigate(typeof(MainPage), null);
 
-            string stockName = "stock1";
+            //string stockName = "Tesla";
 
+//<<<<<<< main
             // rootFrame.Navigate(typeof(StockPage.StockPage), stockName);  
 
             // rootFrame.Navigate(typeof(CreateStockPage.MainPage), null);
 
-            rootFrame.Navigate(typeof(StocksHomepage.MainPage), null);
+            //rootFrame.Navigate(typeof(StocksHomepage.MainPage), null);
+//=======
+            //rootFrame.Navigate(typeof(StockPage.StockPage), stockName);  
+
+            // rootFrame.Navigate(typeof(CreateStockPage.MainPage), null);
+
+            //rootFrame.Navigate(typeof(StocksHomepage.MainPage), null);
+//>>>>>>> main
 
             // string stockName = "stock1";
 
@@ -52,7 +60,7 @@ namespace StockApp
 
             // rootFrame.Navigate(typeof(CreateStockPage.MainPage), null);
 
-            // rootFrame.Navigate(typeof(StocksHomepage.MainPage), null);
+            rootFrame.Navigate(typeof(StocksHomepage.MainPage), null);
 
             // rootFrame.Navigate(typeof(Test.TestPage), null);
 

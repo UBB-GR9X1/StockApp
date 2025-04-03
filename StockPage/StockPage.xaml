@@ -15,14 +15,22 @@
     </Page.DataContext> -->
 
 
-    <Grid>
-        <lvc:CartesianChart 
+    <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="Blue">
+        <StackPanel Orientation="Horizontal" Height="60" HorizontalAlignment="Stretch" Background="#2D2D2D">
+            <Button Content="Return" Width="100" Height="40" Margin="10" Click="ReturnButton_Click" VerticalAlignment="Center" />
+            <TextBlock x:Name="StockSymbol" Text="{Binding StockSymbol}" FontSize="16" Margin="0,0,10,0" Foreground="White" VerticalAlignment="Center" />
+            <TextBlock x:Name="StockName" Text="{Binding StockName}" FontSize="16" Foreground="White" VerticalAlignment="Center" />
+            <Button x:Name="AuthorButton" Content="Author" Width="100" Height="40" Margin="10" Click="AuthorButton_Click"  VerticalAlignment="Center" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="Red">
+            <lvc:CartesianChart 
             Series="{Binding Series}" 
             HorizontalAlignment="Stretch" 
             VerticalAlignment="Stretch"
             Margin="10">
-        </lvc:CartesianChart>
-    </Grid>
+            </lvc:CartesianChart>
+        </StackPanel>
+    </StackPanel>
 
     <!-- <lvc:CartesianChart Series="{Binding Series}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  /> -->
 

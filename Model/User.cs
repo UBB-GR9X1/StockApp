@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace StockApp.Model
 {
-    class User
+    public class User
     {
         private string cnp;
         private string username;

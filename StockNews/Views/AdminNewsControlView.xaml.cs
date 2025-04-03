@@ -13,7 +13,6 @@ namespace StockNewsPage.Views
             this.InitializeComponent();
             this.Loaded += AdminNewsControlView_Loaded;
 
-            // Set the DataContext for the ArticlesList grid
             ArticlesList.DataContext = ViewModel;
         }
 

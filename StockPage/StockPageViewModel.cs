@@ -14,15 +14,16 @@ namespace StockApp.StockPage
 {
     class StockPageViewModel : INotifyPropertyChanged
     {
-        StockPageRepository _repo;
-        Stock _stock;
-
         private string _stockName;
         private string _stockSymbol;
+        private StockPageService _service;
 
-        public StockPageViewModel()
+        public StockPageViewModel(String stock_name)
         {
-            _repo = new StockPageRepository();
+            this._service = new StockPageService(stock_name);
+        
+            StockName = _service.GetStockName();
+            StockSymbol = _service.GetStockSymbol();
         }
 
 
@@ -31,20 +32,6 @@ namespace StockApp.StockPage
             new ColumnSeries<int>(4, 2, 6),
             new ColumnSeries<double, DiamondGeometry>(4, 3, 4)
         ];
-
-
-        public void SetStockByName(string stockName)
-        {
-            /*_repo.getStockList().ForEach(stock =>
-            {
-                if (stock.Name == stockName)
-                {
-                    _stock = stock;
-                    this.StockName = stock.Name;
-                    this.StockSymbol = stock.Symbol;
-                }
-            }); */
-        }
 
         public string StockName
         {
