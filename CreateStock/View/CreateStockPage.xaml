@@ -9,7 +9,7 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid x:Name="RootGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+    <Grid x:Name="RootGrid">
 
         <Button Content="← GO BACK"
                 HorizontalAlignment="Right"
@@ -70,7 +70,13 @@
                 IsEnabled="{Binding IsAdmin}" />
             <!-- Corrected IsAdmin binding -->
 
-            <TextBlock Text="{Binding Message}" Foreground="Green" FontSize="14"/>
+            <TextBlock Text="{Binding Message}" 
+                Foreground="Green" 
+                FontSize="14"
+                TextWrapping="Wrap"
+                MaxWidth="400"
+                HorizontalAlignment="Center"/>
+            
         </StackPanel>
 
     </Grid>
