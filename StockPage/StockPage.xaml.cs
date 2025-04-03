@@ -28,8 +28,6 @@ namespace StockApp.StockPage
         public StockPage()
         {
             this.InitializeComponent();
-            _viewModel = new StockPageViewModel();
-            this.DataContext = _viewModel;
         }
 
         public void ReturnButton_Click(object sender, RoutedEventArgs e)
@@ -49,9 +47,14 @@ namespace StockApp.StockPage
             // Retrieve the stock name passed during navigation
             if (e.Parameter is string stockName)
             {
-                // Display the stock name or load stock data here
-                _viewModel.SetStockByName(stockName);
+                _viewModel = new StockPageViewModel(stockName);
+                this.DataContext = _viewModel;
             }
         }
+
+        public void FavoriteButtonClick(object sender, RoutedEventArgs e)
+        {
+            _viewModel.ToggleFavorite();
+        } 
     }
 }

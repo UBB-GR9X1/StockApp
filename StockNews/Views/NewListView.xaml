@@ -26,19 +26,41 @@
         <!-- Header -->
         <Grid Grid.Row="0" Margin="0,0,0,16">
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <TextBlock Grid.Column="0" 
+            <!-- Back Button - Now part of the header layout -->
+            <Button Grid.Column="0" 
+                    Content="Back" 
+                    Click="BackButton_Click"
+                    VerticalAlignment="Center" 
+                    Margin="0,0,12,0">
+                <Button.ContentTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE72B;" FontSize="12"/>
+                            <TextBlock Text="Back"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </Button.ContentTemplate>
+            </Button>
+
+            <!-- Title - Moved to middle column -->
+            <TextBlock Grid.Column="1" 
                        Text="Stock News" 
                        Style="{StaticResource TitleTextBlockStyle}" 
                        FontSize="28" 
-                       FontWeight="SemiBold"/>
+                       FontWeight="SemiBold"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Left"/>
 
-            <StackPanel Grid.Column="1" 
+            <!-- Action Buttons -->
+            <StackPanel Grid.Column="2" 
                         Orientation="Horizontal" 
-                        Spacing="8">
+                        Spacing="8"
+                        HorizontalAlignment="Right">
                 <!-- Login/Logout Button -->
                 <Button Command="{x:Bind ViewModel.LoginCommand}" 
                         Visibility="{x:Bind ViewModel.IsLoggedIn, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}">
@@ -230,4 +252,3 @@
         </Grid>
     </Grid>
 </Page>
-
