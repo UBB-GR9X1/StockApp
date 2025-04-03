@@ -49,6 +49,22 @@ namespace StockApp.Profile
             return randomUsernames[randomIndex];
         }
 
+        public bool isActiveUser()
+        {
+
+            return true;
+            /*
+            if(cnp != userCNP)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+            */
+        }
+
         public Model.User CurrentUser()
         {
             if(this.checkForCNP() == false)
@@ -56,7 +72,7 @@ namespace StockApp.Profile
                 Model.User newUser = new Model.User(cnp, this.generateUsername(), "", false, "", false);
                 return newUser;
             }
-            else //check if the cnp is our curent user's cnp or other
+            else 
             {
                 Model.User existingUser = new Model.User(cnp, "", "", false, "", false); //get info from database
                 return existingUser;

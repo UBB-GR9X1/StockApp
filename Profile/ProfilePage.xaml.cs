@@ -1,5 +1,6 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media.Imaging;
 using StockApp.Profile;
 
 namespace StocksApp
@@ -13,18 +14,21 @@ namespace StocksApp
             this.InitializeComponent();
             this.showUserInformation();
             StocksListView.ItemsSource = viewModel.getUserStocks();
-            if(viewModel.isHidden() == true)
+
+            if (viewModel.isHidden())
             {
                 this.hideProfile();
             }
+
             userStocksShowUsername();
         }
 
         private void showUserInformation()
         {
             UsernameTextBlock.Text = viewModel.getUsername();
-            ProfileImage.Text = viewModel.getImage();
-            ProfileDescription.Text = "DESCRIPTION: " + viewModel.getDescription();
+            ProfileDescription.Text = viewModel.getDescription();
+
+            ProfileImage.Source = viewModel.ImageSource;
         }
 
         private void GoToUpdatePage(object sender, RoutedEventArgs e)
@@ -40,7 +44,7 @@ namespace StocksApp
 
         private void hideProfile()
         {
-            StocksListView.Visibility = Visibility.Collapsed;   
+            StocksListView.Visibility = Visibility.Collapsed;
             ProfileDescription.Visibility = Visibility.Collapsed;
             ProfileImage.Visibility = Visibility.Collapsed;
             EnterStockButton.Visibility = Visibility.Collapsed;
@@ -48,11 +52,13 @@ namespace StocksApp
 
         public void goBack(object sender, RoutedEventArgs e)
         {
+            // Go back to the previous page
             Frame.GoBack();
         }
 
         public void userStocksShowUsername()
         {
+            // Show the username in the user's stock list
             UsernameMyStocks.Text = viewModel.getUsername() + "'s STOCKS: ";
         }
     }

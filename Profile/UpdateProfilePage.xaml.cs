@@ -34,18 +34,20 @@ namespace StocksApp
 
         private async void UpdateUserProfile(object sender, RoutedEventArgs e)
         {
+            bool DescriptionEmpty = MyDescriptionCheckBox.IsChecked == true;
             bool newHidden = MyCheckBox.IsChecked == true;
             string newUsername = UsernameInput.Text;
             string newImage = ImageInput.Text;
             string newDescription = DescriptionInput.Text;
 
-            if (string.IsNullOrEmpty(newUsername) && string.IsNullOrEmpty(newImage) && string.IsNullOrEmpty(newDescription))
+            if (string.IsNullOrEmpty(newUsername) && string.IsNullOrEmpty(newImage) && string.IsNullOrEmpty(newDescription)
+                && (MyCheckBox.IsChecked == false && viewModelUpdate.isHidden()==false) && MyDescriptionCheckBox.IsChecked == false)
             {
-                await ShowErrorDialog("Please fill up all of the information fields");
+                await ShowErrorDialog("Please fill up at least one of the information fields");
                 return;
             }
 
-            if (newUsername.Length < 8 || newUsername.Length > 24)
+            if ((newUsername.Length < 8 || newUsername.Length > 24) && newUsername.Length != 0)
             {
                 await ShowErrorDialog("Username must be 8-24 characters long.");
                 return;
@@ -55,6 +57,21 @@ namespace StocksApp
             {
                 await ShowErrorDialog("The description should be max 100 characters long.");
                 return;
+            }
+
+            if (newUsername.Length == 0)
+            {
+                newUsername = viewModelUpdate.getUsername();    
+            }
+
+            if(DescriptionEmpty == false)
+            {
+                newDescription = viewModelUpdate.getDescription();
+            }
+
+            else if(DescriptionEmpty == true)
+            {
+                newDescription = "";
             }
 
             viewModelUpdate.updateAll(newUsername, newImage, newDescription, newHidden);
