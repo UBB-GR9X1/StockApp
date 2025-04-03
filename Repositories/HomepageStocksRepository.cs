@@ -13,12 +13,17 @@ namespace StocksHomepage.Repositories
         private SqlConnection dbConnection = DatabaseHelper.Instance.GetConnection();
         private string userCNP;
 
+        public string getCNP()
+        {
+            return this.userCNP;
+        }
+
         public HomepageStocksRepository()
         {
             this.userCNP = GetUserCNP();
             //this.userCNP = "133313321311";
-            //Console.WriteLine("User CNP: " + userCNP);
-            //Console.WriteLine("IsGuestUser: " + IsGuestUser(userCNP));
+            Console.WriteLine("User CNP: " + userCNP);
+            Console.WriteLine("IsGuestUser: " + IsGuestUser(userCNP));
             LoadStocks();
         }
         public bool IsGuestUser(string userCNP)
@@ -131,6 +136,35 @@ namespace StocksHomepage.Repositories
                 command.Parameters.AddWithValue("@Name", stock.Name);
                 command.ExecuteNonQuery();
             }
+        }
+
+        public void CreateUserProfile()
+        {
+            
+            string currentCNP = userCNP;
+
+            string userQuery = "INSERT INTO [USER] (CNP, NAME, DESCRIPTION, IS_HIDDEN, IS_ADMIN, PROFILE_PICTURE, GEM_BALANCE) VALUES(@CNP, @Name, @Description, @IsHidden, @IsAdmin, @ProfilePicture, @GemBalance)";
+
+            using (var command = new SqlCommand(userQuery, dbConnection))
+            {
+                command.Parameters.AddWithValue("@CNP", currentCNP);
+                command.Parameters.AddWithValue("@Name", "New User");  
+                command.Parameters.AddWithValue("@Description", "Default User Description");
+                command.Parameters.AddWithValue("@IsHidden", false);  
+                command.Parameters.AddWithValue("@IsAdmin", false);   
+                command.Parameters.AddWithValue("@ProfilePicture", "default.jpg");
+                command.Parameters.AddWithValue("@GemBalance", 0);  
+                command.ExecuteNonQuery();
+            }
+
+            string query = "INSERT INTO HARDCODED_CNPS (CNP) VALUES (@CNP)";
+
+            using (var command = new SqlCommand(query, dbConnection))
+            {
+                command.Parameters.AddWithValue("@CNP", currentCNP);
+                command.ExecuteNonQuery();
+            }
+            
         }
 
     }

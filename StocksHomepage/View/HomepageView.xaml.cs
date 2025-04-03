@@ -33,6 +33,16 @@ namespace StocksHomepage
             }
         }
 
+        private void CreateProfile_Click(object sender, RoutedEventArgs e)
+        {
+            var viewModel = DataContext as HomepageViewModel;
+
+            if (viewModel != null)
+            {
+                viewModel.CreateUserProfile();
+            }
+        }
+
         private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             ViewModel.SearchQuery = SearchBox.Text;

@@ -23,18 +23,10 @@ namespace StocksHomepage.ViewModel
         private ObservableCollection<HomepageStock> _filteredFavoriteStocks;
         private string _searchQuery;
         private string _selectedSortOption;
-        private bool _isGuestUser;
+        private bool _isGuestUser = true;
+        private string _guestButtonVisibility = "Visible";
 
         public event PropertyChangedEventHandler PropertyChanged;
-
-        public Visibility GuestButtonVisibility
-        {
-            get
-            {
-                // Console.WriteLine($"GuestButtonVisibility: {(IsGuestUser ? Visibility.Visible : Visibility.Collapsed)}");
-                return IsGuestUser ? Visibility.Visible : Visibility.Collapsed;
-            }
-        }
 
 
         public ICommand FavoriteCommand { get; }
@@ -64,21 +56,21 @@ namespace StocksHomepage.ViewModel
             get => _isGuestUser;
             set
             {
-                if (_isGuestUser != value)
-                {
-                    Console.WriteLine("IsGuestUser before: " + _isGuestUser);
-                    _isGuestUser = value;
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(GuestButtonVisibility));
-                    Console.WriteLine("IsGuestUser after: " + _isGuestUser);
-                }
+                _isGuestUser = value;
+                GuestButtonVisibility = _isGuestUser ? "Visible" : "Collapsed";
+                OnPropertyChanged(nameof(IsGuestUser));
+                OnPropertyChanged(nameof(CanModifyFavorites)); // Add this line
             }
         }
 
-        public bool CheckUserStatus(string userCNP)
+        public string GuestButtonVisibility
         {
-            //return false;
-            return _service.IsGuestUser(userCNP);
+            get { return _guestButtonVisibility; }
+            set
+            {
+                _guestButtonVisibility = value;
+                OnPropertyChanged(nameof(GuestButtonVisibility));
+            }
         }
 
         public string SearchQuery
@@ -106,6 +98,7 @@ namespace StocksHomepage.ViewModel
         public HomepageViewModel()
         {
             _service = new HomepageService();
+            IsGuestUser = _service.IsGuestUser();
             FilteredAllStocks = new ObservableCollection<HomepageStock>(_service.GetAllStocks());
             FilteredFavoriteStocks = new ObservableCollection<HomepageStock>(_service.GetFavoriteStocks());
             FavoriteCommand = new RelayCommand(obj => ToggleFavorite(obj as HomepageStock), CanToggleFavorite);
@@ -113,9 +106,14 @@ namespace StocksHomepage.ViewModel
             //FavoriteCommand = new RelayCommand(ToggleFavorite, CanToggleFavorite);
         }
 
-        private bool CanToggleFavorite(object obj)
+        public bool CanModifyFavorites
         {
-            return IsGuestUser;
+            get => !_isGuestUser;
+        }
+
+        public bool CanToggleFavorite(object obj)
+        {
+            return !IsGuestUser;
         }
 
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
@@ -130,6 +128,18 @@ namespace StocksHomepage.ViewModel
             FilteredFavoriteStocks = _service.FilteredFavoriteStocks;
         }
 
+        public void CreateUserProfile()
+        {
+            // Call the service to create a user profile
+            _service.CreateUserProfile();
+
+            // Update the guest status
+            IsGuestUser = false;
+
+            // Refresh the stocks to reflect new permissions
+            RefreshStocks();
+        }
+
         public void ApplySort()
         {
             _service.SortStocks(SelectedSortOption);
@@ -137,7 +147,7 @@ namespace StocksHomepage.ViewModel
             FilteredFavoriteStocks = _service.FilteredFavoriteStocks;
         }
 
-        private void ToggleFavorite(HomepageStock stock)
+        public void ToggleFavorite(HomepageStock stock)
         {
             if (stock.isFavorite)
             {
@@ -151,7 +161,7 @@ namespace StocksHomepage.ViewModel
             }
         }
 
-        private void RefreshStocks()
+        public void RefreshStocks()
         {
             FilteredAllStocks = new ObservableCollection<HomepageStock>(_service.GetAllStocks());
             FilteredFavoriteStocks = new ObservableCollection<HomepageStock>(_service.GetFavoriteStocks());

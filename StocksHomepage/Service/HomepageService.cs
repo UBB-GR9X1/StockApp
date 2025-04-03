@@ -104,9 +104,13 @@ namespace StocksHomepage.Service
             FavoriteStocks.Add(stock);
             stock.isFavorite = true;
         }
-        public bool IsGuestUser(string userCNP)
+        public bool IsGuestUser()
         {
-            return _repo.IsGuestUser(userCNP);
+            return _repo.IsGuestUser(_repo.getCNP());
+        }
+        public void CreateUserProfile()
+        {
+            _repo.CreateUserProfile();
         }
     }
 }

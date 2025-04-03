@@ -18,11 +18,9 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Spacing="15">
 
-            <!-- <Button Content="Create Profile" Width="150" Visibility="{Binding GuestButtonVisibility}"/> -->
-
-
     <!-- Navigation bar -->
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="15">
+                <Button Content="Create Profile" Width="150" Visibility="{Binding GuestButtonVisibility}" Click="CreateProfile_Click"/>
                 <Button Content="News" Width="150"/>
                 <Button Content="Create Stock" Width="150"/>
                 <Button Content="History" Width="150"/>
@@ -70,7 +68,7 @@
                             <TextBlock Text="{x:Bind Name}" Width="450"/>
                             <TextBlock Text="{x:Bind Price}" Width="200"/>
                             <TextBlock Text="{x:Bind Change}" Foreground="{x:Bind ChangeColor}" Width="200"/>
-                            <Button Content="★" Width="100" Click="FavoriteButton_Click" IsEnabled="{Binding IsGuestUser}" Tag="{x:Bind}"/>
+                            <Button Content="★" Width="100" Click="FavoriteButton_Click" Tag="{x:Bind}" IsEnabled="{Binding DataContext.CanModifyFavorites, ElementName=FavoritesList}"/>
                         </StackPanel>
                     </DataTemplate>
                 </ListView.ItemTemplate>
@@ -98,7 +96,7 @@
                             <TextBlock Text="{x:Bind Name}" Width="450"/>
                             <TextBlock Text="{x:Bind Price}" Width="200"/>
                             <TextBlock Text="{x:Bind Change}" Foreground="{x:Bind ChangeColor}" Width="200"/>
-                            <Button Content="{x:Bind FavoriteStar}" Width="100" Click="FavoriteButton_Click" IsEnabled="{Binding IsGuestUser}" Tag="{x:Bind}"/>
+                            <Button Content="{x:Bind FavoriteStar}" Width="100" Click="FavoriteButton_Click" Tag="{x:Bind}" IsEnabled="{Binding DataContext.CanModifyFavorites, ElementName=FavoritesList}"/>
                         </StackPanel>
                     </DataTemplate>
                 </ListView.ItemTemplate>
