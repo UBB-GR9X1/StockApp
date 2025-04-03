@@ -40,11 +40,19 @@ namespace StockApp
 
             //string stockName = "Tesla";
 
+//<<<<<<< main
+            // rootFrame.Navigate(typeof(StockPage.StockPage), stockName);  
+
+            // rootFrame.Navigate(typeof(CreateStockPage.MainPage), null);
+
+            //rootFrame.Navigate(typeof(StocksHomepage.MainPage), null);
+//=======
             //rootFrame.Navigate(typeof(StockPage.StockPage), stockName);  
 
             // rootFrame.Navigate(typeof(CreateStockPage.MainPage), null);
 
             //rootFrame.Navigate(typeof(StocksHomepage.MainPage), null);
+//>>>>>>> main
 
             // string stockName = "stock1";
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using StockApp.Model;
 
-namespace StocksApp.Services
+namespace StockApp.Profile
 {
     public class ProfieServices
     {
@@ -15,7 +15,7 @@ namespace StocksApp.Services
 
         private ProfieServices()
         {
-            _user = new User("1234567890", "Caramel", "asdf", false, "imagine", false);
+            _user = new User("1234567890", "Caramel", "asdf", false, "https://static.wikia.nocookie.net/hellokitty/images/3/32/Sanrio_Characters_Keroppi_Image007.png/revision/latest/thumbnail/width/360/height/360?cb=20170405011801", false);
             userStocks = new List<string> { "Stock A", "Stock B", "Stock C", "Stock D" };
         }
 
