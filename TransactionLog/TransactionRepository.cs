@@ -1,5 +1,9 @@
-﻿using System;
+﻿using StockApp.Database;
+using System;
 using System.Collections.Generic;
+using System.Data.Entity;
+using System.Data.SqlClient;
+using System.Data.SQLite;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,25 +13,47 @@ namespace TransactionLog
 {
     public class TransactionRepository
     {
-        private readonly List<Transaction> transactions;
+        private readonly List<Transaction> transactions = [];
 
         public TransactionRepository()
         {
-            transactions = new List<Transaction>
-            {
-                // Sample data with various transactions
-                new Transaction("AAPL", "Apple", "BUY", 10, 150, new DateTime(2023, 03, 15), "John Doe"),
-                new Transaction("GOOG", "Google", "SELL", 5, 2500, new DateTime(2023, 03, 16), "Jane Smith"),
-                new Transaction("AMZN", "Amazon", "BUY", 3, 3200, new DateTime(2023, 03, 17), "John Doe"),
-                new Transaction("AAPL", "Apple", "SELL", 7, 155, new DateTime(2023, 03, 18), "John Doe"),
-                new Transaction("MSFT", "Microsoft", "BUY", 15, 200, new DateTime(2023, 03, 19), "Jane Smith"),
-                new Transaction("GOOG", "Google", "BUY", 12, 2500, new DateTime(2023, 03, 20), "Michael Johnson")
-            };
-        }
+            string connectionString = DatabaseHelper.Instance.GetConnection().ConnectionString;
+            string query = "SELECT * FROM USERS_TRANSACTION";
+            string queryForSymbol = "SELECT STOCK_SYMBOL FROM STOCK WHERE STOCK_NAME = @stock";
 
-        public void Add(Transaction transaction)
-        {
-            transactions.Add(transaction);
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand(query, connection))
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        string stockName = reader["STOCK_NAME"].ToString();
+
+                        string stockSymbol = "";
+                        using (SqlCommand command2 = new SqlCommand(queryForSymbol, connection))
+                        {
+                            command2.Parameters.AddWithValue("@stock", stockName);
+                            using (SqlDataReader reader2 = command2.ExecuteReader())
+                            {
+                                if (reader2.Read())
+                                {
+                                    stockSymbol = reader2["STOCK_SYMBOL"].ToString();
+                                }
+                            }
+                        }
+
+                        string stockType = reader["TYPE"].ToString();
+                        int amount = Convert.ToInt32(reader["QUANTITY"]);
+                        int pricePerStock = Convert.ToInt32(reader["PRICE"]);
+                        DateTime date = DateTime.Parse(reader["DATE"].ToString());
+                        string author = reader["USER_CNP"].ToString();
+
+                        transactions.Add(new Transaction(stockSymbol, stockName, stockType, amount, pricePerStock, date, author));
+                    }
+                }
+            }
         }
 
         public List<Transaction> GetAll()
