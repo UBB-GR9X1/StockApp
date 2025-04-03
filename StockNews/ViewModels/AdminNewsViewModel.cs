@@ -166,7 +166,6 @@ namespace StockNewsPage.ViewModels
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error refreshing articles: {ex.Message}");
                 IsEmptyState = true;
             }
             finally
@@ -184,7 +183,7 @@ namespace StockNewsPage.ViewModels
                 {
                     ArticleId = article.ArticleId,
                     Title = article.Title,
-                    Summary = article.Summary,
+                    Summary = article.Summary ?? "",
                     Content = article.Content,
                     Source = $"User: {article.Author}",
                     PublishedDate = article.SubmissionDate.ToString("MMMM dd, yyyy"),
@@ -201,6 +200,7 @@ namespace StockNewsPage.ViewModels
                 NavigationService.Instance.Navigate(typeof(NewsArticleView), $"preview:{article.ArticleId}");
             }
         }
+
 
         private async Task ApproveArticleAsync(string articleId)
         {
@@ -225,8 +225,6 @@ namespace StockNewsPage.ViewModels
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error approving article: {ex.Message}");
-
                 var dialog = new ContentDialog
                 {
                     Title = "Error",
@@ -262,8 +260,6 @@ namespace StockNewsPage.ViewModels
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error rejecting article: {ex.Message}");
-
                 var dialog = new ContentDialog
                 {
                     Title = "Error",
@@ -314,8 +310,6 @@ namespace StockNewsPage.ViewModels
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error deleting article: {ex.Message}");
-
                 var dialog = new ContentDialog
                 {
                     Title = "Error",
