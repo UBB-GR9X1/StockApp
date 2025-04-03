@@ -27,6 +27,16 @@ namespace StocksHomepage.ViewModel
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        public Visibility GuestButtonVisibility
+        {
+            get
+            {
+                // Console.WriteLine($"GuestButtonVisibility: {(IsGuestUser ? Visibility.Visible : Visibility.Collapsed)}");
+                return IsGuestUser ? Visibility.Visible : Visibility.Collapsed;
+            }
+        }
+
+
         public ICommand FavoriteCommand { get; }
 
         public ObservableCollection<HomepageStock> FilteredAllStocks
@@ -56,10 +66,11 @@ namespace StocksHomepage.ViewModel
             {
                 if (_isGuestUser != value)
                 {
-                    //Console.WriteLine("IsGuestUser before: " + _isGuestUser);
+                    Console.WriteLine("IsGuestUser before: " + _isGuestUser);
                     _isGuestUser = value;
                     OnPropertyChanged();
-                    //Console.WriteLine("IsGuestUser after: " + _isGuestUser);
+                    OnPropertyChanged(nameof(GuestButtonVisibility));
+                    Console.WriteLine("IsGuestUser after: " + _isGuestUser);
                 }
             }
         }
@@ -95,9 +106,6 @@ namespace StocksHomepage.ViewModel
         public HomepageViewModel()
         {
             _service = new HomepageService();
-            //Console.WriteLine("IsGuestUser: " + IsGuestUser);
-            //IsGuestUser = CheckUserStatus("12345678905");
-            //Console.WriteLine("IsGuestUser: " + IsGuestUser);
             FilteredAllStocks = new ObservableCollection<HomepageStock>(_service.GetAllStocks());
             FilteredFavoriteStocks = new ObservableCollection<HomepageStock>(_service.GetFavoriteStocks());
             FavoriteCommand = new RelayCommand(obj => ToggleFavorite(obj as HomepageStock), CanToggleFavorite);
