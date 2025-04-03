@@ -262,7 +262,7 @@ namespace StockNewsPage.Services
             }
 
             // set author and submission date
-            article.Author = _appState.CurrentUser.Username;
+            article.Author = _appState.CurrentUser.CNP;
             article.SubmissionDate = DateTime.Now;
             article.Status = "Pending";
 
@@ -303,20 +303,37 @@ namespace StockNewsPage.Services
         {
             await Task.Delay(300);
 
-            // this supposed to be DIFFERENT BUT AINT NO WAY IT COULD BE CHANGED WITH THE CURRENT CODEBASE
             if (username == "admin" && password == "admin")
             {
+                string adminCnp = "6666666666666";
+
+                try
+                {
+                    _repository.EnsureUserExists(
+                        adminCnp,
+                        "admin",
+                        "Administrator Account",
+                        true, // isAdmin
+                        false, // isHidden
+                        "img.jpg"
+                    );
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Error ensuring admin user exists: {ex.Message}");
+                }
+
                 return new StockApp.Model.User(
-                    "123456789",
-                     "admin",
+                    adminCnp,
+                    "admin",
                     "Administrator Account",
-                     true,
+                    true,
                     "img.jpg", false);
             }
-            else if (username == "Caramel" && password == "user")
+            else if (username == "user" && password == "user")
             {
                 return new StockApp.Model.User(
-                    "1234567890",
+                    "1234567890123",
                     "Caramel",
                     "asdf",
                     false,

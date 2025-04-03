@@ -13,7 +13,7 @@ namespace StockNewsPage.Services
 
         private AppState()
         {
-            CurrentUser = new StockApp.Model.User("1234567890", "Caramel", "asdf", false, "imagine", false);
+            CurrentUser = new StockApp.Model.User("1234567890123", "Caramel", "asdf", false, "imagine", false);
         }
     }
 }

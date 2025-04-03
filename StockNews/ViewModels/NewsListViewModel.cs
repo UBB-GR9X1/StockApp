@@ -310,8 +310,6 @@ namespace StockNewsPage.ViewModels
             NavigationService.Instance.Navigate(typeof(AdminNewsControlView));
         }
 
-        // login/logout methods, this should be removed and be bound to the main page instead, but since i don't have the main page code, i'll just leave it here,
-        // this is just a temporary solution, please remove this and bind it to the main page, i couldn't do it since i don't have the main page code/access to the repo
         private async Task ShowLoginDialogAsync()
         {
             try
