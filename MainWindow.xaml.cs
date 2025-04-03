@@ -40,7 +40,6 @@ namespace StockApp
 
             //string stockName = "Tesla";
 
-            // rootFrame.Navigate(typeof(StockPage.StockPage), stockName);
             //rootFrame.Navigate(typeof(StockPage.StockPage), stockName);  
 
             // rootFrame.Navigate(typeof(CreateStockPage.MainPage), null);
@@ -67,10 +66,6 @@ namespace StockApp
 
             // TRANSACTION LOG:
             //rootFrame.Navigate(typeof(TransactionLog.TransactionLogView), null);
-
-            // Alert 
-            //rootFrame.Navigate(typeof(Alerts.AlertWindow), null);
-
         }
 
         void OnNavigationFailed(object sender, NavigationFailedEventArgs e)
