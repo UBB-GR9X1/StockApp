@@ -2,17 +2,24 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Catel.Services;
 using GemStore.Models;
+using Microsoft.UI.Xaml;
+
 
 namespace GemStore.ViewModels
 {
     public class StoreViewModel : INotifyPropertyChanged
     {
-        private int _userGems = 10000; // Get the actual value from the user's account
-        private string _userType = "Registered";
+        private readonly StoreService storeService = new StoreService();
+
+        private bool testMode = false; // Set to true for testing without the database
+
+        private int _userGems;
+        private string _currentUserCnp = "1234567890123";
         private ObservableCollection<GemDeal> _availableDeals = new ObservableCollection<GemDeal>();
         private List<GemDeal> _possibleDeals = new List<GemDeal>();
 
@@ -20,9 +27,25 @@ namespace GemStore.ViewModels
 
         public StoreViewModel()
         {
+            //PopulateHardcodedCnps();
+            //PopulateUserTable();
+            LoadUserData();
             LoadGemDeals();
             LoadPossibleDeals();
             GenerateRandomDeals();
+        }
+
+        public void PopulateHardcodedCnps() => storeService.PopulateHardcodedCnps();
+
+        public void PopulateUserTable() => storeService.PopulateUserTable();
+
+        public bool IsGuest()
+        {
+            if (testMode)
+                return false;
+
+            bool guest = storeService.IsGuest(_currentUserCnp);
+            return guest;
         }
 
         public int UserGems
@@ -35,16 +58,6 @@ namespace GemStore.ViewModels
             }
         }
 
-        public string UserType
-        {
-            get => _userType;
-            set
-            {
-                _userType = value;
-                OnPropertyChanged();
-            }
-        }
-
         public ObservableCollection<GemDeal> AvailableDeals
         {
             get => _availableDeals;
@@ -53,6 +66,88 @@ namespace GemStore.ViewModels
                 _availableDeals = value;
                 OnPropertyChanged();
             }
+        }
+
+        public async void LoadUserData()
+        {
+            if (testMode)
+            {
+                UserGems = 1234; // Mocked gem balance
+            }
+            else
+            {
+                bool guest = storeService.IsGuest(_currentUserCnp);
+                if (guest)
+                {
+                    UserGems = 0;
+                }
+                else
+                {
+                    UserGems = await Task.Run(() => storeService.GetUserGemBalance(_currentUserCnp));
+                }
+            }
+        }
+
+
+        public async Task<string> BuyGemsAsync(GemDeal deal, string selectedBankAccount)
+        {
+            if (string.IsNullOrEmpty(selectedBankAccount))
+                return "No bank account selected.";
+
+            if (testMode)
+            {
+                UserGems += deal.GemAmount;
+                if (deal.IsSpecial)
+                    AvailableDeals.Remove(deal);
+                OnPropertyChanged(nameof(UserGems));
+                OnPropertyChanged(nameof(AvailableDeals));
+                return $"(TEST) Bought {deal.GemAmount} gems.";
+            }
+
+            var result = await storeService.BuyGems(_currentUserCnp, deal, selectedBankAccount);
+            if (result.StartsWith("Successfully"))
+            {
+                UserGems += deal.GemAmount;
+                if (deal.IsSpecial)
+                    AvailableDeals.Remove(deal);
+                OnPropertyChanged(nameof(UserGems));
+                OnPropertyChanged(nameof(AvailableDeals));
+            }
+            return result;
+        }
+
+
+        public async Task<string> SellGemsAsync(int amount, string selectedBankAccount)
+        {
+            if (string.IsNullOrEmpty(selectedBankAccount))
+                return "No bank account selected.";
+
+            if (amount <= 0)
+                return "Invalid amount.";
+
+            if (amount > UserGems)
+                return "Not enough Gems.";
+
+            if (testMode)
+            {
+                UserGems -= amount;
+                OnPropertyChanged(nameof(UserGems));
+                return $"(TEST) Sold {amount} gems for {amount / 100.0}€.";
+            }
+
+            var result = await storeService.SellGems(_currentUserCnp, amount, selectedBankAccount);
+            if (result.StartsWith("Successfully"))
+            {
+                UserGems -= amount;
+                OnPropertyChanged(nameof(UserGems));
+            }
+            return result;
+        }
+
+
+        public List<string> GetUserBankAccounts()
+        {
+            return new List<string> { "Account 1", "Account 2", "Account 3" };
         }
 
         private void LoadGemDeals()
@@ -70,7 +165,7 @@ namespace GemStore.ViewModels
                 new GemDeal("BAD DEAL!!!!", 1000, 45.0),
                 new GemDeal("MEGA BAD DEAL!!!!", 500, 40.0),
                 new GemDeal("BAD DEAL!!!!", 1, 35.0),
-                new GemDeal("🔥 SPECIAL DEAL", 2, 2.0, true, 1) // Example special deal with duration in minutes
+                new GemDeal("🔥 SPECIAL DEAL", 2, 2.0, true, 1)
             };
             SortDeals();
         }
@@ -93,15 +188,12 @@ namespace GemStore.ViewModels
             var random = new Random();
             while (true)
             {
-                await Task.Delay(TimeSpan.FromSeconds(60)); // add new random deal each 10s for faster testing
-
-                // Select a random deal from the possible deals
+                await Task.Delay(TimeSpan.FromSeconds(60));
                 var randomDeal = _possibleDeals[random.Next(_possibleDeals.Count)];
-                var specialDeal = new GemDeal(randomDeal.Title, randomDeal.GemAmount, randomDeal.Price, randomDeal.IsSpecial, randomDeal.DurationMinutes);
-                _availableDeals.Add(specialDeal);
+                var specialDeal = new GemDeal(randomDeal.Title, randomDeal.GemAmount, randomDeal.Price, true, randomDeal.DurationMinutes);
+                AvailableDeals.Add(specialDeal);
                 SortDeals();
                 OnPropertyChanged(nameof(AvailableDeals));
-
             }
         }
 
@@ -110,10 +202,7 @@ namespace GemStore.ViewModels
             while (true)
             {
                 await Task.Delay(TimeSpan.FromSeconds(60));
-
-
-                // Remove expired deals
-                _availableDeals = new ObservableCollection<GemDeal>(_availableDeals.Where(deal => deal.IsAvailable()));
+                AvailableDeals = new ObservableCollection<GemDeal>(AvailableDeals.Where(deal => deal.IsAvailable()));
                 SortDeals();
                 OnPropertyChanged(nameof(AvailableDeals));
             }
@@ -121,66 +210,9 @@ namespace GemStore.ViewModels
 
         private void SortDeals()
         {
-            var sortedDeals = _availableDeals.OrderBy(deal => deal.ExpirationTime ?? DateTime.MaxValue).ToList();
-            _availableDeals = new ObservableCollection<GemDeal>(sortedDeals);
+            var sortedDeals = AvailableDeals.OrderBy(deal => deal.ExpirationTime ?? DateTime.MaxValue).ToList();
+            AvailableDeals = new ObservableCollection<GemDeal>(sortedDeals);
             OnPropertyChanged(nameof(AvailableDeals));
-        }
-
-        public bool IsGuest()
-        {
-            return UserType == "Guest";
-        }
-
-        public string BuyGems(GemDeal deal, string selectedBankAccount)
-        {
-            if (IsGuest())
-                return "Guests cannot buy gems.";
-
-            if (string.IsNullOrEmpty(selectedBankAccount))
-                throw new ArgumentNullException(nameof(selectedBankAccount));
-
-            // Deduct money (simulate transaction)
-            double price = deal.Price;
-
-            UserGems += deal.GemAmount;
-            OnPropertyChanged(nameof(UserGems)); // Real-time update
-
-            // Remove the deal if it is a special deal
-            if (deal.IsSpecial)
-            {
-                _availableDeals.Remove(deal);
-                OnPropertyChanged(nameof(AvailableDeals));
-            }
-
-            return $"Purchase successful! You bought {deal.GemAmount} Gems.";
-        }
-
-        public string SellGems(int amount, string selectedBankAccount)
-        {
-            if (IsGuest())
-                return "Guests cannot sell gems.";
-
-            if (string.IsNullOrEmpty(selectedBankAccount))
-                throw new ArgumentNullException(nameof(selectedBankAccount));
-
-            if (amount <= 0)
-                return "Invalid amount.";
-
-            if (amount > UserGems)
-                return "Not enough Gems.";
-
-            // Convert Gems to money
-            double moneyEarned = amount / 100.0; // 100 Gems = 1€
-
-            UserGems -= amount;
-            OnPropertyChanged(nameof(UserGems)); // Real-time update
-
-            return $"Sale successful! You earned {moneyEarned}€.";
-        }
-
-        public List<string> GetUserBankAccounts()
-        {
-            return new List<string> { "Account 1", "Account 2", "Account 3" };
         }
 
         protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
