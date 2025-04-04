@@ -232,6 +232,15 @@ INSERT INTO STOCK (STOCK_NAME, STOCK_SYMBOL, AUTHOR_CNP) VALUES
 connectionTOBD);
                     addStocks.ExecuteNonQuery();
 
+
+                    SqlCommand addAlert = new SqlCommand(@"
+INSERT INTO ALERTS (STOCK_NAME, NAME, LOWER_BOUND, UPPER_BOUND, TOGGLE) VALUES
+('Tesla', 'Tesla Alert', 120, 150, 1),
+('Besla', 'Besla Alert', 200, 250, 1),
+('Cesla', 'Cesla Alert', 300, 350, 1)",
+                        connectionTOBD);
+                    addAlert.ExecuteNonQuery();
+
                     SqlCommand addStockValues = new SqlCommand(@"
 INSERT INTO STOCK_VALUE (STOCK_NAME, PRICE) VALUES
 ('Tesla', 133),
