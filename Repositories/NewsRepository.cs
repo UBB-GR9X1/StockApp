@@ -126,49 +126,209 @@ namespace StockApp.Repositories
         public List<string> GetRelatedStocksForArticle(string articleId)
         {
             var relatedStocks = new List<string>();
-            using (var connection = _databaseHelper.GetConnection())
+
+            try
             {
-                using (var command = new SqlCommand("SELECT STOCK_NAME FROM RELATED_STOCKS WHERE ARTICLE_ID = @ArticleId", connection))
+                using (var connection = _databaseHelper.GetConnection())
                 {
-                    command.CommandTimeout = 30;
-                    command.Parameters.AddWithValue("@ArticleId", articleId);
-                    using (var reader = command.ExecuteReader())
+                    using (var command = new SqlCommand("SELECT STOCK_NAME FROM RELATED_STOCKS WHERE ARTICLE_ID = @ArticleId", connection))
                     {
-                        while (reader.Read())
+                        command.CommandTimeout = 30;
+                        command.Parameters.AddWithValue("@ArticleId", articleId);
+                        using (var reader = command.ExecuteReader())
                         {
-                            relatedStocks.Add(reader.GetString(0));
+                            while (reader.Read())
+                            {
+                                relatedStocks.Add(reader.GetString(0));
+                            }
+                        }
+                    }
+
+                    // no stocks in database, check our mock data
+                    if (relatedStocks.Count == 0)
+                    {
+                        var mockArticle = newsArticles.FirstOrDefault(a => a.ArticleId == articleId);
+                        if (mockArticle != null && mockArticle.RelatedStocks != null && mockArticle.RelatedStocks.Count > 0)
+                        {
+                            relatedStocks.AddRange(mockArticle.RelatedStocks);
+                            System.Diagnostics.Debug.WriteLine($"Found {relatedStocks.Count} related stocks in mock data for article {articleId}");
+
+                            try
+                            {
+                                AddRelatedStocksForArticle(articleId, relatedStocks, connection);
+                            }
+                            catch (Exception ex)
+                            {
+                                System.Diagnostics.Debug.WriteLine($"Error adding related stocks to database: {ex.Message}");
+                            }
+                        }
+
+                        // user articles too
+                        var userArticle = userArticles.FirstOrDefault(a => a.ArticleId == articleId);
+                        if (userArticle != null && userArticle.RelatedStocks != null && userArticle.RelatedStocks.Count > 0)
+                        {
+                            relatedStocks.AddRange(userArticle.RelatedStocks.Where(s => !relatedStocks.Contains(s)));
+                            System.Diagnostics.Debug.WriteLine($"Found {userArticle.RelatedStocks.Count} related stocks in user article for {articleId}");
+
+                            try
+                            {
+                                AddRelatedStocksForArticle(articleId, relatedStocks, connection);
+                                System.Diagnostics.Debug.WriteLine($"Added related stocks to database for user article {articleId}");
+                            }
+                            catch (Exception ex)
+                            {
+                                System.Diagnostics.Debug.WriteLine($"Error adding related stocks to database: {ex.Message}");
+                            }
                         }
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error getting related stocks: {ex.Message}");
+
+                // fallback to in-memory data
+                var mockArticle = newsArticles.FirstOrDefault(a => a.ArticleId == articleId);
+                if (mockArticle != null && mockArticle.RelatedStocks != null)
+                {
+                    relatedStocks.AddRange(mockArticle.RelatedStocks);
+                    System.Diagnostics.Debug.WriteLine($"Fallback: Found {relatedStocks.Count} related stocks in mock data");
+                }
+
+                var userArticle = userArticles.FirstOrDefault(a => a.ArticleId == articleId);
+                if (userArticle != null && userArticle.RelatedStocks != null)
+                {
+                    relatedStocks.AddRange(userArticle.RelatedStocks.Where(s => !relatedStocks.Contains(s)));
+                    System.Diagnostics.Debug.WriteLine($"Fallback: Found {userArticle.RelatedStocks.Count} related stocks in user article");
+                }
+            }
+
             return relatedStocks;
         }
 
-        public void AddRelatedStocksForArticle(string articleId, List<string> stockNames, SqlConnection connection, SqlTransaction transaction = null)
+        public void AddRelatedStocksForArticle(string articleId, List<string> stockNames, SqlConnection connection = null, SqlTransaction transaction = null)
         {
             if (stockNames == null || stockNames.Count == 0)
                 return;
 
-            foreach (var stockName in stockNames)
+            bool ownConnection = false;
+            try
             {
-                bool exists = false;
-                using (var checkCommand = new SqlCommand("SELECT COUNT(*) FROM RELATED_STOCKS WHERE STOCK_NAME = @StockName AND ARTICLE_ID = @ArticleId", connection, transaction))
+                // no connection was provided, create our own (idk how this works but it does, no need to change it yes)
+                if (connection == null)
                 {
-                    checkCommand.CommandTimeout = 30;
-                    checkCommand.Parameters.AddWithValue("@StockName", stockName);
-                    checkCommand.Parameters.AddWithValue("@ArticleId", articleId);
-                    exists = Convert.ToInt32(checkCommand.ExecuteScalar()) > 0;
+                    connection = _databaseHelper.GetConnection();
+                    ownConnection = true;
+                    // new transaction if one wasn't provided
+                    if (transaction == null)
+                    {
+                        transaction = connection.BeginTransaction();
+                    }
                 }
 
-                if (!exists)
+                foreach (var inputStockName in stockNames)
                 {
-                    using (var command = new SqlCommand("INSERT INTO RELATED_STOCKS (STOCK_NAME, ARTICLE_ID) VALUES (@StockName, @ArticleId)", connection, transaction))
+                    // check if the stock exists in the STOCK table by name
+                    string actualStockName = inputStockName;
+                    bool stockExists = false;
+
+                    using (var stockCheckCommand = new SqlCommand("SELECT STOCK_NAME FROM STOCK WHERE STOCK_NAME = @StockName", connection, transaction))
                     {
-                        command.CommandTimeout = 30;
-                        command.Parameters.AddWithValue("@StockName", stockName);
-                        command.Parameters.AddWithValue("@ArticleId", articleId);
-                        command.ExecuteNonQuery();
+                        stockCheckCommand.CommandTimeout = 30;
+                        stockCheckCommand.Parameters.AddWithValue("@StockName", inputStockName);
+                        var result = stockCheckCommand.ExecuteScalar();
+                        stockExists = result != null;
                     }
+
+                    // not found by name, try to find by symbol
+                    if (!stockExists)
+                    {
+                        using (var symbolCheckCommand = new SqlCommand("SELECT STOCK_NAME FROM STOCK WHERE STOCK_SYMBOL = @StockSymbol", connection, transaction))
+                        {
+                            symbolCheckCommand.CommandTimeout = 30;
+                            symbolCheckCommand.Parameters.AddWithValue("@StockSymbol", inputStockName);
+                            var result = symbolCheckCommand.ExecuteScalar();
+
+                            if (result != null)
+                            {
+                                stockExists = true;
+                                actualStockName = result.ToString(); // Use the actual stock name from the database
+                            }
+                        }
+                    }
+
+                    // stock doesn't exist at all, create it with default values
+                    if (!stockExists)
+                    {
+                        string stockSymbol = inputStockName.Length <= 5 ? inputStockName.ToUpper() : inputStockName.Substring(0, 5).ToUpper();
+                        string authorCnp = "1234567890123"; // Default author CNP
+
+                        using (var createStockCommand = new SqlCommand("INSERT INTO STOCK (STOCK_NAME, STOCK_SYMBOL, AUTHOR_CNP) VALUES (@StockName, @StockSymbol, @AuthorCNP)", connection, transaction))
+                        {
+                            createStockCommand.CommandTimeout = 30;
+                            createStockCommand.Parameters.AddWithValue("@StockName", inputStockName);
+                            createStockCommand.Parameters.AddWithValue("@StockSymbol", stockSymbol);
+                            createStockCommand.Parameters.AddWithValue("@AuthorCNP", authorCnp);
+                            createStockCommand.ExecuteNonQuery();
+                        }
+
+                        // add an initial price in STOCK_VALUE
+                        using (var valueCommand = new SqlCommand("INSERT INTO STOCK_VALUE (STOCK_NAME, PRICE) VALUES (@StockName, @Price)", connection, transaction))
+                        {
+                            valueCommand.CommandTimeout = 30;
+                            valueCommand.Parameters.AddWithValue("@StockName", inputStockName);
+                            valueCommand.Parameters.AddWithValue("@Price", 100); // Default initial price
+                            valueCommand.ExecuteNonQuery();
+                        }
+
+                        actualStockName = inputStockName;
+                    }
+
+                    // check if the related stock entry already exists
+                    bool relatedStockExists = false;
+                    using (var checkCommand = new SqlCommand("SELECT COUNT(*) FROM RELATED_STOCKS WHERE STOCK_NAME = @StockName AND ARTICLE_ID = @ArticleId", connection, transaction))
+                    {
+                        checkCommand.CommandTimeout = 30;
+                        checkCommand.Parameters.AddWithValue("@StockName", actualStockName);
+                        checkCommand.Parameters.AddWithValue("@ArticleId", articleId);
+                        relatedStockExists = Convert.ToInt32(checkCommand.ExecuteScalar()) > 0;
+                    }
+
+                    // the related stock entry doesn't exist, create it
+                    if (!relatedStockExists)
+                    {
+                        using (var command = new SqlCommand("INSERT INTO RELATED_STOCKS (STOCK_NAME, ARTICLE_ID) VALUES (@StockName, @ArticleId)", connection, transaction))
+                        {
+                            command.CommandTimeout = 30;
+                            command.Parameters.AddWithValue("@StockName", actualStockName);
+                            command.Parameters.AddWithValue("@ArticleId", articleId);
+                            command.ExecuteNonQuery();
+                        }
+                    }
+                }
+
+                // commit if we created the transaction
+                if (ownConnection && transaction != null)
+                {
+                    transaction.Commit();
+                }
+            }
+            catch (Exception ex)
+            {
+                // rollback if we created the transaction
+                if (ownConnection && transaction != null)
+                {
+                    try { transaction.Rollback(); } catch { /* Ignore rollback errors */ }
+                }
+                System.Diagnostics.Debug.WriteLine($"Error adding related stocks: {ex.Message}");
+                throw;
+            }
+            finally
+            {
+                // dispose if we created the connection
+                if (ownConnection && connection != null)
+                {
+                    connection.Close();
                 }
             }
         }
@@ -344,7 +504,16 @@ namespace StockApp.Repositories
 
         public NewsArticle GetNewsArticleById(string articleId)
         {
-            return newsArticles.FirstOrDefault(a => a.ArticleId == articleId);
+            var article = newsArticles.FirstOrDefault(a => a.ArticleId == articleId);
+
+            if (article != null && (article.RelatedStocks == null || !article.RelatedStocks.Any()))
+            {
+                // related stocks are loaded
+                article.RelatedStocks = GetRelatedStocksForArticle(articleId);
+                System.Diagnostics.Debug.WriteLine($"GetNewsArticleById: Loaded {article.RelatedStocks?.Count ?? 0} related stocks for article {articleId}");
+            }
+
+            return article;
         }
 
         public List<NewsArticle> GetAllNewsArticles()
@@ -432,8 +601,8 @@ namespace StockApp.Repositories
                     {
                         try
                         {
-                            string query = "INSERT INTO USER_ARTICLE (ARTICLE_ID, TITLE, SUMMARY, CONTENT, AUTHOR_CNP, SUBMISSION_DATE, STATUS, TOPIC) VALUES (@ArticleId, @Title, @Summary, @Content, @AuthorCNP, @SubmissionDate, @Status, @Topic)";
-                            using (var command = new SqlCommand(query, connection, transaction))
+                            // First, add the user article
+                            using (var command = new SqlCommand("INSERT INTO USER_ARTICLE (ARTICLE_ID, TITLE, SUMMARY, CONTENT, AUTHOR_CNP, SUBMISSION_DATE, STATUS, TOPIC) VALUES (@ArticleId, @Title, @Summary, @Content, @AuthorCNP, @SubmissionDate, @Status, @Topic)", connection, transaction))
                             {
                                 command.CommandTimeout = 30;
                                 command.Parameters.AddWithValue("@ArticleId", userArticle.ArticleId);
@@ -447,6 +616,24 @@ namespace StockApp.Repositories
                                 command.ExecuteNonQuery();
                             }
 
+                            // IMPORTANT: Always add an entry to the NEWS_ARTICLE table regardless of status
+                            // This ensures we can add related stocks that reference this article
+                            using (var command = new SqlCommand("INSERT INTO NEWS_ARTICLE (ARTICLE_ID, TITLE, SUMMARY, CONTENT, SOURCE, PUBLISH_DATE, IS_READ, IS_WATCHLIST_RELATED, CATEGORY) VALUES (@ArticleId, @Title, @Summary, @Content, @Source, @PublishedDate, @IsRead, @IsWatchlistRelated, @Category)", connection, transaction))
+                            {
+                                command.CommandTimeout = 30;
+                                command.Parameters.AddWithValue("@ArticleId", userArticle.ArticleId);
+                                command.Parameters.AddWithValue("@Title", userArticle.Title);
+                                command.Parameters.AddWithValue("@Summary", userArticle.Summary ?? "");
+                                command.Parameters.AddWithValue("@Content", userArticle.Content);
+                                command.Parameters.AddWithValue("@Source", $"User: {userArticle.Author}");
+                                command.Parameters.AddWithValue("@PublishedDate", userArticle.SubmissionDate.ToString("MMMM dd, yyyy"));
+                                command.Parameters.AddWithValue("@IsRead", false);
+                                command.Parameters.AddWithValue("@IsWatchlistRelated", false);
+                                command.Parameters.AddWithValue("@Category", userArticle.Topic ?? "");
+                                command.ExecuteNonQuery();
+                            }
+
+                            // Now add related stocks if there are any
                             if (userArticle.RelatedStocks != null && userArticle.RelatedStocks.Count > 0)
                             {
                                 AddRelatedStocksForArticle(userArticle.ArticleId, userArticle.RelatedStocks, connection, transaction);
@@ -671,7 +858,7 @@ namespace StockApp.Repositories
             SubmissionDate = DateTime.Now.AddDays(-5),
             Status = "Pending",
             Topic = "Market Analysis",
-            RelatedStocks = new List<string> { "SPY", "QQQ", "IWM" }
+            RelatedStocks = new List<string> { "Cesla" }
         },
         new UserArticle
         {
@@ -683,7 +870,7 @@ namespace StockApp.Repositories
             SubmissionDate = DateTime.Now.AddDays(-3),
             Status = "Approved",
             Topic = "Company News",
-            RelatedStocks = new List<string> { "TSLA", "F", "GM" }
+            RelatedStocks = new List<string> { "Tesla" }
         },
         new UserArticle
         {
@@ -695,7 +882,7 @@ namespace StockApp.Repositories
             SubmissionDate = DateTime.Now.AddDays(-2),
             Status = "Rejected",
             Topic = "Market Analysis",
-            RelatedStocks = new List<string> { "COIN", "MSTR", "SQ" }
+            RelatedStocks = new List<string> { "Besla" }
         },
         new UserArticle
         {
@@ -707,7 +894,7 @@ namespace StockApp.Repositories
             SubmissionDate = DateTime.Now.AddDays(-1),
             Status = "Pending",
             Topic = "Functionality News",
-            RelatedStocks = new List<string> { "JPM", "GS", "MS" }
+            RelatedStocks = new List<string> { "Besla", "Tesla" }
         }
     };
         }
@@ -744,7 +931,7 @@ namespace StockApp.Repositories
                     IsRead = false,
                     IsWatchlistRelated = true,
                     Category = "Market Analysis",
-                    RelatedStocks = new List<string> { "AAPL", "MSFT", "AMZN" }
+                    RelatedStocks = new List<string> { "Besla" }
                 },
                 new NewsArticle
                 {
@@ -757,7 +944,7 @@ namespace StockApp.Repositories
                     IsRead = true,
                     IsWatchlistRelated = false,
                     Category = "Company News",
-                    RelatedStocks = new List<string> { "AAPL", "GOOG" }
+                    RelatedStocks = new List<string> { "Besla", "Tesla" }
                 },
                 new NewsArticle
                 {
@@ -770,7 +957,7 @@ namespace StockApp.Repositories
                     IsRead = false,
                     IsWatchlistRelated = false,
                     Category = "Economic News",
-                    RelatedStocks = new List<string> { "SPY", "DIA" }
+                    RelatedStocks = new List<string> { "Besla", "Cesla" }
                 },
                 new NewsArticle
                 {
@@ -796,7 +983,7 @@ namespace StockApp.Repositories
                     IsRead = true,
                     IsWatchlistRelated = true,
                     Category = "Company News",
-                    RelatedStocks = new List<string> { "PFE", "JNJ", "MRK" }
+                    RelatedStocks = new List<string> { "Tesla" }
                 }
             };
 
@@ -858,27 +1045,7 @@ namespace StockApp.Repositories
                                         }
                                     }
                                 }
-
-                                // add missing stocks to the STOCK table
-                                foreach (var stockName in allStocksInArticles)
-                                {
-                                    if (!existingStocks.Contains(stockName))
-                                    {
-                                        // create a stock symbol from the stock name if needed
-                                        string stockSymbol = stockName.Length <= 5 ? stockName : stockName.Substring(0, 5);
-
-                                        using (var command = new SqlCommand("INSERT INTO STOCK (STOCK_NAME, STOCK_SYMBOL, AUTHOR_CNP) VALUES (@StockName, @StockSymbol, @AuthorCNP)", connection, transaction))
-                                        {
-                                            command.CommandTimeout = 30;
-                                            command.Parameters.AddWithValue("@StockName", stockName);
-                                            command.Parameters.AddWithValue("@StockSymbol", stockSymbol);
-                                            command.Parameters.AddWithValue("@AuthorCNP", "1234567890123"); // Default author
-                                            command.ExecuteNonQuery();
-                                        }
-
-                                        System.Diagnostics.Debug.WriteLine($"Added missing stock: {stockName}");
-                                    }
-                                }
+                                
 
                                 transaction.Commit();
                             }
