@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using StocksHomepage.Model;
 using StockApp.Database;
 using Microsoft.Data.SqlClient;
+using System.Linq;
 
 namespace StocksHomepage.Repositories
 {
@@ -18,6 +19,23 @@ namespace StocksHomepage.Repositories
             return this.userCNP;
         }
 
+        public List<int> GetStockHistory(string stockName)
+        {
+            using (SqlCommand getStock = new SqlCommand("SELECT PRICE FROM STOCK_VALUE WHERE STOCK_NAME = @name ORDER BY STOCK_VALUE_ID", dbConnection))
+            {
+                getStock.Parameters.AddWithValue("@name", stockName);
+
+                using (SqlDataReader reader = getStock.ExecuteReader())
+                {
+                    List<int> stock_values = new List<int>();
+                    while (reader.Read())
+                    {
+                        stock_values.Add(Convert.ToInt32(reader["PRICE"]));
+                    }
+                    return stock_values;
+                }
+            }
+        }
         public HomepageStocksRepository()
         {
             this.userCNP = GetUserCNP();
@@ -54,64 +72,105 @@ namespace StocksHomepage.Repositories
                 }
                 return null;
               }
-        
+
         public List<HomepageStock> LoadStocks()
         {
             List<HomepageStock> stocks = new List<HomepageStock>();
-            string query = @"WITH LatestStockValue AS (
-                                SELECT 
-                                    STOCK_NAME, 
-                                    PRICE
-                                FROM STOCK_VALUE sv1
-                                WHERE PRICE = (SELECT MAX(PRICE) FROM STOCK_VALUE sv2 WHERE sv1.STOCK_NAME = sv2.STOCK_NAME)
-                            ),
-                            PreviousStockValue AS (
-                                SELECT 
-                                    STOCK_NAME, 
-                                    PRICE
-                                FROM STOCK_VALUE sv1
-                                WHERE PRICE = (SELECT MAX(PRICE) 
-                                               FROM STOCK_VALUE sv2 
-                                               WHERE sv1.STOCK_NAME = sv2.STOCK_NAME 
-                                               AND sv2.PRICE < (SELECT MAX(PRICE) FROM STOCK_VALUE sv3 WHERE sv3.STOCK_NAME = sv2.STOCK_NAME))
-                            )
-                            SELECT 
-                                s.STOCK_NAME, 
-                                s.STOCK_SYMBOL, 
-                                COALESCE(lsv.PRICE, 0) AS PRICE,
-                                COALESCE(f.IS_FAVORITE, 0) AS IS_FAVORITE,
-                                (COALESCE(lsv.PRICE, 0) - COALESCE(psv.PRICE, 0)) AS CHANGE_VALUE
-                            FROM STOCK s
-                            LEFT JOIN LatestStockValue lsv ON s.STOCK_NAME = lsv.STOCK_NAME
-                            LEFT JOIN PreviousStockValue psv ON s.STOCK_NAME = psv.STOCK_NAME
-                            LEFT JOIN FAVORITE_STOCK f ON s.STOCK_NAME = f.STOCK_NAME AND f.USER_CNP = @UserCNP;
-                            ";
+            Dictionary<string, List<int>> allStockHistories = new Dictionary<string, List<int>>();
 
-            using (var command = new SqlCommand(query, dbConnection))
+            // First, get all stock histories in one go
+            string historyQuery = "SELECT STOCK_NAME, PRICE FROM STOCK_VALUE ORDER BY STOCK_NAME, STOCK_VALUE_ID";
+            using (var historyCommand = new SqlCommand(historyQuery, dbConnection))
+            {
+                using (var historyReader = historyCommand.ExecuteReader())
+                {
+                    string currentStock = null;
+                    List<int> currentPrices = null;
+
+                    while (historyReader.Read())
+                    {
+                        string stockName = historyReader["STOCK_NAME"].ToString();
+                        int price = Convert.ToInt32(historyReader["PRICE"]);
+
+                        if (currentStock != stockName)
+                        {
+                            if (currentStock != null)
+                            {
+                                allStockHistories[currentStock] = currentPrices;
+                            }
+                            currentStock = stockName;
+                            currentPrices = new List<int>();
+                        }
+
+                        currentPrices.Add(price);
+                    }
+
+                    // Add the last stock
+                    if (currentStock != null)
+                    {
+                        allStockHistories[currentStock] = currentPrices;
+                    }
+                }
+            }
+
+            // Now get all stocks info
+            string stocksQuery = @"
+                                    SELECT 
+                                        s.STOCK_NAME, 
+                                        s.STOCK_SYMBOL,
+                                        COALESCE(f.IS_FAVORITE, 0) AS IS_FAVORITE
+                                    FROM STOCK s
+                                    LEFT JOIN FAVORITE_STOCK f ON s.STOCK_NAME = f.STOCK_NAME AND f.USER_CNP = @UserCNP";
+
+            using (var command = new SqlCommand(stocksQuery, dbConnection))
             {
                 command.Parameters.AddWithValue("@UserCNP", userCNP);
                 using (var reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
-                        int changeValue = Convert.ToInt32(reader["CHANGE_VALUE"]);
                         var stockName = reader["STOCK_NAME"]?.ToString();
                         var stockSymbol = reader["STOCK_SYMBOL"]?.ToString();
-                        var stockPrice = Convert.ToInt32(reader["PRICE"]);
-                        var stockChange = changeValue >= 0 ? "+" + changeValue.ToString() : changeValue.ToString();
                         var isFavorite = Convert.ToInt32(reader["IS_FAVORITE"]) == 1;
+
+                        // Get stock history from dict
+                        List<int> stockHistory = allStockHistories.ContainsKey(stockName)
+                            ? allStockHistories[stockName]
+                            : new List<int>();
+
+                        // Calculate price and change percentage
+                        int currentPrice = 0;
+                        string changePercentage = "0%";
+
+                        if (stockHistory.Count > 0)
+                        {
+                            currentPrice = stockHistory.Last();
+
+                            if (stockHistory.Count > 1)
+                            {
+                                int previousPrice = stockHistory[stockHistory.Count - 2];
+                                if (previousPrice > 0) 
+                                {
+                                    int increasePerc = ((currentPrice - previousPrice) * 100) / previousPrice;
+                                    changePercentage = (increasePerc >= 0 ? "+" : "") + increasePerc.ToString() + "%";
+                                }
+                            }
+                        }
+
                         var stock = new HomepageStock
                         {
                             Symbol = stockSymbol,
                             Name = stockName,
-                            Price = stockPrice,
-                            Change = stockChange,
+                            Price = currentPrice,
+                            Change = changePercentage,
                             isFavorite = isFavorite
                         };
+
                         stocks.Add(stock);
                     }
                 }
             }
+
             return stocks;
         }
 
