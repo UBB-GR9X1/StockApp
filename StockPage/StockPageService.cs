@@ -96,5 +96,10 @@ namespace StockApp.StockPage
         {
             _repo.ToggleFavorite(_stock.Name, state);
         }
+
+        public string getStockAuthor()
+        {
+            return _stock.AuthorCNP;
+        }
     }
 }
