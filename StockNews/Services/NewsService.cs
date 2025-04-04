@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Windows.System.Profile;
 using StockApp.Repositories;
-using StocksApp.Services;
 using StockApp.Model;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 

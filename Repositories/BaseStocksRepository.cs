@@ -14,10 +14,6 @@ namespace StockApp.Repositories
         public BaseStocksRepository()
         {
             LoadStocks();
-            if (stocks.Count == 0)
-            {
-                HardCodedStocks();
-            }
         }
 
         public void AddStock(BaseStock stock)
@@ -66,14 +62,6 @@ namespace StockApp.Repositories
             }
         }
 
-        private void HardCodedStocks()
-        {
-            AddStock(new BaseStock("Tesla", "TSLA", "1234567890123"));
-            AddStock(new BaseStock("Apple", "AAPL", "1234567890123"));
-            AddStock(new BaseStock("Microsoft", "MSFT", "1234567890123"));
-            AddStock(new BaseStock("Amazon", "AMZN", "1234567890123"));
-            AddStock(new BaseStock("Google", "GOOGL", "1234567890123"));
-        }
 
         public List<BaseStock> GetAllStocks()
         {

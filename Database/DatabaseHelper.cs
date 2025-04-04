@@ -71,6 +71,8 @@ namespace StockApp.Database
                     {
                         command.ExecuteNonQuery();
                     }
+
+                    connection.Close();
                 }
                 tablesExist = false; // new database, tables don't exist
             }
@@ -101,6 +103,7 @@ namespace StockApp.Database
 
                     string createStockValueTableQuery =
                         "CREATE TABLE STOCK_VALUE (" +
+                        "STOCK_VALUE_ID INT IDENTITY(1,1) PRIMARY KEY," +
                         "STOCK_NAME NVARCHAR(100)," +
                         " PRICE INT," +
                         " FOREIGN KEY (STOCK_NAME) REFERENCES STOCK(STOCK_NAME))";
