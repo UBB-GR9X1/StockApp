@@ -1,4 +1,5 @@
 ﻿using StockApp.Model;
+using Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,7 +21,8 @@ namespace StockApp
         // Tuple<string cnp, string stockName>
         private List<Tuple<string, string>> favorites = new List<Tuple<string, string>>();
         private List<GemDeal> deals = new List<GemDeal>();
-        // no alerts
+
+        private List<Alert> alerts = new List<Alert>();
 
         public Repository()
         {
@@ -69,6 +71,14 @@ namespace StockApp
             deals.Add(new GemDeal("deal2", 150, 130, false));
             deals.Add(new GemDeal("deal3", 150, 130, false));
             deals.Add(new GemDeal("deal4", 150, 130, false));
+
+            alerts.Add(new Alert { AlertId = 1, StockName = "stock1", Name = "Alert1", UpperBound = 150, LowerBound = 100, ToggleOnOff = true });
+            alerts.Add(new Alert { AlertId = 2, StockName = "stock2", Name = "Alert2", UpperBound = 200, LowerBound = 150, ToggleOnOff = false });
+            alerts.Add(new Alert { AlertId = 3, StockName = "stock3", Name = "Alert3", UpperBound = 250, LowerBound = 200, ToggleOnOff = true });
+            alerts.Add(new Alert { AlertId = 4, StockName = "stock4", Name = "Alert4", UpperBound = 300, LowerBound = 250, ToggleOnOff = false });
+            alerts.Add(new Alert { AlertId = 5, StockName = "stock5", Name = "Alert5", UpperBound = 350, LowerBound = 300, ToggleOnOff = true });
+
+
         }
 
         public static Repository Instance
@@ -148,6 +158,28 @@ namespace StockApp
 
         // +fetchCurrentUser(): User // WHO ADDED THIS??
         // TODO: ALERTS
+
+        public List<Alert> getAlerts()
+        {
+            return alerts;
+        }
+
+        public void updateAlerts(List<Alert> newAlerts)
+        {
+            alerts = newAlerts;
+        }
+        public void addAlert(Alert alert)
+        {
+            alerts.Add(alert);
+        }
+        public void removeAlert(int alertId)
+        {
+            alerts.RemoveAll(alert => alert.AlertId == alertId);
+        }
+
+
+
+
     }
 
 }
