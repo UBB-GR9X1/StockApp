@@ -1,16 +1,20 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Data.SqlClient;
 using Models;
 using StockApp.Database;
-using System;
-using Microsoft.Data.SqlClient;
+using Model;
 
 namespace Repository
 {
+
     public class AlertRepository
     {
         private readonly List<Alert> _alerts = new List<Alert>();
-        private SqlConnection dbConnection = DatabaseHelper.Instance.GetConnection();
+        private readonly SqlConnection dbConnection = DatabaseHelper.Instance.GetConnection();
+
+        public List<TriggeredAlert> TriggeredAlerts { get; private set; } = new List<TriggeredAlert>();
 
         public AlertRepository()
         {
@@ -19,13 +23,12 @@ namespace Repository
 
         public void LoadAlerts()
         {
-            _alerts.Clear(); 
+            _alerts.Clear();
             using (var connection = dbConnection)
             {
-                string query = "SELECT * FROM ALERTS"; 
+                string query = "SELECT * FROM ALERTS";
                 using (var command = new SqlCommand(query, connection))
                 {
-                    connection.Open();
                     using (var reader = command.ExecuteReader())
                     {
                         while (reader.Read())
@@ -74,8 +77,8 @@ namespace Repository
 
                     connection.Open();
                     var newAlertId = Convert.ToInt32(command.ExecuteScalar());
-                    alert.AlertId = newAlertId; 
-                    _alerts.Add(alert);  
+                    alert.AlertId = newAlertId;
+                    _alerts.Add(alert);
                 }
             }
         }
@@ -117,6 +120,7 @@ namespace Repository
                 }
             }
         }
+
         public void DeleteAlert(int alertId)
         {
             string deleteQuery = "DELETE FROM ALERTS WHERE ALERT_ID = @AlertId";
@@ -144,16 +148,28 @@ namespace Repository
             return false;
         }
 
-        public void TriggerAlert(string stockName, decimal currentPrice)  // notify the user (list with alerts)
+        public void TriggerAlert(string stockName, decimal currentPrice)
         {
             var alert = _alerts.FirstOrDefault(a => a.StockName == stockName);
             if (alert != null && IsAlertTriggered(stockName, currentPrice))
             {
-               
-                Console.WriteLine($"Alert triggered for {stockName}: Current Price = {currentPrice}");
+                string message = $"⚠ Alert triggered for {stockName}: Price = {currentPrice}, Bounds: [{alert.LowerBound} - {alert.UpperBound}]";
+                TriggeredAlerts.Add(new TriggeredAlert
+                {
+                    StockName = stockName,
+                    Message = message
+                });
             }
         }
 
+        public List<TriggeredAlert> GetTriggeredAlerts()
+        {
+            return TriggeredAlerts;
+        }
 
+        public void ClearTriggeredAlerts()
+        {
+            TriggeredAlerts.Clear();
+        }
     }
 }

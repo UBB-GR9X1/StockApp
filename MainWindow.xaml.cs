@@ -18,6 +18,8 @@ using StockApp.Repositories;
 using CreateStock;
 using StockNewsPage.Services;
 using StockNewsPage.Views;
+using Repository;
+using Model;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -33,6 +35,8 @@ namespace StockApp
         {
             this.InitializeComponent();
             DatabaseHelper.InitializeDatabase();
+
+            CheckAndHandleAlerts(); 
 
             //rootFrame.Navigate(typeof(CreateStockPage), null);
             // rootFrame.Navigate(typeof(ProfilePage), null);
@@ -52,7 +56,7 @@ namespace StockApp
 
             // rootFrame.Navigate(typeof(CreateStockPage.MainPage), null);
 
-            rootFrame.Navigate(typeof(StocksHomepage.MainPage), null);
+            //rootFrame.Navigate(typeof(StocksHomepage.MainPage), null);
 
             // rootFrame.Navigate(typeof(Test.TestPage), null);
 
@@ -70,6 +74,24 @@ namespace StockApp
             // Alerts
             //rootFrame.Navigate(typeof(Alerts.AlertWindow), null);
         }
+        private void CheckAndHandleAlerts()
+        {
+            var alertRepository = new AlertRepository();
+            var triggeredAlerts = alertRepository.GetTriggeredAlerts();
+
+            if (triggeredAlerts.Count > 0)
+            {
+                DisplayTriggeredAlerts(triggeredAlerts);
+            }
+            else
+            {
+                rootFrame.Navigate(typeof(StocksHomepage.MainPage), null);
+            }
+        }
+       private void DisplayTriggeredAlerts(List<TriggeredAlert> triggeredAlerts)
+       {
+            rootFrame.Navigate(typeof(Alerts.AlertWindow), triggeredAlerts);
+       }
 
         void OnNavigationFailed(object sender, NavigationFailedEventArgs e)
         {
