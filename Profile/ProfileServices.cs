@@ -46,11 +46,12 @@ namespace StockApp.Profile
 
         public void updateUser(string newUsername, string newImage, string newDescription, bool newHidden)
         {
-
+            _repo.updateMyUser(newUsername,newImage,newDescription,newHidden);
+/*
             _user.Username = newUsername;
             _user.Image = newImage;
             _user.Description = newDescription;
-            _user.IsHidden = newHidden;
+            _user.IsHidden = newHidden;*/
         }
 
         public void updateIsAdmin(bool isAdm)

@@ -28,10 +28,10 @@ public ProfileRepository()
                 this.userCNP = checkCommand.ExecuteScalar().ToString();
                 
             }
-            this.cnp = this.userCNP;
+            this.cnp = this.userCNP; //
         }
 
-        public bool checkForCNP()
+        public bool checkForCNP() //if it is in db
         {
             string thecnp = "1234567890124"; //should be this.cnp
             string getCNPquery = "SELECT CNP FROM [USER] WHERE CNP = @CNP";
@@ -170,51 +170,104 @@ public ProfileRepository()
             }
         }
 
-        public void updateMyUser()
-        {
+        public void updateMyUser(string newUsername, string newImage, string newDescription, bool newHidden)
+        {//update stuff - see serv
+
+            string newHiddenint;
+            if(newHidden == true) newHiddenint = "1";
+            else newHiddenint = "0";
+
+            string updateUserquery = @"UPDATE [USER] SET NAME = @NewName, PROFILE_PICTURE = @NewProfilePicture, DESCRIPTION = @NewDescription, IS_HIDDEN = @NewIsHidden WHERE CNP = @CNP";
+            using (var updateCommand = new SqlCommand(updateUserquery, dbConnection))
+            {
+                updateCommand.Parameters.AddWithValue("@NewName", newUsername);
+                updateCommand.Parameters.AddWithValue("@NewProfilePicture",newImage);
+                updateCommand.Parameters.AddWithValue("@NewDescription",newDescription);
+                updateCommand.Parameters.AddWithValue("@NewIsHidden",newHiddenint);
+                updateCommand.Parameters.AddWithValue("@CNP",this.cnp);
+                updateCommand.ExecuteNonQuery();
+            }
+
+
 
         }
 
         public List<string> userStocks()
         {
+            List<string> stocks = new List<string>();
 
-            //string mySymbol;
-            //string getSymquery = "SELECT STOCK_SYMBOL FROM [USER_STOCK] WHERE USER_CNP = @CNP";
-            //using (var checkCommand = new SqlCommand(getSymquery, dbConnection))
-            //{
-            //    checkCommand.Parameters.AddWithValue("@CNP", this.userCNP);
-            //    if(checkCommand.ExecuteScalar() == null) mySymbol = string.Empty;
-            //    else mySymbol = checkCommand.ExecuteScalar().ToString();
-            //}
+            string query = @"
+        SELECT S.STOCK_SYMBOL, US.STOCK_NAME, US.QUANTITY, SV.PRICE
+        FROM USER_STOCK US
+        JOIN STOCK_VALUE SV ON US.STOCK_NAME = SV.STOCK_NAME
+        JOIN STOCK S ON US.STOCK_NAME = S.STOCK_NAME
+        WHERE US.USER_CNP = @CNP";
 
-            //string myStockName;
-            //string getStockNamequery = "SELECT NAME FROM [USER_STOCK] WHERE USER_CNP = @CNP";
-            //using (var checkCommand = new SqlCommand(getStockNamequery, dbConnection))
-            //{
-            //    checkCommand.Parameters.AddWithValue("@CNP", this.userCNP);
-            //    if(checkCommand.ExecuteScalar() == null) myStockName = string.Empty;    
-            //    else myStockName = checkCommand.ExecuteScalar().ToString();
-            //}
+            using (var command = new SqlCommand(query, dbConnection))
+            {
+                command.Parameters.AddWithValue("@CNP", this.cnp);
 
-            //string myQuantity;
-            //string getStockQuantituquery = "SELECT NAME FROM [USER_STOCK] WHERE USER_CNP = @CNP";
-            //using (var checkCommand = new SqlCommand(getStockQuantituquery, dbConnection))
-            //{
-            //    checkCommand.Parameters.AddWithValue("@CNP", this.userCNP);
-            //    if (checkCommand.ExecuteScalar() == null) { myQuantity = string.Empty; }    
-            //    else myQuantity = checkCommand.ExecuteScalar().ToString();
-            //}
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        string symbol = reader["STOCK_SYMBOL"].ToString();
+                        string stockName = reader["STOCK_NAME"].ToString();
+                        int quantity = Convert.ToInt32(reader["QUANTITY"]);
+                        int price = Convert.ToInt32(reader["PRICE"]);
 
-            //stock LIST
+                        string stockString = $"{symbol} | {stockName} | Quantity: {quantity} | Price: {price}";
+                        stocks.Add(stockString);
+                    }
+                }
+            }
 
-
-
-
-            //get the user's stocks from the data base - make a string: logo + name + quantity + price
-            //_user = new User("1234567890", "Caramel", "asdf", false, "https://static.wikia.nocookie.net/hellokitty/images/3/32/Sanrio_Characters_Keroppi_Image007.png/revision/latest/thumbnail/width/360/height/360?cb=20170405011801", false);
-            return new List<string> { "Stock A", "Stock B", "Stock C", "Stock D" };
-           // return new List<string>();   
+            return stocks;
         }
+
+
+        //public List<string> userStocks()
+        //{
+
+
+
+        //    //string mySymbol;
+        //    //string getSymquery = "SELECT STOCK_SYMBOL FROM [USER_STOCK] WHERE USER_CNP = @CNP";
+        //    //using (var checkCommand = new SqlCommand(getSymquery, dbConnection))
+        //    //{
+        //    //    checkCommand.Parameters.AddWithValue("@CNP", this.userCNP);
+        //    //    if(checkCommand.ExecuteScalar() == null) mySymbol = string.Empty;
+        //    //    else mySymbol = checkCommand.ExecuteScalar().ToString();
+        //    //}
+
+        //    //string myStockName;
+        //    //string getStockNamequery = "SELECT NAME FROM [USER_STOCK] WHERE USER_CNP = @CNP";
+        //    //using (var checkCommand = new SqlCommand(getStockNamequery, dbConnection))
+        //    //{
+        //    //    checkCommand.Parameters.AddWithValue("@CNP", this.userCNP);
+        //    //    if(checkCommand.ExecuteScalar() == null) myStockName = string.Empty;    
+        //    //    else myStockName = checkCommand.ExecuteScalar().ToString();
+        //    //}
+
+        //    //string myQuantity;
+        //    //string getStockQuantituquery = "SELECT NAME FROM [USER_STOCK] WHERE USER_CNP = @CNP";
+        //    //using (var checkCommand = new SqlCommand(getStockQuantituquery, dbConnection))
+        //    //{
+        //    //    checkCommand.Parameters.AddWithValue("@CNP", this.userCNP);
+        //    //    if (checkCommand.ExecuteScalar() == null) { myQuantity = string.Empty; }    
+        //    //    else myQuantity = checkCommand.ExecuteScalar().ToString();
+        //    //}
+
+        //    //stock LIST
+
+
+
+
+        //    //get the user's stocks from the data base - make a string: logo + name + quantity + price
+        //    //_user = new User("1234567890", "Caramel", "asdf", false, "https://static.wikia.nocookie.net/hellokitty/images/3/32/Sanrio_Characters_Keroppi_Image007.png/revision/latest/thumbnail/width/360/height/360?cb=20170405011801", false);
+        //    //return new List<string> { "Stock A", "Stock B", "Stock C", "Stock D" };
+        //   // return new List<string>();   
+        //}
 
 
 
