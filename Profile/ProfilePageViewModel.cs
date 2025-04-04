@@ -48,6 +48,8 @@ namespace StockApp.Profile
         public List<string> getUserStocks() => profServ.getUserStocks();
         public string getPassword() => profServ.getPass();
 
+        public string extractMyStockName(string fullStock) => profServ.extractStockName(fullStock);
+
 
         public void updateAdminMode(bool newIsAdmin)
         {

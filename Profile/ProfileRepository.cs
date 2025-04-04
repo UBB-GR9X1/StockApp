@@ -197,15 +197,35 @@ public ProfileRepository()
             List<string> stocks = new List<string>();
 
             string query = @"
-        SELECT S.STOCK_SYMBOL, US.STOCK_NAME, US.QUANTITY, SV.PRICE
-        FROM USER_STOCK US
-        JOIN STOCK_VALUE SV ON US.STOCK_NAME = SV.STOCK_NAME
-        JOIN STOCK S ON US.STOCK_NAME = S.STOCK_NAME
-        WHERE US.USER_CNP = @CNP";
+    WITH UserStocks AS (
+        SELECT STOCK_NAME
+        FROM USER_STOCK
+        WHERE USER_CNP = @UserCNP
+    ),
+    LatestStockValue AS (
+        SELECT sv1.STOCK_NAME, sv1.PRICE
+        FROM STOCK_VALUE sv1
+        WHERE sv1.STOCK_NAME IN (SELECT STOCK_NAME FROM UserStocks)
+          AND sv1.PRICE = (
+              SELECT MAX(sv2.PRICE)
+              FROM STOCK_VALUE sv2
+              WHERE sv2.STOCK_NAME = sv1.STOCK_NAME
+          )
+    )
+    SELECT 
+        s.STOCK_SYMBOL,
+        us.STOCK_NAME,
+        us.QUANTITY,
+        COALESCE(lsv.PRICE, 0) AS PRICE
+    FROM USER_STOCK us
+    JOIN STOCK s ON us.STOCK_NAME = s.STOCK_NAME
+    LEFT JOIN LatestStockValue lsv ON s.STOCK_NAME = lsv.STOCK_NAME
+    WHERE us.USER_CNP = @UserCNP;
+    ";
 
             using (var command = new SqlCommand(query, dbConnection))
             {
-                command.Parameters.AddWithValue("@CNP", this.cnp);
+                command.Parameters.AddWithValue("@UserCNP", this.cnp);
 
                 using (var reader = command.ExecuteReader())
                 {

@@ -24,6 +24,8 @@ namespace StockApp.Profile
         public bool isAdmin() => profServ.isAdmin();
         public List<string> getUserStocks() => profServ.getUserStocks();
 
+
+
         public void updateAll(string newUsername, string newImage, string newDescription, bool newHidden)
         {
             profServ.updateUser(newUsername, newImage, newDescription, newHidden);

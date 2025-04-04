@@ -2,8 +2,10 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Imaging;
 using StockApp.Profile;
+using StockApp.StockPage;
 using StockNewsPage.Services;
 using StockNewsPage.ViewModels;
+using StocksHomepage.Model;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -68,5 +70,28 @@ namespace StocksApp
             // Show the username in the user's stock list
             UsernameMyStocks.Text = viewModel.getUsername() + "'s STOCKS: ";
         }
+
+        public void GoToStockButton(object sender, RoutedEventArgs e)
+        {
+            string selectedStock = (string)StocksListView.SelectedItem;
+            string stockName = viewModel.extractMyStockName(selectedStock);
+            if (stockName is string myStock)
+            {
+                NavigationService.Instance.Initialize(this.Frame);
+                NavigationService.Instance.Navigate(typeof(StockPage), myStock);
+            }
+        }
+
+        public void GoToStock(object sender, ItemClickEventArgs e)
+        {
+            if (e.ClickedItem is string myStock)
+            {
+                // this.Frame.Navigate(typeof(StockPage), null);
+                NavigationService.Instance.Initialize(this.Frame);
+                NavigationService.Instance.Navigate(typeof(StockPage), myStock);
+            }
+        }
+
+
     }
 }
