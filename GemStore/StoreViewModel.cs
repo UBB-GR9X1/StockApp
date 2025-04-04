@@ -19,7 +19,7 @@ namespace GemStore.ViewModels
         private bool testMode = false; // Set to true for testing without the database
 
         private int _userGems;
-        private string _currentUserCnp = "1234567890123";
+        private string _currentUserCnp;
         private ObservableCollection<GemDeal> _availableDeals = new ObservableCollection<GemDeal>();
         private List<GemDeal> _possibleDeals = new List<GemDeal>();
 
@@ -29,15 +29,17 @@ namespace GemStore.ViewModels
         {
             //PopulateHardcodedCnps();
             //PopulateUserTable();
+
+            _currentUserCnp = storeService.GetCNP();
             LoadUserData();
             LoadGemDeals();
             LoadPossibleDeals();
             GenerateRandomDeals();
         }
 
-        public void PopulateHardcodedCnps() => storeService.PopulateHardcodedCnps();
+        //public void PopulateHardcodedCnps() => storeService.PopulateHardcodedCnps();
 
-        public void PopulateUserTable() => storeService.PopulateUserTable();
+        //public void PopulateUserTable() => storeService.PopulateUserTable();
 
         public bool IsGuest()
         {
@@ -188,7 +190,7 @@ namespace GemStore.ViewModels
             var random = new Random();
             while (true)
             {
-                await Task.Delay(TimeSpan.FromSeconds(60));
+                await Task.Delay(TimeSpan.FromSeconds(15));
                 var randomDeal = _possibleDeals[random.Next(_possibleDeals.Count)];
                 var specialDeal = new GemDeal(randomDeal.Title, randomDeal.GemAmount, randomDeal.Price, true, randomDeal.DurationMinutes);
                 AvailableDeals.Add(specialDeal);

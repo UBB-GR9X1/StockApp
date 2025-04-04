@@ -8,9 +8,14 @@ namespace GemStore
     {
         private readonly GemStoreRepository repository = new GemStoreRepository();
 
-        public void PopulateHardcodedCnps() => repository.PopulateHardcodedCnps();
+        //public void PopulateHardcodedCnps() => repository.PopulateHardcodedCnps();
 
-        public void PopulateUserTable() => repository.PopulateUserTable();
+        //public void PopulateUserTable() => repository.PopulateUserTable();
+
+        public string GetCNP()
+        {
+            return repository.GetCNP();
+        }
 
         public bool IsGuest(string cnp)
         {
