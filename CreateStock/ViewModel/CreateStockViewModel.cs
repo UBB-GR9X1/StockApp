@@ -164,7 +164,7 @@ namespace StockApp.CreateStock.ViewModel
 
             Message = _stockService.AddStock(StockName, StockSymbol, AuthorCNP);
 
-            if (Message == "Stock added successfully!")
+            if (Message == "Stock added successfully with initial value!")
             {
                 _suppressValidation = true;
                 StockName = "";
