@@ -12,6 +12,9 @@ using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
+using StocksApp;
+using Windows.UI.Core;
+using LiveChartsCore.Drawing;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -38,6 +41,12 @@ namespace StockApp.StockPage
         public void AuthorButton_Click(object sender, RoutedEventArgs e)
         {
             // this.Frame.Navigate(typeof(AuthorPage.AuthorPage));
+
+            //var newFrame = new Frame();
+            //// link the current frame (This.Frame) to the new one and make all go back work as expected
+            //this.Frame.Content = newFrame;
+            // newFrame.Navigate(typeof(ProfilePage), _viewModel.getStockAuthor());
+            this.Frame.Navigate(typeof(ProfilePage), _viewModel.getStockAuthor());
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)

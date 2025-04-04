@@ -15,6 +15,8 @@ using LiveChartsCore.SkiaSharpView.WinUI;
 using LiveChartsCore.SkiaSharpView.Painting;
 using LiveChartsCore.Painting;
 using SkiaSharp;
+using StocksApp;
+using Catel.Services;
 
 
 namespace StockApp.StockPage
@@ -211,6 +213,11 @@ namespace StockApp.StockPage
             bool res = _service.SellStock(quantity);
             updateStockValue();
             return res;
+        }
+
+        public string getStockAuthor()
+        {
+            return _service.getStockAuthor();
         }
     }
 }
