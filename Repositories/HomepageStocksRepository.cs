@@ -21,14 +21,13 @@ namespace StocksHomepage.Repositories
         public HomepageStocksRepository()
         {
             this.userCNP = GetUserCNP();
-            //this.userCNP = "5050225";
             Console.WriteLine("User CNP: " + userCNP);
             Console.WriteLine("IsGuestUser: " + IsGuestUser(userCNP));
             LoadStocks();
         }
         public bool IsGuestUser(string userCNP)
         {
-            string query = "SELECT COUNT(*) FROM HARDCODED_CNPS WHERE CNP = @UserCNP";
+            string query = "SELECT COUNT(*) FROM [USER] WHERE CNP = @UserCNP";
             using (var command = new SqlCommand(query, dbConnection))
             {
                 command.Parameters.AddWithValue("@UserCNP", userCNP);
@@ -40,7 +39,7 @@ namespace StocksHomepage.Repositories
         
         public string GetUserCNP()
                 {
-                string query = "SELECT CNP FROM HARDCODED_CNPS";
+                string query = "SELECT TOP 1 CNP FROM HARDCODED_CNPS ORDER BY CNP DESC";
 
                 using (var command = new SqlCommand(query, dbConnection))
                 {
@@ -142,13 +141,24 @@ namespace StocksHomepage.Repositories
         {
             
             string currentCNP = userCNP;
+            List<String> names = new List<string>
+            {
+                "storm", "shadow", "blaze", "nova", "ember", "frost", "zephyr", "luna", "onyx", "raven",
+                "viper", "echo", "skye", "falcon", "titan", "phoenix", "cobra", "ghost", "venom", "dusk",
+                "wraith", "flare", "night", "rogue", "drift", "glitch", "shade", "pulse", "crimson",
+                "hazard", "orbit", "quake", "rune", "saber", "thorn", "vortex", "zodiac", "howl", "jett"
+            };
+            Random random = new Random();
+            string name = names[random.Next(names.Count)];
+            int number = random.Next(1000, 10000);
+            string randomUsername = $"{name}_{number}";
 
             string userQuery = "INSERT INTO [USER] (CNP, NAME, DESCRIPTION, IS_HIDDEN, IS_ADMIN, PROFILE_PICTURE, GEM_BALANCE) VALUES(@CNP, @Name, @Description, @IsHidden, @IsAdmin, @ProfilePicture, @GemBalance)";
 
             using (var command = new SqlCommand(userQuery, dbConnection))
             {
                 command.Parameters.AddWithValue("@CNP", currentCNP);
-                command.Parameters.AddWithValue("@Name", "New User");  
+                command.Parameters.AddWithValue("@Name", randomUsername);  
                 command.Parameters.AddWithValue("@Description", "Default User Description");
                 command.Parameters.AddWithValue("@IsHidden", false);  
                 command.Parameters.AddWithValue("@IsAdmin", false);   
@@ -156,15 +166,6 @@ namespace StocksHomepage.Repositories
                 command.Parameters.AddWithValue("@GemBalance", 0);  
                 command.ExecuteNonQuery();
             }
-
-            string query = "INSERT INTO HARDCODED_CNPS (CNP) VALUES (@CNP)";
-
-            using (var command = new SqlCommand(query, dbConnection))
-            {
-                command.Parameters.AddWithValue("@CNP", currentCNP);
-                command.ExecuteNonQuery();
-            }
-            
         }
 
     }
