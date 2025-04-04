@@ -25,7 +25,7 @@
             <Button Content="Return" Width="100" Height="40" Margin="10" Click="ReturnButton_Click" VerticalAlignment="Center" />
             <TextBlock x:Name="StockSymbol" Text="{Binding StockSymbol}" FontSize="16" Margin="0,0,10,0" Foreground="White" VerticalAlignment="Center" />
             <TextBlock x:Name="StockName" Text="{Binding StockName}" FontSize="16" Foreground="White" VerticalAlignment="Center" />
-            <Button x:Name="AuthorButton" Content="Author" Width="100" Height="40" Margin="10" Click="AuthorButton_Click"  VerticalAlignment="Center" />
+            <Button Command="{x:Bind command}" x:Name="AuthorButton" Content="Author" Width="100" Height="40" Margin="10"  VerticalAlignment="Center" />
         </StackPanel>
 
         <Grid Grid.Row="1">

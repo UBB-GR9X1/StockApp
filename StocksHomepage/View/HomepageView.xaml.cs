@@ -177,7 +177,8 @@ namespace StocksHomepage
 
         public void GoToProfile(object sender, RoutedEventArgs e)
         {
-            this.Frame.Navigate(typeof(ProfilePage), null);
+            NavigationService.Instance.Initialize(this.Frame);
+            NavigationService.Instance.Navigate(typeof(ProfilePage));
         }
 
         public void GoToStore(object sender, RoutedEventArgs e)
