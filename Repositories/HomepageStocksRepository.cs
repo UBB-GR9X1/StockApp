@@ -20,8 +20,8 @@ namespace StocksHomepage.Repositories
 
         public HomepageStocksRepository()
         {
-            //this.userCNP = GetUserCNP();
-            this.userCNP = "5050225";
+            this.userCNP = GetUserCNP();
+            //this.userCNP = "5050225";
             Console.WriteLine("User CNP: " + userCNP);
             Console.WriteLine("IsGuestUser: " + IsGuestUser(userCNP));
             LoadStocks();

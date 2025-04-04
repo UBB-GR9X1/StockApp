@@ -7,6 +7,7 @@ using StockNewsPage.Services;
 using StockNewsPage.Views;
 using StocksApp;
 using CreateStock;
+using StockApp.StockPage;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -80,6 +81,12 @@ namespace StocksHomepage
         public void GoToStore(object sender, RoutedEventArgs e)
         {
             this.Frame.Navigate(typeof(GemStore.GemStoreWindow), null);
+        }
+
+        public void GoToStock(object sender, RoutedEventArgs e)
+        {
+            if (sender is FrameworkElement element && element.DataContext is HomepageStock stock)
+                this.Frame.Navigate(typeof(StockPage), null);
         }
         
     }
