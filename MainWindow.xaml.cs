@@ -43,12 +43,12 @@ namespace StockApp
 
             // rootFrame.Navigate(typeof(CreateStockPage.MainPage), null);
 
-             rootFrame.Navigate(typeof(StocksHomepage.MainPage), null);
+            rootFrame.Navigate(typeof(StocksHomepage.MainPage), null);
 
-            string stockName = "Tesla";
+            // string stockName = "Tesla";
 
-            NavigationService.Instance.Initialize(rootFrame);
-            NavigationService.Instance.Navigate(typeof(StockPage.StockPage), stockName);
+            // NavigationService.Instance.Initialize(rootFrame);
+            // NavigationService.Instance.Navigate(typeof(StockPage.StockPage), stockName);
             //rootFrame.Navigate(typeof(StockPage.StockPage), stockName);  
 
             // rootFrame.Navigate(typeof(CreateStockPage.MainPage), null);

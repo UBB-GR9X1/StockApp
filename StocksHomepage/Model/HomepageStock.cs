@@ -8,20 +8,30 @@ using System.Threading.Tasks;
 
 namespace StocksHomepage.Model
 {
-    public class Stock
+    public class HomepageStock
     {
-        public required string Symbol { get; set; }
-        public required string Name { get; set; }
-        public required string Price { get; set; }
-        public required string Change { get; set; }
+        public string Symbol { get; set; }
+        public string Name { get; set; }
+        public int Price { get; set; }
+        public string Change { get; set; }
+        public bool isFavorite { get; set; }
+        public HomepageStock()
+        {
+            Symbol = "";
+            Name = "";
+            Price = 0;
+            Change = "";
+            isFavorite = false;
+        }
         public SolidColorBrush ChangeColor
         {
             get => Change.StartsWith("+") ? new SolidColorBrush(Colors.Green) : new SolidColorBrush(Colors.Red);
         }
-        public required bool isFavorite { get; set; }
         public string FavoriteStar
         {
             get => isFavorite ? "★" : "☆";
         }
     }
 }
+
+
