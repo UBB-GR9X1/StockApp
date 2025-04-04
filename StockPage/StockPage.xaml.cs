@@ -47,7 +47,7 @@ namespace StockApp.StockPage
             // Retrieve the stock name passed during navigation
             if (e.Parameter is string stockName)
             {
-                _viewModel = new StockPageViewModel(stockName);
+                _viewModel = new StockPageViewModel(stockName, PriceLabel, IncreaseLabel, OwnedStocks, StockChart);
                 this.DataContext = _viewModel;
             }
         }
@@ -55,6 +55,42 @@ namespace StockApp.StockPage
         public void FavoriteButtonClick(object sender, RoutedEventArgs e)
         {
             _viewModel.ToggleFavorite();
-        } 
+        }
+
+        public void BuyButtonClick(object sender, RoutedEventArgs e) {
+            int quantity = (int)QuantityInput.Value;
+            bool r = _viewModel.BuyStock(quantity);
+            QuantityInput.Value = 1;
+            if (!r)
+            {
+                //var dialog = new ContentDialog
+                //{
+                //    Title = "Not enough gems",
+                //    Content = "You don't have enough gems to buy this stock.",
+                //    CloseButtonText = "OK"
+                //};
+                //dialog.ShowAsync();
+                Console.WriteLine("Not enough Gems!");
+            }
+        }
+
+        public void SellButtonClick(object sender, RoutedEventArgs e)
+        {
+            int quantity = (int)QuantityInput.Value;
+            bool r = _viewModel.SellStock(quantity);
+            QuantityInput.Value = 1;
+            if (!r)
+            {
+                //var dialog = new ContentDialog
+                //{
+                //    Title = "Not enough stocks",
+                //    Content = "You don't have enough stocks to sell.",
+                //    CloseButtonText = "OK"
+                //};
+
+                //dialog.ShowAsync();
+                Console.WriteLine("Not enough Stocks!");
+            }
+        }
     }
 }
