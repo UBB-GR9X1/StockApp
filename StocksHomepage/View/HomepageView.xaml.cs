@@ -87,8 +87,11 @@ namespace StocksHomepage
         public void GoToStock(object sender, ItemClickEventArgs e)
         {
             if (e.ClickedItem is HomepageStock stock)
-                this.Frame.Navigate(typeof(StockPage), null);
+            {
+                // this.Frame.Navigate(typeof(StockPage), null);
+                NavigationService.Instance.Initialize(this.Frame);
+                NavigationService.Instance.Navigate(typeof(StockPage), stock.Name);
+            }
         }
-        
     }
 }
