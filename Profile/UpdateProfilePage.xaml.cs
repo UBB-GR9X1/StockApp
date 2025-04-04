@@ -1,12 +1,15 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using StocksApp.Services;
+using StockApp.Profile;
+using System;
+using System.Threading.Tasks;
+using StockNewsPage.Services;
 
 namespace StocksApp
 {
     public sealed partial class UpdateProfilePage : Page
     {
-        private ProfieServices profServ = ProfieServices.Instance;
+        private UpdateProfilePageViewModel viewModelUpdate = new UpdateProfilePageViewModel(); 
 
         public UpdateProfilePage()
         {
@@ -15,62 +18,94 @@ namespace StocksApp
 
         private void GoToProfilePage(object sender, RoutedEventArgs e)
         {
-            Frame.Navigate(typeof(ProfilePage));
+            NavigationService.Instance.GoBack();
         }
 
-        private void GetAdminPassword(object sender, RoutedEventArgs e)
+        private async void GetAdminPassword(object sender, RoutedEventArgs e)
         {
             string userTryPass = PasswordTry.Text;
-            if (profServ.getPass() == userTryPass)
-            {
-                profServ.updateIsAdmin(true);
-                MyPopupAdmin.IsOpen = true;
-            }
-            else
-            {
-                profServ.updateIsAdmin(false);
-                MyPopupAdminNOT.IsOpen = true;
-            }
+            bool isAdmin = viewModelUpdate.getPassword() == userTryPass;
+            viewModelUpdate.updateAdminMode(isAdmin);
+
+            string message = isAdmin ? "You are now ADMIN!" : "Incorrect Password!";
+            string title = isAdmin ? "Success" : "Error";
+            ContentDialog dialog = CreateDialog(title, message);
+            await dialog.ShowAsync();
         }
 
-        private void ClosePopupAdmin(object sender, RoutedEventArgs e)
+        private async void UpdateUserProfile(object sender, RoutedEventArgs e)
         {
-            MyPopupAdmin.IsOpen = false;
-        }
-
-        private void ClosePopupAdminNOT(object sender, RoutedEventArgs e)
-        {
-            MyPopupAdminNOT.IsOpen = false;
-        }
-
-        private void UpdateUserProfile(object sender, RoutedEventArgs e)
-        {
+            bool DescriptionEmpty = MyDescriptionCheckBox.IsChecked == true;
             bool newHidden = MyCheckBox.IsChecked == true;
             string newUsername = UsernameInput.Text;
             string newImage = ImageInput.Text;
             string newDescription = DescriptionInput.Text;
 
-            if (string.IsNullOrEmpty(newUsername) || string.IsNullOrEmpty(newImage) || string.IsNullOrEmpty(newDescription))
+            if (string.IsNullOrEmpty(newUsername) && string.IsNullOrEmpty(newImage) && string.IsNullOrEmpty(newDescription)
+                && (MyCheckBox.IsChecked == false && viewModelUpdate.isHidden()==false) && MyDescriptionCheckBox.IsChecked == false)
             {
-                MyPopupUpdate.IsOpen = true;
+                await ShowErrorDialog("Please fill up at least one of the information fields");
+                return;
             }
-            else
-            {
-                if(newUsername.Length >= 8 && newUsername.Length <= 24 && newDescription.Length >= 0 && newDescription.Length <= 100)
-                {
-                    profServ.updateUser(newUsername, newImage, newDescription, newHidden);
-                }
-                else
-                {
-                    MyPopupUpdate.IsOpen = true;
-                }
 
+            if ((newUsername.Length < 8 || newUsername.Length > 24) && newUsername.Length != 0)
+            {
+                await ShowErrorDialog("Username must be 8-24 characters long.");
+                return;
             }
+
+            if(newDescription.Length > 100)
+            {
+                await ShowErrorDialog("The description should be max 100 characters long.");
+                return;
+            }
+
+            if (newUsername.Length == 0)
+            {
+                newUsername = viewModelUpdate.getUsername();    
+            }
+
+            if(DescriptionEmpty == false)
+            {
+                newDescription = viewModelUpdate.getDescription();
+            }
+
+            if(newImage.Length == 0)
+            {
+                newImage = viewModelUpdate.getImage();
+            }
+
+            else if(DescriptionEmpty == true)
+            {
+                newDescription = "";
+            }
+
+            viewModelUpdate.updateAll(newUsername, newImage, newDescription, newHidden);
+            await ShowSuccessDialog("Profile updated successfully!");
         }
 
-        private void ClosePopUpUpdate(object sender, RoutedEventArgs e)
+        private async Task ShowErrorDialog(string message)
         {
-            MyPopupUpdate.IsOpen = false;
+            ContentDialog dialog = CreateDialog("Error", message);
+            await dialog.ShowAsync();
+        }
+
+        private async Task ShowSuccessDialog(string message)
+        {
+            ContentDialog dialog = CreateDialog("Success", message);
+            await dialog.ShowAsync();
+        }
+
+        private ContentDialog CreateDialog(string title, string message)
+        {
+            return new ContentDialog
+            {
+                Title = title,
+                Content = message,
+                CloseButtonText = "OK",
+                DefaultButton = ContentDialogButton.Close,
+                XamlRoot = this.XamlRoot
+            };
         }
     }
 }

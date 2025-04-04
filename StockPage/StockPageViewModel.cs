@@ -8,6 +8,15 @@ using System.Threading.Tasks;
 using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Drawing.Geometries;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
+using Microsoft.UI;
+using LiveChartsCore.SkiaSharpView.WinUI;
+using LiveChartsCore.SkiaSharpView.Painting;
+using LiveChartsCore.Painting;
+using SkiaSharp;
+using StocksApp;
+using Catel.Services;
 
 
 namespace StockApp.StockPage
@@ -19,32 +28,78 @@ namespace StockApp.StockPage
         private StockPageService _service;
         private bool _isFavorite = false;
         private string _favoriteButtonColor = "#ffff5c";
-        private bool _isGuest = true;
+        private bool _isGuest = false;
         private string _guestVisibility = "Visible";
         private int _userGems = 0;
-        private string _userGemsText = "0 ❇️";
+        private string _userGemsText = "0 ❇️ Gems";
 
-        public StockPageViewModel(String stock_name)
+        private TextBlock _priceLabel;
+        private TextBlock _increaseLabel;
+        private TextBlock _ownedStocks;
+        private CartesianChart _stockChart;
+
+        public StockPageViewModel(String stock_name, TextBlock priceLabel, TextBlock increaseLabel, TextBlock ownedStocks, CartesianChart stockChart)
         {
             this._service = new StockPageService(stock_name);
+            this._priceLabel = priceLabel;
+            this._increaseLabel = increaseLabel;
+            this._ownedStocks = ownedStocks;
+            this._stockChart = stockChart;
+
+            IsGuest = _service.IsGuest();
 
             StockName = _service.GetStockName();
             StockSymbol = _service.GetStockSymbol();
+
+            updateStockValue();
+
+            IsFavorite = _service.getFavorite();
         }
 
-
-        public ISeries[] Series { get; set; } = [
-            new LineSeries<int> {
-                Values = new int[] { 4, 6, 5, 3, -3, -1, 2 }
+        public void updateStockValue()
+        {
+            if (!_service.IsGuest())
+            {
+                UserGems = _service.GetUserBalance();
+                _ownedStocks.Text = "Owned: " + _service.GetOwnedStocks().ToString();
             }
-        ];
+            List<int> stockHistory = _service.GetStockHistory();
+            _priceLabel.Text = stockHistory.Last().ToString() + " ❇️ Gems";
+            if (stockHistory.Count > 1)
+            {
+                int increasePerc = ((stockHistory.Last() - stockHistory[stockHistory.Count - 2]) * 100) / stockHistory[stockHistory.Count - 2];
+                _increaseLabel.Text = increasePerc + "%";
+                if (increasePerc > 0)
+                {
+                    _increaseLabel.Foreground = new SolidColorBrush(Colors.Green);
+                }
+                else
+                {
+                    _increaseLabel.Foreground = new SolidColorBrush(Colors.IndianRed);
+                }
+            }
+            _stockChart.UpdateLayout();
+            _stockChart.Series = new ISeries[]
+            {
+                new LineSeries<int>
+                {
+                    Values = stockHistory.TakeLast(30).ToArray(),
+                    Fill = null,
+                    Stroke = new SolidColorPaint(SKColor.Parse("#4169E1"), 5),
+                    GeometryStroke = new SolidColorPaint(SKColor.Parse("#4169E1"), 5),
+
+                }
+            };
+        }
 
         public bool IsFavorite
         {
             get { return _isFavorite; }
             set
             {
+                if (_isFavorite == value) return;
                 _isFavorite = value;
+                _service.toggleFavorite(_isFavorite);
                 if (_isFavorite)
                 {
                     FavoriteButtonColor = "#ff0000"; // Red color for favorite
@@ -110,7 +165,7 @@ namespace StockApp.StockPage
             set
             {
                 _isGuest = value;
-                GuestVisibility = _isGuest ? "Visible" : "Collapsed";
+                GuestVisibility = _isGuest ? "Collapsed" : "Visible";
                 OnPropertyChanged(nameof(IsGuest));
             }
         }
@@ -131,7 +186,7 @@ namespace StockApp.StockPage
             set
             {
                 _userGems = value;
-                UserGemsText = $"{_userGems} ❇️";
+                UserGemsText = $"{_userGems} ❇️ Gems";
                 OnPropertyChanged(nameof(UserGems));
             }
         }
@@ -144,6 +199,25 @@ namespace StockApp.StockPage
                 _userGemsText = value;
                 OnPropertyChanged(nameof(UserGemsText));
             }
+        }
+
+        public bool BuyStock(int quantity)
+        {
+            bool res = _service.BuyStock(quantity);
+            updateStockValue();
+            return res;
+        }
+
+        public bool SellStock(int quantity)
+        {
+            bool res = _service.SellStock(quantity);
+            updateStockValue();
+            return res;
+        }
+
+        public string getStockAuthor()
+        {
+            return _service.getStockAuthor();
         }
     }
 }
