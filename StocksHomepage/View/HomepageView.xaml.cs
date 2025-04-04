@@ -83,9 +83,9 @@ namespace StocksHomepage
             this.Frame.Navigate(typeof(GemStore.GemStoreWindow), null);
         }
 
-        public void GoToStock(object sender, RoutedEventArgs e)
+        public void GoToStock(object sender, ItemClickEventArgs e)
         {
-            if (sender is FrameworkElement element && element.DataContext is HomepageStock stock)
+            if (e.ClickedItem is HomepageStock stock)
                 this.Frame.Navigate(typeof(StockPage), null);
         }
         

@@ -60,10 +60,9 @@
                 </ListViewItem>
             </ListView>
             <!-- Binding Favorite Stocks as ListView items -->
-            <ListView x:Name="FavoritesList" ItemsSource="{Binding FilteredFavoriteStocks}">
+            <ListView x:Name="FavoritesList" ItemsSource="{Binding FilteredFavoriteStocks}" IsItemClickEnabled="True" ItemClick="GoToStock">
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="model:HomepageStock">
-                        <Grid Background="Transparent" Tapped="GoToStock">
                             <StackPanel Orientation="Horizontal" Spacing="20">
                                 <TextBlock Text="{x:Bind Symbol}" FontSize="16" FontWeight="Bold" Width="100"/>
                                 <TextBlock Text="{x:Bind Name}" Width="450"/>
@@ -71,7 +70,6 @@
                                 <TextBlock Text="{x:Bind Change}" Foreground="{x:Bind ChangeColor}" Width="200"/>
                                 <Button Content="★" Width="100" Click="FavoriteButton_Click" Tag="{x:Bind}" IsEnabled="{Binding DataContext.CanModifyFavorites, ElementName=FavoritesList}"/>
                             </StackPanel>
-                        </Grid>
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
@@ -90,10 +88,9 @@
                 </ListViewItem>
             </ListView>
             <!-- Binding All Stocks as ListView items -->
-            <ListView x:Name="StocksList" ItemsSource="{Binding FilteredAllStocks}">
+            <ListView x:Name="StocksList" ItemsSource="{Binding FilteredAllStocks}" IsItemClickEnabled="True" ItemClick="GoToStock">
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="model:HomepageStock">
-                        <Grid Background="Transparent" Tapped="GoToStock">
                             <StackPanel Orientation="Horizontal" Spacing="20">
                                 <TextBlock Text="{x:Bind Symbol}" FontSize="16" FontWeight="Bold" Width="100"/>
                                 <TextBlock Text="{x:Bind Name}" Width="450"/>
@@ -101,7 +98,6 @@
                                 <TextBlock Text="{x:Bind Change}" Foreground="{x:Bind ChangeColor}" Width="200"/>
                                 <Button Content="{x:Bind FavoriteStar}" Width="100" Click="FavoriteButton_Click" Tag="{x:Bind}" IsEnabled="{Binding DataContext.CanModifyFavorites, ElementName=FavoritesList}"/>
                             </StackPanel>
-                        </Grid>
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
