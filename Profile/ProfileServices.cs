@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using StockApp.Model;
 
-namespace StocksApp.Services
+namespace StockApp.Profile
 {
     public class ProfieServices
     {
+        ProfileRepository _repo = new ProfileRepository();
+
         private static ProfieServices _instance;
         private static readonly object _lock = new object();
 
@@ -15,8 +17,8 @@ namespace StocksApp.Services
 
         private ProfieServices()
         {
-            _user = new User("1234567890", "Caramel", "asdf", false, "imagine", false);
-            userStocks = new List<string> { "Stock A", "Stock B", "Stock C", "Stock D" };
+            _user = _repo.CurrentUser();
+            userStocks = _repo.userStocks();
         }
 
         public static ProfieServices Instance
@@ -53,7 +55,8 @@ namespace StocksApp.Services
 
         public void updateIsAdmin(bool isAdm)
         {
-            _user.IsModerator = isAdm;
+            //_user.IsModerator = isAdm;
+            _repo.updateRepoIsAdmin(isAdm);
         }
     }
 }
