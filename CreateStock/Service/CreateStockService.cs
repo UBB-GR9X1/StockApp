@@ -1,5 +1,6 @@
 ﻿using StockApp.Model;
 using StockApp.Repositories;
+using StocksHomepage.Repositories;
 using System;
 using System.Text.RegularExpressions;
 
@@ -14,6 +15,13 @@ namespace StockApp.CreateStock.Service
         {
             _stocksRepository = stocksRepository ?? new BaseStocksRepository();
         }
+
+        public bool checkIfUserIsGuest()
+        {
+            HomepageStocksRepository homepageStocksRepository = new HomepageStocksRepository();
+            return homepageStocksRepository.IsGuestUser(homepageStocksRepository.getCNP());
+        }
+
 
         public string AddStock(string stockName, string stockSymbol, string authorCNP)
         {
