@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using StockApp;
+using StockApp.Repositories;
 
 namespace StockNewsPage.ViewModels
 {
@@ -18,6 +19,7 @@ namespace StockNewsPage.ViewModels
         private readonly NewsService _newsService;
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly AppState _appState;
+        private readonly BaseStocksRepository _stocksRepository = new BaseStocksRepository();
 
         // properties
         private string _title;
@@ -203,57 +205,62 @@ namespace StockNewsPage.ViewModels
             if (!ValidateForm())
                 return;
 
+            IsLoading = true;
+            ErrorMessage = string.Empty;
+
             try
             {
-                IsLoading = true;
+                // parse and validate related stocks before submitting
+                List<string> relatedStocks = ParseRelatedStocks();
+                
+                // validate stocks and show dialog if needed
+                bool continueSubmission = await ValidateStocksAsync(relatedStocks);
+                if (!continueSubmission)
+                {
+                    IsLoading = false;
+                    return;
+                }
 
-                // create user article
-                var userArticle = new UserArticle
+                var article = new UserArticle
                 {
                     ArticleId = Guid.NewGuid().ToString(),
                     Title = Title,
-                    Summary = Summary ?? "",
+                    Summary = Summary,
                     Content = Content,
                     Author = _appState.CurrentUser?.CNP ?? "Anonymous",
                     SubmissionDate = DateTime.Now,
                     Status = "Pending",
                     Topic = SelectedTopic,
-                    RelatedStocks = ParseRelatedStocks()
+                    RelatedStocks = relatedStocks
                 };
 
-                // submit article
-                var success = await _newsService.SubmitUserArticleAsync(userArticle);
+                bool success = await _newsService.SubmitUserArticleAsync(article);
 
                 if (success)
                 {
-                    // success message
-                    var dialog = new ContentDialog
+                    _dispatcherQueue.TryEnqueue(async () =>
                     {
-                        Title = "Success",
-                        Content = "Your article has been submitted for review.",
-                        CloseButtonText = "OK",
-                        XamlRoot = App.CurrentWindow.Content.XamlRoot
-                    };
+                        var dialog = new ContentDialog
+                        {
+                            Title = "Success",
+                            Content = "Your article has been submitted for review.",
+                            CloseButtonText = "OK",
+                            XamlRoot = App.CurrentWindow.Content.XamlRoot
+                        };
 
-                    await dialog.ShowAsync();
-
-                    // clear and navigate back
-                    ClearForm();
-                    NavigationService.Instance.GoBack();
+                        await dialog.ShowAsync();
+                        ClearForm();
+                        NavigationService.Instance.GoBack();
+                    });
                 }
                 else
                 {
-                    ErrorMessage = "Failed to submit article. Please try again.";
+                    ShowErrorDialog("Failed to submit article. Please try again later.");
                 }
-            }
-            catch (UnauthorizedAccessException)
-            {
-                ErrorMessage = "You must be logged in to submit an article.";
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error submitting article: {ex.Message}");
-                ErrorMessage = "An error occurred while trying to submit the article.";
+                ShowErrorDialog($"An error occurred: {ex.Message}");
             }
             finally
             {
@@ -291,6 +298,65 @@ namespace StockNewsPage.ViewModels
             {
                 ErrorMessage = "Topic is required.";
                 return false;
+            }
+
+            return true;
+        }
+
+        private async Task<bool> ValidateStocksAsync(List<string> enteredStocks)
+        {
+            if (enteredStocks == null || enteredStocks.Count == 0)
+                return true;
+
+            var allStocks = _stocksRepository.GetAllStocks();
+
+            // check if all entered stocks exist (by name or symbol)
+            var invalidStocks = new List<string>();
+            foreach (var stock in enteredStocks)
+            {
+                bool stockExists = allStocks.Any(s =>
+                    s.Name.Equals(stock, StringComparison.OrdinalIgnoreCase) ||
+                    s.Symbol.Equals(stock, StringComparison.OrdinalIgnoreCase));
+
+                if (!stockExists)
+                {
+                    invalidStocks.Add(stock);
+                }
+            }
+
+            if (invalidStocks.Count > 0)
+            {
+                // a string of available stocks for the dialog
+                var availableStocksList = allStocks
+                    .OrderBy(s => s.Name)
+                    .Take(20) // first 20 to avoid large dialog
+                    .Select(s => $"• {s.Name} ({s.Symbol})")
+                    .ToList();
+
+                string invalidStocksMessage = string.Join(", ", invalidStocks);
+                string availableStocksMessage = string.Join("\n", availableStocksList);
+
+                if (allStocks.Count > 20)
+                {
+                    availableStocksMessage += $"\n(and {allStocks.Count - 20} more...)";
+                }
+
+                string message = $"The following stocks are not found in our database: {invalidStocksMessage}\n\n" +
+                    $"Would you like to continue anyway? We'll create these stocks automatically.\n\n" +
+                    $"Available stocks include:\n{availableStocksMessage}";
+
+                var dialog = new ContentDialog
+                {
+                    Title = "Stock Validation",
+                    Content = message,
+                    PrimaryButtonText = "Continue Anyway",
+                    CloseButtonText = "Cancel",
+                    DefaultButton = ContentDialogButton.Primary,
+                    XamlRoot = App.CurrentWindow.Content.XamlRoot
+                };
+
+                var result = await dialog.ShowAsync();
+                return result == ContentDialogResult.Primary;
             }
 
             return true;

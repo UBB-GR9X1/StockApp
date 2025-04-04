@@ -124,6 +124,7 @@ namespace StockNewsPage.ViewModels
                         {
                             Article = article;
                             HasRelatedStocks = article.RelatedStocks != null && article.RelatedStocks.Any();
+                            System.Diagnostics.Debug.WriteLine($"Related stocks count: {article.RelatedStocks?.Count ?? 0}");
                         }
                         else
                         {
@@ -134,13 +135,12 @@ namespace StockNewsPage.ViewModels
                                 Summary = "The requested preview article could not be found.",
                                 Content = "The preview article you are looking for may no longer be available."
                             };
+                            HasRelatedStocks = false;
                             System.Diagnostics.Debug.WriteLine("Preview article not found");
                         }
 
                         IsLoading = false;
                     });
-
-                    return; // Return early after handling preview
                 }
                 else
                 {
