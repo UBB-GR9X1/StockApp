@@ -2,12 +2,18 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Imaging;
 using StockApp.Profile;
+using StockNewsPage.Services;
+using StockNewsPage.ViewModels;
+using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace StocksApp
 {
     public sealed partial class ProfilePage : Page
     {
         private ProfilePageViewModel viewModel = new ProfilePageViewModel();
+
+        ICommand UpdateProfileButton { get; }
 
         public ProfilePage()
         {
@@ -20,6 +26,7 @@ namespace StocksApp
                 this.hideProfile();
             }
 
+            UpdateProfileButton = new RelayCommand(() => GoToUpdatePage());
             userStocksShowUsername();
         }
 
@@ -31,9 +38,9 @@ namespace StocksApp
             ProfileImage.Source = viewModel.ImageSource;
         }
 
-        private void GoToUpdatePage(object sender, RoutedEventArgs e)
+        private void GoToUpdatePage()
         {
-            Frame.Navigate(typeof(UpdateProfilePage));
+            StockNewsPage.Services.NavigationService.Instance.Navigate(typeof(UpdateProfilePage));
         }
 
         private void getSelectedStock(object sender, RoutedEventArgs e)
@@ -53,7 +60,7 @@ namespace StocksApp
         public void goBack(object sender, RoutedEventArgs e)
         {
             // Go back to the previous page
-            Frame.GoBack();
+            StockNewsPage.Services.NavigationService.Instance.GoBack();
         }
 
         public void userStocksShowUsername()

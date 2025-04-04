@@ -13,8 +13,11 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using StocksApp;
+using StockNewsPage.Services;
 using Windows.UI.Core;
 using LiveChartsCore.Drawing;
+using System.Windows.Input;
+using StockNewsPage.ViewModels;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -28,17 +31,22 @@ namespace StockApp.StockPage
     {
         private StockPageViewModel _viewModel;
 
+        ICommand command { get; }
+
+
         public StockPage()
         {
             this.InitializeComponent();
+            command = new RelayCommand(() => AuthorButton_Click());
         }
 
         public void ReturnButton_Click(object sender, RoutedEventArgs e)
         {
-            this.Frame.GoBack();
+            NavigationService.Instance.GoBack();
         }
 
-        public void AuthorButton_Click(object sender, RoutedEventArgs e)
+
+        public void AuthorButton_Click()
         {
             // this.Frame.Navigate(typeof(AuthorPage.AuthorPage));
 
@@ -46,7 +54,7 @@ namespace StockApp.StockPage
             //// link the current frame (This.Frame) to the new one and make all go back work as expected
             //this.Frame.Content = newFrame;
             // newFrame.Navigate(typeof(ProfilePage), _viewModel.getStockAuthor());
-            this.Frame.Navigate(typeof(ProfilePage), _viewModel.getStockAuthor());
+            NavigationService.Instance.Navigate(typeof(ProfilePage), _viewModel.getStockAuthor());
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)

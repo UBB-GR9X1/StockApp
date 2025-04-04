@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml.Controls;
 using StockApp.Profile;
 using System;
 using System.Threading.Tasks;
+using StockNewsPage.Services;
 
 namespace StocksApp
 {
@@ -17,7 +18,7 @@ namespace StocksApp
 
         private void GoToProfilePage(object sender, RoutedEventArgs e)
         {
-            Frame.Navigate(typeof(ProfilePage));
+            NavigationService.Instance.GoBack();
         }
 
         private async void GetAdminPassword(object sender, RoutedEventArgs e)
