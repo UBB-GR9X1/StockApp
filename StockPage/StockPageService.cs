@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using StockNewsPage.Services;
+using TransactionLog;
 
 namespace StockApp.StockPage
 {
@@ -65,6 +66,10 @@ namespace StockApp.StockPage
                 if (new_price < 20) new_price = 20;
                 _repo.addStockValue(_stock.Name, new_price);
                 _repo.addOrUpdateUserStock(_stock.Name, quantity);
+
+                TransactionRepository repository = new TransactionRepository();
+                repository.AddTransaction(new Transaction(_stock.Symbol, _stock.Name, "BUY", quantity, stockPrice, DateTime.UtcNow, _repo.GetUser().CNP));
+
                 return true;
             }
             return false;
@@ -83,6 +88,10 @@ namespace StockApp.StockPage
                 _repo.addStockValue(_stock.Name, new_price);
                 _repo.addOrUpdateUserStock(_stock.Name, -quantity);
                 _repo.updateUserGems(_repo.GetUser().GemBalance + totalPrice);
+
+                TransactionRepository repository = new TransactionRepository();
+                repository.AddTransaction(new Transaction(_stock.Symbol, _stock.Name, "SELL", quantity, stockPrice, DateTime.UtcNow, _repo.GetUser().CNP));
+
                 return true;
             }
             return false;
