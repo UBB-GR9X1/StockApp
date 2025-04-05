@@ -3,10 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Windows.System.Profile;
 using StockApp.Repositories;
 using StockApp.Model;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace StockNewsPage.Services
 {
@@ -19,10 +17,13 @@ namespace StockNewsPage.Services
         private static readonly List<UserArticle> _userArticles = new();
         private static bool _isInitialized = false;
         private NewsRepository _repository = new NewsRepository();
+        private BaseStocksRepository _stocksRepository;
 
         public NewsService()
         {
             _appState = AppState.Instance;
+            _stocksRepository = new BaseStocksRepository();
+
             if (!_isInitialized)
             {
                 _userArticles.AddRange(_repository.GetAllUserArticles());
@@ -47,42 +48,31 @@ namespace StockNewsPage.Services
 
         public async Task<NewsArticle> GetNewsArticleByIdAsync(string articleId)
         {
-            // check if this is a preview article
-            bool isPreview = articleId.StartsWith("preview:");
-            string actualId = isPreview ? articleId.Substring(8) : articleId;
-
-            // check preview dictionary regardless of prefix
-            if (_previewArticles.TryGetValue(actualId, out var previewArticle))
+            // Check if this is a preview article and extract the actual ID
+            string lookupId = articleId;
+            if (articleId.StartsWith("preview:"))
             {
-                return previewArticle;
+                lookupId = articleId.Substring(8); // Remove "preview:" prefix
             }
 
-            // if marked as preview but not found, don't continue to database
-            if (isPreview)
+            // First check if this is a preview article using the correct lookup ID
+            if (_previewArticles.TryGetValue(lookupId, out var previewArticle))
             {
-                return null;
+                return previewArticle;
             }
 
             await Task.Delay(200);
 
             try
             {
-                return await Task.Run(() => _repository.GetNewsArticleById(actualId));
+                return await Task.Run(() => _repository.GetNewsArticleById(lookupId));
             }
-            catch // fallback
+            catch
             {
-                var cachedArticle = _cachedArticles.FirstOrDefault(a => a.ArticleId == actualId);
-                if (cachedArticle != null)
-                {
-                    return cachedArticle;
-                }
-
                 var mockArticles = _repository.GetAllNewsArticles();
-                return mockArticles.FirstOrDefault(a => a.ArticleId == actualId);
+                return mockArticles.FirstOrDefault(a => a.ArticleId == lookupId);
             }
         }
-
-
 
         public async Task<bool> MarkArticleAsReadAsync(string articleId)
         {
@@ -235,6 +225,7 @@ namespace StockNewsPage.Services
             try
             {
                 await Task.Run(() => _repository.DeleteUserArticle(articleId));
+                await Task.Run(() => _repository.DeleteNewsArticle(articleId));
                 _cachedArticles.Clear();
                 return true;
             }
@@ -354,8 +345,43 @@ namespace StockNewsPage.Services
         // Preview Methods
         public void StorePreviewArticle(NewsArticle article, UserArticle userArticle)
         {
-            _previewArticles[userArticle.ArticleId] = article;
-            _previewUserArticles[userArticle.ArticleId] = userArticle;
+            // First, ensure both articles use the same ID format for consistent lookup
+            string articleId = article.ArticleId;
+            if (articleId.StartsWith("preview:"))
+            {
+                articleId = articleId.Substring(8);
+                article.ArticleId = articleId;
+            }
+
+            // Properly copy related stocks from userArticle to the preview article
+            if (userArticle.RelatedStocks != null && userArticle.RelatedStocks.Count > 0)
+            {
+                article.RelatedStocks = new List<string>(userArticle.RelatedStocks);
+                System.Diagnostics.Debug.WriteLine($"StorePreviewArticle: Storing {article.RelatedStocks.Count} related stocks for article {articleId}");
+            }
+            else
+            {
+                article.RelatedStocks = new List<string>();
+                System.Diagnostics.Debug.WriteLine($"StorePreviewArticle: No related stocks found in user article {articleId}");
+            }
+
+            // Store the article and user article in the preview caches
+            _previewArticles[articleId] = article;
+            _previewUserArticles[articleId] = userArticle;
+
+            // Also update the repository with related stocks for this article
+            try
+            {
+                if (article.RelatedStocks != null && article.RelatedStocks.Count > 0)
+                {
+                    _repository.AddRelatedStocksForArticle(articleId, article.RelatedStocks, null);
+                    System.Diagnostics.Debug.WriteLine($"StorePreviewArticle: Added {article.RelatedStocks.Count} related stocks to repository for article {articleId}");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"StorePreviewArticle: Error adding related stocks to repository: {ex.Message}");
+            }
         }
 
         public UserArticle GetUserArticleForPreview(string articleId)
@@ -367,6 +393,34 @@ namespace StockNewsPage.Services
 
             // if not in preview cache, check the regular user articles
             return _userArticles.FirstOrDefault(a => a.ArticleId == articleId);
+        }
+
+        public List<string> GetRelatedStocksForArticle(string articleId)
+        {
+            // Remove "preview:" prefix if present
+            string actualId = articleId.StartsWith("preview:") ? articleId.Substring(8) : articleId;
+
+            // Check preview dictionary first
+            if (_previewUserArticles.TryGetValue(actualId, out var previewUserArticle) &&
+                previewUserArticle.RelatedStocks != null &&
+                previewUserArticle.RelatedStocks.Any())
+            {
+                System.Diagnostics.Debug.WriteLine($"GetRelatedStocksForArticle: Found {previewUserArticle.RelatedStocks.Count} stocks in preview");
+                return previewUserArticle.RelatedStocks;
+            }
+
+            // Then check repository
+            try
+            {
+                var stocks = _repository.GetRelatedStocksForArticle(actualId);
+                System.Diagnostics.Debug.WriteLine($"GetRelatedStocksForArticle: Found {stocks.Count} stocks in repository");
+                return stocks;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"GetRelatedStocksForArticle: Error: {ex.Message}");
+                return new List<string>();
+            }
         }
 
         public void UpdateCachedArticles(List<NewsArticle> articles)
@@ -382,7 +436,6 @@ namespace StockNewsPage.Services
         {
             return _cachedArticles.Count > 0 ? _cachedArticles : _repository.GetAllNewsArticles();
         }
-
     }
 }
 
