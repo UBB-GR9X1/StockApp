@@ -25,6 +25,7 @@ namespace StocksHomepage.ViewModel
         private string _selectedSortOption;
         private bool _isGuestUser = true;
         private string _guestButtonVisibility = "Visible";
+        private string _profileButtonVisibility = "Collapsed";
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -63,6 +64,7 @@ namespace StocksHomepage.ViewModel
             {
                 _isGuestUser = value;
                 GuestButtonVisibility = _isGuestUser ? "Visible" : "Collapsed";
+                ProfileButtonVisibility = _isGuestUser ? "Collapsed" : "Visible";
                 OnPropertyChanged(nameof(IsGuestUser));
                 OnPropertyChanged(nameof(CanModifyFavorites)); // Add this line
             }
@@ -75,6 +77,16 @@ namespace StocksHomepage.ViewModel
             {
                 _guestButtonVisibility = value;
                 OnPropertyChanged(nameof(GuestButtonVisibility));
+            }
+        }
+
+        public string ProfileButtonVisibility
+        {
+            get { return _profileButtonVisibility; }
+            set
+            {
+                _profileButtonVisibility = value;
+                OnPropertyChanged(nameof(ProfileButtonVisibility));
             }
         }
 

@@ -56,8 +56,9 @@ namespace StocksHomepage.Repositories
         }
         
         public string GetUserCNP()
-                {
-                string query = "SELECT TOP 1 CNP FROM HARDCODED_CNPS ORDER BY CNP DESC";
+        {
+
+            string query = "SELECT TOP 1 CNP FROM HARDCODED_CNPS ORDER BY CNP DESC";
 
                 using (var command = new SqlCommand(query, dbConnection))
                 {
@@ -71,7 +72,7 @@ namespace StocksHomepage.Repositories
                     }
                 }
                 return null;
-              }
+        }
 
         public List<HomepageStock> LoadStocks()
         {
@@ -118,9 +119,10 @@ namespace StocksHomepage.Repositories
                                     SELECT 
                                         s.STOCK_NAME, 
                                         s.STOCK_SYMBOL,
-                                        COALESCE(f.IS_FAVORITE, 0) AS IS_FAVORITE
+                                        MAX(COALESCE(f.IS_FAVORITE, 0)) AS IS_FAVORITE
                                     FROM STOCK s
-                                    LEFT JOIN FAVORITE_STOCK f ON s.STOCK_NAME = f.STOCK_NAME AND f.USER_CNP = @UserCNP";
+                                    LEFT JOIN FAVORITE_STOCK f ON s.STOCK_NAME = f.STOCK_NAME AND f.USER_CNP = @UserCNP
+                                    GROUP BY s.STOCK_NAME, s.STOCK_SYMBOL";
 
             using (var command = new SqlCommand(stocksQuery, dbConnection))
             {
@@ -221,7 +223,7 @@ namespace StocksHomepage.Repositories
                 command.Parameters.AddWithValue("@Description", "Default User Description");
                 command.Parameters.AddWithValue("@IsHidden", false);  
                 command.Parameters.AddWithValue("@IsAdmin", false);   
-                command.Parameters.AddWithValue("@ProfilePicture", "default.jpg");
+                command.Parameters.AddWithValue("@ProfilePicture", "https://cdn.discordapp.com/attachments/1309495559085756436/1358378808440389854/defaultProfilePicture.png?ex=67f3a059&is=67f24ed9&hm=674641524bcc24a5fadfde6b087bf550b147c9ec9d81f81e4b0447f69624cb55&");
                 command.Parameters.AddWithValue("@GemBalance", 0);  
                 command.ExecuteNonQuery();
             }
