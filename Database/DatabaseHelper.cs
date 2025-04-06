@@ -145,6 +145,10 @@ namespace StockApp.Database
                         " UPPER_BOUND INT," +
                         " TOGGLE BIT," +
                         " FOREIGN KEY (STOCK_NAME) REFERENCES STOCK(STOCK_NAME))";
+                    string createTriggeredAlertsTableQuery =
+                        "CREATE TABLE TRIGGERED_ALERTS (" +
+                        "SOCK_NAME NVARCHAR(100)," +
+                        " NAME NVARCHAR(100),";
 
                     string createNewsArticleTableQuery =
                         "CREATE TABLE NEWS_ARTICLE (" +
@@ -181,6 +185,7 @@ namespace StockApp.Database
                     string createHardcodedCNPsTableQuery =
                         "CREATE TABLE HARDCODED_CNPS (" +
                         " CNP NVARCHAR(50) PRIMARY KEY)";
+
                     try
                     {
                         using (var command = new SqlCommand(null, connectionTOBD))
@@ -199,6 +204,7 @@ namespace StockApp.Database
                             command.ExecuteNonQuery();
                             command.CommandText = createAlertsTableQuery;
                             command.ExecuteNonQuery();
+                            command.CommandText = createTriggeredAlertsTableQuery;
                             command.CommandText = createNewsArticleTableQuery;
                             command.ExecuteNonQuery();
                             command.CommandText = createUserArticleTableQuery;
@@ -234,6 +240,17 @@ INSERT INTO STOCK (STOCK_NAME, STOCK_SYMBOL, AUTHOR_CNP) VALUES
 ('Cesla', 'CSLA', '1234567890124')",
 connectionTOBD);
                     addStocks.ExecuteNonQuery();
+
+
+                    SqlCommand addAlert = new SqlCommand(@"
+INSERT INTO ALERTS (STOCK_NAME, NAME, LOWER_BOUND, UPPER_BOUND, TOGGLE) VALUES
+('Tesla', 'Tesla Alert', 120, 150, 1),
+('Besla', 'Besla Alert', 200, 250, 1),
+('Cesla', 'Cesla Alert', 300, 350, 1)",
+                        connectionTOBD);
+                    addAlert.ExecuteNonQuery();
+
+                    
 
                     SqlCommand addStockValues = new SqlCommand(@"
 INSERT INTO STOCK_VALUE (STOCK_NAME, PRICE) VALUES
