@@ -164,7 +164,7 @@ namespace StockApp.CreateStock.ViewModel
 
             Message = _stockService.AddStock(StockName, StockSymbol, AuthorCNP);
 
-            if (Message == "Stock added successfully!")
+            if (Message == "Stock added successfully with initial value!")
             {
                 _suppressValidation = true;
                 StockName = "";
@@ -178,9 +178,9 @@ namespace StockApp.CreateStock.ViewModel
         {
             // This method should check if the user is an admin.
             // For now, let's assume the user is an admin.
-            bool isAdmin = true;
-
-            return isAdmin;
+            if (_stockService.checkIfUserIsGuest())
+                Message = "You are a guest user and cannot create stocks!";
+            return !(_stockService.checkIfUserIsGuest());
         }
 
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)

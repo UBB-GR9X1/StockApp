@@ -86,7 +86,8 @@
                                Opacity="0.9"/>
 
                     <!-- Related Stocks -->
-                    <StackPanel Visibility="{x:Bind ViewModel.HasRelatedStocks, Mode=OneWay}" Spacing="8">
+                    <StackPanel Visibility="{x:Bind ViewModel.HasRelatedStocks, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" 
+                                Spacing="8">
                         <TextBlock Text="Related Stocks:" Style="{StaticResource BodyStrongTextBlockStyle}"/>
                         <ItemsRepeater ItemsSource="{x:Bind ViewModel.Article.RelatedStocks, Mode=OneWay}">
                             <ItemsRepeater.Layout>
@@ -94,13 +95,13 @@
                             </ItemsRepeater.Layout>
                             <ItemsRepeater.ItemTemplate>
                                 <DataTemplate x:DataType="x:String">
-                                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
-                                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
-                                            BorderThickness="1" 
-                                            CornerRadius="16" 
-                                            Padding="8,4,8,4">
-                                        <TextBlock Text="{x:Bind}" VerticalAlignment="Center"/>
-                                    </Border>
+                                    <Button Content="{x:Bind}" 
+                                            Click="RelatedStock_Click"
+                                            Margin="0,0,8,8" 
+                                            Padding="8,4"
+                                            Background="{ThemeResource AccentButtonBackground}"
+                                            Foreground="{ThemeResource AccentButtonForeground}"
+                                            CornerRadius="4" />
                                 </DataTemplate>
                             </ItemsRepeater.ItemTemplate>
                         </ItemsRepeater>

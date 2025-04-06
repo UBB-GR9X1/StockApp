@@ -25,7 +25,7 @@
             <Button Content="Return" Width="100" Height="40" Margin="10" Click="ReturnButton_Click" VerticalAlignment="Center" />
             <TextBlock x:Name="StockSymbol" Text="{Binding StockSymbol}" FontSize="16" Margin="0,0,10,0" Foreground="White" VerticalAlignment="Center" />
             <TextBlock x:Name="StockName" Text="{Binding StockName}" FontSize="16" Foreground="White" VerticalAlignment="Center" />
-            <Button x:Name="AuthorButton" Content="Author" Width="100" Height="40" Margin="10" Click="AuthorButton_Click"  VerticalAlignment="Center" />
+            <Button Command="{x:Bind command}" x:Name="AuthorButton" Content="Author" Width="100" Height="40" Margin="10"  VerticalAlignment="Center" />
         </StackPanel>
 
         <Grid Grid.Row="1">
@@ -35,13 +35,15 @@
             </Grid.ColumnDefinitions>
 
             <lvc:CartesianChart
+                x:Name="StockChart"
                 Grid.Column="0"
-                Series="{Binding Series}" 
                 HorizontalAlignment="Stretch" 
                 VerticalAlignment="Stretch"
-                Margin="10">
+                Margin="10"
+                AnimationsSpeed="0"    
+            >
             </lvc:CartesianChart>
-            <StackPanel Grid.Column="1" Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <StackPanel Grid.Column="1" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <StackPanel Visibility="{Binding GuestVisibility}" Margin="0, 10, 0, 10" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Stretch" Spacing="10">
                     
                     <Button x:Name="FavoriteButton" 
@@ -64,7 +66,6 @@
                         Content="🔔">
                     </Button>
 
-                    <!-- Gems Label -->
                     <TextBlock x:Name="GemsLabel" 
                         Text="{Binding UserGemsText}" 
                         VerticalAlignment="Center" 
@@ -73,6 +74,68 @@
                         Foreground="#b5fc51"
                         Margin="0,0,10,0"
                     />
+                </StackPanel>
+                
+                <TextBlock
+                    Text="Price" 
+                    FontSize="16" 
+                    Foreground="#A6A6A6" 
+                    HorizontalAlignment="Center" 
+                    VerticalAlignment="Center" 
+                    Margin="0, 10, 20, 10" />
+                <TextBlock x:Name="PriceLabel" 
+                    Text="" 
+                    FontSize="32" 
+                    Foreground="#b5fc51" 
+                    HorizontalAlignment="Center" 
+                    VerticalAlignment="Center" 
+                    Margin="0, 10, 20, 10" />
+                <TextBlock x:Name="IncreaseLabel" 
+                    Text="" 
+                    FontSize="24" 
+                    Foreground="White" 
+                    HorizontalAlignment="Center" 
+                    VerticalAlignment="Center" 
+                    Margin="0, 10, 20, 10" />
+
+                <TextBlock x:Name="OwnedStocks"
+                    Text="Owned: 0"
+                    FontSize="24"
+                    Foreground="White"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Margin="0, 10, 20, 10"
+                    Visibility="{Binding GuestVisibility}" />
+
+                <StackPanel Visibility="{Binding GuestVisibility}" Margin="0, 10, 0, 10" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Stretch" Spacing="10">
+                    <Button x:Name="BuyButton" 
+                        Content="BUY"
+                        VerticalAlignment="Center" 
+                        HorizontalAlignment="Center" 
+                        Background="#b5fc51"
+                        Foreground="DarkGreen"    
+                        Click="BuyButtonClick"
+                    />
+                    
+                    <!-- Make me a number input (range input) that starts from 0 -->
+                    <NumberBox 
+                        x:Name="QuantityInput"
+                        Minimum="1"
+                        Maximum="500"
+                        Value="1"
+                        VerticalAlignment="Center" 
+                        HorizontalAlignment="Center" 
+                    />
+
+                    <Button x:Name="SellButton" 
+                        Content="SELL"
+                        VerticalAlignment="Center" 
+                        HorizontalAlignment="Center" 
+                        Background="IndianRed"
+                        Foreground="#471310"   
+                        Click="SellButtonClick"  
+                    />
+
                 </StackPanel>
             </StackPanel>
         </Grid>

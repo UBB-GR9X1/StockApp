@@ -14,6 +14,7 @@ namespace StockNewsPage.Models
         public bool IsWatchlistRelated { get; set; }
         public string Category { get; set; }
         public List<string> RelatedStocks { get; set; }
+        public int Status { get; set; } // 0 = Pending, 1 = Approved, 2 = Rejected
     }
 }
 

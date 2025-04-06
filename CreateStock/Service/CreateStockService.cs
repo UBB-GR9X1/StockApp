@@ -1,5 +1,6 @@
 ﻿using StockApp.Model;
 using StockApp.Repositories;
+using StocksHomepage.Repositories;
 using System;
 using System.Text.RegularExpressions;
 
@@ -8,10 +9,19 @@ namespace StockApp.CreateStock.Service
     internal class CreateStockService
     {
         private readonly BaseStocksRepository _stocksRepository;
+        private readonly Random _random = new Random();
+
         public CreateStockService(BaseStocksRepository stocksRepository = null)
         {
             _stocksRepository = stocksRepository ?? new BaseStocksRepository();
         }
+
+        public bool checkIfUserIsGuest()
+        {
+            HomepageStocksRepository homepageStocksRepository = new HomepageStocksRepository();
+            return homepageStocksRepository.IsGuestUser(homepageStocksRepository.getCNP());
+        }
+
 
         public string AddStock(string stockName, string stockSymbol, string authorCNP)
         {
@@ -35,8 +45,12 @@ namespace StockApp.CreateStock.Service
                 }
 
                 var stock = new BaseStock(stockName, stockSymbol, authorCNP);
-                _stocksRepository.AddStock(stock);
-                return "Stock added successfully!";
+
+                int initialPrice = _random.Next(50, 501);
+
+                _stocksRepository.AddStock(stock, initialPrice);
+
+                return "Stock added successfully with initial value!";
             }
             catch (Exception ex)
             {
