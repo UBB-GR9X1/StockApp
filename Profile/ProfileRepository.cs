@@ -17,37 +17,24 @@ namespace StockApp.Profile
         private SqlConnection dbConnection = DatabaseHelper.Instance.GetConnection();
         private string cnp; //the user we are currently working with (idk what to do with it so i set it to "userCNP")
         private string userCNP; //=from data base (active user)
+        ///  I HAVE NO IDEA WHAT UR DOING!!!
+        private string loggedInUserCNP;
 
 
 
-public ProfileRepository()
+        public ProfileRepository(string author_cnp)
         {
-            string getCNPquery = "SELECT CNP FROM [HARDCODED_CNPS] WHERE CNP = '1234567890124'";
+            string getCNPquery = "SELECT CNP FROM [HARDCODED_CNPS]";
             using (var checkCommand = new SqlCommand(getCNPquery, dbConnection))
             {
-                this.userCNP = checkCommand.ExecuteScalar().ToString();
+                this.loggedInUserCNP = checkCommand.ExecuteScalar().ToString();
                 
             }
-            this.cnp = this.userCNP; //
-        }
 
-        public bool checkForCNP() //if it is in db
-        {
-            string thecnp = "1234567890124"; //should be this.cnp
-            string getCNPquery = "SELECT CNP FROM [USER] WHERE CNP = @CNP";
-            using (var checkCommand = new SqlCommand(getCNPquery, dbConnection))
-            {
-                checkCommand.Parameters.AddWithValue("@CNP", thecnp);
-                if (checkCommand.ExecuteScalar() == null)
-                {
-                    return false;
-                }
-                else
-                {
-                    return true;
-                }
-
-            }
+            // KILL ME (@OSAKI)
+            this.cnp = author_cnp; //this is the cnp of the user we are working with (the one we want to see the profile of)
+            this.userCNP = this.cnp;
+            // SOMETINES UR USING ONE, SOMETIMES THE OTHER...
         }
 
         public string generateUsername()
@@ -75,34 +62,7 @@ public ProfileRepository()
             return randomUsernames[randomIndex];
         }
 
-        public bool isActiveUser()
-        {
-
-            string getCNPquery = "SELECT CNP FROM [USER] WHERE CNP = @CNP";
-            using (var checkCommand = new SqlCommand(getCNPquery, dbConnection))
-            {
-                checkCommand.Parameters.AddWithValue("@CNP", this.userCNP);
-                if (checkCommand.ExecuteScalar() == null)
-                {
-                    return false;
-                }
-                else
-                {
-                    return true;
-                }
-
-            }
-        }
-
-        public Model.User CurrentUser()
-        {
-            if(this.checkForCNP() == false)
-            {
-                Model.User newUser = new Model.User(cnp, this.generateUsername(), "", false, "", false);
-                return newUser;
-            }
-            else 
-            { //put this.cnp not user
+        public Model.User CurrentUser() {
                 string myUsername;
                 string getUsernamequery = "SELECT NAME FROM [USER] WHERE CNP = @CNP";
                 using (var checkCommand = new SqlCommand(getUsernamequery, dbConnection))
@@ -152,8 +112,7 @@ public ProfileRepository()
 
                 //Model.User existingUser = new Model.User(cnp, "", "", false, "", false); //get info from database
                 Model.User existingUser = new Model.User(this.cnp, myUsername, myDescription, isA, myImage, isH);
-                return existingUser;
-            }
+            return existingUser;
         }
 
         public void updateRepoIsAdmin(bool newisA)
@@ -243,6 +202,11 @@ public ProfileRepository()
             }
 
             return stocks;
+        }
+
+        public string getLoggedInUserCNP()
+        {
+            return this.loggedInUserCNP;
         }
 
 

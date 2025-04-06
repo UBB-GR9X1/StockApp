@@ -108,6 +108,12 @@ namespace StocksHomepage.Service
         {
             return _repo.IsGuestUser(_repo.getCNP());
         }
+
+        public string GetUserCNP()
+        {
+            return _repo.getCNP();
+        }
+
         public void CreateUserProfile()
         {
             _repo.CreateUserProfile();

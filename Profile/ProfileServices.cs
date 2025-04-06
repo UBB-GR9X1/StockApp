@@ -7,33 +7,17 @@ namespace StockApp.Profile
 {
     public class ProfieServices
     {
-        ProfileRepository _repo = new ProfileRepository();
-
-        private static ProfieServices _instance;
-        private static readonly object _lock = new object();
+        ProfileRepository _repo;
 
         private User _user;
         private List<string> userStocks;
 
-        private ProfieServices()
+        public ProfieServices(string authorCNP)
         {
+            _repo = new ProfileRepository(authorCNP);
+
             _user = _repo.CurrentUser();
             userStocks = _repo.userStocks();
-        }
-
-        public static ProfieServices Instance
-        {
-            get
-            {
-                lock (_lock)
-                {
-                    if (_instance == null)
-                    {
-                        _instance = new ProfieServices();
-                    }
-                    return _instance;
-                }
-            }
         }
 
         public string getImage() => _user.Image;
@@ -84,6 +68,11 @@ namespace StockApp.Profile
             string extractedName = parts[1].Trim();
             return extractedName;
 
+        }
+
+        public string getLoggedInUserCNP()
+        {
+            return _repo.getLoggedInUserCNP();
         }
 
     }

@@ -51,6 +51,11 @@ namespace StocksHomepage.ViewModel
             }
         }
 
+        public string getUserCNP()
+        {
+            return _service.GetUserCNP();
+        }
+
         public bool IsGuestUser
         {
             get => _isGuestUser;

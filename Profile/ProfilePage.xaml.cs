@@ -1,6 +1,8 @@
+using Catel.MVVM;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Imaging;
+using Microsoft.UI.Xaml.Navigation;
 using StockApp.Profile;
 using StockApp.StockPage;
 using StockNewsPage.Services;
@@ -13,11 +15,16 @@ namespace StocksApp
 {
     public sealed partial class ProfilePage : Page
     {
-        private ProfilePageViewModel viewModel = new ProfilePageViewModel();
+        private ProfilePageViewModel viewModel;
 
         ICommand UpdateProfileButton { get; }
 
         public ProfilePage()
+        {
+            UpdateProfileButton = new RelayCommand(() => GoToUpdatePage());
+        }
+
+        private void doStuff()
         {
             this.InitializeComponent();
             this.showUserInformation();
@@ -28,8 +35,20 @@ namespace StocksApp
                 this.hideProfile();
             }
 
-            UpdateProfileButton = new RelayCommand(() => GoToUpdatePage());
             userStocksShowUsername();
+        }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+
+            if (e.Parameter is string authorCNP)
+            {
+                viewModel = new ProfilePageViewModel(authorCNP);
+                this.DataContext = viewModel;
+            }
+
+            doStuff();
         }
 
         private void showUserInformation()
@@ -42,7 +61,7 @@ namespace StocksApp
 
         private void GoToUpdatePage()
         {
-            StockNewsPage.Services.NavigationService.Instance.Navigate(typeof(UpdateProfilePage));
+            StockNewsPage.Services.NavigationService.Instance.Navigate(typeof(UpdateProfilePage), viewModel.getLoggedInUserCNP());
         }
 
         private void getSelectedStock(object sender, RoutedEventArgs e)

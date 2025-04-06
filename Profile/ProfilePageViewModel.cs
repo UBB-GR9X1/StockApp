@@ -7,7 +7,7 @@ namespace StockApp.Profile
 {
     internal class ProfilePageViewModel : INotifyPropertyChanged
     {
-        private ProfieServices profServ = ProfieServices.Instance;
+        private ProfieServices profServ;
 
         private BitmapImage _imageSource;
         public BitmapImage ImageSource
@@ -20,8 +20,9 @@ namespace StockApp.Profile
             }
         }
 
-        public ProfilePageViewModel()
+        public ProfilePageViewModel(string authorCNP)
         {
+            profServ = new ProfieServices(authorCNP);
             LoadProfileImage();
         }
 
@@ -39,6 +40,12 @@ namespace StockApp.Profile
                     System.Diagnostics.Debug.WriteLine($"Error loading image: {ex.Message}");
                 }
             }
+        }
+
+
+        public string getLoggedInUserCNP()
+        {
+            return profServ.getLoggedInUserCNP();
         }
 
         public string getUsername() => profServ.getUsername();

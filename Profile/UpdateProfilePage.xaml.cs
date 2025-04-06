@@ -4,16 +4,31 @@ using StockApp.Profile;
 using System;
 using System.Threading.Tasks;
 using StockNewsPage.Services;
+using Catel.MVVM;
+using Microsoft.UI.Xaml.Navigation;
 
 namespace StocksApp
 {
     public sealed partial class UpdateProfilePage : Page
     {
-        private UpdateProfilePageViewModel viewModelUpdate = new UpdateProfilePageViewModel(); 
+        private UpdateProfilePageViewModel viewModelUpdate; 
 
         public UpdateProfilePage()
         {
             this.InitializeComponent();
+        }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+
+            // Retrieve the stock name passed during navigation
+            if (e.Parameter is string authorCNP)
+            {
+                viewModelUpdate = new UpdateProfilePageViewModel(authorCNP);
+                this.DataContext = viewModelUpdate;
+            }
+
         }
 
         private void GoToProfilePage(object sender, RoutedEventArgs e)

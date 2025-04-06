@@ -10,11 +10,11 @@ namespace StockApp.Profile
     {
 
 
-        private ProfieServices profServ = ProfieServices.Instance;
+        private ProfieServices profServ;
 
-        public UpdateProfilePageViewModel()
+        public UpdateProfilePageViewModel(string myCNP)
         {
-
+            profServ = new ProfieServices(myCNP);
         }
 
         public string getImage() => profServ.getImage();
