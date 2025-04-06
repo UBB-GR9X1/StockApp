@@ -74,6 +74,11 @@ namespace StockApp.StockPage
             _viewModel.ToggleFavorite();
         }
 
+        public void AlertsButtonClick(object sender, RoutedEventArgs e)
+        {
+            NavigationService.Instance.Navigate(typeof(Alerts.AlertWindow));
+        }
+
         public void BuyButtonClick(object sender, RoutedEventArgs e) {
             int quantity = (int)QuantityInput.Value;
             bool r = _viewModel.BuyStock(quantity);

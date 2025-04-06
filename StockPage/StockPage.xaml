@@ -63,7 +63,9 @@
                         VerticalAlignment="Center" 
                         HorizontalAlignment="Center" 
                         Background="RoyalBlue"
-                        Content="🔔">
+                        Content="🔔"
+                        Click="AlertsButtonClick"
+                        >
                     </Button>
 
                     <TextBlock x:Name="GemsLabel" 

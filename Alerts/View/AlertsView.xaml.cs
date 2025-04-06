@@ -29,7 +29,7 @@ namespace Alerts
         {
             var newAlert = new Alert
             {
-                StockName = "New Stock",
+                StockName = "Tesla",
                 Name = "New Alert",
                 UpperBound = 100,
                 LowerBound = 0,
