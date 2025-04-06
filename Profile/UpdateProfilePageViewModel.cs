@@ -10,11 +10,11 @@ namespace StockApp.Profile
     {
 
 
-        private ProfieServices profServ = ProfieServices.Instance;
+        private ProfieServices profServ;
 
-        public UpdateProfilePageViewModel()
+        public UpdateProfilePageViewModel(string myCNP)
         {
-
+            profServ = new ProfieServices(myCNP);
         }
 
         public string getImage() => profServ.getImage();
@@ -23,6 +23,8 @@ namespace StockApp.Profile
         public bool isHidden() => profServ.isHidden();
         public bool isAdmin() => profServ.isAdmin();
         public List<string> getUserStocks() => profServ.getUserStocks();
+
+
 
         public void updateAll(string newUsername, string newImage, string newDescription, bool newHidden)
         {

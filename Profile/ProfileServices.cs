@@ -7,33 +7,17 @@ namespace StockApp.Profile
 {
     public class ProfieServices
     {
-        ProfileRepository _repo = new ProfileRepository();
-
-        private static ProfieServices _instance;
-        private static readonly object _lock = new object();
+        ProfileRepository _repo;
 
         private User _user;
         private List<string> userStocks;
 
-        private ProfieServices()
+        public ProfieServices(string authorCNP)
         {
+            _repo = new ProfileRepository(authorCNP);
+
             _user = _repo.CurrentUser();
             userStocks = _repo.userStocks();
-        }
-
-        public static ProfieServices Instance
-        {
-            get
-            {
-                lock (_lock)
-                {
-                    if (_instance == null)
-                    {
-                        _instance = new ProfieServices();
-                    }
-                    return _instance;
-                }
-            }
         }
 
         public string getImage() => _user.Image;
@@ -59,5 +43,37 @@ namespace StockApp.Profile
             //_user.IsModerator = isAdm;
             _repo.updateRepoIsAdmin(isAdm);
         }
+
+        public List<string> ExtractStockNames()
+        {
+            List<string> stockNames = new List<string>();
+
+            foreach (var stockInfo in _repo.userStocks())
+            {
+                // Assuming format: SYMBOL | NAME | Quantity: X | Price: Y
+                var parts = stockInfo.Split('|');
+                if (parts.Length >= 2)
+                {
+                    string stockName = parts[1].Trim();
+                    stockNames.Add(stockName);
+                }
+            }
+
+            return stockNames;
+        }
+
+        public string extractStockName(string fullStockInfo)
+        {
+            var parts = fullStockInfo.Split('|');
+            string extractedName = parts[1].Trim();
+            return extractedName;
+
+        }
+
+        public string getLoggedInUserCNP()
+        {
+            return _repo.getLoggedInUserCNP();
+        }
+
     }
 }

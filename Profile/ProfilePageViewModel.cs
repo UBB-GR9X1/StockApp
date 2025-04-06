@@ -7,7 +7,7 @@ namespace StockApp.Profile
 {
     internal class ProfilePageViewModel : INotifyPropertyChanged
     {
-        private ProfieServices profServ = ProfieServices.Instance;
+        private ProfieServices profServ;
 
         private BitmapImage _imageSource;
         public BitmapImage ImageSource
@@ -20,8 +20,9 @@ namespace StockApp.Profile
             }
         }
 
-        public ProfilePageViewModel()
+        public ProfilePageViewModel(string authorCNP)
         {
+            profServ = new ProfieServices(authorCNP);
             LoadProfileImage();
         }
 
@@ -41,12 +42,20 @@ namespace StockApp.Profile
             }
         }
 
+
+        public string getLoggedInUserCNP()
+        {
+            return profServ.getLoggedInUserCNP();
+        }
+
         public string getUsername() => profServ.getUsername();
         public string getDescription() => profServ.getDescription();
         public bool isHidden() => profServ.isHidden();
         public bool isAdmin() => profServ.isAdmin();
         public List<string> getUserStocks() => profServ.getUserStocks();
         public string getPassword() => profServ.getPass();
+
+        public string extractMyStockName(string fullStock) => profServ.extractStockName(fullStock);
 
 
         public void updateAdminMode(bool newIsAdmin)
