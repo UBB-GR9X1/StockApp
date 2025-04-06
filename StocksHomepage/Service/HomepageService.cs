@@ -78,14 +78,20 @@ namespace StocksHomepage.Service
                     break;
                 case "Sort by Change":
                     FilteredAllStocks = new ObservableCollection<HomepageStock>(
-                        FilteredAllStocks.OrderBy(stock =>
-                            decimal.TryParse(stock.Change.Replace("%", ""), out var change) ? change : 0
-                        ).ToList()
+                        FilteredAllStocks.OrderBy(stock => {
+                            // Remove '+' and '%' characters and parse to decimal
+                            string cleanValue = stock.Change.Replace("+", "").Replace("%", "");
+                            decimal.TryParse(cleanValue, out var change);
+                            return change;
+                        }).ToList()
                     );
                     FilteredFavoriteStocks = new ObservableCollection<HomepageStock>(
-                        FilteredFavoriteStocks.OrderBy(stock =>
-                            decimal.TryParse(stock.Change.Replace("%", ""), out var change) ? change : 0
-                        ).ToList()
+                        FilteredFavoriteStocks.OrderBy(stock => {
+                            // Remove '+' and '%' characters and parse to decimal  
+                            string cleanValue = stock.Change.Replace("+", "").Replace("%", "");
+                            decimal.TryParse(cleanValue, out var change);
+                            return change;
+                        }).ToList()
                     );
                     break;
             }
