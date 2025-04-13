@@ -1,10 +1,10 @@
-﻿using StockApp.Database;
-using StockApp.Model;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Microsoft.Data.SqlClient;
+using StockApp.Database;
+using StockApp.Model;
 
-namespace StockApp.Repositories
+namespace StockApp.Repository
 {
     internal class BaseStocksRepository
     {

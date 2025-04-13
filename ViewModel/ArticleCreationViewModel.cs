@@ -1,17 +1,16 @@
-﻿using Microsoft.UI.Dispatching;
-using Microsoft.UI.Xaml.Controls;
-using StockNewsPage.Models;
-using StockNewsPage.Views;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Microsoft.UI.Dispatching;
+using Microsoft.UI.Xaml.Controls;
 using StockApp;
-using StockApp.Repositories;
 using StockApp.Model;
+using StockApp.Repository;
 using StockApp.Service;
+using StockNewsPage.Views;
 
 namespace StockNewsPage.ViewModels
 {
@@ -213,7 +212,7 @@ namespace StockNewsPage.ViewModels
             {
                 // parse and validate related stocks before submitting
                 List<string> relatedStocks = ParseRelatedStocks();
-                
+
                 // validate stocks and show dialog if needed
                 bool continueSubmission = await ValidateStocksAsync(relatedStocks);
                 if (!continueSubmission)

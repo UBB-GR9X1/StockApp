@@ -1,6 +1,6 @@
-﻿using Repository;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Models;
+using StockApp.Repository;
 
 namespace StockApp.Service
 {
@@ -18,8 +18,8 @@ namespace StockApp.Service
 
         public void UpdateAlert(Alert alert) => _repository.UpdateAlert(alert);
 
-        
 
-        
+
+
     }
 }

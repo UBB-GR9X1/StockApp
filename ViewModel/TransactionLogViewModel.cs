@@ -1,17 +1,13 @@
-﻿using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using StockApp.Model;
-using StockApp.Service;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Windows.UI.Popups;
+using Microsoft.UI.Xaml.Controls;
+using StockApp.Model;
+using StockApp.Service;
 
 namespace StockApp.ViewModel
 {
@@ -146,8 +142,8 @@ namespace StockApp.ViewModel
             SelectedExportFormat = new ComboBoxItem { Content = "CSV" };
 
             // Set up commands
-            SearchCommand = new Command(Search);
-            ExportCommand = new Command(async () => await Export());
+            SearchCommand = new Command.Command(Search);
+            ExportCommand = new Command.Command(async () => await Export());
 
             LoadTransactions();
         }

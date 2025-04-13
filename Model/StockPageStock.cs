@@ -1,6 +1,6 @@
 ﻿namespace StockApp.Model
 {
-    class StockPageStock
+    public class StockPageStock
     {
         private string _name;
         private string _symbol;

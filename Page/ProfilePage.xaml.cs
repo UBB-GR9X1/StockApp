@@ -1,15 +1,11 @@
-using Catel.MVVM;
+using System.Windows.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.UI.Xaml.Navigation;
 using StockApp.Service;
 using StockApp.StockPage;
 using StockApp.ViewModel;
 using StockNewsPage.ViewModels;
-using StocksHomepage.Model;
-using System.Threading.Tasks;
-using System.Windows.Input;
 
 namespace StocksApp
 {

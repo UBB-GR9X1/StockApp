@@ -1,11 +1,11 @@
-﻿using StockApp.Database;
-using StockApp.Model;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
+using StockApp.Database;
+using StockApp.Model;
 
-namespace StockApp.Repository.Repository
+namespace StockApp.Repository
 {
     public class TransactionRepository
     {

@@ -1,6 +1,6 @@
 ﻿namespace StockApp.Model
 {
-    class StockPageUser
+    public class StockPageUser
     {
         private string cnp;
         private string name;

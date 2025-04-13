@@ -1,8 +1,8 @@
-﻿using StockApp.Database;
-using System;
+﻿using System;
 using Microsoft.Data.SqlClient;
+using StockApp.Database;
 
-namespace GemStore.Repositories
+namespace StockApp.Repository
 {
     internal class GemStoreRepository
     {

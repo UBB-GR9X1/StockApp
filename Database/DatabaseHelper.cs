@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Data.Common;
-using System.IO;
 using Microsoft.Data.SqlClient;
 
 namespace StockApp.Database
@@ -56,7 +54,7 @@ namespace StockApp.Database
 
             if (!databaseExists)
             {
-                string masterConnection = "Server=(localdb)\\MSSQLLocalDB;Database=master;Trusted_Connection=True;TrustServerCertificate=True;";
+                string masterConnection = "Data Source=VM;Initial Catalog=StockApp_DB;Integrated Security=True;Trust Server Certificate=True";
                 using (var connection = new SqlConnection(masterConnection))
                 {
                     connection.Open();
@@ -226,7 +224,7 @@ INSERT INTO [USER] (CNP, NAME, DESCRIPTION, IS_HIDDEN, IS_ADMIN, PROFILE_PICTURE
 ('1234567890123', 'John Doe 1', 'I am a user 1', 0, 0, 'https://images.unsplash.com/photo-1547481887-a26e2cacb5b2?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', 1000), 
 ('1234567890124', 'John Doe 2', 'I am a user 2', 0, 0, 'https://images.unsplash.com/photo-1594583388647-364ea6532257?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', 1000), 
 ('1234567890125', 'John Doe 3', 'I am a user 3', 0, 0, 'https://images.unsplash.com/photo-1530747656683-c940eb6472d0?q=80&w=1990&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', 1000),
-('6666666666666', 'admin', 'I am the admin', 0, 1, 'https://images.unsplash.com/photo-1530747656683-c940eb6472d0?q=80&w=1990&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', 1000)", 
+('6666666666666', 'admin', 'I am the admin', 0, 1, 'https://images.unsplash.com/photo-1530747656683-c940eb6472d0?q=80&w=1990&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', 1000)",
                         connectionTOBD);
                     addUsers.ExecuteNonQuery();
 
@@ -250,7 +248,7 @@ INSERT INTO ALERTS (STOCK_NAME, NAME, LOWER_BOUND, UPPER_BOUND, TOGGLE) VALUES
                         connectionTOBD);
                     addAlert.ExecuteNonQuery();
 
-                    
+
 
                     SqlCommand addStockValues = new SqlCommand(@"
 INSERT INTO STOCK_VALUE (STOCK_NAME, PRICE) VALUES

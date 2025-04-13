@@ -1,17 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
+﻿using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.UI.Xaml.Controls;
-using System.Xml.Linq;
-using StockApp;
-using StocksHomepage.Repositories;
-using System.Data.Common;
-using System.Data.SQLite;
 using StockApp.Model;
+using StockApp.Repository;
 
 namespace StockApp.Service
 {
@@ -78,7 +68,8 @@ namespace StockApp.Service
                     break;
                 case "Sort by Change":
                     FilteredAllStocks = new ObservableCollection<HomepageStock>(
-                        FilteredAllStocks.OrderBy(stock => {
+                        FilteredAllStocks.OrderBy(stock =>
+                        {
                             // Remove '+' and '%' characters and parse to decimal
                             string cleanValue = stock.Change.Replace("+", "").Replace("%", "");
                             decimal.TryParse(cleanValue, out var change);
@@ -86,7 +77,8 @@ namespace StockApp.Service
                         }).ToList()
                     );
                     FilteredFavoriteStocks = new ObservableCollection<HomepageStock>(
-                        FilteredFavoriteStocks.OrderBy(stock => {
+                        FilteredFavoriteStocks.OrderBy(stock =>
+                        {
                             // Remove '+' and '%' characters and parse to decimal  
                             string cleanValue = stock.Change.Replace("+", "").Replace("%", "");
                             decimal.TryParse(cleanValue, out var change);

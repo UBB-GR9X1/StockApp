@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.SqlClient;
+using Model;
 using Models;
 using StockApp.Database;
-using Model;
 
-namespace Repository
+namespace StockApp.Repository
 {
 
     public class AlertRepository

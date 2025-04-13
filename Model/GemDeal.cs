@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace StockApp.Model
+﻿namespace StockApp.Model
 {
-    class GemDeal
+    public class GemDeal
     {
         private string title;
         private int gemAmount;

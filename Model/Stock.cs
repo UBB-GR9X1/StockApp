@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace StockApp.Model
+﻿namespace StockApp.Model
 {
-    class Stock : BaseStock
+    public class Stock : BaseStock
     {
         private int _price;
 

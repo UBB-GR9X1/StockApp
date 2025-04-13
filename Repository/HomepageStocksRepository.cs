@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SQLite;
-using System.Windows.Forms;
-using StockApp.Database;
-using Microsoft.Data.SqlClient;
 using System.Linq;
+using Microsoft.Data.SqlClient;
+using StockApp.Database;
 using StockApp.Model;
 
-namespace StocksHomepage.Repositories
+namespace StockApp.Repository
 {
     internal class HomepageStocksRepository
     {
@@ -51,27 +49,27 @@ namespace StocksHomepage.Repositories
                 command.Parameters.AddWithValue("@UserCNP", userCNP);
                 int count = (int)command.ExecuteScalar();
                 Console.WriteLine("Count: " + count);
-                return count == 0; 
+                return count == 0;
             }
         }
-        
+
         public string GetUserCNP()
         {
 
             string query = "SELECT TOP 1 CNP FROM HARDCODED_CNPS ORDER BY CNP DESC";
 
-                using (var command = new SqlCommand(query, dbConnection))
+            using (var command = new SqlCommand(query, dbConnection))
+            {
+                command.ExecuteNonQuery();
+                using (var reader = command.ExecuteReader())
                 {
-                    command.ExecuteNonQuery();
-                    using (var reader = command.ExecuteReader())
+                    while (reader.Read())
                     {
-                        while (reader.Read())
-                        {
-                            return reader["CNP"].ToString();
-                        }
+                        return reader["CNP"].ToString();
                     }
                 }
-                return null;
+            }
+            return null;
         }
 
         public List<HomepageStock> LoadStocks()
@@ -151,7 +149,7 @@ namespace StocksHomepage.Repositories
                             if (stockHistory.Count > 1)
                             {
                                 int previousPrice = stockHistory[stockHistory.Count - 2];
-                                if (previousPrice > 0) 
+                                if (previousPrice > 0)
                                 {
                                     int increasePerc = ((currentPrice - previousPrice) * 100) / previousPrice;
                                     changePercentage = (increasePerc >= 0 ? "+" : "") + increasePerc.ToString() + "%";
@@ -200,7 +198,7 @@ namespace StocksHomepage.Repositories
 
         public void CreateUserProfile()
         {
-            
+
             string currentCNP = userCNP;
             List<String> names = new List<string>
             {
@@ -219,12 +217,12 @@ namespace StocksHomepage.Repositories
             using (var command = new SqlCommand(userQuery, dbConnection))
             {
                 command.Parameters.AddWithValue("@CNP", currentCNP);
-                command.Parameters.AddWithValue("@Name", randomUsername);  
+                command.Parameters.AddWithValue("@Name", randomUsername);
                 command.Parameters.AddWithValue("@Description", "Default User Description");
-                command.Parameters.AddWithValue("@IsHidden", false);  
-                command.Parameters.AddWithValue("@IsAdmin", false);   
+                command.Parameters.AddWithValue("@IsHidden", false);
+                command.Parameters.AddWithValue("@IsAdmin", false);
                 command.Parameters.AddWithValue("@ProfilePicture", "https://cdn.discordapp.com/attachments/1309495559085756436/1358378808440389854/defaultProfilePicture.png?ex=67f3a059&is=67f24ed9&hm=674641524bcc24a5fadfde6b087bf550b147c9ec9d81f81e4b0447f69624cb55&");
-                command.Parameters.AddWithValue("@GemBalance", 0);  
+                command.Parameters.AddWithValue("@GemBalance", 0);
                 command.ExecuteNonQuery();
             }
         }

@@ -1,10 +1,9 @@
+using System;
+using System.Collections.ObjectModel;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using System.Collections.ObjectModel;
-using Repository;
 using Models;
-using System;
-using Models;
+using StockApp.Repository;
 
 namespace Alerts
 {

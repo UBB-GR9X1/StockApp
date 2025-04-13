@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using StockApp.Model;
-using TransactionLog;
+using StockApp.Repository;
 
 namespace StockApp.Service
 {
@@ -28,8 +26,8 @@ namespace StockApp.Service
             switch (sortType)
             {
                 case "Date":
-                    return ascending 
-                        ? [.. transactions.OrderBy(transaction => transaction.Date)] 
+                    return ascending
+                        ? [.. transactions.OrderBy(transaction => transaction.Date)]
                         : [.. transactions.OrderByDescending(transaction => transaction.Date)];
                 case "Stock Name":
                     return ascending
@@ -46,11 +44,11 @@ namespace StockApp.Service
 
         public void ExportTransactions(List<TransactionLogTransaction> transactions, string filePath, string format)
         {
-            ITransactionExporter exporter = format.ToLower() switch
+            Repository.Repository.Exporter.ITransactionExporter exporter = format.ToLower() switch
             {
-                "csv" => new CSVTransactionExporter(),
-                "json" => new JSONTransactionExporter(),
-                "html" => new HTMLTransactionExporter(),
+                "csv" => new Repository.Repository.Exporter.CSVTransactionExporter(),
+                "json" => new Repository.Repository.Exporter.JSONTransactionExporter(),
+                "html" => new Repository.Repository.Exporter.HTMLTransactionExporter(),
                 _ => throw new ArgumentException("Unsupported file format."),
             };
 

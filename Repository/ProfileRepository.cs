@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using Microsoft.Data.SqlClient;
 using StockApp.Database;
 
-namespace StockApp.Repository.Repository
+namespace StockApp.Repository
 {
-    class ProfileRepository
+    public class ProfileRepository
     {
         private SqlConnection dbConnection = DatabaseHelper.Instance.GetConnection();
         private string cnp; //the user we are currently working with (idk what to do with it so i set it to "userCNP")

@@ -5,9 +5,9 @@ using StockApp.Model;
 
 namespace StockApp.Repository
 {
-    class Repository
+    public class MockRepository
     {
-        private static Repository _instance;
+        private static MockRepository _instance;
 
         private List<Stock> stocks = new List<Stock>();
         private List<Stock> history = new List<Stock>();
@@ -21,7 +21,7 @@ namespace StockApp.Repository
 
         private List<Alert> alerts = new List<Alert>();
 
-        public Repository()
+        public MockRepository()
         {
             // add 5 users
             users.Add(new User("1234567890123", "user1", "user1 description", false, "image1", false));
@@ -78,13 +78,13 @@ namespace StockApp.Repository
 
         }
 
-        public static Repository Instance
+        public static MockRepository Instance
         {
             get
             {
                 if (_instance == null)
                 {
-                    _instance = new Repository();
+                    _instance = new MockRepository();
                 }
                 return _instance;
             }

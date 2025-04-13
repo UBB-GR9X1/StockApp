@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using Microsoft.Data.SqlClient;
 using StockApp.Model;
 
-namespace StockApp.Repository.Repository
+namespace StockApp.Repository
 {
-    class StockPageRepository
+    public class StockPageRepository
     {
         private Database.DatabaseHelper databaseHelper;
         private string cnp;

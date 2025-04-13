@@ -1,8 +1,7 @@
-﻿using StockApp.Model;
-using StockApp.Repositories;
-using StocksHomepage.Repositories;
-using System;
+﻿using System;
 using System.Text.RegularExpressions;
+using StockApp.Model;
+using StockApp.Repository;
 
 namespace StockApp.Service
 {

@@ -1,6 +1,6 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Repository;
+using StockApp.Repository;
 
 namespace StockApp.Views
 {

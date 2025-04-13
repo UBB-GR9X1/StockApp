@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using StockApp.Model;
-
+using StockApp.Repository;
 namespace StockApp.Service
 {
     public class ProfieServices
@@ -30,12 +28,12 @@ namespace StockApp.Service
 
         public void updateUser(string newUsername, string newImage, string newDescription, bool newHidden)
         {
-            _repo.updateMyUser(newUsername,newImage,newDescription,newHidden);
-/*
-            _user.Username = newUsername;
-            _user.Image = newImage;
-            _user.Description = newDescription;
-            _user.IsHidden = newHidden;*/
+            _repo.updateMyUser(newUsername, newImage, newDescription, newHidden);
+            /*
+                        _user.Username = newUsername;
+                        _user.Image = newImage;
+                        _user.Description = newDescription;
+                        _user.IsHidden = newHidden;*/
         }
 
         public void updateIsAdmin(bool isAdm)

@@ -1,12 +1,8 @@
-﻿using Catel.Services;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using StockNewsPage.Services;
 using StockApp.Model;
-
+using StockApp.Repository;
 namespace StockApp.Service
 {
     class StockPageService
@@ -67,7 +63,7 @@ namespace StockApp.Service
                 _repo.addOrUpdateUserStock(_stock.Name, quantity);
 
                 TransactionRepository repository = new TransactionRepository();
-                repository.AddTransaction(new Transaction(_stock.Symbol, _stock.Name, "BUY", quantity, stockPrice, DateTime.UtcNow, _repo.GetUser().CNP));
+                repository.AddTransaction(new TransactionLogTransaction(_stock.Symbol, _stock.Name, "BUY", quantity, stockPrice, DateTime.UtcNow, _repo.GetUser().CNP));
 
                 return true;
             }
@@ -89,7 +85,7 @@ namespace StockApp.Service
                 _repo.updateUserGems(_repo.GetUser().GemBalance + totalPrice);
 
                 TransactionRepository repository = new TransactionRepository();
-                repository.AddTransaction(new Transaction(_stock.Symbol, _stock.Name, "SELL", quantity, stockPrice, DateTime.UtcNow, _repo.GetUser().CNP));
+                repository.AddTransaction(new TransactionLogTransaction(_stock.Symbol, _stock.Name, "SELL", quantity, stockPrice, DateTime.UtcNow, _repo.GetUser().CNP));
 
                 return true;
             }
@@ -100,7 +96,7 @@ namespace StockApp.Service
         {
             return _repo.GetFavorite(_stock.Name);
         }
-        
+
         public void toggleFavorite(bool state)
         {
             _repo.ToggleFavorite(_stock.Name, state);

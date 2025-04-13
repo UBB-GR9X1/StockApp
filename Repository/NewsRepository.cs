@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using StockApp.Model;
 using Microsoft.Data.SqlClient;
-using Catel.Reflection;
 using StockApp.Database;
-using StockNewsPage.Services;
+using StockApp.Model;
 
-namespace StockApp.Repositories
+namespace StockApp.Repository
 {
     public class NewsRepository
     {
@@ -1044,7 +1040,7 @@ namespace StockApp.Repositories
                                         }
                                     }
                                 }
-                                
+
 
                                 transaction.Commit();
                             }

@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
-using GemStore.Repositories;
 using StockApp.Model;
+using StockApp.Repository;
 
 namespace StockApp.Service
 {
