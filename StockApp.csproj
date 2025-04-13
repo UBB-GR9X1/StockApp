@@ -19,9 +19,7 @@
     <Page Remove="Homepage\**" />
   </ItemGroup>
   <ItemGroup>
-    <None Remove="Alerts\View\TriggeredAlertsPage.xaml" />
     <None Remove="MainPage.xaml" />
-    <None Remove="StockPage\StockPage.xaml" />
     <None Remove="Test\TestPage.xaml" />
   </ItemGroup>
 
@@ -78,7 +76,8 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="StockNews\" />
+    <Folder Include="View\" />
+    <Folder Include="Page\" />
   </ItemGroup>
 
   <!--
@@ -99,22 +98,5 @@
   </PropertyGroup>
   <ItemGroup>
     <PRIResource Remove="Homepage\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <Page Update="Alerts\View\TriggeredAlertsPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <None Update="CreateStock\View\CreateStockPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="CreateStock\View\" />
-    <Folder Include="TransactionLog\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Page Update="StockPage\StockPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
   </ItemGroup>
 </Project>
