@@ -10,17 +10,17 @@ namespace StockApp.ViewModel
         private readonly List<Alert> _alerts = new List<Alert>();
         private int _nextId = 1; 
 
-        public List<Alert> GetAllAlerts()
+        public List<Alert> GetAll()
         {
             return _alerts;
         }
 
-        public Alert GetAlertById(int alertId)
+        public Alert GetById(int alertId)
         {
             return _alerts.FirstOrDefault(a => a.AlertId == alertId);
         }
 
-        public void CreateAlert(string stockName, string name, int upperBound, int lowerBound, bool toggleOnOff)
+        public void Create(string stockName, string name, int upperBound, int lowerBound, bool toggleOnOff)
         {
             var newAlert = new Alert
             {
@@ -34,9 +34,9 @@ namespace StockApp.ViewModel
             _alerts.Add(newAlert);
         }
 
-        public bool UpdateAlert(int alertId, string stockName, string name, int upperBound, int lowerBound, bool toggleOnOff)
+        public bool Update(int alertId, string stockName, string name, int upperBound, int lowerBound, bool toggleOnOff)
         {
-            var alert = GetAlertById(alertId);
+            var alert = GetById(alertId);
             if (alert == null) return false;
 
             alert.StockName = stockName;
@@ -47,9 +47,9 @@ namespace StockApp.ViewModel
             return true;
         }
 
-        public bool DeleteAlert(int alertId)
+        public bool Delete(int alertId)
         {
-            var alert = GetAlertById(alertId);
+            var alert = GetById(alertId);
             if (alert == null) return false;
 
             _alerts.Remove(alert);

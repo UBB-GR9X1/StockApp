@@ -8,12 +8,10 @@ namespace StockApp.Repository
     public class ProfileRepository
     {
         private SqlConnection dbConnection = DatabaseHelper.Instance.GetConnection();
-        private string cnp; //the user we are currently working with (idk what to do with it so i set it to "userCNP")
-        private string userCNP; //=from data base (active user)
+        private string cnp; // the user we are currently working with (idk what to do with it so i set it to "userCNP")
+        private string userCNP; // from data base (active user)
         ///  I HAVE NO IDEA WHAT UR DOING!!!
         private string loggedInUserCNP;
-
-
 
         public ProfileRepository(string author_cnp)
         {
@@ -21,11 +19,9 @@ namespace StockApp.Repository
             using (var checkCommand = new SqlCommand(getCNPquery, dbConnection))
             {
                 loggedInUserCNP = checkCommand.ExecuteScalar().ToString();
-
             }
 
-            // KILL ME (@OSAKI)
-            cnp = author_cnp; //this is the cnp of the user we are working with (the one we want to see the profile of)
+            cnp = author_cnp; // this is the cnp of the user we are working with (the one we want to see the profile of)
             userCNP = cnp;
             // SOMETINES UR USING ONE, SOMETIMES THE OTHER...
         }
@@ -103,7 +99,6 @@ namespace StockApp.Repository
             if (adminornot == 1) isA = true;
             else isA = false;
 
-
             //Model.User existingUser = new Model.User(cnp, "", "", false, "", false); //get info from database
             Model.User existingUser = new Model.User(cnp, myUsername, myDescription, isA, myImage, isH);
             return existingUser;
@@ -125,7 +120,6 @@ namespace StockApp.Repository
 
         public void updateMyUser(string newUsername, string newImage, string newDescription, bool newHidden)
         {//update stuff - see serv
-
             string newHiddenint;
             if (newHidden == true) newHiddenint = "1";
             else newHiddenint = "0";
@@ -140,9 +134,6 @@ namespace StockApp.Repository
                 updateCommand.Parameters.AddWithValue("@CNP", cnp);
                 updateCommand.ExecuteNonQuery();
             }
-
-
-
         }
 
         public List<string> userStocks()
@@ -203,19 +194,14 @@ namespace StockApp.Repository
             return loggedInUserCNP;
         }
 
-
         //public List<string> userStocks()
         //{
-
-
-
         //    //string mySymbol;
         //    //string getSymquery = "SELECT STOCK_SYMBOL FROM [USER_STOCK] WHERE USER_CNP = @CNP";
         //    //using (var checkCommand = new SqlCommand(getSymquery, dbConnection))
         //    //{
         //    //    checkCommand.Parameters.AddWithValue("@CNP", this.userCNP);
         //    //    if(checkCommand.ExecuteScalar() == null) mySymbol = string.Empty;
-        //    //    else mySymbol = checkCommand.ExecuteScalar().ToString();
         //    //}
 
         //    //string myStockName;
@@ -224,7 +210,6 @@ namespace StockApp.Repository
         //    //{
         //    //    checkCommand.Parameters.AddWithValue("@CNP", this.userCNP);
         //    //    if(checkCommand.ExecuteScalar() == null) myStockName = string.Empty;    
-        //    //    else myStockName = checkCommand.ExecuteScalar().ToString();
         //    //}
 
         //    //string myQuantity;
@@ -233,22 +218,14 @@ namespace StockApp.Repository
         //    //{
         //    //    checkCommand.Parameters.AddWithValue("@CNP", this.userCNP);
         //    //    if (checkCommand.ExecuteScalar() == null) { myQuantity = string.Empty; }    
-        //    //    else myQuantity = checkCommand.ExecuteScalar().ToString();
         //    //}
 
         //    //stock LIST
-
-
-
 
         //    //get the user's stocks from the data base - make a string: logo + name + quantity + price
         //    //_user = new User("1234567890", "Caramel", "asdf", false, "https://static.wikia.nocookie.net/hellokitty/images/3/32/Sanrio_Characters_Keroppi_Image007.png/revision/latest/thumbnail/width/360/height/360?cb=20170405011801", false);
         //    //return new List<string> { "Stock A", "Stock B", "Stock C", "Stock D" };
         //   // return new List<string>();   
         //}
-
-
-
-
     }
 }

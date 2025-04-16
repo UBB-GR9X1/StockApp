@@ -8,7 +8,7 @@ namespace StockApp.Repository
     {
         private SqlConnection dbConnection = DatabaseHelper.Instance.GetConnection();
 
-        public string GetCNP()
+        public string GetCnp()
         {
             string cnpQuery = "SELECT CNP FROM HARDCODED_CNPS";
             using (var cnpCommand = new SqlCommand(cnpQuery, dbConnection))
@@ -52,41 +52,41 @@ namespace StockApp.Repository
         }
     }
 
-    //public void PopulateHardcodedCnps()
-    //{
-    //    string[] cnps = new string[] { "1234567890123"};
-    //    string insertQuery = "INSERT INTO HARDCODED_CNPS (CNP) VALUES (@CNP)";
-    //    using (var insertCommand = new SqlCommand(insertQuery, dbConnection))
-    //    {
-    //        foreach (var cnp in cnps)
-    //        {
-    //            insertCommand.Parameters.Clear();
-    //            insertCommand.Parameters.AddWithValue("@CNP", cnp);
-    //            insertCommand.ExecuteNonQuery();
-    //        }
-    //    }
-    //}
+    // public void PopulateHardcodedCnps()
+    // {
+    //     string[] cnps = new string[] { "1234567890123"};
+    //     string insertQuery = "INSERT INTO HARDCODED_CNPS (CNP) VALUES (@CNP)";
+    //     using (var insertCommand = new SqlCommand(insertQuery, dbConnection))
+    //     {
+    //         foreach (var cnp in cnps)
+    //         {
+    //             insertCommand.Parameters.Clear();
+    //             insertCommand.Parameters.AddWithValue("@CNP", cnp);
+    //             insertCommand.ExecuteNonQuery();
+    //         }
+    //     }
+    // }
 
-    //public void PopulateUserTable()
-    //{
-    //    var users = new[]
-    //    {
-    //        new { CNP = "1234567890123", Name = "Emma Popescu", GemBalance = 1000 },
-    //        new { CNP = "1234567890124", Name = "Diana Ionescu", GemBalance = 1500 },
-    //        new { CNP = "1234567890125", Name = "Oana Georgescu", GemBalance = 200 }
-    //    };
+    // public void PopulateUserTable()
+    // {
+    //     var users = new[]
+    //     {
+    //         new { CNP = "1234567890123", Name = "Emma Popescu", GemBalance = 1000 },
+    //         new { CNP = "1234567890124", Name = "Diana Ionescu", GemBalance = 1500 },
+    //         new { CNP = "1234567890125", Name = "Oana Georgescu", GemBalance = 200 }
+    //     };
 
-    //    string insertQuery = "INSERT INTO [USER] (CNP, NAME, GEM_BALANCE) VALUES (@CNP, @Name, @GemBalance)";
-    //    using (var insertCommand = new SqlCommand(insertQuery, dbConnection))
-    //    {
-    //        foreach (var user in users)
-    //        {
-    //            insertCommand.Parameters.Clear();
-    //            insertCommand.Parameters.AddWithValue("@CNP", user.CNP);
-    //            insertCommand.Parameters.AddWithValue("@Name", user.Name);
-    //            insertCommand.Parameters.AddWithValue("@GemBalance", user.GemBalance);
-    //            insertCommand.ExecuteNonQuery();
-    //        }
-    //    }
-    //}
+    //     string insertQuery = "INSERT INTO [USER] (CNP, NAME, GEM_BALANCE) VALUES (@CNP, @Name, @GemBalance)";
+    //     using (var insertCommand = new SqlCommand(insertQuery, dbConnection))
+    //     {
+    //         foreach (var user in users)
+    //         {
+    //             insertCommand.Parameters.Clear();
+    //             insertCommand.Parameters.AddWithValue("@CNP", user.CNP);
+    //             insertCommand.Parameters.AddWithValue("@Name", user.Name);
+    //             insertCommand.Parameters.AddWithValue("@GemBalance", user.GemBalance);
+    //             insertCommand.ExecuteNonQuery();
+    //         }
+    //     }
+    // }
 }

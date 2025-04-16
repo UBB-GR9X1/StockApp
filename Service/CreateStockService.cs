@@ -18,7 +18,7 @@ namespace StockApp.Service
         public bool checkIfUserIsGuest()
         {
             HomepageStocksRepository homepageStocksRepository = new HomepageStocksRepository();
-            return homepageStocksRepository.IsGuestUser(homepageStocksRepository.getCNP());
+            return homepageStocksRepository.IsGuestUser(homepageStocksRepository.GetCnp());
         }
 
 

@@ -12,9 +12,9 @@ namespace StockApp.Service
 
         //public void PopulateUserTable() => repository.PopulateUserTable();
 
-        public string GetCNP()
+        public string GetCnp()
         {
-            return repository.GetCNP();
+            return repository.GetCnp();
         }
 
         public bool IsGuest(string cnp)

@@ -12,26 +12,26 @@ namespace StockNewsPage.Views
         public NewsListView()
         {
             this.InitializeComponent();
-            this.Loaded += NewsListView_Loaded;
+            this.Loaded += OnLoaded;
         }
 
-        private void NewsListView_Loaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+        private void OnLoaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
             ViewModel.Initialize();
         }
 
-        private void RefreshContainer_RefreshRequested(RefreshContainer sender, RefreshRequestedEventArgs args)
+        private void OnRefreshContainerRequested(RefreshContainer sender, RefreshRequestedEventArgs args)
         {
             ViewModel.RefreshCommand.Execute(null);
         }
 
-        private void EscapeKey_Invoked(KeyboardAccelerator sender, Microsoft.UI.Xaml.Input.KeyboardAcceleratorInvokedEventArgs args)
+        private void OnEscapeKeyInvoked(KeyboardAccelerator sender, Microsoft.UI.Xaml.Input.KeyboardAcceleratorInvokedEventArgs args)
         {
             ViewModel.ClearSearchCommand.Execute(null);
             args.Handled = true;
         }
 
-        private void CategoryFilter_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void OnCategoryFilterSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (ViewModel.SelectedCategory != null)
             {
@@ -40,7 +40,7 @@ namespace StockNewsPage.Views
         }
 
         //back button
-        private void BackButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+        private void OnBackButtonClick(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
             NavigationService.Instance.GoBack();
         }

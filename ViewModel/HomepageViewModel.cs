@@ -52,9 +52,9 @@ namespace StockApp.ViewModel
             }
         }
 
-        public string getUserCNP()
+        public string GetUserCnp()
         {
-            return _service.GetUserCNP();
+            return _service.GetUserCnp();
         }
 
         public bool IsGuestUser
@@ -66,27 +66,27 @@ namespace StockApp.ViewModel
                 GuestButtonVisibility = _isGuestUser ? "Visible" : "Collapsed";
                 ProfileButtonVisibility = _isGuestUser ? "Collapsed" : "Visible";
                 OnPropertyChanged(nameof(IsGuestUser));
-                OnPropertyChanged(nameof(CanModifyFavorites)); // Add this line
+                OnPropertyChanged(nameof(CanModifyFavorites));
             }
         }
 
         public string GuestButtonVisibility
         {
-            get { return _guestButtonVisibility; }
+            get => _guestButtonVisibility;
             set
             {
                 _guestButtonVisibility = value;
-                OnPropertyChanged(nameof(GuestButtonVisibility));
+                OnPropertyChanged("GuestButtonVisibility");
             }
         }
 
         public string ProfileButtonVisibility
         {
-            get { return _profileButtonVisibility; }
+            get => _profileButtonVisibility;
             set
             {
                 _profileButtonVisibility = value;
-                OnPropertyChanged(nameof(ProfileButtonVisibility));
+                OnPropertyChanged("ProfileButtonVisibility");
             }
         }
 
@@ -118,9 +118,7 @@ namespace StockApp.ViewModel
             IsGuestUser = _service.IsGuestUser();
             FilteredAllStocks = new ObservableCollection<HomepageStock>(_service.GetAllStocks());
             FilteredFavoriteStocks = new ObservableCollection<HomepageStock>(_service.GetFavoriteStocks());
-            FavoriteCommand = new RelayCommand(obj => ToggleFavorite(obj as HomepageStock), CanToggleFavorite);
-
-            //FavoriteCommand = new RelayCommand(ToggleFavorite, CanToggleFavorite);
+            FavoriteCommand = new RelayCommand(ToggleFavorite, CanToggleFavorite);
         }
 
         public bool CanModifyFavorites
@@ -128,9 +126,9 @@ namespace StockApp.ViewModel
             get => !_isGuestUser;
         }
 
-        public bool CanToggleFavorite(object obj)
+        public bool CanToggleFavorite
         {
-            return !IsGuestUser;
+            get => !_isGuestUser;
         }
 
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
@@ -147,13 +145,10 @@ namespace StockApp.ViewModel
 
         public void CreateUserProfile()
         {
-            // Call the service to create a user profile
             _service.CreateUserProfile();
 
-            // Update the guest status
             IsGuestUser = false;
 
-            // Refresh the stocks to reflect new permissions
             RefreshStocks();
         }
 
@@ -210,9 +205,6 @@ namespace StockApp.ViewModel
             {
                 _execute(parameter);
             }
-
-
-
         }
     }
 }

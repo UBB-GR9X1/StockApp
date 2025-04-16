@@ -12,7 +12,7 @@ namespace StockApp.Repository
         private SqlConnection dbConnection = DatabaseHelper.Instance.GetConnection();
         private string userCNP;
 
-        public string getCNP()
+        public string GetCnp()
         {
             return this.userCNP;
         }
@@ -34,6 +34,7 @@ namespace StockApp.Repository
                 }
             }
         }
+
         public HomepageStocksRepository()
         {
             this.userCNP = GetUserCNP();
@@ -41,6 +42,7 @@ namespace StockApp.Repository
             Console.WriteLine("IsGuestUser: " + IsGuestUser(userCNP));
             LoadStocks();
         }
+
         public bool IsGuestUser(string userCNP)
         {
             string query = "SELECT COUNT(*) FROM [USER] WHERE CNP = @UserCNP";
@@ -55,7 +57,6 @@ namespace StockApp.Repository
 
         public string GetUserCNP()
         {
-
             string query = "SELECT TOP 1 CNP FROM HARDCODED_CNPS ORDER BY CNP DESC";
 
             using (var command = new SqlCommand(query, dbConnection))
@@ -198,7 +199,6 @@ namespace StockApp.Repository
 
         public void CreateUserProfile()
         {
-
             string currentCNP = userCNP;
             List<String> names = new List<string>
             {
@@ -226,6 +226,5 @@ namespace StockApp.Repository
                 command.ExecuteNonQuery();
             }
         }
-
     }
 }

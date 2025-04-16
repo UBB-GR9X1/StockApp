@@ -104,12 +104,12 @@ namespace StockApp.Service
         }
         public bool IsGuestUser()
         {
-            return _repo.IsGuestUser(_repo.getCNP());
+            return _repo.IsGuestUser(_repo.GetCnp());
         }
 
         public string GetUserCNP()
         {
-            return _repo.getCNP();
+            return _repo.GetCnp();
         }
 
         public void CreateUserProfile()

@@ -36,6 +36,7 @@ namespace StockApp.Repository
                 isGuest = true;
             }
         }
+
         public bool IsGuest()
         {
             return isGuest;

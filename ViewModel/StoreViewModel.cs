@@ -31,7 +31,7 @@ namespace StockApp.ViewModel
             //PopulateHardcodedCnps();
             //PopulateUserTable();
 
-            _currentUserCnp = storeService.GetCNP();
+            _currentUserCnp = storeService.GetCnp();
             LoadUserData();
             LoadGemDeals();
             LoadPossibleDeals();
@@ -42,13 +42,16 @@ namespace StockApp.ViewModel
 
         //public void PopulateUserTable() => storeService.PopulateUserTable();
 
-        public bool IsGuest()
+        public bool IsGuest
         {
-            if (testMode)
-                return false;
+            get
+            {
+                if (testMode)
+                    return false;
 
-            bool guest = storeService.IsGuest(_currentUserCnp);
-            return guest;
+                bool guest = storeService.IsGuest(_currentUserCnp);
+                return guest;
+            }
         }
 
         public int UserGems

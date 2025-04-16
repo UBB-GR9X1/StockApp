@@ -26,7 +26,7 @@ namespace StocksHomepage
             DataContext = ViewModel;
         }
 
-        private void FavoriteButton_Click(object sender, RoutedEventArgs e)
+        private void OnFavoriteButtonClick(object sender, RoutedEventArgs e)
         {
             if (sender is Button button && button.Tag is HomepageStock stock)
             {
@@ -34,7 +34,7 @@ namespace StocksHomepage
             }
         }
 
-        private void CreateProfile_Click(object sender, RoutedEventArgs e)
+        private void OnCreateProfileClick(object sender, RoutedEventArgs e)
         {
             var viewModel = DataContext as HomepageViewModel;
 
@@ -44,12 +44,12 @@ namespace StocksHomepage
             }
         }
 
-        private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
+        private void OnSearchBoxTextChanged(object sender, TextChangedEventArgs e)
         {
             ViewModel.SearchQuery = SearchBox.Text;
         }
 
-        private void SortDropdown_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void OnSortDropdownSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (SortDropdown.SelectedItem is ComboBoxItem selectedItem)
             {
@@ -76,7 +76,7 @@ namespace StocksHomepage
         public void GoToProfile(object sender, RoutedEventArgs e)
         {
             NavigationService.Instance.Initialize(this.Frame);
-            NavigationService.Instance.Navigate(typeof(ProfilePage), ViewModel.getUserCNP());
+            NavigationService.Instance.Navigate(typeof(ProfilePage), ViewModel.GetUserCnp());
         }
 
         public void GoToStore(object sender, RoutedEventArgs e)
@@ -88,7 +88,6 @@ namespace StocksHomepage
         {
             if (e.ClickedItem is HomepageStock stock)
             {
-                // this.Frame.Navigate(typeof(StockPage), null);
                 NavigationService.Instance.Initialize(this.Frame);
                 NavigationService.Instance.Navigate(typeof(StockPage), stock.Name);
             }

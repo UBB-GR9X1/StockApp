@@ -42,7 +42,6 @@ namespace StockApp.Repository
                     }
                 }
             }
-
         }
 
         public List<TransactionLogTransaction> GetAll()

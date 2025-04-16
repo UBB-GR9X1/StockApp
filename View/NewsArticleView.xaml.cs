@@ -15,10 +15,10 @@ namespace StockNewsPage.Views
         public NewsArticleView()
         {
             this.InitializeComponent();
-            this.Loaded += NewsArticleView_Loaded;
+            this.Loaded += OnLoaded;
         }
 
-        private void NewsArticleView_Loaded(object sender, RoutedEventArgs e)
+        private void OnLoaded(object sender, RoutedEventArgs e)
         {
             if (ViewModel.Article != null)
             {
@@ -33,7 +33,7 @@ namespace StockNewsPage.Views
             }
         }
 
-        private void RelatedStock_Click(object sender, RoutedEventArgs e)
+        private void OnRelatedStockClick(object sender, RoutedEventArgs e)
         {
             if (sender is Button button && button.Content is string stockName)
             {

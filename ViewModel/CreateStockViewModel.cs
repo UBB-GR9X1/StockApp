@@ -15,7 +15,7 @@ namespace StockApp.ViewModel
     {
         private string _stockName;
         private string _stockSymbol;
-        private string _authorCNP;
+        private string _authorCnp;
         private string _message;
         private bool _suppressValidation = false;
         private readonly CreateStockService _stockService;
@@ -29,10 +29,10 @@ namespace StockApp.ViewModel
         {
             _stockService = new CreateStockService();
             CreateStockCommand = new RelayCommand(CreateStock, CanCreateStock);
-            IsAdmin = CheckIfUserIsAdmin();
+            IsUserAdmin = IsUserAdmin;
         }
 
-        public bool IsAdmin
+        public bool IsUserAdmin
         {
             get => _isAdmin;
             set
@@ -74,14 +74,14 @@ namespace StockApp.ViewModel
             }
         }
 
-        public string AuthorCNP
+        public string AuthorCnp
         {
-            get => _authorCNP;
+            get => _authorCnp;
             set
             {
-                if (_authorCNP != value)
+                if (_authorCnp != value)
                 {
-                    _authorCNP = value;
+                    _authorCnp = value;
                     ValidateInputs();
                     OnPropertyChanged();
                 }
@@ -144,32 +144,32 @@ namespace StockApp.ViewModel
                 IsInputValid = false;
             }
 
-            if (string.IsNullOrWhiteSpace(AuthorCNP))
+            if (string.IsNullOrWhiteSpace(AuthorCnp))
             {
                 Message = "Author CNP is required!";
                 IsInputValid = false;
             }
-            else if (!Regex.IsMatch(AuthorCNP, @"^\d{13}$"))
+            else if (!Regex.IsMatch(AuthorCnp, @"^\d{13}$"))
             {
                 Message = "Author CNP must be exactly 13 digits!";
                 IsInputValid = false;
             }
         }
 
-        private bool CanCreateStock(object obj) => IsAdmin && IsInputValid;
+        private bool CanCreateStock(object obj) => IsUserAdmin && IsInputValid;
 
         private void CreateStock(object obj)
         {
             if (!CanCreateStock(null)) return;
 
-            Message = _stockService.AddStock(StockName, StockSymbol, AuthorCNP);
+            Message = _stockService.AddStock(StockName, StockSymbol, AuthorCnp);
 
             if (Message == "Stock added successfully with initial value!")
             {
                 _suppressValidation = true;
                 StockName = "";
                 StockSymbol = "";
-                AuthorCNP = "";
+                AuthorCnp = "";
                 _suppressValidation = false;
             }
         }
