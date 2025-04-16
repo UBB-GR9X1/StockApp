@@ -1,8 +1,8 @@
-﻿using Microsoft.UI.Xaml.Data;
-using System;
-
-namespace StockApp.Converters
+﻿namespace StockApp.Converters
 {
+    using System;
+    using Microsoft.UI.Xaml.Data;
+
     public partial class DateTimeToStringConverter : IValueConverter
     {
         public object Convert(object initialValue, Type targetType, object parameter, string language)
