@@ -6,20 +6,20 @@
 
     public partial class ReadStatusToFontWeightConverter : IValueConverter
     {
-        public object Convert(object initialValue, Type targetType, object parameter, string language)
+        public object Convert(object value, Type targetType, object parameter, string language)
         {
-            if (initialValue is not bool isReading)
+            if (value is not bool statusIsReading)
             {
                 return FontWeights.Normal;
             }
 
             // if read return normal, else return semi bold font for article title
-            return isReading
+            return statusIsReading
                 ? FontWeights.Normal
                 : FontWeights.SemiBold;
         }
 
-        public object ConvertBack(object initialValue, Type targetType, object parameter, string language)
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
         {
             throw new NotImplementedException();
         }

@@ -5,19 +5,19 @@
 
     public partial class DateTimeToStringConverter : IValueConverter
     {
-        public object Convert(object initialValue, Type targetType, object parameter, string language)
+        public object Convert(object value, Type targetType, object parameter, string language)
         {
             string format = parameter as string ?? "MMMM dd, yyyy";
 
-            return initialValue is DateTime initialDateTime
-                ? initialDateTime.ToString(format)
+            return value is DateTime dateTimeValue
+                ? dateTimeValue.ToString(format)
                 : string.Empty;
         }
 
-        public object ConvertBack(object initialValue, Type targetType, object parameter, string language)
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
         {
-            return initialValue is string initialString
-                ? ParseOrDefault(initialString)
+            return value is string stringValue
+                ? ParseOrDefault(stringValue)
                 : DateTime.Now;
         }
 

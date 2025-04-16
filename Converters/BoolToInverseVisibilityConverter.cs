@@ -6,16 +6,16 @@
 
     public partial class BoolToInverseVisibilityConverter : IValueConverter
     {
-        public object Convert(object inputValue, Type targetType, object parameter, string language)
+        public object Convert(object value, Type targetType, object parameter, string language)
         {
-            return inputValue is bool inputBoolean && inputBoolean
+            return value is bool booleanValue && booleanValue
                 ? Visibility.Collapsed
                 : Visibility.Visible;
         }
 
-        public object ConvertBack(object inputValue, Type targetType, object parameter, string language)
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
         {
-            return inputValue is Visibility inputVisibility && inputVisibility == Visibility.Collapsed;
+            return value is Visibility visibilityValue && visibilityValue == Visibility.Collapsed;
         }
     }
 }

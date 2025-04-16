@@ -6,38 +6,39 @@
 
     public partial class BoolToVisibilityConverter : IValueConverter
     {
-        public object Convert(object inputValue, Type targetType, object parameter, string language)
+        public object Convert(object value, Type targetType, object parameter, string language)
         {
-            if (inputValue is not bool inputBoolean)
+            if (value is not bool booleanValue)
             {
                 return Visibility.Collapsed;
             }
 
             if (ShouldInvert(parameter))
             {
-                inputBoolean = !inputBoolean;
+                booleanValue = !booleanValue;
             }
 
-            return inputBoolean
+            return booleanValue
                 ? Visibility.Visible
                 : Visibility.Collapsed;
         }
 
-        public object ConvertBack(object inputValue, Type targetType, object parameter, string language)
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
         {
-            if (inputValue is not Visibility inputVisibility)
+            if (value is not Visibility visibilityValue)
             {
                 return false;
             }
 
             return ShouldInvert(parameter)
-                ? inputVisibility != Visibility.Visible
-                : inputVisibility == Visibility.Visible;
+                ? visibilityValue != Visibility.Visible
+                : visibilityValue == Visibility.Visible;
         }
 
         private static bool ShouldInvert(object parameter)
         {
-            return parameter is string paramString && paramString.Equals("Inverse", StringComparison.OrdinalIgnoreCase);
+            return parameter is string stringParameter
+                && stringParameter.Equals("Inverse", StringComparison.OrdinalIgnoreCase);
         }
     }
 }
