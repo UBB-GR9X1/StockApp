@@ -2,11 +2,10 @@
 {
     using System;
     using Microsoft.UI.Text;
-    using Microsoft.UI.Xaml.Data;
 
-    public partial class ReadStatusToFontWeightConverter : IValueConverter
+    public partial class ReadStatusToFontWeightConverter : BaseConverter
     {
-        public object Convert(object value, Type targetType, object parameter, string language)
+        public override object Convert(object value, Type targetType, object parameter, string language)
         {
             if (value is not bool statusIsReading)
             {
@@ -19,7 +18,7 @@
                 : FontWeights.SemiBold;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        public override object ConvertBack(object value, Type targetType, object parameter, string language)
         {
             throw new NotImplementedException();
         }

@@ -1,21 +1,20 @@
 ﻿namespace StockApp.Converters
 {
     using System;
+    using Microsoft.UI.Xaml;
 
-    public partial class BoolToStringConverter : BaseConverter
+    internal partial class StatusToVisibilityConverter : BaseConverter
     {
         public override object Convert(object value, Type targetType, object parameter, string language)
         {
-            if (value is bool booleanValue && parameter is string options)
+            if (value is not string status || parameter is not string expectedStatus)
             {
-                var parts = options.Split('|');
-                if (parts.Length == 2)
-                {
-                    return booleanValue ? parts[0] : parts[1];
-                }
+                return Visibility.Collapsed;
             }
 
-            return value?.ToString() ?? string.Empty;
+            return status == expectedStatus
+                ? Visibility.Collapsed
+                : Visibility.Visible;
         }
 
         public override object ConvertBack(object value, Type targetType, object parameter, string language)

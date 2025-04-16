@@ -2,11 +2,10 @@
 {
     using System;
     using Microsoft.UI.Xaml;
-    using Microsoft.UI.Xaml.Data;
 
-    public partial class StringToVisibilityConverter : IValueConverter
+    public partial class StringToVisibilityConverter : BaseConverter
     {
-        public object Convert(object value, Type targetType, object parameter, string language)
+        public override object Convert(object value, Type targetType, object parameter, string language)
         {
             if (value is not string stringValue)
             {
@@ -16,7 +15,7 @@
             bool isEmpty = string.IsNullOrEmpty(stringValue);
 
             // if parameter is "Inverse", invert the logic
-            if (parameter is string param && param == "Inverse")
+            if (ShouldInvert(parameter))
             {
                 isEmpty = !isEmpty;
             }
@@ -26,7 +25,7 @@
                 : Visibility.Visible;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        public override object ConvertBack(object value, Type targetType, object parameter, string language)
         {
             throw new NotImplementedException();
         }
