@@ -10,7 +10,7 @@ namespace StockNewsPage.Views
 {
     public sealed partial class NewsArticleView : Page
     {
-        public NewsDetailViewModel ViewModel { get; } = new NewsDetailViewModel();
+        public ModelView ViewModel { get; } = new ModelView();
 
         public NewsArticleView()
         {
@@ -33,7 +33,7 @@ namespace StockNewsPage.Views
             }
         }
 
-        private void OnRelatedStockClick(object sender, RoutedEventArgs e)
+        private void RelatedStockClick(object sender, RoutedEventArgs e)
         {
             if (sender is Button button && button.Content is string stockName)
             {

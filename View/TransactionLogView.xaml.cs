@@ -12,22 +12,22 @@ namespace TransactionLog
     /// </summary>
     public sealed partial class TransactionLogView : Page
     {
-        private readonly TransactionLogViewModel viewModel;
+        private readonly ViewModel viewModel;
 
         public TransactionLogView()
         {
             this.InitializeComponent();
-            viewModel = new TransactionLogViewModel(new TransactionLogService(new TransactionRepository()));
+            viewModel = new ViewModel(new TransactionLogService(new TransactionRepository()));
 
             // Set the DataContext for binding to the ViewModel
             this.DataContext = viewModel;
 
             // Event to show a message box (if requested by the ViewModel)
-            viewModel.ShowMessageBoxRequested += OnShowMessageBoxRequested;
+            viewModel.ShowMessageBoxRequested += ShowMessageBoxRequested;
         }
 
         // Event handler when the start date changes
-        private void OnStartDateChanged(object sender, DatePickerValueChangedEventArgs e)
+        private void StartDateChanged(object sender, DatePickerValueChangedEventArgs e)
         {
             // Trigger the load operation when the start date changes
             viewModel.StartDate = e.NewDate.Date;
@@ -35,7 +35,7 @@ namespace TransactionLog
         }
 
         // Event handler when the end date changes
-        private void OnEndDateChanged(object sender, DatePickerValueChangedEventArgs e)
+        private void EndDateChanged(object sender, DatePickerValueChangedEventArgs e)
         {
             // Trigger the load operation when the end date changes
             viewModel.EndDate = e.NewDate.Date;
@@ -43,7 +43,7 @@ namespace TransactionLog
         }
 
         // Event handler to show a message box when requested by the ViewModel
-        private async void OnShowMessageBoxRequested(string title, string content)
+        private async void ShowMessageBoxRequested(string title, string content)
         {
             // Ensure we're using Window.Current after the window is fully loaded
             if (Window.Current != null)
@@ -67,7 +67,7 @@ namespace TransactionLog
         }
 
         // Ensure the window is fully loaded before accessing Window.Current
-        private void OnPageActivated(object sender, Microsoft.UI.Xaml.WindowActivatedEventArgs e)
+        private void PageActivated(object sender, Microsoft.UI.Xaml.WindowActivatedEventArgs e)
         {
             if (Window.Current != null)
             {

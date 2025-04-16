@@ -16,9 +16,9 @@ using StockApp.Service;
 
 namespace StockApp.ViewModel
 {
-    public class HomepageViewModel : INotifyPropertyChanged
+    public class HomePageViewModel : INotifyPropertyChanged
     {
-        private HomepageService _service;
+        private HomePageService _service;
         private ObservableCollection<HomepageStock> _filteredAllStocks;
         private ObservableCollection<HomepageStock> _filteredFavoriteStocks;
         private string _searchQuery;
@@ -52,7 +52,7 @@ namespace StockApp.ViewModel
             }
         }
 
-        public string GetUserCnp()
+        public string getUserCnp()
         {
             return _service.GetUserCnp();
         }
@@ -66,27 +66,27 @@ namespace StockApp.ViewModel
                 GuestButtonVisibility = _isGuestUser ? "Visible" : "Collapsed";
                 ProfileButtonVisibility = _isGuestUser ? "Collapsed" : "Visible";
                 OnPropertyChanged(nameof(IsGuestUser));
-                OnPropertyChanged(nameof(CanModifyFavorites));
+                OnPropertyChanged(nameof(CanModifyFavorites)); // Add this line
             }
         }
 
         public string GuestButtonVisibility
         {
-            get => _guestButtonVisibility;
+            get { return _guestButtonVisibility; }
             set
             {
                 _guestButtonVisibility = value;
-                OnPropertyChanged("GuestButtonVisibility");
+                OnPropertyChanged(nameof(GuestButtonVisibility));
             }
         }
 
         public string ProfileButtonVisibility
         {
-            get => _profileButtonVisibility;
+            get { return _profileButtonVisibility; }
             set
             {
                 _profileButtonVisibility = value;
-                OnPropertyChanged("ProfileButtonVisibility");
+                OnPropertyChanged(nameof(ProfileButtonVisibility));
             }
         }
 
@@ -112,13 +112,15 @@ namespace StockApp.ViewModel
             }
         }
 
-        public HomepageViewModel()
+        public HomePageViewModel()
         {
-            _service = new HomepageService();
+            _service = new HomePageService();
             IsGuestUser = _service.IsGuestUser();
             FilteredAllStocks = new ObservableCollection<HomepageStock>(_service.GetAllStocks());
             FilteredFavoriteStocks = new ObservableCollection<HomepageStock>(_service.GetFavoriteStocks());
-            FavoriteCommand = new RelayCommand(ToggleFavorite, CanToggleFavorite);
+            FavoriteCommand = new RelayCommand(obj => ToggleFavorite(obj as HomepageStock), CanToggleFavorite);
+
+            //FavoriteCommand = new RelayCommand(ToggleFavorite, CanToggleFavorite);
         }
 
         public bool CanModifyFavorites
@@ -126,9 +128,9 @@ namespace StockApp.ViewModel
             get => !_isGuestUser;
         }
 
-        public bool CanToggleFavorite
+        public bool CanToggleFavorite(object obj)
         {
-            get => !_isGuestUser;
+            return !IsGuestUser;
         }
 
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
@@ -145,10 +147,13 @@ namespace StockApp.ViewModel
 
         public void CreateUserProfile()
         {
+            // Call the service to create a user profile
             _service.CreateUserProfile();
 
+            // Update the guest status
             IsGuestUser = false;
 
+            // Refresh the stocks to reflect new permissions
             RefreshStocks();
         }
 
@@ -205,6 +210,9 @@ namespace StockApp.ViewModel
             {
                 _execute(parameter);
             }
+
+
+
         }
     }
 }

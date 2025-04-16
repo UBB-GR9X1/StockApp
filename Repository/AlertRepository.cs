@@ -8,6 +8,7 @@ using StockApp.Database;
 
 namespace StockApp.Repository
 {
+
     public class AlertRepository
     {
         private readonly List<Alert> _alerts = new List<Alert>();

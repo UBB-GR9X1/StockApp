@@ -18,7 +18,7 @@ namespace CreateStock
             this.DataContext = new CreateStockViewModel();
         }
 
-        private void GoBack_Click(object sender, RoutedEventArgs e)
+        private void GoBackClick(object sender, RoutedEventArgs e)
         {
             Frame.GoBack();
         }

@@ -29,10 +29,10 @@ namespace StockApp.ViewModel
         {
             _stockService = new CreateStockService();
             CreateStockCommand = new RelayCommand(CreateStock, CanCreateStock);
-            IsUserAdmin = IsUserAdmin;
+            IsAdmin = CheckIfUserIsAdmin();
         }
 
-        public bool IsUserAdmin
+        public bool IsAdmin
         {
             get => _isAdmin;
             set
@@ -156,7 +156,7 @@ namespace StockApp.ViewModel
             }
         }
 
-        private bool CanCreateStock(object obj) => IsUserAdmin && IsInputValid;
+        private bool CanCreateStock(object obj) => IsAdmin && IsInputValid;
 
         private void CreateStock(object obj)
         {
@@ -178,9 +178,9 @@ namespace StockApp.ViewModel
         {
             // This method should check if the user is an admin.
             // For now, let's assume the user is an admin.
-            if (_stockService.checkIfUserIsGuest())
+            if (_stockService.CheckIfUserIsGuest())
                 Message = "You are a guest user and cannot create stocks!";
-            return !_stockService.checkIfUserIsGuest();
+            return !_stockService.CheckIfUserIsGuest();
         }
 
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)

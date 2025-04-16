@@ -251,7 +251,7 @@ namespace StockApp.Service
             }
 
             // set author and submission date
-            article.Author = _appState.CurrentUser.CNP;
+            article.Author = _appState.CurrentUser.Cnp;
             article.SubmissionDate = DateTime.Now;
             article.Status = "Pending";
 

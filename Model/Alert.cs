@@ -8,4 +8,3 @@ public class Alert
     public int LowerBound { get; set; }
     public bool ToggleOnOff { get; set; }
 }
-

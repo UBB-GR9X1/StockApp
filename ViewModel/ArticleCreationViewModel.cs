@@ -14,7 +14,7 @@ using StockNewsPage.Views;
 
 namespace StockNewsPage.ViewModels
 {
-    public class ArticleCreationViewModel : ViewModelBase
+    public class Model : ViewModelBase
     {
         private readonly NewsService _newsService;
         private readonly DispatcherQueue _dispatcherQueue;
@@ -96,7 +96,7 @@ namespace StockNewsPage.ViewModels
         public ICommand SubmitCommand { get; }
 
         // constructor
-        public ArticleCreationViewModel()
+        public Model()
         {
             _newsService = new NewsService();
             _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
@@ -161,7 +161,7 @@ namespace StockNewsPage.ViewModels
                     Title = Title,
                     Summary = Summary ?? "",
                     Content = Content,
-                    Source = $"User: {_appState.CurrentUser?.CNP ?? "Anonymous"}",
+                    Source = $"User: {_appState.CurrentUser?.Cnp ?? "Anonymous"}",
                     PublishedDate = DateTime.Now.ToString("MMMM dd, yyyy"),
                     IsRead = false,
                     IsWatchlistRelated = false,
@@ -176,7 +176,7 @@ namespace StockNewsPage.ViewModels
                     Title = Title,
                     Summary = Summary ?? "",
                     Content = Content,
-                    Author = _appState.CurrentUser?.CNP ?? "Anonymous",
+                    Author = _appState.CurrentUser?.Cnp ?? "Anonymous",
                     SubmissionDate = DateTime.Now,
                     Status = "Preview",
                     Topic = SelectedTopic,
@@ -227,7 +227,7 @@ namespace StockNewsPage.ViewModels
                     Title = Title,
                     Summary = Summary,
                     Content = Content,
-                    Author = _appState.CurrentUser?.CNP ?? "Anonymous",
+                    Author = _appState.CurrentUser?.Cnp ?? "Anonymous",
                     SubmissionDate = DateTime.Now,
                     Status = "Pending",
                     Topic = SelectedTopic,
@@ -382,7 +382,7 @@ namespace StockNewsPage.ViewModels
                 Title = Title,
                 Summary = Summary,
                 Content = Content,
-                Source = $"User: {_appState.CurrentUser?.CNP ?? "Anonymous"}",
+                Source = $"User: {_appState.CurrentUser?.Cnp ?? "Anonymous"}",
                 PublishedDate = DateTime.Now.ToString("MMMM dd, yyyy"),
                 IsRead = false,
                 IsWatchlistRelated = false,

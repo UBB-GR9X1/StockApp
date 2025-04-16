@@ -10,11 +10,11 @@ namespace StockApp.Repository
     internal class HomepageStocksRepository
     {
         private SqlConnection dbConnection = DatabaseHelper.Instance.GetConnection();
-        private string userCNP;
+        private string userCnp;
 
-        public string GetCnp()
+        public string getCnp()
         {
-            return this.userCNP;
+            return this.userCnp;
         }
 
         public List<int> GetStockHistory(string stockName)
@@ -34,15 +34,13 @@ namespace StockApp.Repository
                 }
             }
         }
-
         public HomepageStocksRepository()
         {
-            this.userCNP = GetUserCNP();
-            Console.WriteLine("User CNP: " + userCNP);
-            Console.WriteLine("IsGuestUser: " + IsGuestUser(userCNP));
+            this.userCnp = GetUserCnp();
+            Console.WriteLine("User CNP: " + userCnp);
+            Console.WriteLine("IsGuestUser: " + IsGuestUser(userCnp));
             LoadStocks();
         }
-
         public bool IsGuestUser(string userCNP)
         {
             string query = "SELECT COUNT(*) FROM [USER] WHERE CNP = @UserCNP";
@@ -55,8 +53,9 @@ namespace StockApp.Repository
             }
         }
 
-        public string GetUserCNP()
+        public string GetUserCnp()
         {
+
             string query = "SELECT TOP 1 CNP FROM HARDCODED_CNPS ORDER BY CNP DESC";
 
             using (var command = new SqlCommand(query, dbConnection))
@@ -125,7 +124,7 @@ namespace StockApp.Repository
 
             using (var command = new SqlCommand(stocksQuery, dbConnection))
             {
-                command.Parameters.AddWithValue("@UserCNP", userCNP);
+                command.Parameters.AddWithValue("@UserCNP", userCnp);
                 using (var reader = command.ExecuteReader())
                 {
                     while (reader.Read())
@@ -180,7 +179,7 @@ namespace StockApp.Repository
             var query = "INSERT INTO FAVORITE_STOCK (USER_CNP, STOCK_NAME, IS_FAVORITE) VALUES (@UserCNP, @Name, 1)";
             using (var command = new SqlCommand(query, dbConnection))
             {
-                command.Parameters.AddWithValue("@UserCNP", userCNP);
+                command.Parameters.AddWithValue("@UserCNP", userCnp);
                 command.Parameters.AddWithValue("@Name", stock.Name);
                 command.ExecuteNonQuery();
             }
@@ -191,7 +190,7 @@ namespace StockApp.Repository
             var query = "DELETE FROM FAVORITE_STOCK WHERE USER_CNP = @UserCNP AND STOCK_NAME = @Name";
             using (var command = new SqlCommand(query, dbConnection))
             {
-                command.Parameters.AddWithValue("@UserCNP", userCNP);
+                command.Parameters.AddWithValue("@UserCNP", userCnp);
                 command.Parameters.AddWithValue("@Name", stock.Name);
                 command.ExecuteNonQuery();
             }
@@ -199,7 +198,8 @@ namespace StockApp.Repository
 
         public void CreateUserProfile()
         {
-            string currentCNP = userCNP;
+
+            string currentCNP = userCnp;
             List<String> names = new List<string>
             {
                 "storm", "shadow", "blaze", "nova", "ember", "frost", "zephyr", "luna", "onyx", "raven",
@@ -226,5 +226,6 @@ namespace StockApp.Repository
                 command.ExecuteNonQuery();
             }
         }
+
     }
 }

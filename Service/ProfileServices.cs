@@ -3,19 +3,19 @@ using StockApp.Model;
 using StockApp.Repository;
 namespace StockApp.Service
 {
-    public class ProfileService
+    public class ProfieServices
     {
         ProfileRepository _repo;
 
         private User _user;
         private List<string> userStocks;
 
-        public ProfileService(string authorCnp)
+        public ProfieServices(string authorCnp)
         {
             _repo = new ProfileRepository(authorCnp);
 
             _user = _repo.CurrentUser();
-            userStocks = _repo.userStocks();
+            userStocks = _repo.UserStocks();
         }
 
         public string GetImage() => _user.Image;
@@ -28,20 +28,27 @@ namespace StockApp.Service
 
         public void UpdateUser(string newUsername, string newImage, string newDescription, bool newHidden)
         {
-            _repo.updateMyUser(newUsername, newImage, newDescription, newHidden);
+            _repo.UpdateMyUser(newUsername, newImage, newDescription, newHidden);
+            /*
+                        _user.Username = newUsername;
+                        _user.Image = newImage;
+                        _user.Description = newDescription;
+                        _user.IsHidden = newHidden;*/
         }
 
         public void UpdateIsAdmin(bool isAdm)
         {
-            _repo.updateRepoIsAdmin(isAdm);
+            //_user.IsModerator = isAdm;
+            _repo.UpdateRepoIsAdmin(isAdm);
         }
 
         public List<string> ExtractStockNames()
         {
             List<string> stockNames = new List<string>();
 
-            foreach (var stockInfo in _repo.userStocks())
+            foreach (var stockInfo in _repo.UserStocks())
             {
+                // Assuming format: SYMBOL | NAME | Quantity: X | Price: Y
                 var parts = stockInfo.Split('|');
                 if (parts.Length >= 2)
                 {
@@ -58,11 +65,13 @@ namespace StockApp.Service
             var parts = fullStockInfo.Split('|');
             string extractedName = parts[1].Trim();
             return extractedName;
+
         }
 
         public string GetLoggedInUserCnp()
         {
-            return _repo.getLoggedInUserCNP();
+            return _repo.GetLoggedInUserCnp();
         }
+
     }
 }

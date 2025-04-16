@@ -17,16 +17,16 @@ namespace StocksHomepage
     public sealed partial class MainPage : Page
     {
         // add the view model as a property
-        public HomepageViewModel ViewModel { get; }
+        public HomePageViewModel ViewModel { get; }
 
         public MainPage()
         {
             this.InitializeComponent();
-            ViewModel = new HomepageViewModel();
+            ViewModel = new HomePageViewModel();
             DataContext = ViewModel;
         }
 
-        private void OnFavoriteButtonClick(object sender, RoutedEventArgs e)
+        private void FavoriteButtonClick(object sender, RoutedEventArgs e)
         {
             if (sender is Button button && button.Tag is HomepageStock stock)
             {
@@ -34,9 +34,9 @@ namespace StocksHomepage
             }
         }
 
-        private void OnCreateProfileClick(object sender, RoutedEventArgs e)
+        private void CreateProfileClick(object sender, RoutedEventArgs e)
         {
-            var viewModel = DataContext as HomepageViewModel;
+            var viewModel = DataContext as HomePageViewModel;
 
             if (viewModel != null)
             {
@@ -44,12 +44,12 @@ namespace StocksHomepage
             }
         }
 
-        private void OnSearchBoxTextChanged(object sender, TextChangedEventArgs e)
+        private void SearchBoxTextChanged(object sender, TextChangedEventArgs e)
         {
             ViewModel.SearchQuery = SearchBox.Text;
         }
 
-        private void OnSortDropdownSelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void SortDropdownSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (SortDropdown.SelectedItem is ComboBoxItem selectedItem)
             {
@@ -76,7 +76,7 @@ namespace StocksHomepage
         public void GoToProfile(object sender, RoutedEventArgs e)
         {
             NavigationService.Instance.Initialize(this.Frame);
-            NavigationService.Instance.Navigate(typeof(ProfilePage), ViewModel.GetUserCnp());
+            NavigationService.Instance.Navigate(typeof(ProfilePage), ViewModel.getUserCnp());
         }
 
         public void GoToStore(object sender, RoutedEventArgs e)
@@ -88,6 +88,7 @@ namespace StocksHomepage
         {
             if (e.ClickedItem is HomepageStock stock)
             {
+                // this.Frame.Navigate(typeof(StockPage), null);
                 NavigationService.Instance.Initialize(this.Frame);
                 NavigationService.Instance.Navigate(typeof(StockPage), stock.Name);
             }

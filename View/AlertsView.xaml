@@ -54,9 +54,9 @@
         <!-- Buttons -->
         <StackPanel Grid.Row="0" Grid.Column="1" VerticalAlignment="Top">
             <Button Content="Add New" Click="PlusButton_Click" Width="100" Margin="5"/>
-            <Button Content="Remove" Click="MinusButton_Click" Width="100" Margin="5"/>
-            <Button Content="Save All" Click="SaveButton_Click" Width="100" Margin="5"/>
-            <Button Content="Close" Click="ExitButton_Click" Width="100" Margin="5"/>
+            <Button Content="Remove" Click="MinusButtonClick" Width="100" Margin="5"/>
+            <Button Content="Save All" Click="SaveButtonClick" Width="100" Margin="5"/>
+            <Button Content="Close" Click="ExitButtonClick" Width="100" Margin="5"/>
         </StackPanel>
     </Grid>
 </Page>

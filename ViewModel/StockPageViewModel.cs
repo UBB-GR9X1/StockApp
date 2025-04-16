@@ -54,7 +54,7 @@ namespace StockApp.ViewModel
 
             UpdateStockValue();
 
-            IsFavorite = _service.getFavorite();
+            IsFavorite = _service.GetFavorite();
         }
 
         public void UpdateStockValue()
@@ -100,7 +100,7 @@ namespace StockApp.ViewModel
             {
                 if (_isFavorite == value) return;
                 _isFavorite = value;
-                _service.toggleFavorite(_isFavorite);
+                _service.ToggleFavorite(_isFavorite);
                 if (_isFavorite)
                 {
                     FavoriteButtonColor = "#ff0000"; // Red color for favorite
@@ -216,9 +216,9 @@ namespace StockApp.ViewModel
             return res;
         }
 
-        public string GetAuthor()
+        public string GetStockAuthor()
         {
-            return _service.getStockAuthor();
+            return _service.GetStockAuthor();
         }
     }
 }

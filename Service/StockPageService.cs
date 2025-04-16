@@ -10,10 +10,10 @@ namespace StockApp.Service
         StockPageRepository _repo;
         StockPageStock _stock;
 
-        public StockPageService(string stock_name)
+        public StockPageService(string stockName)
         {
             _repo = new StockPageRepository();
-            _stock = _repo.GetStock(stock_name);
+            _stock = _repo.GetStock(stockName);
         }
 
         public bool IsGuest()
@@ -55,15 +55,15 @@ namespace StockApp.Service
 
             if (_repo.GetUser().GemBalance >= totalPrice)
             {
-                _repo.updateUserGems(_repo.GetUser().GemBalance - totalPrice);
+                _repo.UpdateUserGems(_repo.GetUser().GemBalance - totalPrice);
                 Random r = new Random();
                 int new_price = stockPrice + (r.Next(0, 20) - 5) * quantity;
                 if (new_price < 20) new_price = 20;
-                _repo.addStockValue(_stock.Name, new_price);
-                _repo.addOrUpdateUserStock(_stock.Name, quantity);
+                _repo.AddStockValue(_stock.Name, new_price);
+                _repo.AddOrUpdateUserStock(_stock.Name, quantity);
 
                 TransactionRepository repository = new TransactionRepository();
-                repository.AddTransaction(new TransactionLogTransaction(_stock.Symbol, _stock.Name, "BUY", quantity, stockPrice, DateTime.UtcNow, _repo.GetUser().CNP));
+                repository.AddTransaction(new TransactionLogTransaction(_stock.Symbol, _stock.Name, "BUY", quantity, stockPrice, DateTime.UtcNow, _repo.GetUser().Cnp));
 
                 return true;
             }
@@ -80,31 +80,31 @@ namespace StockApp.Service
                 Random r = new Random();
                 int new_price = stockPrice + (r.Next(0, 10) - 5) * quantity;
                 if (new_price < 20) new_price = 20;
-                _repo.addStockValue(_stock.Name, new_price);
-                _repo.addOrUpdateUserStock(_stock.Name, -quantity);
-                _repo.updateUserGems(_repo.GetUser().GemBalance + totalPrice);
+                _repo.AddStockValue(_stock.Name, new_price);
+                _repo.AddOrUpdateUserStock(_stock.Name, -quantity);
+                _repo.UpdateUserGems(_repo.GetUser().GemBalance + totalPrice);
 
                 TransactionRepository repository = new TransactionRepository();
-                repository.AddTransaction(new TransactionLogTransaction(_stock.Symbol, _stock.Name, "SELL", quantity, stockPrice, DateTime.UtcNow, _repo.GetUser().CNP));
+                repository.AddTransaction(new TransactionLogTransaction(_stock.Symbol, _stock.Name, "SELL", quantity, stockPrice, DateTime.UtcNow, _repo.GetUser().Cnp));
 
                 return true;
             }
             return false;
         }
 
-        public bool getFavorite()
+        public bool GetFavorite()
         {
             return _repo.GetFavorite(_stock.Name);
         }
 
-        public void toggleFavorite(bool state)
+        public void ToggleFavorite(bool state)
         {
             _repo.ToggleFavorite(_stock.Name, state);
         }
 
-        public string getStockAuthor()
+        public string GetStockAuthor()
         {
-            return _stock.AuthorCNP;
+            return _stock.AuthorCnp;
         }
     }
 }

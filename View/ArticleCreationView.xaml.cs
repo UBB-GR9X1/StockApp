@@ -5,7 +5,7 @@ namespace StockNewsPage.Views
 {
     public sealed partial class ArticleCreationView : Page
     {
-        public ArticleCreationViewModel ViewModel { get; } = new ArticleCreationViewModel();
+        public ViewModels.Model ViewModel { get; } = new ViewModels.Model();
 
         public ArticleCreationView()
         {

@@ -90,21 +90,21 @@ namespace StockApp.Repository
             }
         }
 
-        public List<Stock> getStockList()
+        public List<Stock> GetStockList()
         {
             return stocks;
         }
 
-        public List<Stock> getStockHistory(string name)
+        public List<Stock> GetStockHistory(string name)
         {
             return history.FindAll(stock => stock.Name == name);
         }
-        public List<UserStock> getUserStocks(string cnp)
+        public List<UserStock> GetUserStocks(string cnp)
         {
             return userStocks.FindAll(stock => stock.Item1 == cnp).ConvertAll(stock => stock.Item2);
         }
 
-        public void updateUserStocks(string cnp, List<UserStock> newStocks)
+        public void UpdateUserStocks(string cnp, List<UserStock> newStocks)
         {
             userStocks.RemoveAll(stock => stock.Item1 == cnp);
             foreach (UserStock stock in newStocks)
@@ -113,17 +113,17 @@ namespace StockApp.Repository
             }
         }
 
-        public User getUserInformation(string cnp)
+        public User GetUserInformation(string cnp)
         {
-            return users.Find(user => user.CNP == cnp);
+            return users.Find(user => user.Cnp == cnp);
         }
-        public void updateUserInformation(string cnp, User user)
+        public void UpdateUserInformation(string cnp, User user)
         {
-            users.RemoveAll(u => u.CNP == cnp);
+            users.RemoveAll(u => u.Cnp == cnp);
             users.Add(user);
         }
 
-        public void updateUserFavorites(string cnp, List<string> newFavorites)
+        public void UpdateUserFavorites(string cnp, List<string> newFavorites)
         {
             favorites.RemoveAll(favorite => favorite.Item1 == cnp);
             foreach (string favorite in newFavorites)
@@ -132,23 +132,23 @@ namespace StockApp.Repository
             }
         }
 
-        public List<string> getUserFavorites(string cnp)
+        public List<string> GetUserFavorites(string cnp)
         {
             return favorites.FindAll(favorite => favorite.Item1 == cnp).ConvertAll(favorite => favorite.Item2);
         }
 
-        public List<Transaction> getAllTransactions()
+        public List<Transaction> GetAllTransactions()
         {
             return transactions;
         }
 
-        public void updateAllTransactions(List<Transaction> newList)
+        public void UpdateAllTransactions(List<Transaction> newList)
         {
             transactions = newList;
         }
 
         // +getPermanentGemDeals(): List<GemDeals>
-        public List<GemDeal> getPermanentGemDeals()
+        public List<GemDeal> GetPermanentGemDeals()
         {
             return deals;
         }
@@ -156,20 +156,20 @@ namespace StockApp.Repository
         // +fetchCurrentUser(): User // WHO ADDED THIS??
         // TODO: ALERTS
 
-        public List<Alert> getAlerts()
+        public List<Alert> GetAlerts()
         {
             return alerts;
         }
 
-        public void updateAlerts(List<Alert> newAlerts)
+        public void UpdateAlerts(List<Alert> newAlerts)
         {
             alerts = newAlerts;
         }
-        public void addAlert(Alert alert)
+        public void AddAlert(Alert alert)
         {
             alerts.Add(alert);
         }
-        public void removeAlert(int alertId)
+        public void RemoveAlert(int alertId)
         {
             alerts.RemoveAll(alert => alert.AlertId == alertId);
         }

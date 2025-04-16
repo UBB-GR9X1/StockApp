@@ -42,16 +42,13 @@ namespace StockApp.ViewModel
 
         //public void PopulateUserTable() => storeService.PopulateUserTable();
 
-        public bool IsGuest
+        public bool IsGuest()
         {
-            get
-            {
-                if (testMode)
-                    return false;
+            if (testMode)
+                return false;
 
-                bool guest = storeService.IsGuest(_currentUserCnp);
-                return guest;
-            }
+            bool guest = storeService.IsGuest(_currentUserCnp);
+            return guest;
         }
 
         public int UserGems

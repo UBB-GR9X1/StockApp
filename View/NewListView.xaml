@@ -32,7 +32,7 @@
             <!-- Back Button - Now part of the header layout -->
             <Button Grid.Column="0" 
                     Content="Back" 
-                    Click="BackButton_Click"
+                    Click="BackButtonClick"
                     VerticalAlignment="Center" 
                     Margin="0,0,12,0">
                 <Button.ContentTemplate>
@@ -110,7 +110,7 @@
                             Text="{x:Bind ViewModel.SearchQuery, Mode=TwoWay}"
                             QueryIcon="Find">
                 <AutoSuggestBox.KeyboardAccelerators>
-                    <KeyboardAccelerator Key="Escape" Invoked="EscapeKey_Invoked"/>
+                    <KeyboardAccelerator Key="Escape" Invoked="EscapeKeyInvoked"/>
                 </AutoSuggestBox.KeyboardAccelerators>
             </AutoSuggestBox>
 
@@ -121,7 +121,7 @@
                       SelectedItem="{x:Bind ViewModel.SelectedCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                       MinWidth="150"
                       Margin="16,0,0,0"
-                      SelectionChanged="CategoryFilter_SelectionChanged"/>
+                      SelectionChanged="CategoryFilterSelectionChanged"/>
         </Grid>
 
         <!-- Content Area -->
@@ -161,7 +161,7 @@
             <!-- Article List -->
             <RefreshContainer Grid.Row="2" 
                               Visibility="{x:Bind ViewModel.IsEmptyState, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}"
-                              RefreshRequested="RefreshContainer_RefreshRequested">
+                              RefreshRequested="RefreshContainerRefreshRequested">
 
                 <ListView ItemsSource="{x:Bind ViewModel.Articles, Mode=OneWay}" 
                           SelectedItem="{x:Bind ViewModel.SelectedArticle, Mode=TwoWay}"

@@ -11,7 +11,7 @@ using StockApp.Service;
 
 namespace StockApp.ViewModel
 {
-    public class TransactionLogViewModel : INotifyPropertyChanged
+    public class ViewModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -131,7 +131,7 @@ namespace StockApp.ViewModel
         public ICommand SearchCommand { get; }
         public ICommand ExportCommand { get; }
 
-        public TransactionLogViewModel(TransactionLogService service)
+        public ViewModel(TransactionLogService service)
         {
             this.service = service;
 

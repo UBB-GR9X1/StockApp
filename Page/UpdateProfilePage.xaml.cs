@@ -11,7 +11,7 @@ namespace StocksApp
 {
     public sealed partial class UpdateProfilePage : Page
     {
-        private UpdateProfilePageViewModel viewModelUpdate; 
+        private ModelView viewModelUpdate; 
 
         public UpdateProfilePage()
         {
@@ -25,7 +25,7 @@ namespace StocksApp
             // Retrieve the stock name passed during navigation
             if (e.Parameter is string authorCNP)
             {
-                viewModelUpdate = new UpdateProfilePageViewModel(authorCNP);
+                viewModelUpdate = new ModelView(authorCNP);
                 this.DataContext = viewModelUpdate;
             }
 
@@ -39,8 +39,8 @@ namespace StocksApp
         private async void GetAdminPassword(object sender, RoutedEventArgs e)
         {
             string userTryPass = PasswordTry.Text;
-            bool isAdmin = viewModelUpdate.getPassword() == userTryPass;
-            viewModelUpdate.updateAdminMode(isAdmin);
+            bool isAdmin = viewModelUpdate.GetPassword() == userTryPass;
+            viewModelUpdate.UpdateAdminMode(isAdmin);
 
             string message = isAdmin ? "You are now ADMIN!" : "Incorrect Password!";
             string title = isAdmin ? "Success" : "Error";
@@ -57,7 +57,7 @@ namespace StocksApp
             string newDescription = DescriptionInput.Text;
 
             if (string.IsNullOrEmpty(newUsername) && string.IsNullOrEmpty(newImage) && string.IsNullOrEmpty(newDescription)
-                && (MyCheckBox.IsChecked == false && viewModelUpdate.isHidden()==false) && MyDescriptionCheckBox.IsChecked == false)
+                && (MyCheckBox.IsChecked == false && viewModelUpdate.IsHidden()==false) && MyDescriptionCheckBox.IsChecked == false)
             {
                 await ShowErrorDialog("Please fill up at least one of the information fields");
                 return;
@@ -77,17 +77,17 @@ namespace StocksApp
 
             if (newUsername.Length == 0)
             {
-                newUsername = viewModelUpdate.getUsername();    
+                newUsername = viewModelUpdate.GetUsername();    
             }
 
             if(DescriptionEmpty == false)
             {
-                newDescription = viewModelUpdate.getDescription();
+                newDescription = viewModelUpdate.GetDescription();
             }
 
             if(newImage.Length == 0)
             {
-                newImage = viewModelUpdate.getImage();
+                newImage = viewModelUpdate.GetImage();
             }
 
             else if(DescriptionEmpty == true)
@@ -95,7 +95,7 @@ namespace StocksApp
                 newDescription = "";
             }
 
-            viewModelUpdate.updateAll(newUsername, newImage, newDescription, newHidden);
+            viewModelUpdate.UpdateAll(newUsername, newImage, newDescription, newHidden);
             await ShowSuccessDialog("Profile updated successfully!");
         }
 

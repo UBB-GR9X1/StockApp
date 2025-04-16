@@ -20,7 +20,7 @@ namespace StockApp.Views
             AlertListView.ItemsSource = _alertRepository.GetTriggeredAlerts();
         }
 
-        private void Refresh_Click(object sender, RoutedEventArgs e)
+        private void RefreshClick(object sender, RoutedEventArgs e)
         {
             LoadAlerts();
         }

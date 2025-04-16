@@ -16,17 +16,17 @@ namespace StockApp.Model
         private string image; // BASE64 // TODO: update to image??
         private bool is_hidden;
 
-        public User(string cnp, string username, string description, bool is_moderator, string image, bool is_hidden)
+        public User(string cnp, string username, string description, bool isModerator, string image, bool isHidden)
         {
             this.cnp = cnp;
             this.username = username;
             this.description = description;
-            this.is_moderator = is_moderator;
+            this.is_moderator = isModerator;
             this.image = image;
-            this.is_hidden = is_hidden;
+            this.is_hidden = isHidden;
         }
 
-        public string CNP
+        public string Cnp
         {
             get { return cnp; }
             set { cnp = value; }

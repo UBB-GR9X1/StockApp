@@ -38,16 +38,16 @@ namespace StockApp.StockPage
         public StockPage()
         {
             this.InitializeComponent();
-            command = new StockNewsRelayCommand(() => AuthorButton_Click());
+            command = new StockNewsRelayCommand(() => AuthorButtonClick());
         }
 
-        public void ReturnButton_Click(object sender, RoutedEventArgs e)
+        public void ReturnButtonClick(object sender, RoutedEventArgs e)
         {
             NavigationService.Instance.GoBack();
         }
 
 
-        public void AuthorButton_Click()
+        public void AuthorButtonClick()
         {
             // this.Frame.Navigate(typeof(AuthorPage.AuthorPage));
 
@@ -55,7 +55,7 @@ namespace StockApp.StockPage
             //// link the current frame (This.Frame) to the new one and make all go back work as expected
             //this.Frame.Content = newFrame;
             // newFrame.Navigate(typeof(ProfilePage), _viewModel.getStockAuthor());
-            NavigationService.Instance.Navigate(typeof(ProfilePage), _viewModel.getStockAuthor());
+            NavigationService.Instance.Navigate(typeof(ProfilePage), _viewModel.GetStockAuthor());
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
