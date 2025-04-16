@@ -100,6 +100,7 @@
     <PRIResource Remove="Homepage\**" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="SqlScripts\CreateUserTable.sql" />
+    <Compile Include="SqlScripts\CheckTablesExist.sql" />
+    <Compile Include="SqlScripts\CreateTables.sql" />
   </ItemGroup>
 </Project>
