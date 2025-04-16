@@ -5,15 +5,15 @@ namespace StockNewsPage.Views
 {
     public sealed partial class ArticleCreationView : Page
     {
-        public ArticleCreationViewModel ViewModel { get; } = new ArticleCreationViewModel();
+        public ViewModels.Model ViewModel { get; } = new ViewModels.Model();
 
         public ArticleCreationView()
         {
             this.InitializeComponent();
-            this.Loaded += ArticleCreationView_Loaded;
+            this.Loaded += OnLoaded;
         }
 
-        private void ArticleCreationView_Loaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+        private void OnLoaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
             ViewModel.Initialize();
         }

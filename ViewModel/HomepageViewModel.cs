@@ -16,9 +16,9 @@ using StockApp.Service;
 
 namespace StockApp.ViewModel
 {
-    public class HomepageViewModel : INotifyPropertyChanged
+    public class HomePageViewModel : INotifyPropertyChanged
     {
-        private HomepageService _service;
+        private HomePageService _service;
         private ObservableCollection<HomepageStock> _filteredAllStocks;
         private ObservableCollection<HomepageStock> _filteredFavoriteStocks;
         private string _searchQuery;
@@ -52,9 +52,9 @@ namespace StockApp.ViewModel
             }
         }
 
-        public string getUserCNP()
+        public string getUserCnp()
         {
-            return _service.GetUserCNP();
+            return _service.GetUserCnp();
         }
 
         public bool IsGuestUser
@@ -112,9 +112,9 @@ namespace StockApp.ViewModel
             }
         }
 
-        public HomepageViewModel()
+        public HomePageViewModel()
         {
-            _service = new HomepageService();
+            _service = new HomePageService();
             IsGuestUser = _service.IsGuestUser();
             FilteredAllStocks = new ObservableCollection<HomepageStock>(_service.GetAllStocks());
             FilteredFavoriteStocks = new ObservableCollection<HomepageStock>(_service.GetFavoriteStocks());

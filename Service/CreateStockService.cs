@@ -15,10 +15,10 @@ namespace StockApp.Service
             _stocksRepository = stocksRepository ?? new BaseStocksRepository();
         }
 
-        public bool checkIfUserIsGuest()
+        public bool CheckIfUserIsGuest()
         {
             HomepageStocksRepository homepageStocksRepository = new HomepageStocksRepository();
-            return homepageStocksRepository.IsGuestUser(homepageStocksRepository.getCNP());
+            return homepageStocksRepository.IsGuestUser(homepageStocksRepository.getCnp());
         }
 
 

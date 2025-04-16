@@ -20,18 +20,18 @@ namespace StocksApp
             UpdateProfileButton = new StockNewsRelayCommand(() => GoToUpdatePage());
         }
 
-        private void doStuff()
+        private void DoStuff()
         {
             this.InitializeComponent();
-            this.showUserInformation();
-            StocksListView.ItemsSource = viewModel.getUserStocks();
+            this.ShowUserInformation();
+            StocksListView.ItemsSource = viewModel.GetUserStocks();
 
-            if (viewModel.isHidden())
+            if (viewModel.IsHidden())
             {
-                this.hideProfile();
+                this.HideProfile();
             }
 
-            userStocksShowUsername();
+            UserStocksShowUsername();
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -44,29 +44,29 @@ namespace StocksApp
                 this.DataContext = viewModel;
             }
 
-            doStuff();
+            DoStuff();
         }
 
-        private void showUserInformation()
+        private void ShowUserInformation()
         {
-            UsernameTextBlock.Text = viewModel.getUsername();
-            ProfileDescription.Text = viewModel.getDescription();
+            UsernameTextBlock.Text = viewModel.GetUsername();
+            ProfileDescription.Text = viewModel.GetDescription();
 
             ProfileImage.Source = viewModel.ImageSource;
         }
 
         private void GoToUpdatePage()
         {
-            NavigationService.Instance.Navigate(typeof(UpdateProfilePage), viewModel.getLoggedInUserCNP());
+            NavigationService.Instance.Navigate(typeof(UpdateProfilePage), viewModel.GetLoggedInUserCnp());
         }
 
-        private void getSelectedStock(object sender, RoutedEventArgs e)
+        private void GetSelectedStock(object sender, RoutedEventArgs e)
         {
             string selectedStock = (string)StocksListView.SelectedItem;
             StockName.Text = selectedStock;
         }
 
-        private void hideProfile()
+        private void HideProfile()
         {
             StocksListView.Visibility = Visibility.Collapsed;
             ProfileDescription.Visibility = Visibility.Collapsed;
@@ -74,22 +74,22 @@ namespace StocksApp
             EnterStockButton.Visibility = Visibility.Collapsed;
         }
 
-        public void goBack(object sender, RoutedEventArgs e)
+        public void GoBack(object sender, RoutedEventArgs e)
         {
             // Go back to the previous page
             NavigationService.Instance.GoBack();
         }
 
-        public void userStocksShowUsername()
+        public void UserStocksShowUsername()
         {
             // Show the username in the user's stock list
-            UsernameMyStocks.Text = viewModel.getUsername() + "'s STOCKS: ";
+            UsernameMyStocks.Text = viewModel.GetUsername() + "'s STOCKS: ";
         }
 
         public void GoToStockButton(object sender, RoutedEventArgs e)
         {
             string selectedStock = (string)StocksListView.SelectedItem;
-            string stockName = viewModel.extractMyStockName(selectedStock);
+            string stockName = viewModel.ExtractMyStockName(selectedStock);
             if (stockName is string myStock)
             {
                 NavigationService.Instance.Initialize(this.Frame);

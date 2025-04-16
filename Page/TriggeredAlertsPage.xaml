@@ -19,6 +19,6 @@
             </ListView.ItemTemplate>
         </ListView>
 
-        <Button Content="🔄 Refresh" Click="Refresh_Click" Margin="0,20,0,0"/>
+        <Button Content="🔄 Refresh" Click="RefreshClick" Margin="0,20,0,0"/>
     </StackPanel>
 </Page>

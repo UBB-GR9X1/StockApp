@@ -4,13 +4,13 @@
     {
         private string _name;
         private string _symbol;
-        private string _authro_cnp;
+        private string _authroCnp;
 
-        public StockPageStock(string name, string symbol, string author_cnp)
+        public StockPageStock(string name, string symbol, string authorCnp)
         {
             _name = name;
             _symbol = symbol;
-            _authro_cnp = author_cnp;
+            _authroCnp = authorCnp;
         }
 
         public string Name
@@ -25,10 +25,10 @@
             set { _symbol = value; }
         }
 
-        public string AuthorCNP
+        public string AuthorCnp
         {
-            get { return _authro_cnp; }
-            set { _authro_cnp = value; }
+            get { return _authroCnp; }
+            set { _authroCnp = value; }
         }
     }
 }

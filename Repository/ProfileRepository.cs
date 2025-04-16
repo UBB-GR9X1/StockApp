@@ -30,7 +30,7 @@ namespace StockApp.Repository
             // SOMETINES UR USING ONE, SOMETIMES THE OTHER...
         }
 
-        public string generateUsername()
+        public string GenerateUsername()
         {
             List<string> randomUsernames = new List<string>()
             {
@@ -109,7 +109,7 @@ namespace StockApp.Repository
             return existingUser;
         }
 
-        public void updateRepoIsAdmin(bool newisA)
+        public void UpdateRepoIsAdmin(bool newisA)
         {
             int myisA;
             if (newisA == true) myisA = 1;
@@ -123,7 +123,7 @@ namespace StockApp.Repository
             }
         }
 
-        public void updateMyUser(string newUsername, string newImage, string newDescription, bool newHidden)
+        public void UpdateMyUser(string newUsername, string newImage, string newDescription, bool newHidden)
         {//update stuff - see serv
 
             string newHiddenint;
@@ -145,7 +145,7 @@ namespace StockApp.Repository
 
         }
 
-        public List<string> userStocks()
+        public List<string> UserStocks()
         {
             List<string> stocks = new List<string>();
 
@@ -198,7 +198,7 @@ namespace StockApp.Repository
             return stocks;
         }
 
-        public string getLoggedInUserCNP()
+        public string GetLoggedInUserCnp()
         {
             return loggedInUserCNP;
         }

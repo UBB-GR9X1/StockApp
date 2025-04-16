@@ -3,7 +3,7 @@
     public class UserStock : BaseStock
     {
         private int _quantity;
-        public UserStock(string name, string symbol, string author_cnp, int quantity) : base(name, symbol, author_cnp)
+        public UserStock(string name, string symbol, string authorCnp, int quantity) : base(name, symbol, authorCnp)
         {
             _quantity = quantity;
         }

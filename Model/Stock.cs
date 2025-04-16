@@ -4,7 +4,7 @@
     {
         private int _price;
 
-        public Stock(string name, string symbol, string author_cnp, int price) : base(name, symbol, author_cnp)
+        public Stock(string name, string symbol, string authorCnp, int price) : base(name, symbol, authorCnp)
         {
             _price = price;
         }

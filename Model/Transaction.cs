@@ -9,16 +9,16 @@ namespace StockApp.Model
         private int pricePerStock;
         private int totalValue;
         private DateTime transactionDate;
-        private string transactionAuthorCNP;
+        private string transactionAuthorCnp;
 
-        public Transaction(string name, string symbol, string author_cnp, string transactionType, int amount, int pricePerStock, int totalValue, DateTime transactionDate, string transactionAuthorCNP) : base(name, symbol, author_cnp)
+        public Transaction(string name, string symbol, string authorCnp, string transactionType, int amount, int pricePerStock, int totalValue, DateTime transactionDate, string transactionAuthorCNP) : base(name, symbol, authorCnp)
         {
             this.transactionType = transactionType;
             this.amount = amount;
             this.pricePerStock = pricePerStock;
             this.totalValue = totalValue;
             this.transactionDate = transactionDate;
-            this.transactionAuthorCNP = transactionAuthorCNP;
+            this.transactionAuthorCnp = transactionAuthorCNP;
         }
 
         public string TransactionType
@@ -51,10 +51,10 @@ namespace StockApp.Model
             set { transactionDate = value; }
         }
 
-        public string TransactionAuthorCNP
+        public string TransactionAuthorCnp
         {
-            get { return transactionAuthorCNP; }
-            set { transactionAuthorCNP = value; }
+            get { return transactionAuthorCnp; }
+            set { transactionAuthorCnp = value; }
         }
     }
 }

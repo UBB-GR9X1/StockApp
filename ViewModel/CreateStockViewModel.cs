@@ -15,7 +15,7 @@ namespace StockApp.ViewModel
     {
         private string _stockName;
         private string _stockSymbol;
-        private string _authorCNP;
+        private string _authorCnp;
         private string _message;
         private bool _suppressValidation = false;
         private readonly CreateStockService _stockService;
@@ -74,14 +74,14 @@ namespace StockApp.ViewModel
             }
         }
 
-        public string AuthorCNP
+        public string AuthorCnp
         {
-            get => _authorCNP;
+            get => _authorCnp;
             set
             {
-                if (_authorCNP != value)
+                if (_authorCnp != value)
                 {
-                    _authorCNP = value;
+                    _authorCnp = value;
                     ValidateInputs();
                     OnPropertyChanged();
                 }
@@ -144,12 +144,12 @@ namespace StockApp.ViewModel
                 IsInputValid = false;
             }
 
-            if (string.IsNullOrWhiteSpace(AuthorCNP))
+            if (string.IsNullOrWhiteSpace(AuthorCnp))
             {
                 Message = "Author CNP is required!";
                 IsInputValid = false;
             }
-            else if (!Regex.IsMatch(AuthorCNP, @"^\d{13}$"))
+            else if (!Regex.IsMatch(AuthorCnp, @"^\d{13}$"))
             {
                 Message = "Author CNP must be exactly 13 digits!";
                 IsInputValid = false;
@@ -162,14 +162,14 @@ namespace StockApp.ViewModel
         {
             if (!CanCreateStock(null)) return;
 
-            Message = _stockService.AddStock(StockName, StockSymbol, AuthorCNP);
+            Message = _stockService.AddStock(StockName, StockSymbol, AuthorCnp);
 
             if (Message == "Stock added successfully with initial value!")
             {
                 _suppressValidation = true;
                 StockName = "";
                 StockSymbol = "";
-                AuthorCNP = "";
+                AuthorCnp = "";
                 _suppressValidation = false;
             }
         }
@@ -178,9 +178,9 @@ namespace StockApp.ViewModel
         {
             // This method should check if the user is an admin.
             // For now, let's assume the user is an admin.
-            if (_stockService.checkIfUserIsGuest())
+            if (_stockService.CheckIfUserIsGuest())
                 Message = "You are a guest user and cannot create stocks!";
-            return !_stockService.checkIfUserIsGuest();
+            return !_stockService.CheckIfUserIsGuest();
         }
 
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)

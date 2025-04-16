@@ -21,15 +21,15 @@ namespace StockApp.ViewModel
             }
         }
 
-        public ProfilePageViewModel(string authorCNP)
+        public ProfilePageViewModel(string authorCnp)
         {
-            profServ = new ProfieServices(authorCNP);
+            profServ = new ProfieServices(authorCnp);
             LoadProfileImage();
         }
 
         private void LoadProfileImage()
         {
-            string imageUrl = profServ.getImage();
+            string imageUrl = profServ.GetImage();
             if (!string.IsNullOrEmpty(imageUrl))
             {
                 try
@@ -44,24 +44,24 @@ namespace StockApp.ViewModel
         }
 
 
-        public string getLoggedInUserCNP()
+        public string GetLoggedInUserCnp()
         {
-            return profServ.getLoggedInUserCNP();
+            return profServ.GetLoggedInUserCnp();
         }
 
-        public string getUsername() => profServ.getUsername();
-        public string getDescription() => profServ.getDescription();
-        public bool isHidden() => profServ.isHidden();
-        public bool isAdmin() => profServ.isAdmin();
-        public List<string> getUserStocks() => profServ.getUserStocks();
-        public string getPassword() => profServ.getPass();
+        public string GetUsername() => profServ.GetUsername();
+        public string GetDescription() => profServ.GetDescription();
+        public bool IsHidden() => profServ.IsHidden();
+        public bool IsAdmin() => profServ.IsAdmin();
+        public List<string> GetUserStocks() => profServ.GetUserStocks();
+        public string GetPassword() => profServ.GetPass();
 
-        public string extractMyStockName(string fullStock) => profServ.extractStockName(fullStock);
+        public string ExtractMyStockName(string fullStock) => profServ.ExtractStockName(fullStock);
 
 
-        public void updateAdminMode(bool newIsAdmin)
+        public void UpdateAdminMode(bool newIsAdmin)
         {
-            profServ.updateIsAdmin(newIsAdmin);
+            profServ.UpdateIsAdmin(newIsAdmin);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

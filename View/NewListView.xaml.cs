@@ -7,31 +7,31 @@ namespace StockNewsPage.Views
 {
     public sealed partial class NewsListView : Page
     {
-        public NewsListViewModel ViewModel { get; } = new NewsListViewModel();
+        public ViewModel ViewModel { get; } = new ViewModel();
 
         public NewsListView()
         {
             this.InitializeComponent();
-            this.Loaded += NewsListView_Loaded;
+            this.Loaded += OnLoaded;
         }
 
-        private void NewsListView_Loaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+        private void OnLoaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
             ViewModel.Initialize();
         }
 
-        private void RefreshContainer_RefreshRequested(RefreshContainer sender, RefreshRequestedEventArgs args)
+        private void RefreshContainerRefreshRequested(RefreshContainer sender, RefreshRequestedEventArgs args)
         {
             ViewModel.RefreshCommand.Execute(null);
         }
 
-        private void EscapeKey_Invoked(KeyboardAccelerator sender, Microsoft.UI.Xaml.Input.KeyboardAcceleratorInvokedEventArgs args)
+        private void EscapeKeyInvoked(KeyboardAccelerator sender, Microsoft.UI.Xaml.Input.KeyboardAcceleratorInvokedEventArgs args)
         {
             ViewModel.ClearSearchCommand.Execute(null);
             args.Handled = true;
         }
 
-        private void CategoryFilter_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void CategoryFilterSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (ViewModel.SelectedCategory != null)
             {
@@ -40,7 +40,7 @@ namespace StockNewsPage.Views
         }
 
         //back button
-        private void BackButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+        private void BackButtonClick(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
             NavigationService.Instance.GoBack();
         }

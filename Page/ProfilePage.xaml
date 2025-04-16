@@ -11,7 +11,7 @@
         <StackPanel Padding="50" Spacing="30" Background="#FFF5EE" BorderBrush="#FF69B4" BorderThickness="10">
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="150" Background="#FFF5EE" Padding="20">
-                <Button Name="backButton" Content="Back" Click="goBack" Background="#A39FE1" CornerRadius="10" Foreground="#FFF5EE" Padding="10" />
+                <Button Name="backButton" Content="Back" Click="GoBack" Background="#A39FE1" CornerRadius="10" Foreground="#FFF5EE" Padding="10" />
                 <TextBlock Text="Profile" FontSize="24" FontWeight="Bold" Foreground="#FF69B4"/>
                 <Button Command ="{x:Bind UpdateProfileButton}"
                         Name="updateWindowButton" Content="Update Profile" Background="#FF69B4" CornerRadius="10" Foreground="#FFF5EE" Padding="10" />

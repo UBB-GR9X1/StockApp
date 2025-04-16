@@ -5,7 +5,7 @@ using StockApp.Repository;
 
 namespace StockApp.Service
 {
-    class HomepageService
+    class HomePageService
     {
         private HomepageStocksRepository _repo;
         public ObservableCollection<HomepageStock> FavoriteStocks { get; private set; }
@@ -13,7 +13,7 @@ namespace StockApp.Service
         public ObservableCollection<HomepageStock> FilteredAllStocks { get; private set; }
         public ObservableCollection<HomepageStock> FilteredFavoriteStocks { get; private set; }
 
-        public HomepageService()
+        public HomePageService()
         {
             _repo = new HomepageStocksRepository();
             var stocks = _repo.LoadStocks();
@@ -104,12 +104,12 @@ namespace StockApp.Service
         }
         public bool IsGuestUser()
         {
-            return _repo.IsGuestUser(_repo.getCNP());
+            return _repo.IsGuestUser(_repo.getCnp());
         }
 
-        public string GetUserCNP()
+        public string GetUserCnp()
         {
-            return _repo.getCNP();
+            return _repo.getCnp();
         }
 
         public void CreateUserProfile()

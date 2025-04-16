@@ -11,12 +11,12 @@ namespace StockNewsPage.Views
         public AdminNewsControlView()
         {
             this.InitializeComponent();
-            this.Loaded += AdminNewsControlView_Loaded;
+            this.Loaded += OnLoaded;
 
             ArticlesList.DataContext = ViewModel;
         }
 
-        private void AdminNewsControlView_Loaded(object sender, RoutedEventArgs e)
+        private void OnLoaded(object sender, RoutedEventArgs e)
         {
             ViewModel.Initialize();
         }

@@ -10,25 +10,25 @@ namespace StockApp.Service
         private User _user;
         private List<string> userStocks;
 
-        public ProfieServices(string authorCNP)
+        public ProfieServices(string authorCnp)
         {
-            _repo = new ProfileRepository(authorCNP);
+            _repo = new ProfileRepository(authorCnp);
 
             _user = _repo.CurrentUser();
-            userStocks = _repo.userStocks();
+            userStocks = _repo.UserStocks();
         }
 
-        public string getImage() => _user.Image;
-        public string getUsername() => _user.Username;
-        public string getDescription() => _user.Description;
-        public bool isHidden() => _user.IsHidden;
-        public bool isAdmin() => _user.IsModerator;
-        public List<string> getUserStocks() => userStocks;
-        public string getPass() => "BombardinoCrocodilo";
+        public string GetImage() => _user.Image;
+        public string GetUsername() => _user.Username;
+        public string GetDescription() => _user.Description;
+        public bool IsHidden() => _user.IsHidden;
+        public bool IsAdmin() => _user.IsModerator;
+        public List<string> GetUserStocks() => userStocks;
+        public string GetPass() => "BombardinoCrocodilo";
 
-        public void updateUser(string newUsername, string newImage, string newDescription, bool newHidden)
+        public void UpdateUser(string newUsername, string newImage, string newDescription, bool newHidden)
         {
-            _repo.updateMyUser(newUsername, newImage, newDescription, newHidden);
+            _repo.UpdateMyUser(newUsername, newImage, newDescription, newHidden);
             /*
                         _user.Username = newUsername;
                         _user.Image = newImage;
@@ -36,17 +36,17 @@ namespace StockApp.Service
                         _user.IsHidden = newHidden;*/
         }
 
-        public void updateIsAdmin(bool isAdm)
+        public void UpdateIsAdmin(bool isAdm)
         {
             //_user.IsModerator = isAdm;
-            _repo.updateRepoIsAdmin(isAdm);
+            _repo.UpdateRepoIsAdmin(isAdm);
         }
 
         public List<string> ExtractStockNames()
         {
             List<string> stockNames = new List<string>();
 
-            foreach (var stockInfo in _repo.userStocks())
+            foreach (var stockInfo in _repo.UserStocks())
             {
                 // Assuming format: SYMBOL | NAME | Quantity: X | Price: Y
                 var parts = stockInfo.Split('|');
@@ -60,7 +60,7 @@ namespace StockApp.Service
             return stockNames;
         }
 
-        public string extractStockName(string fullStockInfo)
+        public string ExtractStockName(string fullStockInfo)
         {
             var parts = fullStockInfo.Split('|');
             string extractedName = parts[1].Trim();
@@ -68,9 +68,9 @@ namespace StockApp.Service
 
         }
 
-        public string getLoggedInUserCNP()
+        public string GetLoggedInUserCnp()
         {
-            return _repo.getLoggedInUserCNP();
+            return _repo.GetLoggedInUserCnp();
         }
 
     }

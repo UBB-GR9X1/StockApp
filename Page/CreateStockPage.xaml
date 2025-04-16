@@ -20,7 +20,7 @@
                 Foreground="Black"
                 FontSize="14"
                 BorderThickness="1"
-                Click="GoBack_Click" />
+                Click="GoBackClick" />
 
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="15">
 

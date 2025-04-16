@@ -40,7 +40,7 @@ namespace Alerts
             AlertsListView.SelectedItem = newAlert;
         }
 
-        private async void MinusButton_Click(object sender, RoutedEventArgs e)
+        private async void MinusButtonClick(object sender, RoutedEventArgs e)
         {
             if (AlertsListView.SelectedItem is Alert selectedAlert)
             {
@@ -69,7 +69,7 @@ namespace Alerts
             }
         }
 
-        private async void SaveButton_Click(object sender, RoutedEventArgs e)
+        private async void SaveButtonClick(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -104,7 +104,7 @@ namespace Alerts
             }
         }
 
-        private void ExitButton_Click(object sender, RoutedEventArgs e)
+        private void ExitButtonClick(object sender, RoutedEventArgs e)
         {
             Application.Current.Exit();
         }

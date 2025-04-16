@@ -7,39 +7,39 @@ using StockApp.Service;
 
 namespace StockApp.ViewModel
 {
-    internal class UpdateProfilePageViewModel
+    internal class ModelView
     {
 
 
         private ProfieServices profServ;
 
-        public UpdateProfilePageViewModel(string myCNP)
+        public ModelView(string myCnp)
         {
-            profServ = new ProfieServices(myCNP);
+            profServ = new ProfieServices(myCnp);
         }
 
-        public string getImage() => profServ.getImage();
-        public string getUsername() => profServ.getUsername();
-        public string getDescription() => profServ.getDescription();
-        public bool isHidden() => profServ.isHidden();
-        public bool isAdmin() => profServ.isAdmin();
-        public List<string> getUserStocks() => profServ.getUserStocks();
+        public string GetImage() => profServ.GetImage();
+        public string GetUsername() => profServ.GetUsername();
+        public string GetDescription() => profServ.GetDescription();
+        public bool IsHidden() => profServ.IsHidden();
+        public bool IsAdmin() => profServ.IsAdmin();
+        public List<string> GetUserStocks() => profServ.GetUserStocks();
 
 
 
-        public void updateAll(string newUsername, string newImage, string newDescription, bool newHidden)
+        public void UpdateAll(string newUsername, string newImage, string newDescription, bool newHidden)
         {
-            profServ.updateUser(newUsername, newImage, newDescription, newHidden);
+            profServ.UpdateUser(newUsername, newImage, newDescription, newHidden);
         }
 
-        public string getPassword()
+        public string GetPassword()
         {
-            return profServ.getPass();
+            return profServ.GetPass();
         }
 
-        public void updateAdminMode(bool newIsAdmin)
+        public void UpdateAdminMode(bool newIsAdmin)
         {
-            profServ.updateIsAdmin(newIsAdmin);
+            profServ.UpdateIsAdmin(newIsAdmin);
         }
 
     }

@@ -4,16 +4,16 @@
     {
         private string cnp;
         private string name;
-        private int gem_balance;
+        private int gemBalance;
 
-        public StockPageUser(string cnp, string name, int gem_balance)
+        public StockPageUser(string cnp, string name, int gemBalance)
         {
             this.cnp = cnp;
             this.name = name;
-            this.gem_balance = gem_balance;
+            this.gemBalance = gemBalance;
         }
 
-        public string CNP
+        public string Cnp
         {
             get { return cnp; }
             set { cnp = value; }
@@ -27,8 +27,8 @@
 
         public int GemBalance
         {
-            get { return gem_balance; }
-            set { gem_balance = value; }
+            get { return gemBalance; }
+            set { gemBalance = value; }
         }
     }
 }

@@ -12,7 +12,7 @@ using StockApp.Service;
 
 namespace StockNewsPage.ViewModels
 {
-    public class NewsDetailViewModel : ViewModelBase
+    public class ModelView : ViewModelBase
     {
         private readonly NewsService _newsService;
         private readonly DispatcherQueue _dispatcherQueue;
@@ -77,7 +77,7 @@ namespace StockNewsPage.ViewModels
         public ICommand DeleteCommand { get; }
 
         // constructor
-        public NewsDetailViewModel()
+        public ModelView()
         {
             _newsService = new NewsService();
             _dispatcherQueue = DispatcherQueue.GetForCurrentThread();

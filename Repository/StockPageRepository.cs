@@ -46,7 +46,7 @@ namespace StockApp.Repository
             return user;
         }
 
-        public void updateUserGems(int gems)
+        public void UpdateUserGems(int gems)
         {
             SqlCommand updateUser = new SqlCommand("UPDATE [USER] SET GEM_BALANCE = @gems WHERE CNP = @cnp", databaseHelper.GetConnection());
             updateUser.Parameters.AddWithValue("@gems", gems);
@@ -55,7 +55,7 @@ namespace StockApp.Repository
             user.GemBalance = gems;
         }
 
-        public void addOrUpdateUserStock(string stockName, int quantity)
+        public void AddOrUpdateUserStock(string stockName, int quantity)
         {
             SqlCommand addOrUpdateUserStock = new SqlCommand("IF EXISTS (SELECT * FROM USER_STOCK WHERE USER_CNP = @cnp AND STOCK_NAME = @name) " +
                 "BEGIN UPDATE USER_STOCK SET QUANTITY = QUANTITY + @quantity WHERE USER_CNP = @cnp AND STOCK_NAME = @name END " +
@@ -66,7 +66,7 @@ namespace StockApp.Repository
             addOrUpdateUserStock.ExecuteNonQuery();
         }
 
-        public void addStockValue(string stockName, int price)
+        public void AddStockValue(string stockName, int price)
         {
             SqlCommand addStockValue = new SqlCommand("INSERT INTO STOCK_VALUE (STOCK_NAME, PRICE) VALUES (@name, @price)", databaseHelper.GetConnection());
             addStockValue.Parameters.AddWithValue("@name", stockName);

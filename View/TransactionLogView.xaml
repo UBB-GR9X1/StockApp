@@ -133,12 +133,12 @@
 
                 <StackPanel Grid.Column="0" Margin="0,0,15,0">
                     <TextBlock Text="Start Date"/>
-                    <DatePicker SelectedDate="{Binding StartDate}" DateChanged="StartDate_DateChanged"/>
+                    <DatePicker SelectedDate="{Binding StartDate}" DateChanged="StartDateChanged"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="1">
                     <TextBlock Text="End Date"/>
-                    <DatePicker SelectedDate="{Binding EndDate}" DateChanged="EndDate_DateChanged"/>
+                    <DatePicker SelectedDate="{Binding EndDate}" DateChanged="EndDateChanged"/>
                 </StackPanel>
             </Grid>
         </Grid>

@@ -39,9 +39,9 @@ namespace StockApp.ViewModel
         private TextBlock _ownedStocks;
         private CartesianChart _stockChart;
 
-        public StockPageViewModel(string stock_name, TextBlock priceLabel, TextBlock increaseLabel, TextBlock ownedStocks, CartesianChart stockChart)
+        public StockPageViewModel(string stockName, TextBlock priceLabel, TextBlock increaseLabel, TextBlock ownedStocks, CartesianChart stockChart)
         {
-            _service = new StockPageService(stock_name);
+            _service = new StockPageService(stockName);
             _priceLabel = priceLabel;
             _increaseLabel = increaseLabel;
             _ownedStocks = ownedStocks;
@@ -52,12 +52,12 @@ namespace StockApp.ViewModel
             StockName = _service.GetStockName();
             StockSymbol = _service.GetStockSymbol();
 
-            updateStockValue();
+            UpdateStockValue();
 
-            IsFavorite = _service.getFavorite();
+            IsFavorite = _service.GetFavorite();
         }
 
-        public void updateStockValue()
+        public void UpdateStockValue()
         {
             if (!_service.IsGuest())
             {
@@ -100,7 +100,7 @@ namespace StockApp.ViewModel
             {
                 if (_isFavorite == value) return;
                 _isFavorite = value;
-                _service.toggleFavorite(_isFavorite);
+                _service.ToggleFavorite(_isFavorite);
                 if (_isFavorite)
                 {
                     FavoriteButtonColor = "#ff0000"; // Red color for favorite
@@ -205,20 +205,20 @@ namespace StockApp.ViewModel
         public bool BuyStock(int quantity)
         {
             bool res = _service.BuyStock(quantity);
-            updateStockValue();
+            UpdateStockValue();
             return res;
         }
 
         public bool SellStock(int quantity)
         {
             bool res = _service.SellStock(quantity);
-            updateStockValue();
+            UpdateStockValue();
             return res;
         }
 
-        public string getStockAuthor()
+        public string GetStockAuthor()
         {
-            return _service.getStockAuthor();
+            return _service.GetStockAuthor();
         }
     }
 }

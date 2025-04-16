@@ -8,7 +8,7 @@ namespace StockApp.Repository
     {
         private SqlConnection dbConnection = DatabaseHelper.Instance.GetConnection();
 
-        public string GetCNP()
+        public string GetCnp()
         {
             string cnpQuery = "SELECT CNP FROM HARDCODED_CNPS";
             using (var cnpCommand = new SqlCommand(cnpQuery, dbConnection))

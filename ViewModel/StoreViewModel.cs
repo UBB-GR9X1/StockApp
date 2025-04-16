@@ -31,7 +31,7 @@ namespace StockApp.ViewModel
             //PopulateHardcodedCnps();
             //PopulateUserTable();
 
-            _currentUserCnp = storeService.GetCNP();
+            _currentUserCnp = storeService.GetCnp();
             LoadUserData();
             LoadGemDeals();
             LoadPossibleDeals();
