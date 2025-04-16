@@ -1,9 +1,9 @@
-﻿using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Data;
-using System;
-
-namespace StockApp.Converters
+﻿namespace StockApp.Converters
 {
+    using System;
+    using Microsoft.UI.Xaml;
+    using Microsoft.UI.Xaml.Data;
+
     public partial class BoolToVisibilityConverter : IValueConverter
     {
         public object Convert(object inputValue, Type targetType, object parameter, string language)
@@ -18,7 +18,9 @@ namespace StockApp.Converters
                 inputBoolean = !inputBoolean;
             }
 
-            return inputBoolean ? Visibility.Visible : Visibility.Collapsed;
+            return inputBoolean
+                ? Visibility.Visible
+                : Visibility.Collapsed;
         }
 
         public object ConvertBack(object inputValue, Type targetType, object parameter, string language)
@@ -28,22 +30,14 @@ namespace StockApp.Converters
                 return false;
             }
 
-            if (ShouldInvert(parameter))
-            {
-                return inputVisibility != Visibility.Visible;
-            }
-
-            return inputVisibility == Visibility.Visible;
+            return ShouldInvert(parameter)
+                ? inputVisibility != Visibility.Visible
+                : inputVisibility == Visibility.Visible;
         }
 
         private static bool ShouldInvert(object parameter)
         {
-            if (parameter is string paramString)
-            {
-                return paramString.Equals("Inverse", StringComparison.OrdinalIgnoreCase);
-            }
-
-            return false;
+            return parameter is string paramString && paramString.Equals("Inverse", StringComparison.OrdinalIgnoreCase);
         }
     }
 }
