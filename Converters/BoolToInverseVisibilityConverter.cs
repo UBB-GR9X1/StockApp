@@ -4,26 +4,26 @@ using System;
 
 namespace StockApp.Converters
 {
-    public class BoolToInverseVisibilityConverter : IValueConverter
+    public partial class BoolToInverseVisibilityConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, string language)
+        public object Convert(object inputValue, Type targetType, object parameter, string language)
         {
-            if (value is bool boolValue)
+            if (inputValue is not bool inputBoolean)
             {
-                return boolValue ? Visibility.Collapsed : Visibility.Visible;
+                return Visibility.Visible;
             }
 
-            return Visibility.Visible;
+            return inputBoolean ? Visibility.Collapsed : Visibility.Visible;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        public object ConvertBack(object inputValue, Type targetType, object parameter, string language)
         {
-            if (value is Visibility visibility)
+            if (inputValue is not Visibility inputVisibility)
             {
-                return visibility == Visibility.Collapsed;
+                return false;
             }
 
-            return false;
+            return inputVisibility == Visibility.Collapsed;
         }
     }
 }
