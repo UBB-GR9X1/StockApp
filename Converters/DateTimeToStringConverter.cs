@@ -3,27 +3,29 @@ using System;
 
 namespace StockApp.Converters
 {
-    public class DateTimeToStringConverter : IValueConverter
+    public partial class DateTimeToStringConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, string language)
+        public object Convert(object initialValue, Type targetType, object parameter, string language)
         {
-            if (value is DateTime dateTime)
-            {
-                string format = parameter as string ?? "MMMM dd, yyyy";
-                return dateTime.ToString(format);
-            }
+            string format = parameter as string ?? "MMMM dd, yyyy";
 
-            return string.Empty;
+            return initialValue is DateTime initialDateTime
+                ? initialDateTime.ToString(format)
+                : string.Empty;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        public object ConvertBack(object initialValue, Type targetType, object parameter, string language)
         {
-            if (value is string dateString && DateTime.TryParse(dateString, out DateTime result))
-            {
-                return result;
-            }
+            return initialValue is string initialString
+                ? ParseOrDefault(initialString)
+                : DateTime.Now;
+        }
 
-            return DateTime.Now;
+        private static DateTime ParseOrDefault(string input)
+        {
+            return DateTime.TryParse(input, out DateTime result)
+                ? result
+                : DateTime.Now;
         }
     }
 }
