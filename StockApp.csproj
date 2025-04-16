@@ -99,4 +99,7 @@
   <ItemGroup>
     <PRIResource Remove="Homepage\**" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="SqlScripts\CreateUserTable.sql" />
+  </ItemGroup>
 </Project>
