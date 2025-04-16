@@ -6,11 +6,11 @@
         private string _symbol;
         private string _author_cnp;
 
-        public BaseStock(string name, string symbol, string author_cnp)
+        public BaseStock(string name, string symbol, string authorCnp)
         {
             _name = name;
             _symbol = symbol;
-            _author_cnp = author_cnp;
+            _author_cnp = authorCnp;
         }
 
         public string Name

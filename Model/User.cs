@@ -1,9 +1,9 @@
-﻿using Microsoft.UI.Xaml.Controls;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.UI.Xaml.Controls;
 
 namespace StockApp.Model
 {
@@ -15,10 +15,10 @@ namespace StockApp.Model
         private bool is_moderator;
         private string image; // BASE64 // TODO: update to image??
         private bool is_hidden;
-        
-        public User(string CNP, string username, string description, bool is_moderator, string image, bool is_hidden)
+
+        public User(string cnp, string username, string description, bool is_moderator, string image, bool is_hidden)
         {
-            this.cnp = CNP;
+            this.cnp = cnp;
             this.username = username;
             this.description = description;
             this.is_moderator = is_moderator;
@@ -36,7 +36,7 @@ namespace StockApp.Model
         {
             get { return username; }
             set { username = value; }
-        }   
+        }
 
         public string Description
         {
@@ -54,7 +54,7 @@ namespace StockApp.Model
         {
             get { return image; }
             set { image = value; }
-        } 
+        }
 
         public bool IsHidden
         {
