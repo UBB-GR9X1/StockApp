@@ -6,7 +6,7 @@
     using Microsoft.UI.Xaml.Media.Imaging;
     using StockApp.Service;
 
-    internal class ProfilePageViewModel : INotifyPropertyChanged
+    public class ProfilePageViewModel : INotifyPropertyChanged
     {
         private ProfieServices profServ;
 

@@ -1,10 +1,6 @@
 ﻿namespace StockApp.ViewModel
 {
-    using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
     using StockApp.Service;
 
     internal class UpdateProfilePageViewModel
@@ -13,7 +9,7 @@
 
         private ProfieServices profServ;
 
-        public ModelView(string myCnp)
+        public UpdateProfilePageViewModel(string myCnp)
         {
             profServ = new ProfieServices(myCnp);
         }

@@ -7,7 +7,7 @@ namespace StockNewsPage.Views
 {
     public sealed partial class NewsListView : Page
     {
-        public ViewModel ViewModel { get; } = new ViewModel();
+        public NewsListViewModel ViewModel { get; } = new();
 
         public NewsListView()
         {

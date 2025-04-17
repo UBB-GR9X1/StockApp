@@ -32,7 +32,7 @@
             repository.UpdateUserGemBalance(cnp, newBalance);
         }
 
-        public async Task<string> BuyGems(string cnp, GemStoreGemDeal deal, string selectedAccountId)
+        public async Task<string> BuyGems(string cnp, GemDeal deal, string selectedAccountId)
         {
             if (IsGuest(cnp))
                 return "Guests cannot buy gems.";

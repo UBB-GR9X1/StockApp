@@ -2,8 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Data.SqlClient;
     using System.Linq;
+    using Microsoft.Data.SqlClient;
     using StockApp.Database;
     using StockApp.Models;
 
@@ -13,16 +13,14 @@
 
         public TransactionRepository()
         {
-            string connectionString = DatabaseHelper.GetConnection().ConnectionString;
             string query = @"
             SELECT t.*, s.STOCK_SYMBOL
             FROM USERS_TRANSACTION t
             JOIN STOCK s ON t.STOCK_NAME = s.STOCK_NAME";
 
-            using SqlConnection connection = new (connectionString);
-            connection.Open();
+            using SqlConnection connection = DatabaseHelper.GetConnection();
 
-            using SqlCommand command = new (query, connection);
+            using SqlCommand command = new(query, connection);
             using SqlDataReader reader = command.ExecuteReader();
 
             while (reader.Read())
@@ -62,12 +60,12 @@
                 INSERT INTO USERS_TRANSACTION (STOCK_NAME, TYPE, QUANTITY, PRICE, DATE, USER_CNP)
                 VALUES (@stockName, @type, @quantity, @price, @date, @userCnp)";
 
-            using SqlConnection connection = new (connectionString);
+            using SqlConnection connection = new(connectionString);
             connection.Open();
 
             // Optional: Ensure stock exists
             string checkStockQuery = "SELECT COUNT(*) FROM STOCK WHERE STOCK_NAME = @stockName";
-            using (SqlCommand checkCommand = new (checkStockQuery, connection))
+            using (SqlCommand checkCommand = new(checkStockQuery, connection))
             {
                 checkCommand.Parameters.AddWithValue("@stockName", transaction.StockName);
                 int stockExists = (int)checkCommand.ExecuteScalar();
@@ -77,7 +75,7 @@
                 }
             }
 
-            using (SqlCommand command = new (insertQuery, connection))
+            using (SqlCommand command = new(insertQuery, connection))
             {
                 command.Parameters.AddWithValue("@stockName", transaction.StockName);
                 command.Parameters.AddWithValue("@type", transaction.Type.Equals("BUY", StringComparison.CurrentCultureIgnoreCase)); // true if BUY, false if SELL

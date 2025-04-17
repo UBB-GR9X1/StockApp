@@ -4,25 +4,47 @@
     using System.Collections.Generic;
     using System.Linq;
     using Microsoft.Data.SqlClient;
+    using Microsoft.IdentityModel.Tokens;
     using StockApp.Database;
     using StockApp.Models;
 
     internal class HomepageStocksRepository
     {
-        private readonly SqlConnection dbConnection = DatabaseHelper.GetConnection();
-        private readonly string userCNP;
+        private string _UserCNP;
+        private string UserCNP
+        {
+            get => _UserCNP;
+            set
+            {
+                _UserCNP = value;
+                if (string.IsNullOrEmpty(_UserCNP))
+                {
+                    throw new ArgumentNullException(nameof(UserCNP), "CNP cannot be null or empty.");
+                }
+                this.LoadStocks();
+            }
+        }
 
         public HomepageStocksRepository()
         {
-            this.userCNP = this.GetUserCNP();
+            // TODO: don't just load a mock user
+            string query = "SELECT TOP 1 CNP FROM HARDCODED_CNPS ORDER BY CNP DESC";
 
-            Console.WriteLine($"User CNP: {this.userCNP}");
-            Console.WriteLine($"IsGuestUser: {this.IsGuestUser(this.userCNP)}");
+            using (var command = new SqlCommand(query, DatabaseHelper.GetConnection()))
+            {
+                command.ExecuteNonQuery();
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        this.UserCNP = reader["CNP"].ToString() ?? throw new Exception("No CNP found in HARDCODED_CNPS table.");
+                        return;
+                    }
+                }
+            }
 
-            this.LoadStocks();
+            throw new InvalidOperationException("No hardcoded CNP found in the database");
         }
-
-        public string GetCNP() => this.userCNP;
 
         public List<int> GetStockHistory(string stockName)
         {
@@ -33,6 +55,8 @@
 
         public bool IsGuestUser(string userCNP)
         {
+            if (userCNP.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(userCNP), "CNP cannot be null or empty.");
             const string query = "SELECT COUNT(*) FROM [USER] WHERE CNP = @UserCNP";
             return this.ExecuteScalar<int>(query, command => command.Parameters.AddWithValue("@UserCNP", userCNP)) == 0;
         }
@@ -73,7 +97,7 @@
 
             return this.ExecuteReader(
                 stocksQuery,
-                command => command.Parameters.AddWithValue("@UserCNP", this.userCNP),
+                command => command.Parameters.AddWithValue("@UserCNP", this.UserCNP),
                 reader =>
                 {
                     var stockName = reader["STOCK_NAME"]?.ToString();
@@ -103,7 +127,7 @@
             const string query = "INSERT INTO FAVORITE_STOCK (USER_CNP, STOCK_NAME, IS_FAVORITE) VALUES (@UserCNP, @Name, 1)";
             this.ExecuteSql(query, command =>
             {
-                command.Parameters.AddWithValue("@UserCNP", this.userCNP);
+                command.Parameters.AddWithValue("@UserCNP", this.UserCNP);
                 command.Parameters.AddWithValue("@Name", stock.Name);
             });
         }
@@ -113,7 +137,7 @@
             const string query = "DELETE FROM FAVORITE_STOCK WHERE USER_CNP = @UserCNP AND STOCK_NAME = @Name";
             this.ExecuteSql(query, command =>
             {
-                command.Parameters.AddWithValue("@UserCNP", this.userCNP);
+                command.Parameters.AddWithValue("@UserCNP", this.UserCNP);
                 command.Parameters.AddWithValue("@Name", stock.Name);
             });
         }
@@ -139,7 +163,7 @@
 
             this.ExecuteSql(query, command =>
             {
-                command.Parameters.AddWithValue("@CNP", this.userCNP);
+                command.Parameters.AddWithValue("@CNP", this.UserCNP);
                 command.Parameters.AddWithValue("@Name", randomUsername);
                 command.Parameters.AddWithValue("@Description", "Default User Description");
                 command.Parameters.AddWithValue("@IsHidden", false);
@@ -152,7 +176,7 @@
         // Helper: Execute a SQL query with parameters
         private void ExecuteSql(string query, Action<SqlCommand> parameterize)
         {
-            using var command = new SqlCommand(query, this.dbConnection);
+            using var command = new SqlCommand(query, DatabaseHelper.GetConnection());
             parameterize?.Invoke(command);
             command.ExecuteNonQuery();
         }
@@ -160,7 +184,7 @@
         // Helper: Execute a query and return a scalar value
         private T ExecuteScalar<T>(string query, Action<SqlCommand> parameterize)
         {
-            using var command = new SqlCommand(query, this.dbConnection);
+            using var command = new SqlCommand(query, DatabaseHelper.GetConnection());
             parameterize?.Invoke(command);
             return (T)Convert.ChangeType(command.ExecuteScalar(), typeof(T));
         }
@@ -168,7 +192,7 @@
         // Helper: Execute and map SQL data reader results
         private List<T> ExecuteReader<T>(string query, Action<SqlCommand> parameterize, Func<SqlDataReader, T> map)
         {
-            using SqlCommand command = new (query, this.dbConnection);
+            using SqlCommand command = new(query, DatabaseHelper.GetConnection());
             parameterize?.Invoke(command);
 
             using var reader = command.ExecuteReader();

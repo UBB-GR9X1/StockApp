@@ -19,7 +19,7 @@
 
         public bool IsGuest()
         {
-            return _repo.IsGuest();
+            return _repo.IsGuest;
         }
 
         public string GetStockName()
@@ -32,7 +32,7 @@
         }
         public int GetUserBalance()
         {
-            return _repo.GetUser().GemBalance;
+            return _repo.User.GemBalance;
         }
 
         public List<int> GetStockHistory()
@@ -54,9 +54,9 @@
 
             int totalPrice = stockPrice * quantity;
 
-            if (_repo.GetUser().GemBalance >= totalPrice)
+            if (_repo.User.GemBalance >= totalPrice)
             {
-                _repo.UpdateUserGems(_repo.GetUser().GemBalance - totalPrice);
+                _repo.UpdateUserGems(_repo.User.GemBalance - totalPrice);
                 Random r = new Random();
                 int new_price = stockPrice + (r.Next(0, 20) - 5) * quantity;
                 if (new_price < 20) new_price = 20;
@@ -64,7 +64,7 @@
                 _repo.AddOrUpdateUserStock(_stock.Name, quantity);
 
                 TransactionRepository repository = new TransactionRepository();
-                repository.AddTransaction(new TransactionLogTransaction(_stock.Symbol, _stock.Name, "BUY", quantity, stockPrice, DateTime.UtcNow, _repo.GetUser().Cnp));
+                repository.AddTransaction(new TransactionLogTransaction(_stock.Symbol, _stock.Name, "BUY", quantity, stockPrice, DateTime.UtcNow, _repo.User.CNP));
 
                 return true;
             }
@@ -83,10 +83,10 @@
                 if (new_price < 20) new_price = 20;
                 _repo.AddStockValue(_stock.Name, new_price);
                 _repo.AddOrUpdateUserStock(_stock.Name, -quantity);
-                _repo.UpdateUserGems(_repo.GetUser().GemBalance + totalPrice);
+                _repo.UpdateUserGems(_repo.User.GemBalance + totalPrice);
 
                 TransactionRepository repository = new TransactionRepository();
-                repository.AddTransaction(new TransactionLogTransaction(_stock.Symbol, _stock.Name, "SELL", quantity, stockPrice, DateTime.UtcNow, _repo.GetUser().Cnp));
+                repository.AddTransaction(new TransactionLogTransaction(_stock.Symbol, _stock.Name, "SELL", quantity, stockPrice, DateTime.UtcNow, _repo.User.CNP));
 
                 return true;
             }
@@ -105,7 +105,7 @@
 
         public string GetStockAuthor()
         {
-            return _stock.AuthorCnp;
+            return _stock.AuthorCNP;
         }
     }
 }

@@ -25,10 +25,36 @@
             this.cnp = authorCNP;
         }
 
+        public User CurrentUser()
+        {
+            const string query = @"
+                SELECT CNP, NAME, PROFILE_PICTURE, DESCRIPTION, IS_HIDDEN
+                FROM [USER]
+                WHERE CNP = @CNP";
+
+            using SqlCommand command = new(query, this.dbConnection);
+            command.Parameters.AddWithValue("@CNP", this.cnp);
+
+            using SqlDataReader reader = command.ExecuteReader();
+            if (reader.Read())
+            {
+                return new User(
+                    cnp: reader["CNP"]?.ToString(),
+                    username: reader["NAME"]?.ToString(),
+                    description: reader["DESCRIPTION"]?.ToString(),
+                    isModerator: false, // Assuming this is not part of the query
+                    image: reader["PROFILE_PICTURE"]?.ToString(),
+                    isHidden: reader["IS_HIDDEN"] != DBNull.Value && (bool)reader["IS_HIDDEN"]
+                );
+            }
+
+            throw new Exception("User not found.");
+        }
+
         // Helper: Execute a SQL query and return a scalar value
         private T? ExecuteScalar<T>(string query, Action<SqlCommand> parameterize)
         {
-            using SqlCommand command = new (query, this.dbConnection);
+            using SqlCommand command = new(query, this.dbConnection);
             parameterize?.Invoke(command);
 
             var result = command.ExecuteScalar();
@@ -40,7 +66,7 @@
         // Helper: Execute a non-query SQL command
         private void ExecuteNonQuery(string query, Action<SqlCommand> parameterize)
         {
-            using SqlCommand command = new (query, this.dbConnection);
+            using SqlCommand command = new(query, this.dbConnection);
             parameterize?.Invoke(command);
             command.ExecuteNonQuery();
         }
@@ -56,29 +82,22 @@
                 "paste_carbonara", "amandina", "orez_cu_lapte"
             ];
 
-            Random random = new ();
+            Random random = new();
             return randomUsernames[random.Next(randomUsernames.Count)];
         }
 
         // Get current user profile
-        public User CurrentUser() => new ()
+        public User GetUserProfile(string authorCNP)
         {
-            Username = this.ExecuteScalar<string>(
-                "SELECT NAME FROM [USER] WHERE CNP = @CNP",
-                command => command.Parameters.AddWithValue("@CNP", this.cnp)),
-            Image = this.ExecuteScalar<string>(
-                "SELECT PROFILE_PICTURE FROM [USER] WHERE CNP = @CNP",
-                command => command.Parameters.AddWithValue("@CNP", this.cnp)),
-            Description = this.ExecuteScalar<string>(
-                "SELECT DESCRIPTION FROM [USER] WHERE CNP = @CNP",
-                command => command.Parameters.AddWithValue("@CNP", this.cnp)),
-            IsHidden = this.ExecuteScalar<bool>(
-                "SELECT IS_HIDDEN FROM [USER] WHERE CNP = @CNP",
-                command => command.Parameters.AddWithValue("@CNP", this.cnp)),
-            IsModerator = this.ExecuteScalar<bool>(
-                "SELECT IS_ADMIN FROM [USER] WHERE CNP = @CNP",
-                command => command.Parameters.AddWithValue("@CNP", this.cnp)),
-        };
+            const string query = @"
+                SELECT CNP, NAME, PROFILE_PICTURE, DESCRIPTION, IS_HIDDEN
+                FROM [USER]
+                WHERE CNP = @CNP";
+            return this.ExecuteScalar<User>(query, command =>
+            {
+                command.Parameters.AddWithValue("@CNP", authorCNP);
+            }) ?? throw new Exception("User not found.");
+        }
 
         // Update admin status
         public void UpdateRepoIsAdmin(bool isAdmin)

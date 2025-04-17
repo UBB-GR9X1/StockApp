@@ -66,7 +66,7 @@
             catch
             {
                 var mockArticles = _repository.GetAllNewsArticles();
-                return mockArticles.FirstOrDefault(a => a.ArticleId == articleId) 
+                return mockArticles.FirstOrDefault(a => a.ArticleId == articleId)
                     ?? throw new KeyNotFoundException($"Article with ID {articleId} not found");
             }
         }
@@ -255,7 +255,7 @@
             }
 
             // set author and submission date
-            article.Author = _appState.CurrentUser.Cnp;
+            article.Author = _appState.CurrentUser.CNP;
             article.SubmissionDate = DateTime.Now;
             article.Status = "Pending";
 

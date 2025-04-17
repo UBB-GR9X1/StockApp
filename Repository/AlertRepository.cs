@@ -51,8 +51,8 @@
                 AlertId = reader.GetInt32(0),
                 StockName = reader.GetString(1),
                 Name = reader.GetString(2),
-                LowerBound = reader.GetDecimal(3),
-                UpperBound = reader.GetDecimal(4),
+                LowerBound = reader.GetInt32(3),
+                UpperBound = reader.GetInt32(4),
                 ToggleOnOff = reader.GetBoolean(5),
             }));
         }

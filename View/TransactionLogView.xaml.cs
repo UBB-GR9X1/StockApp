@@ -12,12 +12,12 @@ namespace TransactionLog
     /// </summary>
     public sealed partial class TransactionLogView : Page
     {
-        private readonly ViewModel viewModel;
+        private readonly TransactionLogViewModel viewModel;
 
         public TransactionLogView()
         {
             this.InitializeComponent();
-            viewModel = new ViewModel(new TransactionLogService(new TransactionRepository()));
+            viewModel = new(new TransactionLogService(new TransactionRepository()));
 
             // Set the DataContext for binding to the ViewModel
             this.DataContext = viewModel;

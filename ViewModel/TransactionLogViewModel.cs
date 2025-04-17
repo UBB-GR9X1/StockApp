@@ -131,7 +131,7 @@
         public ICommand SearchCommand { get; }
         public ICommand ExportCommand { get; }
 
-        public ViewModel(TransactionLogService service)
+        public TransactionLogViewModel(TransactionLogService service)
         {
             this.service = service;
 
@@ -241,7 +241,7 @@
 
             filterCriteria.Validate();
 
-            var transactions = service.GetFilteredTransactions(filterCriteria) 
+            var transactions = service.GetFilteredTransactions(filterCriteria)
                 ?? throw new InvalidOperationException("Transaction service returned null");
 
             foreach (var transaction in transactions)

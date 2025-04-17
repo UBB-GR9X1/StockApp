@@ -1,12 +1,12 @@
+using System;
 using System.Windows.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
+using StockApp.Command;
 using StockApp.Service;
 using StockApp.StockPage;
 using StockApp.ViewModel;
-using StockNewsPage.ViewModels;
-using System;
 
 namespace StocksApp
 {
@@ -92,10 +92,10 @@ namespace StocksApp
             if (StocksListView.SelectedItem is not string selectedStock)
                 throw new InvalidOperationException("No stock selected");
 
-            string stockName = viewModel.ExtractMyStockName(selectedStock) 
+            string stockName = viewModel.ExtractMyStockName(selectedStock)
                 ?? throw new InvalidOperationException("Could not extract stock name");
 
-            NavigationService.Instance.Initialize(this.Frame);
+            NavigationService.Initialize(this.Frame);
             NavigationService.Instance.Navigate(typeof(StockPage), stockName);
         }
 
@@ -104,7 +104,7 @@ namespace StocksApp
             if (e.ClickedItem is not string myStock)
                 throw new InvalidOperationException("Clicked item is not a valid stock");
 
-            NavigationService.Instance.Initialize(this.Frame);
+            NavigationService.Initialize(this.Frame);
             NavigationService.Instance.Navigate(typeof(StockPage), myStock);
         }
 

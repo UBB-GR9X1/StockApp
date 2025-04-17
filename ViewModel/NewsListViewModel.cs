@@ -8,6 +8,7 @@
     using Microsoft.UI.Dispatching;
     using Microsoft.UI.Xaml.Controls;
     using StockApp;
+    using StockApp.Command;
     using StockApp.Models;
     using StockApp.Service;
     using StockNewsPage.Views;
@@ -121,7 +122,7 @@
         public ICommand ClearSearchCommand { get; }
 
         // constructor
-        public ViewModel()
+        public NewsListViewModel()
         {
             _newsService = new NewsService();
             _dispatcherQueue = DispatcherQueue.GetForCurrentThread();

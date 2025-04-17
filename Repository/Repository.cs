@@ -25,7 +25,7 @@
 
         public List<Alert> Alerts { get; set; } = [];
 
-        public static MockRepository Instance => instance ??= new ();
+        public static MockRepository Instance => instance ??= new();
 
         public MockRepository()
         {

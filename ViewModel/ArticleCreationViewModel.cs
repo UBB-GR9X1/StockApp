@@ -9,6 +9,7 @@
     using Microsoft.UI.Dispatching;
     using Microsoft.UI.Xaml.Controls;
     using StockApp;
+    using StockApp.Command;
     using StockApp.Models;
     using StockApp.Repository;
     using StockApp.Service;
@@ -96,7 +97,7 @@
         public ICommand SubmitCommand { get; }
 
         // constructor
-        public Model()
+        public ArticleCreationViewModel()
         {
             _newsService = new NewsService();
             _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
@@ -161,7 +162,7 @@
                     Title = Title,
                     Summary = Summary ?? "",
                     Content = Content,
-                    Source = $"User: {_appState.CurrentUser?.Cnp ?? "Anonymous"}",
+                    Source = $"User: {_appState.CurrentUser?.CNP ?? "Anonymous"}",
                     PublishedDate = DateTime.Now.ToString("MMMM dd, yyyy"),
                     IsRead = false,
                     IsWatchlistRelated = false,
@@ -176,7 +177,7 @@
                     Title = Title,
                     Summary = Summary ?? "",
                     Content = Content,
-                    Author = _appState.CurrentUser?.Cnp ?? "Anonymous",
+                    Author = _appState.CurrentUser?.CNP ?? "Anonymous",
                     SubmissionDate = DateTime.Now,
                     Status = "Preview",
                     Topic = SelectedTopic,
@@ -227,7 +228,7 @@
                     Title = Title,
                     Summary = Summary,
                     Content = Content,
-                    Author = _appState.CurrentUser?.Cnp ?? "Anonymous",
+                    Author = _appState.CurrentUser?.CNP ?? "Anonymous",
                     SubmissionDate = DateTime.Now,
                     Status = "Pending",
                     Topic = SelectedTopic,
@@ -311,7 +312,7 @@
             if (enteredStocks.Count == 0)
                 return true;
 
-            var allStocks = _stocksRepository.GetAllStocks() 
+            var allStocks = _stocksRepository.GetAllStocks()
                 ?? throw new InvalidOperationException("Stocks repository returned null");
 
             // check if all entered stocks exist (by name or symbol)
@@ -389,7 +390,7 @@
                 Title = Title,
                 Summary = Summary,
                 Content = Content,
-                Source = $"User: {_appState.CurrentUser?.Cnp ?? "Anonymous"}",
+                Source = $"User: {_appState.CurrentUser?.CNP ?? "Anonymous"}",
                 PublishedDate = DateTime.Now.ToString("MMMM dd, yyyy"),
                 IsRead = false,
                 IsWatchlistRelated = false,

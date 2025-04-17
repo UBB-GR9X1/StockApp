@@ -13,12 +13,12 @@
         public ObservableCollection<HomepageStock> FilteredAllStocks { get; private set; }
         public ObservableCollection<HomepageStock> FilteredFavoriteStocks { get; private set; }
 
-        public HomePageService()
+        public HomepageService()
         {
             _repo = new HomepageStocksRepository();
             var stocks = _repo.LoadStocks();
             AllStocks = new ObservableCollection<HomepageStock>(stocks);
-            FavoriteStocks = new ObservableCollection<HomepageStock>(stocks.Where(stock => stock.isFavorite).ToList());
+            FavoriteStocks = new ObservableCollection<HomepageStock>(stocks.Where(stock => stock.IsFavorite).ToList());
         }
 
         public ObservableCollection<HomepageStock> GetFavoriteStocks()
@@ -104,12 +104,12 @@
         }
         public bool IsGuestUser()
         {
-            return _repo.IsGuestUser(_repo.GetCNP());
+            return _repo.IsGuestUser(_repo.GetUserCnp());
         }
 
-        public string GetUserCnp()
+        public string GetUserCNP()
         {
-            return _repo.GetCNP();
+            return _repo.GetUserCnp();
         }
 
         public void CreateUserProfile()

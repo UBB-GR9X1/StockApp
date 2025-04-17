@@ -7,12 +7,6 @@
 
     internal class DatabaseHelper
     {
-        private const string ConnectionString = @"
-            Server=(localdb)\\MSSQLLocalDB;
-            Database=StockApp_DB;   
-            Trusted_Connection=True;
-            TrustServerCertificate=True;";
-
         private const string CreateTablesScriptPath = "SqlScripts/CreateTables.sql";
         private const string ResetDatabaseScriptPath = "SqlScripts/ResetDatabase.sql";
         private const string CheckTablesExistScriptPath = "SqlScripts/CheckTablesExist.sql";
@@ -24,11 +18,11 @@
             InitializeDatabase();
         }
 
-        public static DatabaseHelper Instance => instance ??= new ();
+        public static DatabaseHelper Instance => instance ??= new();
 
         public static void InitializeDatabase()
         {
-            if (string.IsNullOrWhiteSpace(connectionString))
+            if (string.IsNullOrWhiteSpace(App.ConnectionString))
                 throw new InvalidOperationException("Connection string is not initialized");
 
             bool databaseExists = false;
@@ -70,7 +64,7 @@
 
         public static SqlConnection GetConnection()
         {
-            SqlConnection connection = new (ConnectionString);
+            SqlConnection connection = new(App.ConnectionString);
 
             try
             {
@@ -88,12 +82,12 @@
         {
             try
             {
-                using SqlConnection connection = new (ConnectionString);
+                using SqlConnection connection = new(App.ConnectionString);
                 connection.Open();
 
                 string sql = LoadSqlScript(CheckTablesExistScriptPath);
 
-                using SqlCommand command = new (sql, connection);
+                using SqlCommand command = new(sql, connection);
                 return Convert.ToBoolean(command.ExecuteScalar() ?? false);
             }
             catch (FileNotFoundException ex)
@@ -122,12 +116,12 @@
 
             try
             {
-                using SqlConnection connection = new (masterConnection);
+                using SqlConnection connection = new(masterConnection);
                 connection.Open();
 
                 string sql = LoadSqlScript(ResetDatabaseScriptPath);
 
-                using SqlCommand command = new (sql, connection);
+                using SqlCommand command = new(sql, connection);
                 command.ExecuteNonQuery();
             }
             catch (FileNotFoundException ex)
@@ -148,12 +142,12 @@
         {
             try
             {
-                using SqlConnection connection = new (ConnectionString);
+                using SqlConnection connection = new(App.ConnectionString);
                 connection.Open();
 
                 string sql = LoadSqlScript(CreateTablesScriptPath);
 
-                using SqlCommand command = new (sql, connection);
+                using SqlCommand command = new(sql, connection);
                 command.ExecuteNonQuery();
             }
             catch (FileNotFoundException ex)

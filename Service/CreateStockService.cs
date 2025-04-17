@@ -8,7 +8,7 @@
     internal class CreateStockService
     {
         private readonly BaseStocksRepository stocksRepository;
-        private readonly Random random = new ();
+        private readonly Random random = new();
 
         public CreateStockService(BaseStocksRepository? stocksRepository = null)
         {
@@ -17,8 +17,8 @@
 
         public bool CheckIfUserIsGuest()
         {
-            HomepageStocksRepository homepageStocksRepository = new ();
-            return homepageStocksRepository.IsGuestUser(homepageStocksRepository.GetCNP());
+            HomepageStocksRepository homepageStocksRepository = new();
+            return homepageStocksRepository.IsGuestUser(homepageStocksRepository.GetUserCnp());
         }
 
         public string AddStock(string stockName, string stockSymbol, string authorCNP)

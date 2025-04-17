@@ -1,16 +1,17 @@
+using System;
+using System.Linq;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
-using StockApp.StockPage;
-using System.Linq;
 using StockApp.Service;
+using StockApp.StockPage;
 using StockApp.ViewModel;
 
 namespace StockNewsPage.Views
 {
     public sealed partial class NewsArticleView : Page
     {
-        public ModelView ViewModel { get; } = new ModelView();
+        public NewsDetailViewModel ViewModel { get; } = new();
 
         public NewsArticleView()
         {
@@ -31,7 +32,7 @@ namespace StockNewsPage.Views
         {
             if (sender is not Button button)
                 throw new ArgumentException("Sender is not a Button", nameof(sender));
-            
+
             if (button.Content is not string stockName)
                 throw new ArgumentException("Button content is not a valid stock name", nameof(sender));
 

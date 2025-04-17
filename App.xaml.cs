@@ -1,21 +1,7 @@
-﻿using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
-using Microsoft.UI.Xaml.Shapes;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.ApplicationModel;
-using Windows.ApplicationModel.Activation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-
+﻿using System;
+using Microsoft.Extensions.Configuration;
+using Microsoft.UI.Xaml;
+using StockApp.Database;
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
 
@@ -26,6 +12,20 @@ namespace StockApp
     /// </summary>
     public partial class App : Application
     {
+        /// <summary>
+        /// Gets Configuration object for the application.
+        /// </summary>
+        public static IConfiguration Configuration { get; } = new ConfigurationBuilder()
+            .SetBasePath(AppContext.BaseDirectory)
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            .Build();
+
+        /// <summary>
+        /// Gets ConnectionString string for the database.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">Thrown when the connection string is not set in appsettings.json.</exception>
+        public static string ConnectionString { get; } = Configuration.GetConnectionString("StockApp_DB") ?? throw new InvalidOperationException("Connection string is not set in appsettings.json");
+
         public static Window CurrentWindow { get; set; }
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
@@ -33,6 +33,7 @@ namespace StockApp
         /// </summary>
         public App()
         {
+            DatabaseHelper.InitializeDatabase();
             this.InitializeComponent();
             //explanation before the OnUnhandledException method
             this.UnhandledException += OnUnhandledException;

@@ -2,14 +2,13 @@
 {
     using System;
     using System.Collections.ObjectModel;
-    using System.ComponentModel;
-    using System.Linq;
     using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using System.Windows.Input;
     using Microsoft.UI.Dispatching;
     using Microsoft.UI.Xaml.Controls;
     using StockApp;
+    using StockApp.Command;
     using StockApp.Models;
     using StockApp.Service;
     using StockNewsPage.Views;

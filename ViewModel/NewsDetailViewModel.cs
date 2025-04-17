@@ -1,14 +1,13 @@
 ﻿namespace StockApp.ViewModel
 {
     using System;
-    using System.ComponentModel;
     using System.Linq;
     using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using System.Windows.Input;
     using Microsoft.UI.Dispatching;
     using Microsoft.UI.Xaml.Controls;
-    using StockApp;
+    using StockApp.Command;
     using StockApp.Models;
     using StockApp.Service;
 
@@ -81,7 +80,7 @@
         public ICommand DeleteCommand { get; }
 
         // constructor
-        public ModelView()
+        public NewsDetailViewModel()
         {
             newsService = new NewsService();
             dispatcherQueue = DispatcherQueue.GetForCurrentThread();
@@ -97,7 +96,6 @@
         {
             if (string.IsNullOrWhiteSpace(articleId))
                 throw new ArgumentNullException(nameof(articleId));
-            }
 
             IsLoading = true;
 

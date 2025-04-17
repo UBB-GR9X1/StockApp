@@ -7,8 +7,6 @@
     using System.Linq;
     using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
-    using Catel.Services;
-    using Microsoft.UI.Xaml;
     using StockApp.Models;
     using StockApp.Service;
 
@@ -20,8 +18,8 @@
 
         private int _userGems;
         private string _currentUserCnp;
-        private ObservableCollection<GemStoreGemDeal> _availableDeals = new ObservableCollection<GemStoreGemDeal>();
-        private List<GemStoreGemDeal> _possibleDeals = new List<GemStoreGemDeal>();
+        private ObservableCollection<GemDeal> _availableDeals = new ObservableCollection<GemDeal>();
+        private List<GemDeal> _possibleDeals = new List<GemDeal>();
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -60,7 +58,7 @@
             }
         }
 
-        public ObservableCollection<GemStoreGemDeal> AvailableDeals
+        public ObservableCollection<GemDeal> AvailableDeals
         {
             get => _availableDeals;
             set
@@ -91,7 +89,7 @@
         }
 
 
-        public async Task<string> BuyGemsAsync(GemStoreGemDeal deal, string selectedBankAccount)
+        public async Task<string> BuyGemsAsync(GemDeal deal, string selectedBankAccount)
         {
             if (string.IsNullOrEmpty(selectedBankAccount))
                 return "No bank account selected.";
@@ -154,33 +152,33 @@
 
         private void LoadGemDeals()
         {
-            _availableDeals = new ObservableCollection<GemStoreGemDeal>
+            _availableDeals = new ObservableCollection<GemDeal>
             {
-                new GemStoreGemDeal("LEGENDARY DEAL!!!!", 4999, 100.0),
-                new GemStoreGemDeal("MYTHIC DEAL!!!!", 3999, 90.0),
-                new GemStoreGemDeal("INSANE DEAL!!!!", 3499, 85.0),
-                new GemStoreGemDeal("GIGA DEAL!!!!", 3249, 82.0),
-                new GemStoreGemDeal("WOW DEAL!!!!", 3000, 80.0),
-                new GemStoreGemDeal("YAY DEAL!!!!", 2500, 50.0),
-                new GemStoreGemDeal("YUPY DEAL!!!!", 2000, 49.0),
-                new GemStoreGemDeal("HELL NAH DEAL!!!", 1999, 48.0),
-                new GemStoreGemDeal("BAD DEAL!!!!", 1000, 45.0),
-                new GemStoreGemDeal("MEGA BAD DEAL!!!!", 500, 40.0),
-                new GemStoreGemDeal("BAD DEAL!!!!", 1, 35.0),
-                new GemStoreGemDeal("🔥 SPECIAL DEAL", 2, 2.0, true, 1)
+                new GemDeal("LEGENDARY DEAL!!!!", 4999, 100.0),
+                new GemDeal("MYTHIC DEAL!!!!", 3999, 90.0),
+                new GemDeal("INSANE DEAL!!!!", 3499, 85.0),
+                new GemDeal("GIGA DEAL!!!!", 3249, 82.0),
+                new GemDeal("WOW DEAL!!!!", 3000, 80.0),
+                new GemDeal("YAY DEAL!!!!", 2500, 50.0),
+                new GemDeal("YUPY DEAL!!!!", 2000, 49.0),
+                new GemDeal("HELL NAH DEAL!!!", 1999, 48.0),
+                new GemDeal("BAD DEAL!!!!", 1000, 45.0),
+                new GemDeal("MEGA BAD DEAL!!!!", 500, 40.0),
+                new GemDeal("BAD DEAL!!!!", 1, 35.0),
+                new GemDeal("🔥 SPECIAL DEAL", 2, 2.0, true, 1)
             };
             SortDeals();
         }
 
         private void LoadPossibleDeals()
         {
-            _possibleDeals = new List<GemStoreGemDeal>
+            _possibleDeals = new List<GemDeal>
             {
-                new GemStoreGemDeal("🔥 Limited Deal!", 6000, 120.0, true, 1),
-                new GemStoreGemDeal("🔥 Flash Sale!", 5000, 100.0, true, 60),
-                new GemStoreGemDeal("🔥 Mega Discount!", 4000, 80.0, true, 30),
-                new GemStoreGemDeal("🔥 Special Offer!", 3000, 60.0, true, 5),
-                new GemStoreGemDeal("🔥 Exclusive Deal!", 2000, 40.0, true, 1)
+                new GemDeal("🔥 Limited Deal!", 6000, 120.0, true, 1),
+                new GemDeal("🔥 Flash Sale!", 5000, 100.0, true, 60),
+                new GemDeal("🔥 Mega Discount!", 4000, 80.0, true, 30),
+                new GemDeal("🔥 Special Offer!", 3000, 60.0, true, 5),
+                new GemDeal("🔥 Exclusive Deal!", 2000, 40.0, true, 1)
             };
         }
 
@@ -192,7 +190,7 @@
             {
                 await Task.Delay(TimeSpan.FromSeconds(15));
                 var randomDeal = _possibleDeals[random.Next(_possibleDeals.Count)];
-                var specialDeal = new GemStoreGemDeal(randomDeal.Title, randomDeal.GemAmount, randomDeal.Price, true, randomDeal.DurationMinutes);
+                var specialDeal = new GemDeal(randomDeal.Title, randomDeal.GemAmount, randomDeal.Price, true, randomDeal.DurationMinutes);
                 AvailableDeals.Add(specialDeal);
                 SortDeals();
                 OnPropertyChanged(nameof(AvailableDeals));
@@ -204,7 +202,7 @@
             while (true)
             {
                 await Task.Delay(TimeSpan.FromSeconds(60));
-                AvailableDeals = new ObservableCollection<GemStoreGemDeal>(AvailableDeals.Where(deal => deal.IsAvailable()));
+                AvailableDeals = new ObservableCollection<GemDeal>(AvailableDeals.Where(deal => deal.IsAvailable()));
                 SortDeals();
                 OnPropertyChanged(nameof(AvailableDeals));
             }
@@ -213,7 +211,7 @@
         private void SortDeals()
         {
             var sortedDeals = AvailableDeals.OrderBy(deal => deal.ExpirationTime ?? DateTime.MaxValue).ToList();
-            AvailableDeals = new ObservableCollection<GemStoreGemDeal>(sortedDeals);
+            AvailableDeals = new ObservableCollection<GemDeal>(sortedDeals);
             OnPropertyChanged(nameof(AvailableDeals));
         }
 
