@@ -9,11 +9,12 @@
 
     public class NewsRepository
     {
+        private static readonly object LockObject = new ();
+        private static bool isInitialized = false;
+
         private readonly DatabaseHelper databaseHelper = DatabaseHelper.Instance;
         private readonly List<NewsArticle> newsArticles = [];
         private readonly List<UserArticle> userArticles = [];
-        private static readonly object lockObject = new ();
-        private static bool isInitialized = false;
 
         public NewsRepository()
         {
@@ -22,12 +23,12 @@
 
         private void Initialize()
         {
-            lock (lockObject)
+            lock (LockObject)
             {
                 try
                 {
                     // Check if data already exists
-                    bool hasData = this.CheckIfDataExists();
+                    bool hasData = CheckIfDataExists();
 
                     // Load existing data
                     this.LoadNewsArticles();
@@ -49,7 +50,7 @@
             }
         }
 
-        private bool CheckIfDataExists()
+        private static bool CheckIfDataExists()
         {
             using var connection = DatabaseHelper.GetConnection();
 
@@ -67,7 +68,7 @@
                                 "INSERT INTO [USER] (CNP, NAME, DESCRIPTION, IS_HIDDEN, IS_ADMIN, PROFILE_PICTURE, GEM_BALANCE) " +
                                 "VALUES (@CNP, @Name, @Description, @IsHidden, @IsAdmin, @ProfilePicture, @GemBalance)";
 
-            using SqlCommand command = new(checkQuery, connection);
+            using SqlCommand command = new (checkQuery, connection);
             command.Parameters.AddWithValue("@CNP", cnp);
             command.Parameters.AddWithValue("@Name", name);
             command.Parameters.AddWithValue("@Description", description);
@@ -88,26 +89,25 @@
             using SqlCommand command = new ("SELECT * FROM NEWS_ARTICLE", connection);
 
             command.CommandTimeout = 30;
-            using (var reader = command.ExecuteReader())
-            {
-                while (reader.Read())
-                {
-                    var article = new NewsArticle
-                    {
-                        ArticleId = reader.GetString(0),
-                        Title = reader.GetString(1),
-                        Summary = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
-                        Content = reader.GetString(3),
-                        Source = reader.IsDBNull(4) ? string.Empty : reader.GetString(4),
-                        PublishedDate = reader.GetString(5),
-                        IsRead = reader.GetBoolean(6),
-                        IsWatchlistRelated = reader.GetBoolean(7),
-                        Category = reader.GetString(8),
-                        RelatedStocks = this.GetRelatedStocksForArticle(reader.GetString(0)),
-                    };
+            using var reader = command.ExecuteReader();
 
-                    this.newsArticles.Add(article);
-                }
+            while (reader.Read())
+            {
+                var article = new NewsArticle
+                {
+                    ArticleId = reader.GetString(0),
+                    Title = reader.GetString(1),
+                    Summary = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
+                    Content = reader.GetString(3),
+                    Source = reader.IsDBNull(4) ? string.Empty : reader.GetString(4),
+                    PublishedDate = reader.GetString(5),
+                    IsRead = reader.GetBoolean(6),
+                    IsWatchlistRelated = reader.GetBoolean(7),
+                    Category = reader.GetString(8),
+                    RelatedStocks = this.GetRelatedStocksForArticle(reader.GetString(0)),
+                };
+
+                this.newsArticles.Add(article);
             }
         }
 
@@ -133,7 +133,7 @@
                 // no stocks in database, check our mock data
                 if (relatedStocks.Count == 0)
                 {
-                    var mockArticle = newsArticles.FirstOrDefault(a => a.ArticleId == articleId);
+                    var mockArticle = this.newsArticles.FirstOrDefault(a => a.ArticleId == articleId);
                     if (mockArticle != null && mockArticle.RelatedStocks != null && mockArticle.RelatedStocks.Count > 0)
                     {
                         relatedStocks.AddRange(mockArticle.RelatedStocks);
@@ -141,7 +141,7 @@
 
                         try
                         {
-                            AddRelatedStocksForArticle(articleId, relatedStocks, connection);
+                            this.AddRelatedStocksForArticle(articleId, relatedStocks, connection);
                         }
                         catch (Exception ex)
                         {
@@ -150,7 +150,7 @@
                     }
 
                     // user articles too
-                    var userArticle = userArticles.FirstOrDefault(a => a.ArticleId == articleId);
+                    var userArticle = this.userArticles.FirstOrDefault(a => a.ArticleId == articleId);
                     if (userArticle != null && userArticle.RelatedStocks != null && userArticle.RelatedStocks.Count > 0)
                     {
                         relatedStocks.AddRange(userArticle.RelatedStocks.Where(s => !relatedStocks.Contains(s)));
@@ -158,7 +158,7 @@
 
                         try
                         {
-                            AddRelatedStocksForArticle(articleId, relatedStocks, connection);
+                            this.AddRelatedStocksForArticle(articleId, relatedStocks, connection);
                             System.Diagnostics.Debug.WriteLine($"Added related stocks to database for user article {articleId}");
                         }
                         catch (Exception ex)
@@ -173,14 +173,14 @@
                 System.Diagnostics.Debug.WriteLine($"Error getting related stocks: {ex.Message}");
 
                 // fallback to in-memory data
-                var mockArticle = newsArticles.FirstOrDefault(a => a.ArticleId == articleId);
+                var mockArticle = this.newsArticles.FirstOrDefault(a => a.ArticleId == articleId);
                 if (mockArticle != null && mockArticle.RelatedStocks != null)
                 {
                     relatedStocks.AddRange(mockArticle.RelatedStocks);
                     System.Diagnostics.Debug.WriteLine($"Fallback: Found {relatedStocks.Count} related stocks in mock data");
                 }
 
-                var userArticle = userArticles.FirstOrDefault(a => a.ArticleId == articleId);
+                var userArticle = this.userArticles.FirstOrDefault(a => a.ArticleId == articleId);
                 if (userArticle != null && userArticle.RelatedStocks != null)
                 {
                     relatedStocks.AddRange(userArticle.RelatedStocks.Where(s => !relatedStocks.Contains(s)));
@@ -322,7 +322,7 @@
 
         public void AddNewsArticle(NewsArticle newsArticle)
         {
-            lock (lockObject)
+            lock (LockObject)
             {
                 using (var connection = DatabaseHelper.GetConnection())
                 {
@@ -386,7 +386,7 @@
 
         public void UpdateNewsArticle(NewsArticle newsArticle)
         {
-            lock (lockObject)
+            lock (LockObject)
             {
                 using (var connection = DatabaseHelper.GetConnection())
                 {
@@ -448,7 +448,7 @@
 
         public void DeleteNewsArticle(string articleId)
         {
-            lock (lockObject)
+            lock (LockObject)
             {
                 using (var connection = DatabaseHelper.GetConnection())
                 {
@@ -571,7 +571,7 @@
 
         public void AddUserArticle(UserArticle userArticle)
         {
-            lock (lockObject)
+            lock (LockObject)
             {
                 using (var connection = DatabaseHelper.GetConnection())
                 {
@@ -652,7 +652,7 @@
 
         public void UpdateUserArticle(UserArticle userArticle)
         {
-            lock (lockObject)
+            lock (LockObject)
             {
                 using (var connection = DatabaseHelper.GetConnection())
                 {
@@ -713,7 +713,7 @@
 
         public void DeleteUserArticle(string articleId)
         {
-            lock (lockObject)
+            lock (LockObject)
             {
                 using (var connection = DatabaseHelper.GetConnection())
                 {
@@ -993,7 +993,7 @@
 
         public void hardCodedNewsArticles()
         {
-            lock (lockObject)
+            lock (LockObject)
             {
                 try
                 {

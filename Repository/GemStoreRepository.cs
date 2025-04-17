@@ -43,7 +43,7 @@
         {
             string checkQuery = "SELECT COUNT(*) FROM [USER] WHERE CNP = @CNP";
 
-            using SqlCommand checkCommand = new(checkQuery, dbConnection);
+            using SqlCommand checkCommand = new (checkQuery, dbConnection);
             checkCommand.Parameters.AddWithValue("@CNP", cnp);
 
             int count = Convert.ToInt32(checkCommand.ExecuteScalar());

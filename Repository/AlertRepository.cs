@@ -19,34 +19,45 @@
 
         public List<TriggeredAlert> TriggeredAlerts { get; private set; } = [];
 
-        public void LoadAlerts()
+        // Shared Method for SQL Command Execution
+        private void ExecuteSql(string query, Action<SqlCommand> parameterize)
         {
-            this.alerts.Clear();
+            using var command = new SqlCommand(query, this.dbConnection);
+            parameterize?.Invoke(command);
+            command.ExecuteNonQuery();
+        }
 
-            string query = "SELECT * FROM ALERTS";
-            using SqlCommand command = new (query, this.dbConnection);
+        // Shared Method for SQL Reader
+        private List<T> ExecuteReader<T>(string query, Func<SqlDataReader, T> map)
+        {
+            using var command = new SqlCommand(query, this.dbConnection);
             using var reader = command.ExecuteReader();
+            List<T> results = [];
 
             while (reader.Read())
             {
-                Alert alert = new ()
-                {
-                    AlertId = reader.GetInt32(0),
-                    StockName = reader.GetString(1),
-                    Name = reader.GetString(2),
-                    LowerBound = reader.GetDecimal(3),
-                    UpperBound = reader.GetDecimal(4),
-                    ToggleOnOff = reader.GetBoolean(5),
-                };
-
-                this.alerts.Add(alert);
+                results.Add(map(reader));
             }
+
+            return results;
         }
 
-        public List<Alert> GetAllAlerts()
+        public void LoadAlerts()
         {
-            return this.alerts;
+            string query = "SELECT * FROM ALERTS";
+            this.alerts.Clear();
+            this.alerts.AddRange(this.ExecuteReader(query, reader => new Alert
+            {
+                AlertId = reader.GetInt32(0),
+                StockName = reader.GetString(1),
+                Name = reader.GetString(2),
+                LowerBound = reader.GetDecimal(3),
+                UpperBound = reader.GetDecimal(4),
+                ToggleOnOff = reader.GetBoolean(5),
+            }));
         }
+
+        public List<Alert> GetAllAlerts() => this.alerts;
 
         public Alert GetAlertById(int alertId)
         {
@@ -56,43 +67,39 @@
 
         public void AddAlert(Alert alert)
         {
-            string insertQuery = @"
-                INSERT INTO ALERTS (STOCK_NAME, NAME, LOWER_BOUND, UPPER_BOUND, TOGGLE) 
-                VALUES (@StockName, @Name, @LowerBound, @UpperBound, @ToggleOnOff);
-                SELECT SCOPE_IDENTITY();";
+            string insertQuery = @"INSERT INTO ALERTS (STOCK_NAME, NAME, LOWER_BOUND, UPPER_BOUND, TOGGLE) 
+                                   VALUES (@StockName, @Name, @LowerBound, @UpperBound, @ToggleOnOff);
+                                   SELECT SCOPE_IDENTITY();";
 
-            using var command = new SqlCommand(insertQuery, this.dbConnection);
-            command.Parameters.AddWithValue("@StockName", alert.StockName);
-            command.Parameters.AddWithValue("@Name", alert.Name);
-            command.Parameters.AddWithValue("@LowerBound", alert.LowerBound);
-            command.Parameters.AddWithValue("@UpperBound", alert.UpperBound);
-            command.Parameters.AddWithValue("@ToggleOnOff", alert.ToggleOnOff);
+            this.ExecuteSql(insertQuery, command =>
+            {
+                command.Parameters.AddWithValue("@StockName", alert.StockName);
+                command.Parameters.AddWithValue("@Name", alert.Name);
+                command.Parameters.AddWithValue("@LowerBound", alert.LowerBound);
+                command.Parameters.AddWithValue("@UpperBound", alert.UpperBound);
+                command.Parameters.AddWithValue("@ToggleOnOff", alert.ToggleOnOff);
+                alert.AlertId = Convert.ToInt32(command.ExecuteScalar());
+            });
 
-            var newAlertId = Convert.ToInt32(command.ExecuteScalar());
-            alert.AlertId = newAlertId;
             this.alerts.Add(alert);
         }
 
         public void UpdateAlert(Alert alert)
         {
-            string updateQuery = @"
-                UPDATE ALERTS
-                SET STOCK_NAME = @StockName, 
-                    NAME = @Name, 
-                    LOWER_BOUND = @LowerBound, 
-                    UPPER_BOUND = @UpperBound, 
-                    TOGGLE = @ToggleOnOff 
-                WHERE ALERT_ID = @AlertId";
+            string updateQuery = @"UPDATE ALERTS
+                                   SET STOCK_NAME = @StockName, NAME = @Name, LOWER_BOUND = @LowerBound, 
+                                       UPPER_BOUND = @UpperBound, TOGGLE = @ToggleOnOff
+                                   WHERE ALERT_ID = @AlertId";
 
-            using var command = new SqlCommand(updateQuery, this.dbConnection);
-            command.Parameters.AddWithValue("@AlertId", alert.AlertId);
-            command.Parameters.AddWithValue("@StockName", alert.StockName);
-            command.Parameters.AddWithValue("@Name", alert.Name);
-            command.Parameters.AddWithValue("@LowerBound", alert.LowerBound);
-            command.Parameters.AddWithValue("@UpperBound", alert.UpperBound);
-            command.Parameters.AddWithValue("@ToggleOnOff", alert.ToggleOnOff);
-
-            command.ExecuteNonQuery();
+            this.ExecuteSql(updateQuery, command =>
+            {
+                command.Parameters.AddWithValue("@AlertId", alert.AlertId);
+                command.Parameters.AddWithValue("@StockName", alert.StockName);
+                command.Parameters.AddWithValue("@Name", alert.Name);
+                command.Parameters.AddWithValue("@LowerBound", alert.LowerBound);
+                command.Parameters.AddWithValue("@UpperBound", alert.UpperBound);
+                command.Parameters.AddWithValue("@ToggleOnOff", alert.ToggleOnOff);
+            });
 
             var existingAlert = this.alerts.FirstOrDefault(a => a.AlertId == alert.AlertId);
             if (existingAlert != null)
@@ -109,10 +116,10 @@
         {
             string deleteQuery = "DELETE FROM ALERTS WHERE ALERT_ID = @AlertId";
 
-            using SqlCommand command = new (deleteQuery, this.dbConnection);
-            command.Parameters.AddWithValue("@AlertId", alertId);
-
-            command.ExecuteNonQuery();
+            this.ExecuteSql(deleteQuery, command =>
+            {
+                command.Parameters.AddWithValue("@AlertId", alertId);
+            });
 
             this.alerts.RemoveAll(a => a.AlertId == alertId);
         }
@@ -120,46 +127,29 @@
         public bool IsAlertTriggered(string stockName, decimal currentPrice)
         {
             var alert = this.alerts.FirstOrDefault(a => a.StockName == stockName);
-
-            if (alert == null)
-            {
-               return false;
-            }
-
-            return alert.ToggleOnOff
-                && (currentPrice >= alert.UpperBound || currentPrice <= alert.LowerBound);
+            return alert != null && alert.ToggleOnOff &&
+                   (currentPrice >= alert.UpperBound || currentPrice <= alert.LowerBound);
         }
 
         public void TriggerAlert(string stockName, decimal currentPrice)
         {
-            var alert = this.alerts.FirstOrDefault(a => a.StockName == stockName);
-
-            if (alert == null || !this.IsAlertTriggered(stockName, currentPrice))
+            if (!this.IsAlertTriggered(stockName, currentPrice))
             {
                 return;
             }
 
-            string message = $"⚠ Alert triggered for {stockName}:" +
-                    $" Price = {currentPrice}, " +
-                    $"Bounds: [{alert.LowerBound} - {alert.UpperBound}]";
+            var alert = this.alerts.First(a => a.StockName == stockName);
+            var message = $"⚠ Alert triggered for {stockName}: Price = {currentPrice}, Bounds: [{alert.LowerBound} - {alert.UpperBound}]";
 
-            TriggeredAlert triggeredAlert = new ()
+            this.TriggeredAlerts.Add(new TriggeredAlert
             {
                 StockName = stockName,
                 Message = message,
-            };
-
-            this.TriggeredAlerts.Add(triggeredAlert);
+            });
         }
 
-        public List<TriggeredAlert> GetTriggeredAlerts()
-        {
-            return this.TriggeredAlerts;
-        }
+        public List<TriggeredAlert> GetTriggeredAlerts() => this.TriggeredAlerts;
 
-        public void ClearTriggeredAlerts()
-        {
-            this.TriggeredAlerts.Clear();
-        }
+        public void ClearTriggeredAlerts() => this.TriggeredAlerts.Clear();
     }
 }

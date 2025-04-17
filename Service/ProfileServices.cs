@@ -71,7 +71,7 @@
 
         public string GetLoggedInUserCnp()
         {
-            return _repo.GetLoggedInUserCnp();
+            return _repo.GetLoggedInUserCNP();
         }
 
     }
