@@ -19,7 +19,7 @@ namespace StockApp.Service
 
         public void Initialize(Frame frame)
         {
-            _frame = frame;
+            _frame = frame ?? throw new ArgumentNullException(nameof(frame));
         }
 
         public bool Navigate(Type pageType, object parameter = null)
