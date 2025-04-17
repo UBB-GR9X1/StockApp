@@ -1,24 +1,24 @@
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using StockApp.ViewModel;
-
 namespace StockNewsPage.Views
 {
+    using Microsoft.UI.Xaml;
+    using Microsoft.UI.Xaml.Controls;
+    using StockApp.ViewModel;
+
     public sealed partial class AdminNewsControlView : Page
     {
-        public AdminNewsViewModel ViewModel { get; } = new AdminNewsViewModel();
-
         public AdminNewsControlView()
         {
             this.InitializeComponent();
-            this.Loaded += OnLoaded;
+            this.Loaded += this.OnLoaded;
 
-            ArticlesList.DataContext = ViewModel;
+            this.ArticlesList.DataContext = this.ViewModel;
         }
+
+        public AdminNewsViewModel ViewModel { get; } = new ();
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
-            ViewModel.Initialize();
+            this.ViewModel.Initialize();
         }
     }
 }
