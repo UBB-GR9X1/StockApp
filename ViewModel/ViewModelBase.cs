@@ -1,4 +1,4 @@
-﻿namespace StockNewsPage.ViewModels
+﻿namespace StockApp.ViewModel
 {
     using System.Collections.Generic;
     using System.ComponentModel;

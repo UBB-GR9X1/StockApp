@@ -1,5 +1,5 @@
 using Microsoft.UI.Xaml.Controls;
-using StockNewsPage.ViewModels;
+using StockApp.ViewModel;
 
 namespace StockNewsPage.Views
 {

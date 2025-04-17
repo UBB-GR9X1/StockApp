@@ -76,7 +76,7 @@ namespace StocksHomepage
         public void GoToProfile(object sender, RoutedEventArgs e)
         {
             NavigationService.Instance.Initialize(this.Frame);
-            NavigationService.Instance.Navigate(typeof(ProfilePage), ViewModel.getUserCnp());
+            NavigationService.Instance.Navigate(typeof(ProfilePage), ViewModel.GetUserCNP());
         }
 
         public void GoToStore(object sender, RoutedEventArgs e)

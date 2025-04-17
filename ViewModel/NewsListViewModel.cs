@@ -1,11 +1,8 @@
-﻿namespace StockNewsPage.ViewModels
+﻿namespace StockApp.ViewModel
 {
     using System;
-    using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using System.ComponentModel;
     using System.Linq;
-    using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using System.Windows.Input;
     using Microsoft.UI.Dispatching;
@@ -13,7 +10,6 @@
     using StockApp;
     using StockApp.Models;
     using StockApp.Service;
-    using StockNewsPage;
     using StockNewsPage.Views;
 
     public class NewsListViewModel : ViewModelBase
@@ -269,7 +265,7 @@
                     a.Title.ToLower().Contains(query) ||
                     a.Summary.ToLower().Contains(query) ||
                     a.Content.ToLower().Contains(query) ||
-                    (a.RelatedStocks != null && a.RelatedStocks.Any(s => s.ToLower().Contains(query)))
+                    a.RelatedStocks != null && a.RelatedStocks.Any(s => s.ToLower().Contains(query))
                 ).ToList();
             }
 

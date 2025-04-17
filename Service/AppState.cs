@@ -5,9 +5,9 @@
 
     public class AppState
     {
-        private static readonly Lazy<AppState> instance = new (() => new AppState());
+        private static readonly Lazy<AppState> InstanceValue = new (() => new AppState());
 
-        public static AppState Instance => instance.Value;
+        public static AppState Instance => InstanceValue.Value;
 
         public Model.User CurrentUser 
         { 

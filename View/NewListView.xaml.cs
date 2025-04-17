@@ -1,7 +1,7 @@
 using Microsoft.UI.Xaml.Controls;
-using StockNewsPage.ViewModels;
 using Microsoft.UI.Xaml.Input;
 using StockApp.Service;
+using StockApp.ViewModel;
 
 namespace StockNewsPage.Views
 {

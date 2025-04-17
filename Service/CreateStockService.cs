@@ -17,10 +17,9 @@
 
         public bool CheckIfUserIsGuest()
         {
-            HomepageStocksRepository homepageStocksRepository = new HomepageStocksRepository();
+            HomepageStocksRepository homepageStocksRepository = new ();
             return homepageStocksRepository.IsGuestUser(homepageStocksRepository.GetCNP());
         }
-
 
         public string AddStock(string stockName, string stockSymbol, string authorCNP)
         {
@@ -45,9 +44,9 @@
 
                 var stock = new BaseStock(stockName, stockSymbol, authorCNP);
 
-                int initialPrice = random.Next(50, 501);
+                int initialPrice = this.random.Next(50, 501);
 
-                stocksRepository.AddStock(stock, initialPrice);
+                this.stocksRepository.AddStock(stock, initialPrice);
 
                 return "Stock added successfully with initial value!";
             }

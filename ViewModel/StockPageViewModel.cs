@@ -1,25 +1,17 @@
 ﻿namespace StockApp.ViewModel
 {
-    using System;
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-    using Catel.Services;
     using LiveChartsCore;
-    using LiveChartsCore.Painting;
     using LiveChartsCore.SkiaSharpView;
-    using LiveChartsCore.SkiaSharpView.Drawing.Geometries;
     using LiveChartsCore.SkiaSharpView.Painting;
     using LiveChartsCore.SkiaSharpView.WinUI;
     using Microsoft.UI;
     using Microsoft.UI.Xaml.Controls;
     using Microsoft.UI.Xaml.Media;
     using SkiaSharp;
-    using StockApp.Models;
     using StockApp.Service;
-    using StocksApp;
 
     class StockPageViewModel : INotifyPropertyChanged
     {

@@ -2,10 +2,9 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using StockApp.StockPage;
-using StockNewsPage.ViewModels;
 using System.Linq;
 using StockApp.Service;
-using System;
+using StockApp.ViewModel;
 
 namespace StockNewsPage.Views
 {
