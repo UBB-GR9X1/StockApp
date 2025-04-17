@@ -1,198 +1,184 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Windows.Input;
-using System;
-using System.Linq;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml;
-using System.Diagnostics;
-using System.Xml.Linq;
-using StockApp.Model;
-using StockApp.Service;
-
-// return new global::StocksHomepage.Model.Stock { Change="", isFavorite=false, Name="", Price="", Symbol="" };
+﻿// return new global::StocksHomepage.Model.Stock { Change="", isFavorite=false, Name="", Price="", Symbol="" };
 
 namespace StockApp.ViewModel
 {
-    public class HomePageViewModel : INotifyPropertyChanged
+    using System;
+    using System.Collections.ObjectModel;
+    using System.ComponentModel;
+    using System.Runtime.CompilerServices;
+    using System.Windows.Input;
+    using StockApp.Models;
+    using StockApp.Service;
+
+    public class HomepageViewModel : INotifyPropertyChanged
     {
-        private HomePageService _service;
-        private ObservableCollection<HomepageStock> _filteredAllStocks;
-        private ObservableCollection<HomepageStock> _filteredFavoriteStocks;
-        private string _searchQuery;
-        private string _selectedSortOption;
-        private bool _isGuestUser = true;
-        private string _guestButtonVisibility = "Visible";
-        private string _profileButtonVisibility = "Collapsed";
+        private readonly HomepageService service;
+        private ObservableCollection<HomepageStock> filteredAllStocks;
+        private ObservableCollection<HomepageStock> filteredFavoriteStocks;
+        private string searchQuery;
+        private string selectedSortOption;
+        private bool isGuestUser = true;
+        private string guestButtonVisibility = "Visible";
+        private string profileButtonVisibility = "Collapsed";
 
         public event PropertyChangedEventHandler PropertyChanged;
-
 
         public ICommand FavoriteCommand { get; }
 
         public ObservableCollection<HomepageStock> FilteredAllStocks
         {
-            get => _filteredAllStocks;
+            get => this.filteredAllStocks;
             private set
             {
-                _filteredAllStocks = value;
-                OnPropertyChanged("FilteredAllStocks");
+                this.filteredAllStocks = value;
+                this.OnPropertyChanged(nameof(this.FilteredAllStocks));
             }
         }
 
         public ObservableCollection<HomepageStock> FilteredFavoriteStocks
         {
-            get => _filteredFavoriteStocks;
+            get => this.filteredFavoriteStocks;
             private set
             {
-                _filteredFavoriteStocks = value;
-                OnPropertyChanged("FilteredFavoriteStocks");
+                this.filteredFavoriteStocks = value;
+                this.OnPropertyChanged(nameof(this.FilteredFavoriteStocks));
             }
         }
 
-        public string getUserCnp()
-        {
-            return _service.GetUserCnp();
-        }
+        public string GetUserCNP() => this.service.GetUserCNP();
 
         public bool IsGuestUser
         {
-            get => _isGuestUser;
+            get => this.isGuestUser;
             set
             {
-                _isGuestUser = value;
-                GuestButtonVisibility = _isGuestUser ? "Visible" : "Collapsed";
-                ProfileButtonVisibility = _isGuestUser ? "Collapsed" : "Visible";
-                OnPropertyChanged(nameof(IsGuestUser));
-                OnPropertyChanged(nameof(CanModifyFavorites)); // Add this line
+                this.isGuestUser = value;
+                this.GuestButtonVisibility = this.isGuestUser ? "Visible" : "Collapsed";
+                this.ProfileButtonVisibility = this.isGuestUser ? "Collapsed" : "Visible";
+                this.OnPropertyChanged(nameof(this.IsGuestUser));
+                this.OnPropertyChanged(nameof(this.CanModifyFavorites)); // Add this line
             }
         }
 
         public string GuestButtonVisibility
         {
-            get { return _guestButtonVisibility; }
+            get => this.guestButtonVisibility;
             set
             {
-                _guestButtonVisibility = value;
-                OnPropertyChanged(nameof(GuestButtonVisibility));
+                this.guestButtonVisibility = value;
+                this.OnPropertyChanged(nameof(this.GuestButtonVisibility));
             }
         }
 
         public string ProfileButtonVisibility
         {
-            get { return _profileButtonVisibility; }
+            get => this.profileButtonVisibility;
             set
             {
-                _profileButtonVisibility = value;
-                OnPropertyChanged(nameof(ProfileButtonVisibility));
+                this.profileButtonVisibility = value;
+                this.OnPropertyChanged(nameof(this.ProfileButtonVisibility));
             }
         }
 
         public string SearchQuery
         {
-            get => _searchQuery;
+            get => this.searchQuery;
             set
             {
-                _searchQuery = value;
-                OnPropertyChanged("SearchQuery");
-                ApplyFilter();
+                this.searchQuery = value;
+                this.OnPropertyChanged(nameof(this.SearchQuery));
+                this.ApplyFilter();
             }
         }
 
         public string SelectedSortOption
         {
-            get => _selectedSortOption;
+            get => this.selectedSortOption;
             set
             {
-                _selectedSortOption = value;
-                OnPropertyChanged("SelectedSortOption");
-                ApplySort();
+                this.selectedSortOption = value;
+                this.OnPropertyChanged(nameof(this.SelectedSortOption));
+                this.ApplySort();
             }
         }
 
-        public HomePageViewModel()
+        public HomepageViewModel()
         {
-            _service = new HomePageService();
-            IsGuestUser = _service.IsGuestUser();
-            FilteredAllStocks = new ObservableCollection<HomepageStock>(_service.GetAllStocks());
-            FilteredFavoriteStocks = new ObservableCollection<HomepageStock>(_service.GetFavoriteStocks());
-            FavoriteCommand = new RelayCommand(obj => ToggleFavorite(obj as HomepageStock), CanToggleFavorite);
+            this.service = new HomepageService();
+            this.IsGuestUser = this.service.IsGuestUser();
+            this.FilteredAllStocks = [.. this.service.GetAllStocks()];
+            this.FilteredFavoriteStocks = [.. this.service.GetFavoriteStocks()];
+            this.FavoriteCommand = new RelayCommand(obj => this.ToggleFavorite(obj as HomepageStock), this.CanToggleFavorite);
 
             //FavoriteCommand = new RelayCommand(ToggleFavorite, CanToggleFavorite);
         }
 
         public bool CanModifyFavorites
         {
-            get => !_isGuestUser;
+            get => !this.isGuestUser;
         }
 
-        public bool CanToggleFavorite(object obj)
-        {
-            return !IsGuestUser;
-        }
+        public bool CanToggleFavorite(object obj) => !this.IsGuestUser;
 
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         public void ApplyFilter()
         {
-            _service.FilterStocks(SearchQuery);
-            FilteredAllStocks = _service.FilteredAllStocks;
-            FilteredFavoriteStocks = _service.FilteredFavoriteStocks;
+            this.service.FilterStocks(this.SearchQuery);
+            this.FilteredAllStocks = this.service.FilteredAllStocks;
+            this.FilteredFavoriteStocks = this.service.FilteredFavoriteStocks;
         }
 
         public void CreateUserProfile()
         {
             // Call the service to create a user profile
-            _service.CreateUserProfile();
+            this.service.CreateUserProfile();
 
             // Update the guest status
-            IsGuestUser = false;
+            this.IsGuestUser = false;
 
             // Refresh the stocks to reflect new permissions
-            RefreshStocks();
+            this.RefreshStocks();
         }
 
         public void ApplySort()
         {
-            _service.SortStocks(SelectedSortOption);
-            FilteredAllStocks = _service.FilteredAllStocks;
-            FilteredFavoriteStocks = _service.FilteredFavoriteStocks;
+            this.service.SortStocks(this.SelectedSortOption);
+            this.FilteredAllStocks = this.service.FilteredAllStocks;
+            this.FilteredFavoriteStocks = this.service.FilteredFavoriteStocks;
         }
 
         public void ToggleFavorite(HomepageStock stock)
         {
-            if (stock.isFavorite)
+            if (stock.IsFavorite)
             {
-                _service.RemoveFromFavorites(stock);
-                RefreshStocks();
+                this.service.RemoveFromFavorites(stock);
+                this.RefreshStocks();
+                return;
             }
-            else
-            {
-                _service.AddToFavorites(stock);
-                RefreshStocks();
-            }
+
+            this.service.AddToFavorites(stock);
+            this.RefreshStocks();
         }
 
         public void RefreshStocks()
         {
-            FilteredAllStocks = new ObservableCollection<HomepageStock>(_service.GetAllStocks());
-            FilteredFavoriteStocks = new ObservableCollection<HomepageStock>(_service.GetFavoriteStocks());
+            this.FilteredAllStocks = [.. this.service.GetAllStocks()];
+            this.FilteredFavoriteStocks = [.. this.service.GetFavoriteStocks()];
         }
 
         public class RelayCommand : ICommand
         {
-            private readonly Action<object> _execute;
-            private readonly Func<object, bool> _canExecute;
+            private readonly Action<object> execute;
+            private readonly Func<object, bool> canExecute;
 
-            public RelayCommand(Action<object> execute, Func<object, bool> canExecute = null)
+            public RelayCommand(Action<object> execute, Func<object, bool>? canExecute = null)
             {
-                _execute = execute ?? throw new ArgumentNullException(nameof(execute));
-                _canExecute = canExecute;
+                this.execute = execute ?? throw new ArgumentNullException(nameof(execute));
+                this.canExecute = canExecute;
             }
 
             public event EventHandler CanExecuteChanged
@@ -201,18 +187,9 @@ namespace StockApp.ViewModel
                 remove => CommandManager.RequerySuggested -= value;
             }
 
-            public bool CanExecute(object parameter)
-            {
-                return _canExecute?.Invoke(parameter) ?? true;
-            }
+            public bool CanExecute(object parameter) => this.canExecute?.Invoke(parameter) ?? true;
 
-            public void Execute(object parameter)
-            {
-                _execute(parameter);
-            }
-
-
-
+            public void Execute(object parameter) => this.execute(parameter);
         }
     }
 }

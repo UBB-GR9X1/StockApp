@@ -1,11 +1,11 @@
-﻿using System.Collections.ObjectModel;
-using System.Linq;
-using StockApp.Model;
-using StockApp.Repository;
-
-namespace StockApp.Service
+﻿namespace StockApp.Service
 {
-    class HomePageService
+    using System.Collections.ObjectModel;
+    using System.Linq;
+    using StockApp.Models;
+    using StockApp.Repository;
+
+    class HomepageService
     {
         private HomepageStocksRepository _repo;
         public ObservableCollection<HomepageStock> FavoriteStocks { get; private set; }
@@ -13,12 +13,12 @@ namespace StockApp.Service
         public ObservableCollection<HomepageStock> FilteredAllStocks { get; private set; }
         public ObservableCollection<HomepageStock> FilteredFavoriteStocks { get; private set; }
 
-        public HomePageService()
+        public HomepageService()
         {
             _repo = new HomepageStocksRepository();
             var stocks = _repo.LoadStocks();
             AllStocks = new ObservableCollection<HomepageStock>(stocks);
-            FavoriteStocks = new ObservableCollection<HomepageStock>(stocks.Where(stock => stock.isFavorite).ToList());
+            FavoriteStocks = new ObservableCollection<HomepageStock>(stocks.Where(stock => stock.IsFavorite).ToList());
         }
 
         public ObservableCollection<HomepageStock> GetFavoriteStocks()
@@ -93,23 +93,23 @@ namespace StockApp.Service
         {
             _repo.RemoveFromFavorites(stock);
             FavoriteStocks.Remove(stock);
-            stock.isFavorite = false;
+            stock.IsFavorite = false;
         }
 
         public void AddToFavorites(HomepageStock stock)
         {
             _repo.AddToFavorites(stock);
             FavoriteStocks.Add(stock);
-            stock.isFavorite = true;
+            stock.IsFavorite = true;
         }
         public bool IsGuestUser()
         {
-            return _repo.IsGuestUser(_repo.getCnp());
+            return _repo.IsGuestUser(_repo.GetUserCnp());
         }
 
-        public string GetUserCnp()
+        public string GetUserCNP()
         {
-            return _repo.getCnp();
+            return _repo.GetUserCnp();
         }
 
         public void CreateUserProfile()

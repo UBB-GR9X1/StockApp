@@ -1,26 +1,25 @@
-﻿using System;
-using System.Text.RegularExpressions;
-using StockApp.Model;
-using StockApp.Repository;
-
-namespace StockApp.Service
+﻿namespace StockApp.Service
 {
+    using System;
+    using System.Text.RegularExpressions;
+    using StockApp.Models;
+    using StockApp.Repository;
+
     internal class CreateStockService
     {
-        private readonly BaseStocksRepository _stocksRepository;
-        private readonly Random _random = new Random();
+        private readonly BaseStocksRepository stocksRepository;
+        private readonly Random random = new();
 
-        public CreateStockService(BaseStocksRepository stocksRepository = null)
+        public CreateStockService(BaseStocksRepository? stocksRepository = null)
         {
-            _stocksRepository = stocksRepository ?? new BaseStocksRepository();
+            this.stocksRepository = stocksRepository ?? new BaseStocksRepository();
         }
 
         public bool CheckIfUserIsGuest()
         {
-            HomepageStocksRepository homepageStocksRepository = new HomepageStocksRepository();
-            return homepageStocksRepository.IsGuestUser(homepageStocksRepository.getCnp());
+            HomepageStocksRepository homepageStocksRepository = new();
+            return homepageStocksRepository.IsGuestUser(homepageStocksRepository.GetUserCnp());
         }
-
 
         public string AddStock(string stockName, string stockSymbol, string authorCNP)
         {
@@ -45,9 +44,9 @@ namespace StockApp.Service
 
                 var stock = new BaseStock(stockName, stockSymbol, authorCNP);
 
-                int initialPrice = _random.Next(50, 501);
+                int initialPrice = this.random.Next(50, 501);
 
-                _stocksRepository.AddStock(stock, initialPrice);
+                this.stocksRepository.AddStock(stock, initialPrice);
 
                 return "Stock added successfully with initial value!";
             }

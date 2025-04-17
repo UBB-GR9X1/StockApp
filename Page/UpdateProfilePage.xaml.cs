@@ -1,17 +1,16 @@
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Threading.Tasks;
-using Catel.MVVM;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
-using StockApp.ViewModel;
 using StockApp.Service;
+using StockApp.ViewModel;
 
 namespace StocksApp
 {
     public sealed partial class UpdateProfilePage : Page
     {
-        private ModelView viewModelUpdate; 
+        private UpdateProfilePageViewModel viewModelUpdate;
 
         public UpdateProfilePage()
         {
@@ -25,7 +24,7 @@ namespace StocksApp
             // Retrieve the stock name passed during navigation
             if (e.Parameter is string authorCNP)
             {
-                viewModelUpdate = new ModelView(authorCNP);
+                viewModelUpdate = new(authorCNP);
                 this.DataContext = viewModelUpdate;
             }
 

@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
-using StockApp.Model;
-using StockApp.Repository;
-namespace StockApp.Service
+﻿namespace StockApp.Service
 {
+    using System.Collections.Generic;
+    using StockApp.Models;
+    using StockApp.Repository;
+
     public class ProfieServices
     {
         ProfileRepository _repo;
@@ -70,7 +71,7 @@ namespace StockApp.Service
 
         public string GetLoggedInUserCnp()
         {
-            return _repo.GetLoggedInUserCnp();
+            return _repo.GetLoggedInUserCNP();
         }
 
     }

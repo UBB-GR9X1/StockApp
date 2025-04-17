@@ -1,38 +1,29 @@
-﻿using System;
-using System.Windows.Input;
-
-namespace StockApp.Command
+﻿namespace StockApp.Command
 {
+    using System;
+    using System.Windows.Input;
+
     public class RelayCommand : ICommand
     {
-        private readonly Action<object> _execute;
-        private readonly Func<object, bool> _canExecute;
+        private readonly Action<object> execute;
+        private readonly Func<object, bool>? canExecute;
 
-        public RelayCommand(Action<object> execute, Func<object, bool> canExecute = null)
+        public RelayCommand(Action<object> execute, Func<object, bool>? canExecute = null)
         {
-            _execute = execute ?? throw new ArgumentNullException(nameof(execute));
-            _canExecute = canExecute;
+            this.execute = execute ?? throw new ArgumentNullException(nameof(execute));
+            this.canExecute = canExecute;
         }
 
         public event EventHandler CanExecuteChanged
         {
-            add => CommandManager.RequerySuggested += value;  
+            add => CommandManager.RequerySuggested += value;
             remove => CommandManager.RequerySuggested -= value;
         }
 
-        public bool CanExecute(object parameter)
-        {
-            return _canExecute?.Invoke(parameter) ?? true;
-        }
+        public bool CanExecute(object parameter) => this.canExecute?.Invoke(parameter) ?? true;
 
-        public void Execute(object parameter)
-        {
-            _execute(parameter);
-        }
+        public void Execute(object parameter) => this.execute(parameter);
 
-        public void OnCanExecuteChanged()
-        {
-            CommandManager.InvalidateRequerySuggested();
-        }
+        public void OnCanExecuteChanged() => CommandManager.InvalidateRequerySuggested();
     }
 }

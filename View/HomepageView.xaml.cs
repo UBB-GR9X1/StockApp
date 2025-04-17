@@ -1,13 +1,13 @@
-﻿using Microsoft.UI.Xaml;
+﻿using CreateStock;
+using GemStore;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Navigation;
+using StockApp.Models;
+using StockApp.Service;
+using StockApp.StockPage;
+using StockApp.ViewModel;
 using StockNewsPage.Views;
 using StocksApp;
-using CreateStock;
-using StockApp.StockPage;
-using StockApp.Service;
-using StockApp.Model;
-using StockApp.ViewModel;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -17,12 +17,12 @@ namespace StocksHomepage
     public sealed partial class MainPage : Page
     {
         // add the view model as a property
-        public HomePageViewModel ViewModel { get; }
+        public HomepageViewModel ViewModel { get; }
 
         public MainPage()
         {
             this.InitializeComponent();
-            ViewModel = new HomePageViewModel();
+            ViewModel = new HomepageViewModel();
             DataContext = ViewModel;
         }
 
@@ -36,7 +36,7 @@ namespace StocksHomepage
 
         private void CreateProfileClick(object sender, RoutedEventArgs e)
         {
-            var viewModel = DataContext as HomePageViewModel;
+            var viewModel = DataContext as HomepageViewModel;
 
             if (viewModel != null)
             {
@@ -59,7 +59,7 @@ namespace StocksHomepage
 
         public void GoToNews(object sender, RoutedEventArgs e)
         {
-            NavigationService.Instance.Initialize(this.Frame);
+            NavigationService.Initialize(this.Frame);
             NavigationService.Instance.Navigate(typeof(NewsListView));
         }
 
@@ -75,13 +75,14 @@ namespace StocksHomepage
 
         public void GoToProfile(object sender, RoutedEventArgs e)
         {
-            NavigationService.Instance.Initialize(this.Frame);
-            NavigationService.Instance.Navigate(typeof(ProfilePage), ViewModel.getUserCnp());
+            NavigationService.Initialize(this.Frame);
+            NavigationService.Instance.Navigate(typeof(ProfilePage), ViewModel.GetUserCNP());
         }
 
         public void GoToStore(object sender, RoutedEventArgs e)
         {
-            this.Frame.Navigate(typeof(GemStore.GemStoreWindow), null);
+            NavigationService.Initialize(this.Frame);
+            NavigationService.Instance.Navigate(typeof(GemStoreWindow), null);
         }
 
         public void GoToStock(object sender, ItemClickEventArgs e)
@@ -89,7 +90,7 @@ namespace StocksHomepage
             if (e.ClickedItem is HomepageStock stock)
             {
                 // this.Frame.Navigate(typeof(StockPage), null);
-                NavigationService.Instance.Initialize(this.Frame);
+                NavigationService.Initialize(this.Frame);
                 NavigationService.Instance.Navigate(typeof(StockPage), stock.Name);
             }
         }

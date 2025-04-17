@@ -1,28 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.Data.SqlClient;
-using StockApp.Database;
-using StockApp.Model;
-
-namespace StockApp.Repository
+﻿namespace StockApp.Repository
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using Microsoft.Data.SqlClient;
+    using StockApp.Database;
+    using StockApp.Models;
+
     public class NewsRepository
     {
-        private DatabaseHelper _databaseHelper = DatabaseHelper.Instance;
-        private List<NewsArticle> newsArticles = new List<NewsArticle>();
-        private List<UserArticle> userArticles = new List<UserArticle>();
-        private static readonly object _lockObject = new object();
-        private static bool _isInitialized = false;
+        private static readonly object LockObject = new ();
+        private static bool isInitialized = false;
+
+        private readonly DatabaseHelper databaseHelper = DatabaseHelper.Instance;
+        private readonly List<NewsArticle> newsArticles = [];
+        private readonly List<UserArticle> userArticles = [];
 
         public NewsRepository()
         {
-            Initialize();
+            this.Initialize();
         }
 
         private void Initialize()
         {
-            lock (_lockObject)
+            lock (LockObject)
             {
                 try
                 {
@@ -30,16 +31,16 @@ namespace StockApp.Repository
                     bool hasData = CheckIfDataExists();
 
                     // Load existing data
-                    LoadNewsArticles();
-                    LoadUserArticles();
+                    this.LoadNewsArticles();
+                    this.LoadUserArticles();
 
                     // Only add mock data if no data exists
                     if (!hasData)
                     {
-                        hardCodedNewsArticles();
+                        this.hardCodedNewsArticles();
                     }
 
-                    _isInitialized = true;
+                    isInitialized = true;
                 }
                 catch (Exception ex)
                 {
@@ -49,72 +50,64 @@ namespace StockApp.Repository
             }
         }
 
-        private bool CheckIfDataExists()
+        private static bool CheckIfDataExists()
         {
-            using (var connection = _databaseHelper.GetConnection())
-            {
-                using (var command = new SqlCommand("SELECT COUNT(*) FROM NEWS_ARTICLE", connection))
-                {
-                    command.CommandTimeout = 30;
-                    int count = Convert.ToInt32(command.ExecuteScalar());
-                    return count > 0;
-                }
-            }
+            using var connection = DatabaseHelper.GetConnection();
+
+            using SqlCommand command = new ("SELECT COUNT(*) FROM NEWS_ARTICLE", connection);
+            command.CommandTimeout = 30;
+
+            int count = Convert.ToInt32(command.ExecuteScalar());
+            return count > 0;
         }
 
         public void EnsureUserExists(string cnp, string name, string description, bool isAdmin, bool isHidden, string profilePicture, int gemBalance = 1000)
         {
-            using (var connection = _databaseHelper.GetConnection())
-            {
-                string checkQuery = "IF NOT EXISTS (SELECT 1 FROM [USER] WHERE CNP = @CNP) " +
-                                    "INSERT INTO [USER] (CNP, NAME, DESCRIPTION, IS_HIDDEN, IS_ADMIN, PROFILE_PICTURE, GEM_BALANCE) " +
-                                    "VALUES (@CNP, @Name, @Description, @IsHidden, @IsAdmin, @ProfilePicture, @GemBalance)";
+            using var connection = DatabaseHelper.GetConnection();
+            string checkQuery = "IF NOT EXISTS (SELECT 1 FROM [USER] WHERE CNP = @CNP) " +
+                                "INSERT INTO [USER] (CNP, NAME, DESCRIPTION, IS_HIDDEN, IS_ADMIN, PROFILE_PICTURE, GEM_BALANCE) " +
+                                "VALUES (@CNP, @Name, @Description, @IsHidden, @IsAdmin, @ProfilePicture, @GemBalance)";
 
-                using (var command = new SqlCommand(checkQuery, connection))
-                {
-                    command.Parameters.AddWithValue("@CNP", cnp);
-                    command.Parameters.AddWithValue("@Name", name);
-                    command.Parameters.AddWithValue("@Description", description);
-                    command.Parameters.AddWithValue("@IsHidden", isHidden ? 1 : 0);
-                    command.Parameters.AddWithValue("@IsAdmin", isAdmin ? 1 : 0);
-                    command.Parameters.AddWithValue("@ProfilePicture", profilePicture);
-                    command.Parameters.AddWithValue("@GemBalance", gemBalance);
-                    command.ExecuteNonQuery();
-                }
-            }
+            using SqlCommand command = new (checkQuery, connection);
+            command.Parameters.AddWithValue("@CNP", cnp);
+            command.Parameters.AddWithValue("@Name", name);
+            command.Parameters.AddWithValue("@Description", description);
+            command.Parameters.AddWithValue("@IsHidden", isHidden ? 1 : 0);
+            command.Parameters.AddWithValue("@IsAdmin", isAdmin ? 1 : 0);
+            command.Parameters.AddWithValue("@ProfilePicture", profilePicture);
+            command.Parameters.AddWithValue("@GemBalance", gemBalance);
+
+            command.ExecuteNonQuery();
         }
 
         #region News Articles
 
         public void LoadNewsArticles()
         {
-            newsArticles.Clear();
-            using (var connection = _databaseHelper.GetConnection())
+            this.newsArticles.Clear();
+            using var connection = DatabaseHelper.GetConnection();
+            using SqlCommand command = new ("SELECT * FROM NEWS_ARTICLE", connection);
+
+            command.CommandTimeout = 30;
+            using var reader = command.ExecuteReader();
+
+            while (reader.Read())
             {
-                using (var command = new SqlCommand("SELECT * FROM NEWS_ARTICLE", connection))
+                var article = new NewsArticle
                 {
-                    command.CommandTimeout = 30;
-                    using (var reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            var article = new NewsArticle
-                            {
-                                ArticleId = reader.GetString(0),
-                                Title = reader.GetString(1),
-                                Summary = reader.IsDBNull(2) ? "" : reader.GetString(2),
-                                Content = reader.GetString(3),
-                                Source = reader.IsDBNull(4) ? "" : reader.GetString(4),
-                                PublishedDate = reader.GetString(5),
-                                IsRead = reader.GetBoolean(6),
-                                IsWatchlistRelated = reader.GetBoolean(7),
-                                Category = reader.GetString(8),
-                                RelatedStocks = GetRelatedStocksForArticle(reader.GetString(0))
-                            };
-                            newsArticles.Add(article);
-                        }
-                    }
-                }
+                    ArticleId = reader.GetString(0),
+                    Title = reader.GetString(1),
+                    Summary = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
+                    Content = reader.GetString(3),
+                    Source = reader.IsDBNull(4) ? string.Empty : reader.GetString(4),
+                    PublishedDate = reader.GetString(5),
+                    IsRead = reader.GetBoolean(6),
+                    IsWatchlistRelated = reader.GetBoolean(7),
+                    Category = reader.GetString(8),
+                    RelatedStocks = this.GetRelatedStocksForArticle(reader.GetString(0)),
+                };
+
+                this.newsArticles.Add(article);
             }
         }
 
@@ -124,56 +117,53 @@ namespace StockApp.Repository
 
             try
             {
-                using (var connection = _databaseHelper.GetConnection())
+                using var connection = DatabaseHelper.GetConnection();
+                using (SqlCommand command = new ("SELECT STOCK_NAME FROM RELATED_STOCKS WHERE ARTICLE_ID = @ArticleId", connection))
                 {
-                    using (var command = new SqlCommand("SELECT STOCK_NAME FROM RELATED_STOCKS WHERE ARTICLE_ID = @ArticleId", connection))
+                    command.CommandTimeout = 30;
+                    command.Parameters.AddWithValue("@ArticleId", articleId);
+
+                    using var reader = command.ExecuteReader();
+                    while (reader.Read())
                     {
-                        command.CommandTimeout = 30;
-                        command.Parameters.AddWithValue("@ArticleId", articleId);
-                        using (var reader = command.ExecuteReader())
+                        relatedStocks.Add(reader.GetString(0));
+                    }
+                }
+
+                // no stocks in database, check our mock data
+                if (relatedStocks.Count == 0)
+                {
+                    var mockArticle = this.newsArticles.FirstOrDefault(a => a.ArticleId == articleId);
+                    if (mockArticle != null && mockArticle.RelatedStocks != null && mockArticle.RelatedStocks.Count > 0)
+                    {
+                        relatedStocks.AddRange(mockArticle.RelatedStocks);
+                        System.Diagnostics.Debug.WriteLine($"Found {relatedStocks.Count} related stocks in mock data for article {articleId}");
+
+                        try
                         {
-                            while (reader.Read())
-                            {
-                                relatedStocks.Add(reader.GetString(0));
-                            }
+                            this.AddRelatedStocksForArticle(articleId, relatedStocks, connection);
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"Error adding related stocks to database: {ex.Message}");
                         }
                     }
 
-                    // no stocks in database, check our mock data
-                    if (relatedStocks.Count == 0)
+                    // user articles too
+                    var userArticle = this.userArticles.FirstOrDefault(a => a.ArticleId == articleId);
+                    if (userArticle != null && userArticle.RelatedStocks != null && userArticle.RelatedStocks.Count > 0)
                     {
-                        var mockArticle = newsArticles.FirstOrDefault(a => a.ArticleId == articleId);
-                        if (mockArticle != null && mockArticle.RelatedStocks != null && mockArticle.RelatedStocks.Count > 0)
-                        {
-                            relatedStocks.AddRange(mockArticle.RelatedStocks);
-                            System.Diagnostics.Debug.WriteLine($"Found {relatedStocks.Count} related stocks in mock data for article {articleId}");
+                        relatedStocks.AddRange(userArticle.RelatedStocks.Where(s => !relatedStocks.Contains(s)));
+                        System.Diagnostics.Debug.WriteLine($"Found {userArticle.RelatedStocks.Count} related stocks in user article for {articleId}");
 
-                            try
-                            {
-                                AddRelatedStocksForArticle(articleId, relatedStocks, connection);
-                            }
-                            catch (Exception ex)
-                            {
-                                System.Diagnostics.Debug.WriteLine($"Error adding related stocks to database: {ex.Message}");
-                            }
+                        try
+                        {
+                            this.AddRelatedStocksForArticle(articleId, relatedStocks, connection);
+                            System.Diagnostics.Debug.WriteLine($"Added related stocks to database for user article {articleId}");
                         }
-
-                        // user articles too
-                        var userArticle = userArticles.FirstOrDefault(a => a.ArticleId == articleId);
-                        if (userArticle != null && userArticle.RelatedStocks != null && userArticle.RelatedStocks.Count > 0)
+                        catch (Exception ex)
                         {
-                            relatedStocks.AddRange(userArticle.RelatedStocks.Where(s => !relatedStocks.Contains(s)));
-                            System.Diagnostics.Debug.WriteLine($"Found {userArticle.RelatedStocks.Count} related stocks in user article for {articleId}");
-
-                            try
-                            {
-                                AddRelatedStocksForArticle(articleId, relatedStocks, connection);
-                                System.Diagnostics.Debug.WriteLine($"Added related stocks to database for user article {articleId}");
-                            }
-                            catch (Exception ex)
-                            {
-                                System.Diagnostics.Debug.WriteLine($"Error adding related stocks to database: {ex.Message}");
-                            }
+                            System.Diagnostics.Debug.WriteLine($"Error adding related stocks to database: {ex.Message}");
                         }
                     }
                 }
@@ -183,14 +173,14 @@ namespace StockApp.Repository
                 System.Diagnostics.Debug.WriteLine($"Error getting related stocks: {ex.Message}");
 
                 // fallback to in-memory data
-                var mockArticle = newsArticles.FirstOrDefault(a => a.ArticleId == articleId);
+                var mockArticle = this.newsArticles.FirstOrDefault(a => a.ArticleId == articleId);
                 if (mockArticle != null && mockArticle.RelatedStocks != null)
                 {
                     relatedStocks.AddRange(mockArticle.RelatedStocks);
                     System.Diagnostics.Debug.WriteLine($"Fallback: Found {relatedStocks.Count} related stocks in mock data");
                 }
 
-                var userArticle = userArticles.FirstOrDefault(a => a.ArticleId == articleId);
+                var userArticle = this.userArticles.FirstOrDefault(a => a.ArticleId == articleId);
                 if (userArticle != null && userArticle.RelatedStocks != null)
                 {
                     relatedStocks.AddRange(userArticle.RelatedStocks.Where(s => !relatedStocks.Contains(s)));
@@ -204,7 +194,9 @@ namespace StockApp.Repository
         public void AddRelatedStocksForArticle(string articleId, List<string> stockNames, SqlConnection connection = null, SqlTransaction transaction = null)
         {
             if (stockNames == null || stockNames.Count == 0)
+            {
                 return;
+            }
 
             bool ownConnection = false;
             try
@@ -212,7 +204,7 @@ namespace StockApp.Repository
                 // no connection was provided, create our own (idk how this works but it does, no need to change it yes)
                 if (connection == null)
                 {
-                    connection = _databaseHelper.GetConnection();
+                    connection = DatabaseHelper.GetConnection();
                     ownConnection = true;
                     // new transaction if one wasn't provided
                     if (transaction == null)
@@ -330,9 +322,9 @@ namespace StockApp.Repository
 
         public void AddNewsArticle(NewsArticle newsArticle)
         {
-            lock (_lockObject)
+            lock (LockObject)
             {
-                using (var connection = _databaseHelper.GetConnection())
+                using (var connection = DatabaseHelper.GetConnection())
                 {
                     bool exists = false;
                     using (var checkCommand = new SqlCommand("SELECT COUNT(*) FROM NEWS_ARTICLE WHERE ARTICLE_ID = @ArticleId", connection))
@@ -394,9 +386,9 @@ namespace StockApp.Repository
 
         public void UpdateNewsArticle(NewsArticle newsArticle)
         {
-            lock (_lockObject)
+            lock (LockObject)
             {
-                using (var connection = _databaseHelper.GetConnection())
+                using (var connection = DatabaseHelper.GetConnection())
                 {
                     using (var transaction = connection.BeginTransaction())
                     {
@@ -456,9 +448,9 @@ namespace StockApp.Repository
 
         public void DeleteNewsArticle(string articleId)
         {
-            lock (_lockObject)
+            lock (LockObject)
             {
-                using (var connection = _databaseHelper.GetConnection())
+                using (var connection = DatabaseHelper.GetConnection())
                 {
                     using (var transaction = connection.BeginTransaction())
                     {
@@ -547,7 +539,7 @@ namespace StockApp.Repository
         public void LoadUserArticles()
         {
             userArticles.Clear();
-            using (var connection = _databaseHelper.GetConnection())
+            using (var connection = DatabaseHelper.GetConnection())
             {
                 using (var command = new SqlCommand("SELECT * FROM USER_ARTICLE", connection))
                 {
@@ -560,16 +552,17 @@ namespace StockApp.Repository
                             {
                                 ArticleId = reader.GetString(0),
                                 Title = reader.GetString(1),
-                                Summary = reader.IsDBNull(2) ? "" : reader.GetString(2),
+                                Summary = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
                                 Content = reader.GetString(3),
 
                                 Author = reader.GetString(4),
                                 SubmissionDate = DateTime.Parse(reader.GetString(5)),
                                 Status = reader.GetString(6),
                                 Topic = reader.GetString(7),
-                                RelatedStocks = GetRelatedStocksForArticle(reader.GetString(0))
+                                RelatedStocks = this.GetRelatedStocksForArticle(reader.GetString(0)),
                             };
-                            userArticles.Add(article);
+
+                            this.userArticles.Add(article);
                         }
                     }
                 }
@@ -578,9 +571,9 @@ namespace StockApp.Repository
 
         public void AddUserArticle(UserArticle userArticle)
         {
-            lock (_lockObject)
+            lock (LockObject)
             {
-                using (var connection = _databaseHelper.GetConnection())
+                using (var connection = DatabaseHelper.GetConnection())
                 {
                     bool exists = false;
                     using (var checkCommand = new SqlCommand("SELECT COUNT(*) FROM USER_ARTICLE WHERE ARTICLE_ID = @ArticleId", connection))
@@ -659,9 +652,9 @@ namespace StockApp.Repository
 
         public void UpdateUserArticle(UserArticle userArticle)
         {
-            lock (_lockObject)
+            lock (LockObject)
             {
-                using (var connection = _databaseHelper.GetConnection())
+                using (var connection = DatabaseHelper.GetConnection())
                 {
                     using (var transaction = connection.BeginTransaction())
                     {
@@ -720,9 +713,9 @@ namespace StockApp.Repository
 
         public void DeleteUserArticle(string articleId)
         {
-            lock (_lockObject)
+            lock (LockObject)
             {
-                using (var connection = _databaseHelper.GetConnection())
+                using (var connection = DatabaseHelper.GetConnection())
                 {
                     using (var transaction = connection.BeginTransaction())
                     {
@@ -863,7 +856,7 @@ namespace StockApp.Repository
             SubmissionDate = DateTime.Now.AddDays(-5),
             Status = "Pending",
             Topic = "Market Analysis",
-            RelatedStocks = new List<string> { "Cesla" }
+            RelatedStocks = ["Cesla"],
         },
         new UserArticle
         {
@@ -875,7 +868,7 @@ namespace StockApp.Repository
             SubmissionDate = DateTime.Now.AddDays(-3),
             Status = "Approved",
             Topic = "Company News",
-            RelatedStocks = new List<string> { "Tesla" }
+            RelatedStocks = ["Tesla"],
         },
         new UserArticle
         {
@@ -899,8 +892,8 @@ namespace StockApp.Repository
             SubmissionDate = DateTime.Now.AddDays(-1),
             Status = "Pending",
             Topic = "Functionality News",
-            RelatedStocks = new List<string> { "Besla", "Tesla" }
-        }
+            RelatedStocks = ["Besla", "Tesla"],
+        },
     };
         }
 
@@ -989,7 +982,7 @@ namespace StockApp.Repository
                     IsWatchlistRelated = true,
                     Category = "Company News",
                     RelatedStocks = new List<string> { "Tesla" }
-                }
+                },
             };
 
             // Add approved user articles to the list
@@ -1000,11 +993,11 @@ namespace StockApp.Repository
 
         public void hardCodedNewsArticles()
         {
-            lock (_lockObject)
+            lock (LockObject)
             {
                 try
                 {
-                    using (var connection = _databaseHelper.GetConnection())
+                    using (var connection = DatabaseHelper.GetConnection())
                     {
                         List<UserArticle> mockUserArticles = GetMockUserArticles();
                         List<NewsArticle> mockNewsArticles = GetMockArticles();

@@ -1,17 +1,17 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using Microsoft.UI.Xaml.Controls;
-using StockApp.Model;
-using StockApp.Service;
-
-namespace StockApp.ViewModel
+﻿namespace StockApp.ViewModel
 {
-    public class ViewModel : INotifyPropertyChanged
+    using System;
+    using System.Collections.ObjectModel;
+    using System.ComponentModel;
+    using System.IO;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using System.Windows.Input;
+    using Microsoft.UI.Xaml.Controls;
+    using StockApp.Models;
+    using StockApp.Service;
+
+    public class TransactionLogViewModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -131,7 +131,7 @@ namespace StockApp.ViewModel
         public ICommand SearchCommand { get; }
         public ICommand ExportCommand { get; }
 
-        public ViewModel(TransactionLogService service)
+        public TransactionLogViewModel(TransactionLogService service)
         {
             this.service = service;
 
@@ -241,7 +241,7 @@ namespace StockApp.ViewModel
 
             filterCriteria.Validate();
 
-            var transactions = service.GetFilteredTransactions(filterCriteria) 
+            var transactions = service.GetFilteredTransactions(filterCriteria)
                 ?? throw new InvalidOperationException("Transaction service returned null");
 
             foreach (var transaction in transactions)

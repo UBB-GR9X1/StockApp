@@ -1,8 +1,8 @@
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml;
 using System;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using StockApp.Models;
 using StockApp.ViewModel;
-using StockApp.Model;
 
 namespace GemStore
 {
@@ -25,7 +25,7 @@ namespace GemStore
                 return;
             }
 
-            if (sender is Button button && button.CommandParameter is GemStoreGemDeal selectedDeal)
+            if (sender is Button button && button.CommandParameter is GemDeal selectedDeal)
             {
                 ComboBox bankAccountDropdown = new ComboBox
                 {

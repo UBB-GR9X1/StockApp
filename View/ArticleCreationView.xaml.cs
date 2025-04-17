@@ -1,11 +1,11 @@
-using Microsoft.UI.Xaml.Controls;
-using StockNewsPage.ViewModels;
-
 namespace StockNewsPage.Views
 {
+    using Microsoft.UI.Xaml.Controls;
+    using StockApp.ViewModel;
+
     public sealed partial class ArticleCreationView : Page
     {
-        public ViewModels.Model ViewModel { get; } = new ViewModels.Model();
+        public ArticleCreationViewModel ViewModel { get; } = new();
 
         public ArticleCreationView()
         {

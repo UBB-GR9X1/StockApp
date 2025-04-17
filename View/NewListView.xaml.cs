@@ -1,13 +1,13 @@
 using Microsoft.UI.Xaml.Controls;
-using StockNewsPage.ViewModels;
 using Microsoft.UI.Xaml.Input;
 using StockApp.Service;
+using StockApp.ViewModel;
 
 namespace StockNewsPage.Views
 {
     public sealed partial class NewsListView : Page
     {
-        public ViewModel ViewModel { get; } = new ViewModel();
+        public NewsListViewModel ViewModel { get; } = new();
 
         public NewsListView()
         {

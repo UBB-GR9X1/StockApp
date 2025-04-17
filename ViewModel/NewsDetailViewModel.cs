@@ -1,87 +1,89 @@
-﻿using Microsoft.UI.Dispatching;
-using Microsoft.UI.Xaml.Controls;
-using System;
-using System.ComponentModel;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using StockApp;
-using StockApp.Model;
-using StockApp.Service;
-using System.Collections.Generic;
-
-namespace StockNewsPage.ViewModels
+﻿namespace StockApp.ViewModel
 {
-    public class ModelView : ViewModelBase
-    {
-        private readonly NewsService _newsService;
-        private readonly DispatcherQueue _dispatcherQueue;
-        private string _currentArticleId;
-        private bool _isPreviewMode;
-        private string _previewId;
+    using System;
+    using System.Linq;
+    using System.Runtime.CompilerServices;
+    using System.Threading.Tasks;
+    using System.Windows.Input;
+    using Microsoft.UI.Dispatching;
+    using Microsoft.UI.Xaml.Controls;
+    using StockApp.Command;
+    using StockApp.Models;
+    using StockApp.Service;
 
-        private NewsArticle _article;
+    public class NewsDetailViewModel : ViewModelBase
+    {
+        private readonly NewsService newsService;
+        private readonly DispatcherQueue dispatcherQueue;
+        private string currentArticleId;
+        private bool isPreviewMode;
+        private string previewId;
+
+        private NewsArticle article;
+        private bool isLoading;
+        private bool hasRelatedStocks;
+        private bool isAdminPreview;
+        private string articleStatus;
+        private bool canApprove;
+        private bool canReject;
+
         public NewsArticle Article
         {
-            get => _article;
-            set => SetProperty(ref _article, value);
+            get => article;
+            set => SetProperty(ref article, value);
         }
 
-        private bool _isLoading;
         public bool IsLoading
         {
-            get => _isLoading;
-            set => SetProperty(ref _isLoading, value);
+            get => isLoading;
+            set => SetProperty(ref isLoading, value);
         }
 
-        private bool _hasRelatedStocks;
         public bool HasRelatedStocks
         {
-            get => _hasRelatedStocks;
-            set => SetProperty(ref _hasRelatedStocks, value);
+            get => hasRelatedStocks;
+            set => SetProperty(ref hasRelatedStocks, value);
         }
 
         // admin preview mode properties
-        private bool _isAdminPreview;
         public bool IsAdminPreview
         {
-            get => _isAdminPreview;
-            set => SetProperty(ref _isAdminPreview, value);
+            get => isAdminPreview;
+            set => SetProperty(ref isAdminPreview, value);
         }
 
-        private string _articleStatus;
         public string ArticleStatus
         {
-            get => _articleStatus;
-            set => SetProperty(ref _articleStatus, value);
+            get => articleStatus;
+            set => SetProperty(ref articleStatus, value);
         }
 
-        private bool _canApprove;
         public bool CanApprove
         {
-            get => _canApprove;
-            set => SetProperty(ref _canApprove, value);
+            get => canApprove;
+            set => SetProperty(ref canApprove, value);
         }
 
-        private bool _canReject;
         public bool CanReject
         {
-            get => _canReject;
-            set => SetProperty(ref _canReject, value);
+            get => canReject;
+            set => SetProperty(ref canReject, value);
         }
 
         // commands
         public ICommand BackCommand { get; }
+
         public ICommand ApproveCommand { get; }
+
         public ICommand RejectCommand { get; }
+
         public ICommand DeleteCommand { get; }
 
         // constructor
-        public ModelView()
+        public NewsDetailViewModel()
         {
-            _newsService = new NewsService();
-            _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
+            newsService = new NewsService();
+            dispatcherQueue = DispatcherQueue.GetForCurrentThread();
 
             // init commands
             BackCommand = new StockNewsRelayCommand(() => NavigationService.Instance.GoBack());
@@ -102,31 +104,58 @@ namespace StockNewsPage.ViewModels
                 // if this is a preview
                 if (articleId.StartsWith("preview:"))
                 {
-                    _isPreviewMode = true;
-                    _previewId = articleId.Substring(8); // Remove "preview:"
-                    _currentArticleId = _previewId;
+                    isPreviewMode = true;
+                    previewId = articleId.Substring(8); // Remove "preview:"
+                    currentArticleId = previewId;
 
                     // admin preview
                     IsAdminPreview = true;
 
-                    var userArticle = _newsService.GetUserArticleForPreview(_previewId) 
-                        ?? throw new KeyNotFoundException($"Preview article with ID {_previewId} not found");
-                    
-                    ArticleStatus = userArticle.Status;
-                    CanApprove = userArticle.Status != "Approved";
-                    CanReject = userArticle.Status != "Rejected";
+                    var userArticle = newsService.GetUserArticleForPreview(previewId);
+                    if (userArticle != null)
+                    {
+                        ArticleStatus = userArticle.Status;
+                        CanApprove = userArticle.Status != "Approved";
+                        CanReject = userArticle.Status != "Rejected";
+                    }
+
+                    var article = await newsService.GetNewsArticleByIdAsync(articleId);
+
+                    dispatcherQueue.TryEnqueue(() =>
+                    {
+                        if (article != null)
+                        {
+                            Article = article;
+                            HasRelatedStocks = article.RelatedStocks != null && article.RelatedStocks.Any();
+                            System.Diagnostics.Debug.WriteLine($"Related stocks count: {article.RelatedStocks?.Count ?? 0}");
+                        }
+                        else
+                        {
+                            // Article not found
+                            Article = new NewsArticle
+                            {
+                                Title = "Article Not Found",
+                                Summary = "The requested preview article could not be found.",
+                                Content = "The preview article you are looking for may no longer be available."
+                            };
+                            HasRelatedStocks = false;
+                            System.Diagnostics.Debug.WriteLine("Preview article not found");
+                        }
+
+                        IsLoading = false;
+                    });
                 }
                 else
                 {
-                    _isPreviewMode = false;
-                    _currentArticleId = articleId;
+                    isPreviewMode = false;
+                    currentArticleId = articleId;
                     IsAdminPreview = false;
                 }
 
                 // For non-preview articles, continue with existing logic
-                var regularArticle = await _newsService.GetNewsArticleByIdAsync(articleId);
+                var regularArticle = await newsService.GetNewsArticleByIdAsync(articleId);
 
-                _dispatcherQueue.TryEnqueue(async () =>
+                dispatcherQueue.TryEnqueue(async () =>
                 {
                     if (regularArticle != null)
                     {
@@ -134,9 +163,9 @@ namespace StockNewsPage.ViewModels
                         HasRelatedStocks = regularArticle.RelatedStocks != null && regularArticle.RelatedStocks.Any();
 
                         // Mark as read if not in preview mode
-                        if (!_isPreviewMode)
+                        if (!isPreviewMode)
                         {
-                            await _newsService.MarkArticleAsReadAsync(articleId);
+                            await newsService.MarkArticleAsReadAsync(articleId);
                         }
                     }
                     else
@@ -157,7 +186,7 @@ namespace StockNewsPage.ViewModels
             {
                 System.Diagnostics.Debug.WriteLine($"Error loading article: {ex.Message}");
 
-                _dispatcherQueue.TryEnqueue(() =>
+                dispatcherQueue.TryEnqueue(() =>
                 {
                     Article = new NewsArticle
                     {
@@ -173,14 +202,14 @@ namespace StockNewsPage.ViewModels
 
         private async Task ApproveArticleAsync()
         {
-            if (!_isPreviewMode || string.IsNullOrEmpty(_previewId))
+            if (!isPreviewMode || string.IsNullOrEmpty(previewId))
                 return;
 
             IsLoading = true;
 
             try
             {
-                var success = await _newsService.ApproveUserArticleAsync(_previewId);
+                var success = await newsService.ApproveUserArticleAsync(previewId);
                 if (success)
                 {
                     // update the status locally
@@ -225,14 +254,14 @@ namespace StockNewsPage.ViewModels
 
         private async Task RejectArticleAsync()
         {
-            if (!_isPreviewMode || string.IsNullOrEmpty(_previewId))
+            if (!isPreviewMode || string.IsNullOrEmpty(previewId))
                 return;
 
             IsLoading = true;
 
             try
             {
-                var success = await _newsService.RejectUserArticleAsync(_previewId);
+                var success = await newsService.RejectUserArticleAsync(previewId);
                 if (success)
                 {
                     // update status locally
@@ -277,7 +306,7 @@ namespace StockNewsPage.ViewModels
 
         private async Task DeleteArticleAsync()
         {
-            if (!_isPreviewMode || string.IsNullOrEmpty(_previewId))
+            if (!isPreviewMode || string.IsNullOrEmpty(previewId))
                 return;
 
             try
@@ -298,7 +327,7 @@ namespace StockNewsPage.ViewModels
                 {
                     IsLoading = true;
 
-                    var success = await _newsService.DeleteUserArticleAsync(_previewId);
+                    var success = await newsService.DeleteUserArticleAsync(previewId);
                     if (success)
                     {
                         // success message
@@ -349,4 +378,3 @@ namespace StockNewsPage.ViewModels
         }
     }
 }
-

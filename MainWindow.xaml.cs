@@ -2,9 +2,10 @@ using System;
 using System.Collections.Generic;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Navigation;
-using Model;
 using StockApp.Database;
+using StockApp.Models;
 using StockApp.Repository;
+using StockApp.Service;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -33,6 +34,7 @@ namespace StockApp
             // rootFrame.Navigate(typeof(CreateStockPage.MainPage), null);
 
             rootFrame.Navigate(typeof(StocksHomepage.MainPage), null);
+            NavigationService.Initialize(rootFrame);
 
             // string stockName = "Tesla";
 

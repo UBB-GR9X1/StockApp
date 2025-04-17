@@ -2,7 +2,7 @@ using System;
 using System.Collections.ObjectModel;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Models;
+using StockApp.Models;
 using StockApp.Repository;
 
 namespace Alerts
@@ -28,6 +28,7 @@ namespace Alerts
         {
             var newAlert = new Alert
             {
+                AlertId = -1, // Temporary ID for new alert
                 StockName = "Tesla",
                 Name = "New Alert",
                 UpperBound = 100,

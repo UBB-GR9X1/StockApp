@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Models;
-
-namespace StockApp.ViewModel
+﻿namespace StockApp.ViewModel
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using StockApp.Models;
+
     public class AlertService
     {
         private readonly List<Alert> _alerts = new List<Alert>();

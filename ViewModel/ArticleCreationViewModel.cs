@@ -1,20 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using Microsoft.UI.Dispatching;
-using Microsoft.UI.Xaml.Controls;
-using StockApp;
-using StockApp.Model;
-using StockApp.Repository;
-using StockApp.Service;
-using StockNewsPage.Views;
-
-namespace StockNewsPage.ViewModels
+﻿namespace StockApp.ViewModel
 {
-    public class Model : ViewModelBase
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using System.Windows.Input;
+    using Microsoft.UI.Dispatching;
+    using Microsoft.UI.Xaml.Controls;
+    using StockApp;
+    using StockApp.Command;
+    using StockApp.Models;
+    using StockApp.Repository;
+    using StockApp.Service;
+    using StockNewsPage.Views;
+
+    public class ArticleCreationViewModel : ViewModelBase
     {
         private readonly NewsService _newsService;
         private readonly DispatcherQueue _dispatcherQueue;
@@ -96,7 +97,7 @@ namespace StockNewsPage.ViewModels
         public ICommand SubmitCommand { get; }
 
         // constructor
-        public Model()
+        public ArticleCreationViewModel()
         {
             _newsService = new NewsService();
             _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
@@ -161,7 +162,7 @@ namespace StockNewsPage.ViewModels
                     Title = Title,
                     Summary = Summary ?? "",
                     Content = Content,
-                    Source = $"User: {_appState.CurrentUser?.Cnp ?? "Anonymous"}",
+                    Source = $"User: {_appState.CurrentUser?.CNP ?? "Anonymous"}",
                     PublishedDate = DateTime.Now.ToString("MMMM dd, yyyy"),
                     IsRead = false,
                     IsWatchlistRelated = false,
@@ -176,7 +177,7 @@ namespace StockNewsPage.ViewModels
                     Title = Title,
                     Summary = Summary ?? "",
                     Content = Content,
-                    Author = _appState.CurrentUser?.Cnp ?? "Anonymous",
+                    Author = _appState.CurrentUser?.CNP ?? "Anonymous",
                     SubmissionDate = DateTime.Now,
                     Status = "Preview",
                     Topic = SelectedTopic,
@@ -227,7 +228,7 @@ namespace StockNewsPage.ViewModels
                     Title = Title,
                     Summary = Summary,
                     Content = Content,
-                    Author = _appState.CurrentUser?.Cnp ?? "Anonymous",
+                    Author = _appState.CurrentUser?.CNP ?? "Anonymous",
                     SubmissionDate = DateTime.Now,
                     Status = "Pending",
                     Topic = SelectedTopic,
@@ -311,7 +312,7 @@ namespace StockNewsPage.ViewModels
             if (enteredStocks.Count == 0)
                 return true;
 
-            var allStocks = _stocksRepository.GetAllStocks() 
+            var allStocks = _stocksRepository.GetAllStocks()
                 ?? throw new InvalidOperationException("Stocks repository returned null");
 
             // check if all entered stocks exist (by name or symbol)
@@ -389,7 +390,7 @@ namespace StockNewsPage.ViewModels
                 Title = Title,
                 Summary = Summary,
                 Content = Content,
-                Source = $"User: {_appState.CurrentUser?.Cnp ?? "Anonymous"}",
+                Source = $"User: {_appState.CurrentUser?.CNP ?? "Anonymous"}",
                 PublishedDate = DateTime.Now.ToString("MMMM dd, yyyy"),
                 IsRead = false,
                 IsWatchlistRelated = false,

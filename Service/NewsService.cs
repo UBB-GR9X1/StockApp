@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using StockApp.Model;
-using StockApp.Repository;
-
-namespace StockApp.Service
+﻿namespace StockApp.Service
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using StockApp.Models;
+    using StockApp.Repository;
+
     public class NewsService
     {
         private readonly AppState _appState;
@@ -66,7 +66,7 @@ namespace StockApp.Service
             catch
             {
                 var mockArticles = _repository.GetAllNewsArticles();
-                return mockArticles.FirstOrDefault(a => a.ArticleId == articleId) 
+                return mockArticles.FirstOrDefault(a => a.ArticleId == articleId)
                     ?? throw new KeyNotFoundException($"Article with ID {articleId} not found");
             }
         }
@@ -255,7 +255,7 @@ namespace StockApp.Service
             }
 
             // set author and submission date
-            article.Author = _appState.CurrentUser.Cnp;
+            article.Author = _appState.CurrentUser.CNP;
             article.SubmissionDate = DateTime.Now;
             article.Status = "Pending";
 

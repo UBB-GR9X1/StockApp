@@ -1,26 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using StockApp.Model;
-
-namespace StockApp.Repository.Repository.Exporter
+﻿namespace StockApp.Repository.Exporter
 {
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Text;
+    using StockApp.Models;
+
     public class HTMLTransactionExporter : ITransactionExporter
     {
         public void Export(List<TransactionLogTransaction> transactions, string filePath)
         {
             // Build the HTML string
-            StringBuilder htmlContent = new StringBuilder();
+            StringBuilder htmlContent = new ();
 
             htmlContent.AppendLine("<html>");
             htmlContent.AppendLine("<head><title>Transaction Log</title></head>");
             htmlContent.AppendLine("<body>");
             htmlContent.AppendLine("<h1>Transaction Log</h1>");
             htmlContent.AppendLine("<table border='1'>");
-            htmlContent.AppendLine("<tr><th>Stock Name</th><th>Type</th><th>Amount</th><th>Total Value</th><th>Date</th><th>Author</th></tr>");
+            htmlContent.AppendLine(
+                "<tr>" +
+                "<th>Stock Name</th>" +
+                "<th>Type</th>" +
+                "<th>Amount</th>" +
+                "<th>Total Value</th>" +
+                "<th>Date</th>" +
+                "<th>Author</th>" +
+                "</tr>");
 
             // Add each transaction as a table row
             foreach (var transaction in transactions)
