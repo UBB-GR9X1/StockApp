@@ -36,10 +36,7 @@
             catch (SqlException ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error checking database existence: {ex.Message}");
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Unexpected error: {ex.Message}");
+                throw;
             }
 
             if (!databaseExists)
@@ -93,14 +90,12 @@
             catch (FileNotFoundException ex)
             {
                 System.Diagnostics.Debug.WriteLine($"SQL script file not found: {ex.Message}");
+                throw;
             }
             catch (SqlException ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error checking table existence: {ex.Message}");
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Unexpected error: {ex.Message}");
+                throw;
             }
 
             return false;
@@ -127,14 +122,12 @@
             catch (FileNotFoundException ex)
             {
                 System.Diagnostics.Debug.WriteLine($"SQL script file not found: {ex.Message}");
+                throw;
             }
             catch (SqlException ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error resetting database: {ex.Message}");
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Unexpected error: {ex.Message}");
+                throw;
             }
         }
 
@@ -153,14 +146,12 @@
             catch (FileNotFoundException ex)
             {
                 System.Diagnostics.Debug.WriteLine($"SQL script file not found: {ex.Message}");
+                throw;
             }
             catch (SqlException ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error creating tables: {ex.Message}");
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Unexpected error: {ex.Message}");
+                throw;
             }
         }
 

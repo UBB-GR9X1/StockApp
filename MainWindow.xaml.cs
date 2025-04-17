@@ -1,17 +1,15 @@
-using System;
-using System.Collections.Generic;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Navigation;
-using StockApp.Database;
-using StockApp.Models;
-using StockApp.Repository;
-using StockApp.Service;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
-
 namespace StockApp
 {
+    using System;
+    using System.Collections.Generic;
+    using Microsoft.UI.Xaml;
+    using Microsoft.UI.Xaml.Navigation;
+    using StockApp.Database;
+    using StockApp.Models;
+    using StockApp.Repositories;
+    using StockApp.Services;
+    using StockApp.Views;
+
     /// <summary>
     /// An empty window that can be used on its own or navigated to within a Frame.
     /// </summary>
@@ -33,7 +31,7 @@ namespace StockApp
 
             // rootFrame.Navigate(typeof(CreateStockPage.MainPage), null);
 
-            rootFrame.Navigate(typeof(StocksHomepage.MainPage), null);
+            rootFrame.Navigate(typeof(HomepageView), null);
             NavigationService.Initialize(rootFrame);
 
             // string stockName = "Tesla";
@@ -73,12 +71,12 @@ namespace StockApp
             }
             else
             {
-                rootFrame.Navigate(typeof(StocksHomepage.MainPage), null);
+                rootFrame.Navigate(typeof(HomepageView), null);
             }
         }
         private void DisplayTriggeredAlerts(List<TriggeredAlert> triggeredAlerts)
         {
-            rootFrame.Navigate(typeof(Alerts.AlertWindow), triggeredAlerts);
+            rootFrame.Navigate(typeof(AlertsView), triggeredAlerts);
         }
 
         void OnNavigationFailed(object sender, NavigationFailedEventArgs e)
