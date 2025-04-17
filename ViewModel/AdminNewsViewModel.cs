@@ -15,11 +15,11 @@
 
     public class AdminNewsViewModel : ViewModelBase
     {
-        private readonly NewsService _newsService;
+        private readonly INewsService _newsService;
         private readonly DispatcherQueue _dispatcherQueue;
 
-        private ObservableCollection<UserArticle> _userArticles = new();
-        public ObservableCollection<UserArticle> UserArticles
+        private ObservableCollection<IUserArticle> _userArticles = new();
+        public ObservableCollection<IUserArticle> UserArticles
         {
             get => _userArticles;
             set => SetProperty(ref _userArticles, value);
@@ -72,8 +72,8 @@
             }
         }
 
-        private UserArticle _selectedArticle;
-        public UserArticle SelectedArticle
+        private IUserArticle _selectedArticle;
+        public IUserArticle SelectedArticle
         {
             get => _selectedArticle;
             set
@@ -176,7 +176,7 @@
             }
         }
 
-        private void NavigateToPreview(UserArticle article)
+        private void NavigateToPreview(IUserArticle article)
         {
             if (article != null)
             {

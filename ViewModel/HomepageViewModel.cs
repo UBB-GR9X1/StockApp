@@ -13,8 +13,8 @@ namespace StockApp.ViewModel
     public class HomepageViewModel : INotifyPropertyChanged
     {
         private readonly HomepageService service;
-        private ObservableCollection<HomepageStock> filteredAllStocks;
-        private ObservableCollection<HomepageStock> filteredFavoriteStocks;
+        private ObservableCollection<IHomepageStock> filteredAllStocks;
+        private ObservableCollection<IHomepageStock> filteredFavoriteStocks;
         private string searchQuery;
         private string selectedSortOption;
         private bool isGuestUser = true;
@@ -25,7 +25,7 @@ namespace StockApp.ViewModel
 
         public ICommand FavoriteCommand { get; }
 
-        public ObservableCollection<HomepageStock> FilteredAllStocks
+        public ObservableCollection<IHomepageStock> FilteredAllStocks
         {
             get => this.filteredAllStocks;
             private set
@@ -35,7 +35,7 @@ namespace StockApp.ViewModel
             }
         }
 
-        public ObservableCollection<HomepageStock> FilteredFavoriteStocks
+        public ObservableCollection<IHomepageStock> FilteredFavoriteStocks
         {
             get => this.filteredFavoriteStocks;
             private set

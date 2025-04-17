@@ -29,7 +29,7 @@
 
         public event Action<string, string> ShowMessageBoxRequested;
 
-        public ObservableCollection<TransactionLogTransaction> Transactions { get; set; } = new ObservableCollection<TransactionLogTransaction>();
+        public ObservableCollection<ITransactionLogTransaction> Transactions { get; set; } = new ObservableCollection<ITransactionLogTransaction>();
 
         public string StockNameFilter
         {

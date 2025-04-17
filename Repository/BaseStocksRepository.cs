@@ -97,6 +97,6 @@
             }
         }
 
-        IReadOnlyList<IBaseStock> GetAllStocks() => [.. this.stocks];
+        public IReadOnlyList<IBaseStock> GetAllStocks() => [.. this.stocks];
     }
 }

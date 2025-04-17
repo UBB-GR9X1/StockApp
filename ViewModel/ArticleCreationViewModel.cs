@@ -17,10 +17,10 @@
 
     public class ArticleCreationViewModel : ViewModelBase
     {
-        private readonly NewsService _newsService;
+        private readonly INewsService _newsService;
         private readonly DispatcherQueue _dispatcherQueue;
-        private readonly AppState _appState;
-        private readonly BaseStocksRepository _stocksRepository = new BaseStocksRepository();
+        private readonly IAppState _appState;
+        private readonly IBaseStocksRepository _stocksRepository = new BaseStocksRepository();
 
         // properties
         private string _title;
@@ -162,7 +162,7 @@
                     Title = Title,
                     Summary = Summary ?? "",
                     Content = Content,
-                    Source = $"User: {_appState.CurrentUser?.CNP ?? "Anonymous"}",
+                    Source = $"User: {_appState.CurrentUser?.Cnp ?? "Anonymous"}",
                     PublishedDate = DateTime.Now.ToString("MMMM dd, yyyy"),
                     IsRead = false,
                     IsWatchlistRelated = false,
@@ -177,7 +177,7 @@
                     Title = Title,
                     Summary = Summary ?? "",
                     Content = Content,
-                    Author = _appState.CurrentUser?.CNP ?? "Anonymous",
+                    Author = _appState.CurrentUser?.Cnp ?? "Anonymous",
                     SubmissionDate = DateTime.Now,
                     Status = "Preview",
                     Topic = SelectedTopic,
@@ -228,7 +228,7 @@
                     Title = Title,
                     Summary = Summary,
                     Content = Content,
-                    Author = _appState.CurrentUser?.CNP ?? "Anonymous",
+                    Author = _appState.CurrentUser?.Cnp ?? "Anonymous",
                     SubmissionDate = DateTime.Now,
                     Status = "Pending",
                     Topic = SelectedTopic,
@@ -390,7 +390,7 @@
                 Title = Title,
                 Summary = Summary,
                 Content = Content,
-                Source = $"User: {_appState.CurrentUser?.CNP ?? "Anonymous"}",
+                Source = $"User: {_appState.CurrentUser?.Cnp ?? "Anonymous"}",
                 PublishedDate = DateTime.Now.ToString("MMMM dd, yyyy"),
                 IsRead = false,
                 IsWatchlistRelated = false,

@@ -13,13 +13,13 @@
 
     public class NewsDetailViewModel : ViewModelBase
     {
-        private readonly NewsService newsService;
+        private readonly INewsService newsService;
         private readonly DispatcherQueue dispatcherQueue;
         private string currentArticleId;
         private bool isPreviewMode;
         private string previewId;
 
-        private NewsArticle article;
+        private INewsArticle article;
         private bool isLoading;
         private bool hasRelatedStocks;
         private bool isAdminPreview;
@@ -27,7 +27,7 @@
         private bool canApprove;
         private bool canReject;
 
-        public NewsArticle Article
+        public INewsArticle Article
         {
             get => article;
             set => SetProperty(ref article, value);

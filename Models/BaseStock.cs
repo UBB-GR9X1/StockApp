@@ -1,6 +1,6 @@
 ﻿namespace StockApp.Models
 {
-    public record class BaseStock : IBaseStock
+    public class BaseStock : IBaseStock
     {
         public string Name { get; }
 

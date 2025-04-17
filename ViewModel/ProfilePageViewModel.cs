@@ -53,7 +53,7 @@
         public string GetDescription() => profServ.GetDescription();
         public bool IsHidden() => profServ.IsHidden();
         public bool IsAdmin() => profServ.IsAdmin();
-        public List<string> GetUserStocks() => profServ.GetUserStocks();
+        public IReadOnlyList<string> GetUserStocks() => profServ.GetUserStocks();
         public string GetPassword() => profServ.GetPass();
 
         public string ExtractMyStockName(string fullStock) => profServ.ExtractStockName(fullStock);
