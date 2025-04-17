@@ -1,6 +1,6 @@
 ﻿namespace StockApp.Models
 {
-    public class Alert()
+    public class Alert : IAlert
     {
         required public int AlertId { get; set; } // Primary Key
 
