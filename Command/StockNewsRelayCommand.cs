@@ -1,25 +1,25 @@
-﻿using System;
-using System.Windows.Input;
-
-namespace StockNewsPage.ViewModels
+﻿namespace StockApp.Command
 {
+    using System;
+    using System.Windows.Input;
+
     public class StockNewsRelayCommand : ICommand
     {
-        private readonly Action _execute;
-        private readonly Func<bool> _canExecute;
+        private readonly Action execute;
+        private readonly Func<bool>? canExecute;
 
         public event EventHandler CanExecuteChanged;
 
-        public StockNewsRelayCommand(Action execute, Func<bool> canExecute = null)
+        public StockNewsRelayCommand(Action execute, Func<bool>? canExecute = null)
         {
-            _execute = execute ?? throw new ArgumentNullException(nameof(execute));
-            _canExecute = canExecute;
+            this.execute = execute ?? throw new ArgumentNullException(nameof(execute));
+            this.canExecute = canExecute;
         }
 
-        public bool CanExecute(object parameter) => _canExecute?.Invoke() ?? true;
+        public bool CanExecute(object parameter) => this.canExecute?.Invoke() ?? true;
 
-        public void Execute(object parameter) => _execute();
+        public void Execute(object parameter) => this.execute();
 
-        public void RaiseCanExecuteChanged() => CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+        public void RaiseCanExecuteChanged() => this.CanExecuteChanged?.Invoke(this, EventArgs.Empty);
     }
 }

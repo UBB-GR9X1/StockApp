@@ -1,31 +1,33 @@
-﻿using System;
-using System.Windows.Input;
-
-namespace StockNewsPage.ViewModels
+﻿namespace StockApp.Command
 {
+    using System;
+    using System.Windows.Input;
+
     public class RelayCommandGeneric<T> : ICommand
     {
-        private readonly Action<T> _execute;
-        private readonly Func<T, bool> _canExecute;
+        private readonly Action<T> execute;
+        private readonly Func<T, bool>? canExecute;
 
         public event EventHandler CanExecuteChanged;
 
-        public RelayCommandGeneric(Action<T> execute, Func<T, bool> canExecute = null)
+        public RelayCommandGeneric(Action<T> execute, Func<T, bool>? canExecute = null)
         {
-            _execute = execute ?? throw new ArgumentNullException(nameof(execute));
-            _canExecute = canExecute;
+            this.execute = execute ?? throw new ArgumentNullException(nameof(execute));
+            this.canExecute = canExecute;
         }
 
         public bool CanExecute(object parameter)
         {
             if (parameter == null && typeof(T).IsValueType)
+            {
                 return false;
+            }
 
-            return _canExecute == null || _canExecute((T)parameter);
+            return this.canExecute == null || this.canExecute((T)parameter);
         }
 
-        public void Execute(object parameter) => _execute((T)parameter);
+        public void Execute(object parameter) => this.execute((T)parameter);
 
-        public void RaiseCanExecuteChanged() => CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+        public void RaiseCanExecuteChanged() => this.CanExecuteChanged?.Invoke(this, EventArgs.Empty);
     }
 }
