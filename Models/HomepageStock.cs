@@ -3,17 +3,17 @@
     using Microsoft.UI;
     using Microsoft.UI.Xaml.Media;
 
-    public class HomepageStock(string symbol, string name, int price, string change, bool isFavorite)
+    public class HomepageStock()
     {
-        public string Symbol { get; set; } = symbol;
+        public string Symbol { get; set; }
 
-        public string Name { get; set; } = name;
+        public string Name { get; set; }
 
-        public int Price { get; set; } = price;
+        public int Price { get; set; }
 
-        public string Change { get; set; } = change;
+        public string Change { get; set; }
 
-        public bool IsFavorite { get; set; } = isFavorite;
+        public bool IsFavorite { get; set; }
 
         public SolidColorBrush ChangeColor => this.Change.StartsWith('+')
                 ? new SolidColorBrush(Colors.Green)

@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using Models;
-using StockApp.Model;
-
-namespace StockApp.Repository
+﻿namespace StockApp.Repository
 {
+    using System;
+    using System.Collections.Generic;
+    using StockApp.Models;
+
     public class MockRepository
     {
         private static MockRepository _instance;

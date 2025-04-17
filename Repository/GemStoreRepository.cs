@@ -1,54 +1,53 @@
-﻿using System;
-using Microsoft.Data.SqlClient;
-using StockApp.Database;
-
-namespace StockApp.Repository
+﻿namespace StockApp.Repository
 {
+    using System;
+    using Microsoft.Data.SqlClient;
+    using StockApp.Database;
+
     internal class GemStoreRepository
     {
-        private SqlConnection dbConnection = DatabaseHelper.Instance.GetConnection();
+        private readonly SqlConnection dbConnection = DatabaseHelper.GetConnection();
 
         public string GetCnp()
         {
             string cnpQuery = "SELECT CNP FROM HARDCODED_CNPS";
-            using (var cnpCommand = new SqlCommand(cnpQuery, dbConnection))
-            {
-                var result = cnpCommand.ExecuteScalar();
-                return result != null ? result.ToString() : string.Empty;
-            }
+            using SqlCommand cnpCommand = new (cnpQuery, this.dbConnection);
+
+            var result = cnpCommand.ExecuteScalar();
+            return result?.ToString() ?? string.Empty;
         }
 
         public int GetUserGemBalance(string cnp)
         {
             string checkQuery = "SELECT GEM_BALANCE FROM [USER] WHERE CNP = @CNP";
-            using (var checkCommand = new SqlCommand(checkQuery, dbConnection))
-            {
-                checkCommand.Parameters.AddWithValue("@CNP", cnp);
-                var result = checkCommand.ExecuteScalar();
-                return result != null ? Convert.ToInt32(result) : 0;
-            }
+
+            using SqlCommand checkCommand = new (checkQuery, this.dbConnection);
+            checkCommand.Parameters.AddWithValue("@CNP", cnp);
+
+            var result = checkCommand.ExecuteScalar();
+            return result != null ? Convert.ToInt32(result) : 0;
         }
 
         public void UpdateUserGemBalance(string cnp, int newBalance)
         {
             string updateQuery = "UPDATE [USER] SET GEM_BALANCE = @NewBalance WHERE CNP = @CNP";
-            using (var updateCommand = new SqlCommand(updateQuery, dbConnection))
-            {
-                updateCommand.Parameters.AddWithValue("@NewBalance", newBalance);
-                updateCommand.Parameters.AddWithValue("@CNP", cnp);
-                updateCommand.ExecuteNonQuery();
-            }
+            using SqlCommand updateCommand = new (updateQuery, this.dbConnection);
+
+            updateCommand.Parameters.AddWithValue("@NewBalance", newBalance);
+            updateCommand.Parameters.AddWithValue("@CNP", cnp);
+
+            updateCommand.ExecuteNonQuery();
         }
 
         public bool IsGuest(string cnp)
         {
             string checkQuery = "SELECT COUNT(*) FROM [USER] WHERE CNP = @CNP";
-            using (var checkCommand = new SqlCommand(checkQuery, dbConnection))
-            {
-                checkCommand.Parameters.AddWithValue("@CNP", cnp);
-                int count = Convert.ToInt32(checkCommand.ExecuteScalar());
-                return count == 0; // not found = guest
-            }
+
+            using SqlCommand checkCommand = new(checkQuery, dbConnection);
+            checkCommand.Parameters.AddWithValue("@CNP", cnp);
+
+            int count = Convert.ToInt32(checkCommand.ExecuteScalar());
+            return count == 0; // not found = guest
         }
     }
 

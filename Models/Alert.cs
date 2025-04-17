@@ -1,17 +1,17 @@
 ﻿namespace StockApp.Models
 {
-    public class Alert(int alertId, string stockName, string name, int upperBound, int lowerBound, bool toggleOnOff)
+    public class Alert()
     {
-        required public int AlertId { get; set; } = alertId; // Primary Key
+        required public int AlertId { get; set; } // Primary Key
 
-        public string StockName { get; set; } = stockName;
+        public string StockName { get; set; }
 
-        public string Name { get; set; } = name;
+        public string Name { get; set; }
 
-        public int UpperBound { get; set; } = upperBound;
+        public decimal UpperBound { get; set; }
 
-        public int LowerBound { get; set; } = lowerBound;
+        public decimal LowerBound { get; set; }
 
-        public bool ToggleOnOff { get; set; } = toggleOnOff;
+        public bool ToggleOnOff { get; set; }
     }
 }

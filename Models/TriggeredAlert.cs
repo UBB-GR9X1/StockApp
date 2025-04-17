@@ -1,9 +1,9 @@
 ﻿namespace StockApp.Models
 {
-    public class TriggeredAlert(string stockName, string message)
+    public class TriggeredAlert()
     {
-        public string StockName { get; set; } = stockName;
+        public string StockName { get; set; }
 
-        public string Message { get; set; } = message;
+        public string Message { get; set; }
     }
 }

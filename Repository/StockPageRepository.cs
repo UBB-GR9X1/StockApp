@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.Data.SqlClient;
-using StockApp.Model;
-
-namespace StockApp.Repository
+﻿namespace StockApp.Repository
 {
+    using System;
+    using System.Collections.Generic;
+    using Microsoft.Data.SqlClient;
+    using StockApp.Models;
+
     public class StockPageRepository
     {
         private Database.DatabaseHelper databaseHelper;

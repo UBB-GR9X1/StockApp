@@ -1,19 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Linq;
-using StockApp.Database;
-using StockApp.Model;
-
-namespace StockApp.Repository
+﻿namespace StockApp.Repository
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Data.SqlClient;
+    using System.Linq;
+    using StockApp.Database;
+    using StockApp.Models;
+
     public class TransactionRepository
     {
         private readonly List<TransactionLogTransaction> transactions = [];
 
         public TransactionRepository()
         {
-            string connectionString = DatabaseHelper.Instance.GetConnection().ConnectionString;
+            string connectionString = DatabaseHelper.GetConnection().ConnectionString;
             string query = @"
             SELECT t.*, s.STOCK_SYMBOL
             FROM USERS_TRANSACTION t
@@ -64,7 +64,7 @@ namespace StockApp.Repository
 
         public void AddTransaction(TransactionLogTransaction transaction)
         {
-            string connectionString = DatabaseHelper.Instance.GetConnection().ConnectionString;
+            string connectionString = DatabaseHelper.GetConnection().ConnectionString;
 
             string insertQuery = @"
                 INSERT INTO USERS_TRANSACTION (STOCK_NAME, TYPE, QUANTITY, PRICE, DATE, USER_CNP)

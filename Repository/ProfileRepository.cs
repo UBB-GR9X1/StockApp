@@ -1,19 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.Data.SqlClient;
-using StockApp.Database;
-
-namespace StockApp.Repository
+﻿namespace StockApp.Repository
 {
+    using System;
+    using System.Collections.Generic;
+    using Microsoft.Data.SqlClient;
+    using StockApp.Database;
+    using StockApp.Models;
+
     public class ProfileRepository
     {
-        private SqlConnection dbConnection = DatabaseHelper.Instance.GetConnection();
+        private SqlConnection dbConnection = DatabaseHelper.GetConnection();
         private string cnp; //the user we are currently working with (idk what to do with it so i set it to "userCNP")
         private string userCNP; //=from data base (active user)
         ///  I HAVE NO IDEA WHAT UR DOING!!!
         private string loggedInUserCNP;
-
-
 
         public ProfileRepository(string author_cnp)
         {
@@ -55,7 +54,7 @@ namespace StockApp.Repository
             return randomUsernames[randomIndex];
         }
 
-        public Model.User CurrentUser()
+        public User CurrentUser()
         {
             string myUsername;
             string getUsernamequery = "SELECT NAME FROM [USER] WHERE CNP = @CNP";
@@ -105,7 +104,7 @@ namespace StockApp.Repository
 
 
             //Model.User existingUser = new Model.User(cnp, "", "", false, "", false); //get info from database
-            Model.User existingUser = new Model.User(cnp, myUsername, myDescription, isA, myImage, isH);
+            User existingUser = new User(cnp, myUsername, myDescription, isA, myImage, isH);
             return existingUser;
         }
 

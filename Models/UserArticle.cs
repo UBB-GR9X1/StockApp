@@ -3,33 +3,24 @@
     using System;
     using System.Collections.Generic;
 
-    public class UserArticle(
-        string articleId,
-        string title,
-        string summary,
-        string content,
-        string author,
-        DateTime submissionDate,
-        string status,
-        string topic,
-        List<string> relatedStocks)
+    public class UserArticle
     {
-        public string ArticleId { get; set; } = articleId;
+        public string ArticleId { get; set; }
 
-        public string Title { get; set; } = title;
+        public string Title { get; set; }
 
-        public string Summary { get; set; } = summary;
+        public string Summary { get; set; }
 
-        public string Content { get; set; } = content;
+        public string Content { get; set; }
 
-        public string Author { get; set; } = author;
+        public string Author { get; set; }
 
-        public DateTime SubmissionDate { get; set; } = submissionDate;
+        public DateTime SubmissionDate { get; set; }
 
-        public string Status { get; set; } = status;
+        public string Status { get; set; }
 
-        public string Topic { get; set; } = topic;
+        public string Topic { get; set; }
 
-        public List<string> RelatedStocks { get; set; } = relatedStocks;
+        public List<string> RelatedStocks { get; set; }
     }
 }
