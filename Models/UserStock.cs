@@ -1,7 +1,17 @@
 ﻿namespace StockApp.Models
 {
-    public class UserStock(string name, string symbol, string author_cnp, int quantity) : BaseStock(name, symbol, author_cnp)
+    public class UserStock : BaseStock, IUserStock
     {
-        public int Quantity { get; set; } = quantity;
+        public int Quantity { get; set; }
+
+        public UserStock(
+            string name,
+            string symbol,
+            string authorCnp,
+            int quantity)
+            : base(name, symbol, authorCnp)
+        {
+            Quantity = quantity;
+        }
     }
 }
