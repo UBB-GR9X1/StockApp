@@ -15,7 +15,7 @@ namespace StockApp.Pages
     /// </summary>
     public sealed partial class StockPage : Page
     {
-        private StockPageViewModel _viewModel;
+        private StockPageViewModel? _viewModel;
 
         ICommand command { get; }
 
@@ -45,11 +45,13 @@ namespace StockApp.Pages
             base.OnNavigatedTo(e);
 
             // Retrieve the stock name passed during navigation
-            if (e.Parameter is string stockName)
+            if (e.Parameter is Stock stockName)
             {
                 _viewModel = new StockPageViewModel(stockName, PriceLabel, IncreaseLabel, OwnedStocks, StockChart);
                 this.DataContext = _viewModel;
+                return;
             }
+            throw new InvalidOperationException("Parameter is not of type Stock");
         }
 
         public void FavoriteButtonClick(object sender, RoutedEventArgs e)

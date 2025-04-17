@@ -22,5 +22,6 @@
             this.repository.UpdateAlert(alertId, stockName, name, upperBound, lowerBound, toggleOnOff);
 
         public void RemoveAlert(int alertId) => this.repository.DeleteAlert(alertId);
+
     }
 }
