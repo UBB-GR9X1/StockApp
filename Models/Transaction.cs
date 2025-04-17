@@ -2,27 +2,36 @@
 {
     using System;
 
-    public class Transaction(
-        string name,
-        string symbol,
-        string author_cnp,
-        string transactionType,
-        int amount,
-        int pricePerStock,
-        int totalValue,
-        DateTime transactionDate,
-        string transactionAuthorCNP) : BaseStock(name, symbol, author_cnp)
+    public class Transaction : BaseStock, ITransaction
     {
-        public string TransactionType { get; set; } = transactionType;
+        public string TransactionType { get; set; }
 
-        public int Amount { get; set; } = amount;
+        public int Amount { get; set; }
 
-        public int PricePerStock { get; set; } = pricePerStock;
+        public int PricePerStock { get; set; }
 
-        public int TotalValue { get; set; } = totalValue;
+        public int TotalValue => Amount * PricePerStock;
 
-        public DateTime TransactionDate { get; set; } = transactionDate;
+        public DateTime TransactionDate { get; set; }
 
-        public string TransactionAuthorCNP { get; set; } = transactionAuthorCNP;
+        public string TransactionAuthorCnp { get; set; }
+
+        public Transaction(
+            string name,
+            string symbol,
+            string authorCnp,
+            string transactionType,
+            int amount,
+            int pricePerStock,
+            DateTime transactionDate,
+            string transactionAuthorCnp)
+            : base(name, symbol, authorCnp)
+        {
+            TransactionType = transactionType;
+            Amount = amount;
+            PricePerStock = pricePerStock;
+            TransactionDate = transactionDate;
+            TransactionAuthorCnp = transactionAuthorCnp;
+        }
     }
 }
