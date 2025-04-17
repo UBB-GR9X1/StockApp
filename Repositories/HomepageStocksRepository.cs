@@ -1,233 +1,209 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.SQLite;
-using System.Windows.Forms;
-using StocksHomepage.Model;
-using StockApp.Database;
-using Microsoft.Data.SqlClient;
-using System.Linq;
-
-namespace StocksHomepage.Repositories
+﻿namespace StockApp.Repositories
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using Microsoft.Data.SqlClient;
+    using Microsoft.IdentityModel.Tokens;
+    using StockApp.Database;
+    using StockApp.Models;
+
     internal class HomepageStocksRepository
     {
-        private SqlConnection dbConnection = DatabaseHelper.Instance.GetConnection();
-        private string userCNP;
-
-        public string getCNP()
+        private string _UserCNP;
+        private string UserCNP
         {
-            return this.userCNP;
-        }
-
-        public List<int> GetStockHistory(string stockName)
-        {
-            using (SqlCommand getStock = new SqlCommand("SELECT PRICE FROM STOCK_VALUE WHERE STOCK_NAME = @name ORDER BY STOCK_VALUE_ID", dbConnection))
+            get => _UserCNP;
+            set
             {
-                getStock.Parameters.AddWithValue("@name", stockName);
-
-                using (SqlDataReader reader = getStock.ExecuteReader())
+                _UserCNP = value;
+                if (string.IsNullOrEmpty(_UserCNP))
                 {
-                    List<int> stock_values = new List<int>();
-                    while (reader.Read())
-                    {
-                        stock_values.Add(Convert.ToInt32(reader["PRICE"]));
-                    }
-                    return stock_values;
+                    throw new ArgumentNullException(nameof(UserCNP), "CNP cannot be null or empty.");
                 }
+                this.LoadStocks();
             }
         }
+
         public HomepageStocksRepository()
         {
-            this.userCNP = GetUserCNP();
-            Console.WriteLine("User CNP: " + userCNP);
-            Console.WriteLine("IsGuestUser: " + IsGuestUser(userCNP));
-            LoadStocks();
-        }
-        public bool IsGuestUser(string userCNP)
-        {
-            string query = "SELECT COUNT(*) FROM [USER] WHERE CNP = @UserCNP";
-            using (var command = new SqlCommand(query, dbConnection))
-            {
-                command.Parameters.AddWithValue("@UserCNP", userCNP);
-                int count = (int)command.ExecuteScalar();
-                Console.WriteLine("Count: " + count);
-                return count == 0; 
-            }
-        }
-        
-        public string GetUserCNP()
-        {
-
+            // TODO: don't just load a mock user
             string query = "SELECT TOP 1 CNP FROM HARDCODED_CNPS ORDER BY CNP DESC";
 
-                using (var command = new SqlCommand(query, dbConnection))
-                {
-                    command.ExecuteNonQuery();
-                    using (var reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            return reader["CNP"].ToString();
-                        }
-                    }
-                }
-                return null;
-        }
-
-        public List<HomepageStock> LoadStocks()
-        {
-            List<HomepageStock> stocks = new List<HomepageStock>();
-            Dictionary<string, List<int>> allStockHistories = new Dictionary<string, List<int>>();
-
-            // First, get all stock histories in one go
-            string historyQuery = "SELECT STOCK_NAME, PRICE FROM STOCK_VALUE ORDER BY STOCK_NAME, STOCK_VALUE_ID";
-            using (var historyCommand = new SqlCommand(historyQuery, dbConnection))
+            using (var command = new SqlCommand(query, DatabaseHelper.GetConnection()))
             {
-                using (var historyReader = historyCommand.ExecuteReader())
-                {
-                    string currentStock = null;
-                    List<int> currentPrices = null;
-
-                    while (historyReader.Read())
-                    {
-                        string stockName = historyReader["STOCK_NAME"].ToString();
-                        int price = Convert.ToInt32(historyReader["PRICE"]);
-
-                        if (currentStock != stockName)
-                        {
-                            if (currentStock != null)
-                            {
-                                allStockHistories[currentStock] = currentPrices;
-                            }
-                            currentStock = stockName;
-                            currentPrices = new List<int>();
-                        }
-
-                        currentPrices.Add(price);
-                    }
-
-                    // Add the last stock
-                    if (currentStock != null)
-                    {
-                        allStockHistories[currentStock] = currentPrices;
-                    }
-                }
-            }
-
-            // Now get all stocks info
-            string stocksQuery = @"
-                                    SELECT 
-                                        s.STOCK_NAME, 
-                                        s.STOCK_SYMBOL,
-                                        MAX(COALESCE(f.IS_FAVORITE, 0)) AS IS_FAVORITE
-                                    FROM STOCK s
-                                    LEFT JOIN FAVORITE_STOCK f ON s.STOCK_NAME = f.STOCK_NAME AND f.USER_CNP = @UserCNP
-                                    GROUP BY s.STOCK_NAME, s.STOCK_SYMBOL";
-
-            using (var command = new SqlCommand(stocksQuery, dbConnection))
-            {
-                command.Parameters.AddWithValue("@UserCNP", userCNP);
+                command.ExecuteNonQuery();
                 using (var reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
-                        var stockName = reader["STOCK_NAME"]?.ToString();
-                        var stockSymbol = reader["STOCK_SYMBOL"]?.ToString();
-                        var isFavorite = Convert.ToInt32(reader["IS_FAVORITE"]) == 1;
-
-                        // Get stock history from dict
-                        List<int> stockHistory = allStockHistories.ContainsKey(stockName)
-                            ? allStockHistories[stockName]
-                            : new List<int>();
-
-                        // Calculate price and change percentage
-                        int currentPrice = 0;
-                        string changePercentage = "0%";
-
-                        if (stockHistory.Count > 0)
-                        {
-                            currentPrice = stockHistory.Last();
-
-                            if (stockHistory.Count > 1)
-                            {
-                                int previousPrice = stockHistory[stockHistory.Count - 2];
-                                if (previousPrice > 0) 
-                                {
-                                    int increasePerc = ((currentPrice - previousPrice) * 100) / previousPrice;
-                                    changePercentage = (increasePerc >= 0 ? "+" : "") + increasePerc.ToString() + "%";
-                                }
-                            }
-                        }
-
-                        var stock = new HomepageStock
-                        {
-                            Symbol = stockSymbol,
-                            Name = stockName,
-                            Price = currentPrice,
-                            Change = changePercentage,
-                            isFavorite = isFavorite
-                        };
-
-                        stocks.Add(stock);
+                        this.UserCNP = reader["CNP"].ToString() ?? throw new Exception("No CNP found in HARDCODED_CNPS table.");
+                        return;
                     }
                 }
             }
 
-            return stocks;
+            throw new InvalidOperationException("No hardcoded CNP found in the database");
+        }
+
+        public List<int> GetStockHistory(string stockName)
+        {
+            const string query = "SELECT PRICE FROM STOCK_VALUE WHERE STOCK_NAME = @name ORDER BY STOCK_VALUE_ID";
+            return this.ExecuteReader(query, command => command.Parameters.AddWithValue("@name", stockName),
+                reader => Convert.ToInt32(reader["PRICE"]));
+        }
+
+        public bool IsGuestUser(string userCNP)
+        {
+            if (userCNP.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(userCNP), "CNP cannot be null or empty.");
+            const string query = "SELECT COUNT(*) FROM [USER] WHERE CNP = @UserCNP";
+            return this.ExecuteScalar<int>(query, command => command.Parameters.AddWithValue("@UserCNP", userCNP)) == 0;
+        }
+
+        public string GetUserCnp()
+        {
+            const string query = "SELECT TOP 1 CNP FROM HARDCODED_CNPS ORDER BY CNP DESC";
+            var cnps = this.ExecuteReader(query, null, reader => reader["CNP"]?.ToString());
+            return cnps.FirstOrDefault() ?? throw new Exception("No CNP found in HARDCODED_CNPS table.");
+        }
+
+        public List<HomepageStock> LoadStocks()
+        {
+            // Fetch stock histories
+            const string historyQuery = "SELECT STOCK_NAME, PRICE FROM STOCK_VALUE ORDER BY STOCK_NAME, STOCK_VALUE_ID";
+            var allStockHistories = new Dictionary<string, List<int>>();
+
+            var historyResults = this.ExecuteReader(historyQuery, null, reader => new
+            {
+                StockName = reader["STOCK_NAME"].ToString(),
+                Price = Convert.ToInt32(reader["PRICE"])
+            });
+
+            foreach (var group in historyResults.GroupBy(h => h.StockName))
+            {
+                allStockHistories[group.Key] = group.Select(g => g.Price).ToList();
+            }
+
+            // Fetch stock info
+            const string stocksQuery = @"
+                SELECT 
+                    s.STOCK_NAME,
+                    s.STOCK_SYMBOL,
+                    MAX(COALESCE(f.IS_FAVORITE, 0)) AS IS_FAVORITE
+                FROM STOCK s
+                LEFT JOIN FAVORITE_STOCK f ON s.STOCK_NAME = f.STOCK_NAME AND f.USER_CNP = @UserCNP
+                GROUP BY s.STOCK_NAME, s.STOCK_SYMBOL";
+
+            return this.ExecuteReader(
+                stocksQuery,
+                command => command.Parameters.AddWithValue("@UserCNP", this.UserCNP),
+                reader =>
+                {
+                    var stockName = reader["STOCK_NAME"]?.ToString();
+                    var stockSymbol = reader["STOCK_SYMBOL"]?.ToString();
+                    var isFavorite = Convert.ToInt32(reader["IS_FAVORITE"]) == 1;
+
+                    var stockHistory = allStockHistories.TryGetValue(stockName, out var history) ? history : [];
+                    var currentPrice = stockHistory.LastOrDefault();
+                    var previousPrice = stockHistory.Count > 1 ? stockHistory[stockHistory.Count - 2] : 0;
+                    var changePercentage = previousPrice > 0
+                        ? $"{((currentPrice - previousPrice) * 100) / previousPrice:+0;-0}%"
+                        : "0%";
+
+                    return new HomepageStock
+                    {
+                        Symbol = stockSymbol,
+                        Name = stockName,
+                        Price = currentPrice,
+                        Change = changePercentage,
+                        IsFavorite = isFavorite
+                    };
+                });
         }
 
         public void AddToFavorites(HomepageStock stock)
         {
-            var query = "INSERT INTO FAVORITE_STOCK (USER_CNP, STOCK_NAME, IS_FAVORITE) VALUES (@UserCNP, @Name, 1)";
-            using (var command = new SqlCommand(query, dbConnection))
+            const string query = "INSERT INTO FAVORITE_STOCK (USER_CNP, STOCK_NAME, IS_FAVORITE) VALUES (@UserCNP, @Name, 1)";
+            this.ExecuteSql(query, command =>
             {
-                command.Parameters.AddWithValue("@UserCNP", userCNP);
+                command.Parameters.AddWithValue("@UserCNP", this.UserCNP);
                 command.Parameters.AddWithValue("@Name", stock.Name);
-                command.ExecuteNonQuery();
-            }
+            });
         }
 
         public void RemoveFromFavorites(HomepageStock stock)
         {
-            var query = "DELETE FROM FAVORITE_STOCK WHERE USER_CNP = @UserCNP AND STOCK_NAME = @Name";
-            using (var command = new SqlCommand(query, dbConnection))
+            const string query = "DELETE FROM FAVORITE_STOCK WHERE USER_CNP = @UserCNP AND STOCK_NAME = @Name";
+            this.ExecuteSql(query, command =>
             {
-                command.Parameters.AddWithValue("@UserCNP", userCNP);
+                command.Parameters.AddWithValue("@UserCNP", this.UserCNP);
                 command.Parameters.AddWithValue("@Name", stock.Name);
-                command.ExecuteNonQuery();
-            }
+            });
         }
 
         public void CreateUserProfile()
         {
-            
-            string currentCNP = userCNP;
-            List<String> names = new List<string>
+            var names = new List<string>
             {
                 "storm", "shadow", "blaze", "nova", "ember", "frost", "zephyr", "luna", "onyx", "raven",
                 "viper", "echo", "skye", "falcon", "titan", "phoenix", "cobra", "ghost", "venom", "dusk",
                 "wraith", "flare", "night", "rogue", "drift", "glitch", "shade", "pulse", "crimson",
                 "hazard", "orbit", "quake", "rune", "saber", "thorn", "vortex", "zodiac", "howl", "jett"
             };
-            Random random = new Random();
-            string name = names[random.Next(names.Count)];
-            int number = random.Next(1000, 10000);
-            string randomUsername = $"{name}_{number}";
 
-            string userQuery = "INSERT INTO [USER] (CNP, NAME, DESCRIPTION, IS_HIDDEN, IS_ADMIN, PROFILE_PICTURE, GEM_BALANCE) VALUES(@CNP, @Name, @Description, @IsHidden, @IsAdmin, @ProfilePicture, @GemBalance)";
+            var random = new Random();
+            var randomUsername = $"{names[random.Next(names.Count)]}_{random.Next(1000, 10000)}";
 
-            using (var command = new SqlCommand(userQuery, dbConnection))
+            const string query = @"
+                INSERT INTO [USER] 
+                (CNP, NAME, DESCRIPTION, IS_HIDDEN, IS_ADMIN, PROFILE_PICTURE, GEM_BALANCE)
+                VALUES 
+                (@CNP, @Name, @Description, @IsHidden, @IsAdmin, @ProfilePicture, @GemBalance)";
+
+            this.ExecuteSql(query, command =>
             {
-                command.Parameters.AddWithValue("@CNP", currentCNP);
-                command.Parameters.AddWithValue("@Name", randomUsername);  
+                command.Parameters.AddWithValue("@CNP", this.UserCNP);
+                command.Parameters.AddWithValue("@Name", randomUsername);
                 command.Parameters.AddWithValue("@Description", "Default User Description");
-                command.Parameters.AddWithValue("@IsHidden", false);  
-                command.Parameters.AddWithValue("@IsAdmin", false);   
-                command.Parameters.AddWithValue("@ProfilePicture", "https://cdn.discordapp.com/attachments/1309495559085756436/1358378808440389854/defaultProfilePicture.png?ex=67f3a059&is=67f24ed9&hm=674641524bcc24a5fadfde6b087bf550b147c9ec9d81f81e4b0447f69624cb55&");
-                command.Parameters.AddWithValue("@GemBalance", 0);  
-                command.ExecuteNonQuery();
-            }
+                command.Parameters.AddWithValue("@IsHidden", false);
+                command.Parameters.AddWithValue("@IsAdmin", false);
+                command.Parameters.AddWithValue("@ProfilePicture", "https://cdn.discordapp.com/attachments/1309495559085756436/1358378808440389854/defaultProfilePicture.png");
+                command.Parameters.AddWithValue("@GemBalance", 0);
+            });
         }
 
+        // Helper: Execute a SQL query with parameters
+        private void ExecuteSql(string query, Action<SqlCommand> parameterize)
+        {
+            using var command = new SqlCommand(query, DatabaseHelper.GetConnection());
+            parameterize?.Invoke(command);
+            command.ExecuteNonQuery();
+        }
+
+        // Helper: Execute a query and return a scalar value
+        private T ExecuteScalar<T>(string query, Action<SqlCommand> parameterize)
+        {
+            using var command = new SqlCommand(query, DatabaseHelper.GetConnection());
+            parameterize?.Invoke(command);
+            return (T)Convert.ChangeType(command.ExecuteScalar(), typeof(T));
+        }
+
+        // Helper: Execute and map SQL data reader results
+        private List<T> ExecuteReader<T>(string query, Action<SqlCommand> parameterize, Func<SqlDataReader, T> map)
+        {
+            using SqlCommand command = new(query, DatabaseHelper.GetConnection());
+            parameterize?.Invoke(command);
+
+            using var reader = command.ExecuteReader();
+            List<T> results = [];
+
+            while (reader.Read())
+            {
+                results.Add(map(reader));
+            }
+
+            return results;
+        }
     }
 }
