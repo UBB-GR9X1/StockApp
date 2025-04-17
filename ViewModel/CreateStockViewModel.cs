@@ -1,16 +1,16 @@
-﻿using GemStore;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using StockApp.Command;
-using StockApp.Service;
-using System;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
-using System.Windows.Input;
-
-namespace StockApp.ViewModel
+﻿namespace StockApp.ViewModel
 {
+    using System;
+    using System.ComponentModel;
+    using System.Runtime.CompilerServices;
+    using System.Text.RegularExpressions;
+    using System.Windows.Input;
+    using GemStore;
+    using Microsoft.UI.Xaml;
+    using Microsoft.UI.Xaml.Controls;
+    using StockApp.Command;
+    using StockApp.Service;
+
     internal class CreateStockViewModel : INotifyPropertyChanged
     {
         private string _stockName;

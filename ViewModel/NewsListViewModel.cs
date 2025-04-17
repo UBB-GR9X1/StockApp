@@ -1,22 +1,22 @@
-﻿using Microsoft.UI.Dispatching;
-using Microsoft.UI.Xaml.Controls;
-using StockNewsPage.Views;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using StockApp;
-using StockNewsPage;
-using StockApp.Model;
-using StockApp.Service;
-
-namespace StockNewsPage.ViewModels
+﻿namespace StockNewsPage.ViewModels
 {
-    public class ViewModel : ViewModelBase
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.ComponentModel;
+    using System.Linq;
+    using System.Runtime.CompilerServices;
+    using System.Threading.Tasks;
+    using System.Windows.Input;
+    using Microsoft.UI.Dispatching;
+    using Microsoft.UI.Xaml.Controls;
+    using StockApp;
+    using StockApp.Models;
+    using StockApp.Service;
+    using StockNewsPage;
+    using StockNewsPage.Views;
+
+    public class NewsListViewModel : ViewModelBase
     {
         private readonly NewsService _newsService;
         private readonly DispatcherQueue _dispatcherQueue;
@@ -99,8 +99,8 @@ namespace StockNewsPage.ViewModels
         }
 
         // user and auth properties
-        private StockApp.Model.User _currentUser;
-        public StockApp.Model.User CurrentUser
+        private User _currentUser;
+        public User CurrentUser
         {
             get => _currentUser;
             set

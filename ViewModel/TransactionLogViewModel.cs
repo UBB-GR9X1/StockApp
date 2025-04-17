@@ -1,17 +1,17 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using Microsoft.UI.Xaml.Controls;
-using StockApp.Model;
-using StockApp.Service;
-
-namespace StockApp.ViewModel
+﻿namespace StockApp.ViewModel
 {
-    public class ViewModel : INotifyPropertyChanged
+    using System;
+    using System.Collections.ObjectModel;
+    using System.ComponentModel;
+    using System.IO;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using System.Windows.Input;
+    using Microsoft.UI.Xaml.Controls;
+    using StockApp.Models;
+    using StockApp.Service;
+
+    public class TransactionLogViewModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 

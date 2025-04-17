@@ -1,22 +1,22 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Windows.Input;
-using System;
-using System.Linq;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml;
-using System.Diagnostics;
-using System.Xml.Linq;
-using StockApp.Model;
-using StockApp.Service;
-
-// return new global::StocksHomepage.Model.Stock { Change="", isFavorite=false, Name="", Price="", Symbol="" };
+﻿// return new global::StocksHomepage.Model.Stock { Change="", isFavorite=false, Name="", Price="", Symbol="" };
 
 namespace StockApp.ViewModel
 {
-    public class HomePageViewModel : INotifyPropertyChanged
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.ComponentModel;
+    using System.Diagnostics;
+    using System.Linq;
+    using System.Runtime.CompilerServices;
+    using System.Windows.Input;
+    using System.Xml.Linq;
+    using Microsoft.UI.Xaml;
+    using Microsoft.UI.Xaml.Controls;
+    using StockApp.Models;
+    using StockApp.Service;
+
+    public class HomepageViewModel : INotifyPropertyChanged
     {
         private HomePageService _service;
         private ObservableCollection<HomepageStock> _filteredAllStocks;
@@ -166,7 +166,7 @@ namespace StockApp.ViewModel
 
         public void ToggleFavorite(HomepageStock stock)
         {
-            if (stock.isFavorite)
+            if (stock.IsFavorite)
             {
                 _service.RemoveFromFavorites(stock);
                 RefreshStocks();

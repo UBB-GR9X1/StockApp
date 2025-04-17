@@ -1,19 +1,18 @@
-﻿using Microsoft.UI.Dispatching;
-using Microsoft.UI.Xaml.Controls;
-using System;
-using System.ComponentModel;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using StockApp;
-using StockApp.Model;
-using StockApp.Service;
-using System.Collections.Generic;
-
-namespace StockNewsPage.ViewModels
+﻿namespace StockNewsPage.ViewModels
 {
-    public class ModelView : ViewModelBase
+    using System;
+    using System.ComponentModel;
+    using System.Linq;
+    using System.Runtime.CompilerServices;
+    using System.Threading.Tasks;
+    using System.Windows.Input;
+    using Microsoft.UI.Dispatching;
+    using Microsoft.UI.Xaml.Controls;
+    using StockApp;
+    using StockApp.Models;
+    using StockApp.Service;
+
+    public class NewsDetailViewModel : ViewModelBase
     {
         private readonly NewsService _newsService;
         private readonly DispatcherQueue _dispatcherQueue;

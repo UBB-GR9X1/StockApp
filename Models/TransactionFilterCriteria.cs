@@ -2,25 +2,19 @@
 {
     using System;
 
-    public class TransactionFilterCriteria(
-        string? stockName,
-        string? type,
-        int? minTotalValue,
-        int? maxTotalValue,
-        DateTime? startDate,
-        DateTime? endDate)
+    public class TransactionFilterCriteria
     {
-        public string? StockName { get; set; } = stockName;
+        public string? StockName { get; set; }
 
-        public string? Type { get; set; } = type;
+        public string? Type { get; set; }
 
-        public int? MinTotalValue { get; set; } = minTotalValue;
+        public int? MinTotalValue { get; set; }
 
-        public int? MaxTotalValue { get; set; } = maxTotalValue;
+        public int? MaxTotalValue { get; set; }
 
-        public DateTime? StartDate { get; set; } = startDate;
+        public DateTime? StartDate { get; set; }
 
-        public DateTime? EndDate { get; set; } = endDate;
+        public DateTime? EndDate { get; set; }
 
         public void Validate()
         {

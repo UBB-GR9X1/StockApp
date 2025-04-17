@@ -1,19 +1,19 @@
-﻿using Microsoft.UI.Dispatching;
-using Microsoft.UI.Xaml.Controls;
-using StockNewsPage.Views;
-using System;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using StockApp;
-using StockApp.Model;
-using StockApp.Service;
-
-namespace StockNewsPage.ViewModels
+﻿namespace StockNewsPage.ViewModels
 {
+    using System;
+    using System.Collections.ObjectModel;
+    using System.ComponentModel;
+    using System.Linq;
+    using System.Runtime.CompilerServices;
+    using System.Threading.Tasks;
+    using System.Windows.Input;
+    using Microsoft.UI.Dispatching;
+    using Microsoft.UI.Xaml.Controls;
+    using StockApp;
+    using StockApp.Models;
+    using StockApp.Service;
+    using StockNewsPage.Views;
+
     public class AdminNewsViewModel : ViewModelBase
     {
         private readonly NewsService _newsService;

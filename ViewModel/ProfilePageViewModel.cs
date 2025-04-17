@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using Microsoft.UI.Xaml.Media.Imaging;
-using StockApp.Service;
-
-namespace StockApp.ViewModel
+﻿namespace StockApp.ViewModel
 {
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel;
+    using Microsoft.UI.Xaml.Media.Imaging;
+    using StockApp.Service;
+
     internal class ProfilePageViewModel : INotifyPropertyChanged
     {
         private ProfieServices profServ;

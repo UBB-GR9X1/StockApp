@@ -1,18 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using Catel.Services;
-using Microsoft.UI.Xaml;
-using StockApp.Model;
-using StockApp.Service;
-
-
-namespace StockApp.ViewModel
+﻿namespace StockApp.ViewModel
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.ComponentModel;
+    using System.Linq;
+    using System.Runtime.CompilerServices;
+    using System.Threading.Tasks;
+    using Catel.Services;
+    using Microsoft.UI.Xaml;
+    using StockApp.Models;
+    using StockApp.Service;
+
     public class StoreViewModel : INotifyPropertyChanged
     {
         private readonly StoreService storeService = new StoreService();
