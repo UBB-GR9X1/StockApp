@@ -6,6 +6,7 @@ using StockApp.Service;
 using StockApp.StockPage;
 using StockApp.ViewModel;
 using StockNewsPage.ViewModels;
+using System;
 
 namespace StocksApp
 {
@@ -88,23 +89,23 @@ namespace StocksApp
 
         public void GoToStockButton(object sender, RoutedEventArgs e)
         {
-            string selectedStock = (string)StocksListView.SelectedItem;
-            string stockName = viewModel.ExtractMyStockName(selectedStock);
-            if (stockName is string myStock)
-            {
-                NavigationService.Instance.Initialize(this.Frame);
-                NavigationService.Instance.Navigate(typeof(StockPage), myStock);
-            }
+            if (StocksListView.SelectedItem is not string selectedStock)
+                throw new InvalidOperationException("No stock selected");
+
+            string stockName = viewModel.ExtractMyStockName(selectedStock) 
+                ?? throw new InvalidOperationException("Could not extract stock name");
+
+            NavigationService.Instance.Initialize(this.Frame);
+            NavigationService.Instance.Navigate(typeof(StockPage), stockName);
         }
 
         public void GoToStock(object sender, ItemClickEventArgs e)
         {
-            if (e.ClickedItem is string myStock)
-            {
-                // this.Frame.Navigate(typeof(StockPage), null);
-                NavigationService.Instance.Initialize(this.Frame);
-                NavigationService.Instance.Navigate(typeof(StockPage), myStock);
-            }
+            if (e.ClickedItem is not string myStock)
+                throw new InvalidOperationException("Clicked item is not a valid stock");
+
+            NavigationService.Instance.Initialize(this.Frame);
+            NavigationService.Instance.Navigate(typeof(StockPage), myStock);
         }
 
 

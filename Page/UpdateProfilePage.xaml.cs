@@ -50,14 +50,17 @@ namespace StocksApp
 
         private async void UpdateUserProfile(object sender, RoutedEventArgs e)
         {
-            bool DescriptionEmpty = MyDescriptionCheckBox.IsChecked == true;
-            bool newHidden = MyCheckBox.IsChecked == true;
-            string newUsername = UsernameInput.Text;
-            string newImage = ImageInput.Text;
-            string newDescription = DescriptionInput.Text;
+            if (viewModelUpdate == null)
+                throw new InvalidOperationException("ViewModel is not initialized");
+
+            bool DescriptionEmpty = MyDescriptionCheckBox?.IsChecked == true;
+            bool newHidden = MyCheckBox?.IsChecked == true;
+            string newUsername = UsernameInput?.Text ?? string.Empty;
+            string newImage = ImageInput?.Text ?? string.Empty;
+            string newDescription = DescriptionInput?.Text ?? string.Empty;
 
             if (string.IsNullOrEmpty(newUsername) && string.IsNullOrEmpty(newImage) && string.IsNullOrEmpty(newDescription)
-                && (MyCheckBox.IsChecked == false && viewModelUpdate.IsHidden()==false) && MyDescriptionCheckBox.IsChecked == false)
+                && (MyCheckBox?.IsChecked == false && viewModelUpdate.IsHidden() == false) && MyDescriptionCheckBox?.IsChecked == false)
             {
                 await ShowErrorDialog("Please fill up at least one of the information fields");
                 return;
@@ -69,30 +72,29 @@ namespace StocksApp
                 return;
             }
 
-            if(newDescription.Length > 100)
+            if (newDescription.Length > 100)
             {
                 await ShowErrorDialog("The description should be max 100 characters long.");
                 return;
             }
 
-            if (newUsername.Length == 0)
+            if (string.IsNullOrEmpty(newUsername))
             {
-                newUsername = viewModelUpdate.GetUsername();    
+                newUsername = viewModelUpdate.GetUsername() ?? throw new InvalidOperationException("Username cannot be null");
             }
 
-            if(DescriptionEmpty == false)
+            if (!DescriptionEmpty)
             {
-                newDescription = viewModelUpdate.GetDescription();
+                newDescription = viewModelUpdate.GetDescription() ?? string.Empty;
             }
 
-            if(newImage.Length == 0)
+            if (string.IsNullOrEmpty(newImage))
             {
-                newImage = viewModelUpdate.GetImage();
+                newImage = viewModelUpdate.GetImage() ?? throw new InvalidOperationException("Image cannot be null");
             }
-
-            else if(DescriptionEmpty == true)
+            else if (DescriptionEmpty)
             {
-                newDescription = "";
+                newDescription = string.Empty;
             }
 
             viewModelUpdate.UpdateAll(newUsername, newImage, newDescription, newHidden);

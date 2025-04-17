@@ -47,15 +47,11 @@ namespace StockApp.Service
 
         public async Task<NewsArticle> GetNewsArticleByIdAsync(string articleId)
         {
-            // Check if this is a preview article and extract the actual ID
-            string lookupId = articleId;
-            if (articleId.StartsWith("preview:"))
-            {
-                lookupId = articleId.Substring(8); // Remove "preview:" prefix
-            }
+            if (string.IsNullOrWhiteSpace(articleId))
+                throw new ArgumentNullException(nameof(articleId));
 
             // First check if this is a preview article using the correct lookup ID
-            if (_previewArticles.TryGetValue(lookupId, out var previewArticle))
+            if (_previewArticles.TryGetValue(articleId, out var previewArticle))
             {
                 return previewArticle;
             }
@@ -64,17 +60,22 @@ namespace StockApp.Service
 
             try
             {
-                return await Task.Run(() => _repository.GetNewsArticleById(lookupId));
+                var article = await Task.Run(() => _repository.GetNewsArticleById(articleId));
+                return article ?? throw new KeyNotFoundException($"Article with ID {articleId} not found");
             }
             catch
             {
                 var mockArticles = _repository.GetAllNewsArticles();
-                return mockArticles.FirstOrDefault(a => a.ArticleId == lookupId);
+                return mockArticles.FirstOrDefault(a => a.ArticleId == articleId) 
+                    ?? throw new KeyNotFoundException($"Article with ID {articleId} not found");
             }
         }
 
         public async Task<bool> MarkArticleAsReadAsync(string articleId)
         {
+            if (string.IsNullOrWhiteSpace(articleId))
+                throw new ArgumentNullException(nameof(articleId));
+
             await Task.Delay(100);
 
             try
@@ -90,7 +91,6 @@ namespace StockApp.Service
                 {
                     article.IsRead = true;
                 }
-                // rn, return success
                 return true;
             }
         }
@@ -160,6 +160,9 @@ namespace StockApp.Service
                 throw new UnauthorizedAccessException("User must be an admin to approve articles");
             }
 
+            if (string.IsNullOrWhiteSpace(articleId))
+                throw new ArgumentNullException(nameof(articleId));
+
             await Task.Delay(300);
 
             try
@@ -171,15 +174,13 @@ namespace StockApp.Service
             catch
             {
                 var article = _userArticles.FirstOrDefault(a => a.ArticleId == articleId);
-                if (article != null)
-                {
-                    article.Status = "Approved";
-                    _cachedArticles.Clear();
-                    return true;
-                }
-            }
+                if (article == null)
+                    throw new KeyNotFoundException($"Article with ID {articleId} not found");
 
-            return false;
+                article.Status = "Approved";
+                _cachedArticles.Clear();
+                return true;
+            }
         }
 
         public async Task<bool> RejectUserArticleAsync(string articleId)
@@ -189,6 +190,9 @@ namespace StockApp.Service
             {
                 throw new UnauthorizedAccessException("User must be an admin to reject articles");
             }
+
+            if (string.IsNullOrWhiteSpace(articleId))
+                throw new ArgumentNullException(nameof(articleId));
 
             await Task.Delay(300);
 
@@ -201,14 +205,13 @@ namespace StockApp.Service
             catch
             {
                 var article = _userArticles.FirstOrDefault(a => a.ArticleId == articleId);
-                if (article != null)
-                {
-                    article.Status = "Rejected";
-                    _cachedArticles.Clear();
-                    return true;
-                }
+                if (article == null)
+                    throw new KeyNotFoundException($"Article with ID {articleId} not found");
+
+                article.Status = "Rejected";
+                _cachedArticles.Clear();
+                return true;
             }
-            return false;
         }
 
         public async Task<bool> DeleteUserArticleAsync(string articleId)
@@ -218,6 +221,9 @@ namespace StockApp.Service
             {
                 throw new UnauthorizedAccessException("User must be an admin to delete articles");
             }
+
+            if (string.IsNullOrWhiteSpace(articleId))
+                throw new ArgumentNullException(nameof(articleId));
 
             await Task.Delay(300);
 
@@ -231,15 +237,13 @@ namespace StockApp.Service
             catch
             {
                 var article = _userArticles.FirstOrDefault(a => a.ArticleId == articleId);
-                if (article != null)
-                {
-                    _userArticles.Remove(article);
-                    _cachedArticles.Clear();
-                    return true;
-                }
-            }
+                if (article == null)
+                    throw new KeyNotFoundException($"Article with ID {articleId} not found");
 
-            return false;
+                _userArticles.Remove(article);
+                _cachedArticles.Clear();
+                return true;
+            }
         }
 
         public async Task<bool> SubmitUserArticleAsync(UserArticle article)
@@ -283,13 +287,16 @@ namespace StockApp.Service
             }
 
             await Task.Delay(200);
-            // this supposed to be DIFFERENT BUT AINT NO WAY IT COULD BE CHANGED WITH THE CURRENT CODEBASE
-
-            return null;
+            throw new InvalidOperationException("No user is currently logged in");
         }
 
         public async Task<User> LoginAsync(string username, string password)
         {
+            if (string.IsNullOrWhiteSpace(username))
+                throw new ArgumentNullException(nameof(username));
+            if (string.IsNullOrWhiteSpace(password))
+                throw new ArgumentNullException(nameof(password));
+
             await Task.Delay(300);
 
             if (username == "admin" && password == "admin")
@@ -329,7 +336,7 @@ namespace StockApp.Service
                     "imagine", false);
             }
 
-            return null;
+            throw new UnauthorizedAccessException("Invalid username or password");
         }
 
         public void Logout()

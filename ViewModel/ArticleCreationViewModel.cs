@@ -305,15 +305,22 @@ namespace StockNewsPage.ViewModels
 
         private async Task<bool> ValidateStocksAsync(List<string> enteredStocks)
         {
-            if (enteredStocks == null || enteredStocks.Count == 0)
+            if (enteredStocks == null)
+                throw new ArgumentNullException(nameof(enteredStocks));
+
+            if (enteredStocks.Count == 0)
                 return true;
 
-            var allStocks = _stocksRepository.GetAllStocks();
+            var allStocks = _stocksRepository.GetAllStocks() 
+                ?? throw new InvalidOperationException("Stocks repository returned null");
 
             // check if all entered stocks exist (by name or symbol)
             var invalidStocks = new List<string>();
             foreach (var stock in enteredStocks)
             {
+                if (string.IsNullOrWhiteSpace(stock))
+                    throw new ArgumentException("Stock name cannot be null or whitespace", nameof(enteredStocks));
+
                 bool stockExists = allStocks.Any(s =>
                     s.Name.Equals(stock, StringComparison.OrdinalIgnoreCase) ||
                     s.Symbol.Equals(stock, StringComparison.OrdinalIgnoreCase));

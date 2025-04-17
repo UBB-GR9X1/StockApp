@@ -9,6 +9,7 @@ using System.Windows.Input;
 using StockApp;
 using StockApp.Model;
 using StockApp.Service;
+using System.Collections.Generic;
 
 namespace StockNewsPage.ViewModels
 {
@@ -91,8 +92,8 @@ namespace StockNewsPage.ViewModels
 
         public async void LoadArticle(string articleId)
         {
-            if (string.IsNullOrEmpty(articleId))
-                return;
+            if (string.IsNullOrWhiteSpace(articleId))
+                throw new ArgumentNullException(nameof(articleId));
 
             IsLoading = true;
 
@@ -108,39 +109,12 @@ namespace StockNewsPage.ViewModels
                     // admin preview
                     IsAdminPreview = true;
 
-                    var userArticle = _newsService.GetUserArticleForPreview(_previewId);
-                    if (userArticle != null)
-                    {
-                        ArticleStatus = userArticle.Status;
-                        CanApprove = userArticle.Status != "Approved";
-                        CanReject = userArticle.Status != "Rejected";
-                    }
-
-                    var article = await _newsService.GetNewsArticleByIdAsync(articleId);
-
-                    _dispatcherQueue.TryEnqueue(() =>
-                    {
-                        if (article != null)
-                        {
-                            Article = article;
-                            HasRelatedStocks = article.RelatedStocks != null && article.RelatedStocks.Any();
-                            System.Diagnostics.Debug.WriteLine($"Related stocks count: {article.RelatedStocks?.Count ?? 0}");
-                        }
-                        else
-                        {
-                            // Article not found
-                            Article = new NewsArticle
-                            {
-                                Title = "Article Not Found",
-                                Summary = "The requested preview article could not be found.",
-                                Content = "The preview article you are looking for may no longer be available."
-                            };
-                            HasRelatedStocks = false;
-                            System.Diagnostics.Debug.WriteLine("Preview article not found");
-                        }
-
-                        IsLoading = false;
-                    });
+                    var userArticle = _newsService.GetUserArticleForPreview(_previewId) 
+                        ?? throw new KeyNotFoundException($"Preview article with ID {_previewId} not found");
+                    
+                    ArticleStatus = userArticle.Status;
+                    CanApprove = userArticle.Status != "Approved";
+                    CanReject = userArticle.Status != "Rejected";
                 }
                 else
                 {

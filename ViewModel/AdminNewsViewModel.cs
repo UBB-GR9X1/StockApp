@@ -79,11 +79,14 @@ namespace StockNewsPage.ViewModels
             get => _selectedArticle;
             set
             {
-                if (SetProperty(ref _selectedArticle, value) && value != null)
+                if (SetProperty(ref _selectedArticle, value))
                 {
+                    if (value == null)
+                        throw new ArgumentNullException(nameof(value));
+
                     // nav to preview when selected article changes
                     NavigateToPreview(value);
-                    SelectedArticle = null;
+                    _selectedArticle = null; // Reset after navigation
                 }
             }
         }

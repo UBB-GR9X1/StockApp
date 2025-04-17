@@ -5,6 +5,7 @@ using StockApp.StockPage;
 using StockNewsPage.ViewModels;
 using System.Linq;
 using StockApp.Service;
+using System;
 
 namespace StockNewsPage.Views
 {
@@ -20,35 +21,32 @@ namespace StockNewsPage.Views
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
-            if (ViewModel.Article != null)
-            {
-                if (ViewModel.Article.RelatedStocks != null)
-                {
-                    ViewModel.HasRelatedStocks = ViewModel.Article.RelatedStocks.Any();
-                }
-                else
-                {
-                    System.Diagnostics.Debug.WriteLine($"PAGE LOADED - RelatedStocks is NULL");
-                }
-            }
+            if (ViewModel.Article == null)
+                throw new InvalidOperationException("Article is not initialized");
+
+            // Using null-conditional operator for safe access
+            ViewModel.HasRelatedStocks = ViewModel.Article.RelatedStocks?.Any() ?? false;
         }
 
         private void RelatedStockClick(object sender, RoutedEventArgs e)
         {
-            if (sender is Button button && button.Content is string stockName)
-            {
-                NavigationService.Instance.Navigate(typeof(StockPage), stockName);
-            }
+            if (sender is not Button button)
+                throw new ArgumentException("Sender is not a Button", nameof(sender));
+            
+            if (button.Content is not string stockName)
+                throw new ArgumentException("Button content is not a valid stock name", nameof(sender));
+
+            NavigationService.Instance.Navigate(typeof(StockPage), stockName);
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
 
-            if (e.Parameter is string articleId)
-            {
-                ViewModel.LoadArticle(articleId);
-            }
+            if (e.Parameter is not string articleId)
+                throw new ArgumentException("Navigation parameter is not a valid article ID", nameof(e));
+
+            ViewModel.LoadArticle(articleId);
         }
     }
 }

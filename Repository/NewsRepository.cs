@@ -499,9 +499,13 @@ namespace StockApp.Repository
 
         public NewsArticle GetNewsArticleById(string articleId)
         {
-            var article = newsArticles.FirstOrDefault(a => a.ArticleId == articleId);
+            if (string.IsNullOrWhiteSpace(articleId))
+                throw new ArgumentNullException(nameof(articleId));
 
-            if (article != null && (article.RelatedStocks == null || !article.RelatedStocks.Any()))
+            var article = newsArticles.FirstOrDefault(a => a.ArticleId == articleId) 
+                ?? throw new KeyNotFoundException($"Article with ID {articleId} not found");
+
+            if (article.RelatedStocks == null || !article.RelatedStocks.Any())
             {
                 // related stocks are loaded
                 article.RelatedStocks = GetRelatedStocksForArticle(articleId);
@@ -513,7 +517,7 @@ namespace StockApp.Repository
 
         public List<NewsArticle> GetAllNewsArticles()
         {
-            return new List<NewsArticle>(newsArticles);
+            return new List<NewsArticle>(newsArticles ?? throw new InvalidOperationException("News articles collection is not initialized"));
         }
 
         public List<NewsArticle> GetNewsArticlesByStock(string stockName)
@@ -528,12 +532,12 @@ namespace StockApp.Repository
 
         public void MarkArticleAsRead(string articleId)
         {
+            if (string.IsNullOrWhiteSpace(articleId))
+                throw new ArgumentNullException(nameof(articleId));
+
             var article = GetNewsArticleById(articleId);
-            if (article != null)
-            {
-                article.IsRead = true;
-                UpdateNewsArticle(article);
-            }
+            article.IsRead = true;
+            UpdateNewsArticle(article);
         }
 
         #endregion
@@ -820,18 +824,24 @@ namespace StockApp.Repository
 
         public void RejectUserArticle(string articleId)
         {
-            var article = GetUserArticleById(articleId);
-            if (article != null)
-            {
-                article.Status = "Rejected";
-                UpdateUserArticle(article);
+            if (string.IsNullOrWhiteSpace(articleId))
+                throw new ArgumentNullException(nameof(articleId));
 
-                // Remove from news articles if it exists
+            var article = GetUserArticleById(articleId) 
+                ?? throw new KeyNotFoundException($"User article with ID {articleId} not found");
+
+            article.Status = "Rejected";
+            UpdateUserArticle(article);
+
+            // Remove from news articles if it exists
+            try
+            {
                 var existingNewsArticle = GetNewsArticleById(article.ArticleId);
-                if (existingNewsArticle != null)
-                {
-                    DeleteNewsArticle(article.ArticleId);
-                }
+                DeleteNewsArticle(article.ArticleId);
+            }
+            catch (KeyNotFoundException)
+            {
+                // Article doesn't exist in news articles, which is fine
             }
         }
 

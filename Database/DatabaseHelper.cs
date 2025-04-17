@@ -27,6 +27,9 @@ namespace StockApp.Database
 
         public static void InitializeDatabase()
         {
+            if (string.IsNullOrWhiteSpace(connectionString))
+                throw new InvalidOperationException("Connection string is not initialized");
+
             bool databaseExists = false;
             bool tablesExist = false;
 
@@ -40,16 +43,16 @@ namespace StockApp.Database
                     string checkTableQuery = "SELECT CASE WHEN EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'STOCK') THEN 1 ELSE 0 END";
                     using (var command = new SqlCommand(checkTableQuery, connection))
                     {
-                        tablesExist = Convert.ToBoolean(command.ExecuteScalar());
+                        var result = command.ExecuteScalar();
+                        tablesExist = result != null && Convert.ToBoolean(result);
                     }
 
                     connection.Close();
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                databaseExists = false;
-                tablesExist = false;
+                throw new InvalidOperationException("Failed to initialize database", ex);
             }
 
             if (!databaseExists)

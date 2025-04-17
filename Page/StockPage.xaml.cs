@@ -49,12 +49,9 @@ namespace StockApp.StockPage
 
         public void AuthorButtonClick()
         {
-            // this.Frame.Navigate(typeof(AuthorPage.AuthorPage));
+            if (_viewModel == null)
+                throw new InvalidOperationException("ViewModel is not initialized");
 
-            //var newFrame = new Frame();
-            //// link the current frame (This.Frame) to the new one and make all go back work as expected
-            //this.Frame.Content = newFrame;
-            // newFrame.Navigate(typeof(ProfilePage), _viewModel.getStockAuthor());
             NavigationService.Instance.Navigate(typeof(ProfilePage), _viewModel.GetStockAuthor());
         }
 
