@@ -2,8 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
 
-    public class UserArticle
+    public class UserArticle : IUserArticle
     {
         public string ArticleId { get; set; }
 
@@ -21,6 +22,30 @@
 
         public string Topic { get; set; }
 
-        public List<string> RelatedStocks { get; set; }
+        public IReadOnlyList<string> RelatedStocks { get; set; }
+
+        public UserArticle() { }
+
+        public UserArticle(
+            string articleId,
+            string title,
+            string summary,
+            string content,
+            string author,
+            DateTime submissionDate,
+            string status,
+            string topic,
+            IEnumerable<string> relatedStocks)
+        {
+            ArticleId = articleId;
+            Title = title;
+            Summary = summary;
+            Content = content;
+            Author = author;
+            SubmissionDate = submissionDate;
+            Status = status;
+            Topic = topic;
+            RelatedStocks = relatedStocks.ToList();
+        }
     }
 }

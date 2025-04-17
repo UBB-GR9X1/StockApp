@@ -6,7 +6,7 @@
     using StockApp.Database;
     using StockApp.Models;
 
-    public class StockPageRepository
+    public class StockPageRepository : IStockPageRepository
     {
         private readonly string cnp;
 
@@ -91,7 +91,7 @@
                 reader["AUTHOR_CNP"].ToString());
         }
 
-        public List<int> GetStockHistory(string stockName)
+        public IReadOnlyList<int> GetStockHistory(string stockName)
         {
             SqlCommand getStock = new("SELECT * FROM STOCK_VALUE WHERE STOCK_NAME = @name", DatabaseHelper.GetConnection());
             getStock.Parameters.AddWithValue("@name", stockName);

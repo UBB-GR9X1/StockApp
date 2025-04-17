@@ -2,8 +2,24 @@
 {
     using System;
 
-    public class TransactionLogTransaction
+    public class TransactionLogTransaction : ITransactionLogTransaction
     {
+        public string StockSymbol { get; }
+
+        public string StockName { get; }
+
+        public string Type { get; }
+
+        public int Amount { get; }
+
+        public int PricePerStock { get; }
+
+        public int TotalValue => Amount * PricePerStock;
+
+        public DateTime Date { get; }
+
+        public string Author { get; }
+
         public TransactionLogTransaction(
             string stockSymbol,
             string stockName,
@@ -14,63 +30,25 @@
             string author)
         {
             if (string.IsNullOrWhiteSpace(stockSymbol))
-            {
-                throw new Exception("Stock symbol cannot be empty!");
-            }
-
+                throw new ArgumentException("StockSymbol required");
             if (string.IsNullOrWhiteSpace(stockName))
-            {
-                throw new Exception("Stock name cannot be empty!");
-            }
-
-            if (string.IsNullOrWhiteSpace(type))
-            {
-                throw new Exception("Transaction type cannot be empty!");
-            }
-
-            if (!type.Equals("BUY") && !type.Equals("SELL"))
-            {
-                throw new Exception("Transaction type must be \"BUY\" or \"SELL\"!");
-            }
-
+                throw new ArgumentException("StockName required");
+            if (type is not ("BUY" or "SELL"))
+                throw new ArgumentException("Type must be BUY or SELL");
             if (amount <= 0)
-            {
-                throw new Exception("Amount must be greater than zero.");
-            }
-
+                throw new ArgumentException("Amount > 0");
             if (pricePerStock <= 0)
-            {
-                throw new Exception("Price per stock must be greater than zero.");
-            }
-
+                throw new ArgumentException("PricePerStock > 0");
             if (string.IsNullOrWhiteSpace(author))
-            {
-                throw new Exception("Author cannot be empty.");
-            }
+                throw new ArgumentException("Author required");
 
-            this.StockSymbol = stockSymbol;
-            this.StockName = stockName;
-            this.Type = type;
-            this.Amount = amount;
-            this.PricePerStock = pricePerStock;
-            this.Date = date;
-            this.Author = author;
+            StockSymbol = stockSymbol;
+            StockName = stockName;
+            Type = type;
+            Amount = amount;
+            PricePerStock = pricePerStock;
+            Date = date;
+            Author = author;
         }
-
-        public string StockSymbol { get; private set; }
-
-        public string StockName { get; private set; }
-
-        public string Type { get; private set; }
-
-        public int Amount { get; private set; }
-
-        public int PricePerStock { get; private set; }
-
-        public int TotalValue => this.Amount * this.PricePerStock;
-
-        public DateTime Date { get; private set; }
-
-        public string Author { get; private set; }
     }
 }

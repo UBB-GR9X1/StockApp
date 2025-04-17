@@ -1,17 +1,33 @@
 ﻿namespace StockApp.Models
 {
-    public class User(string? cnp, string? username, string? description, bool? isModerator, string? image, bool? isHidden)
+    public class User : IUser
     {
-        public string CNP { get; set; } = cnp ?? string.Empty;
+        public string Cnp { get; set; } = string.Empty;
 
-        public string Username { get; set; } = username ?? string.Empty;
+        public string Username { get; set; } = string.Empty;
 
-        public string Description { get; set; } = description ?? string.Empty;
+        public string Description { get; set; } = string.Empty;
 
-        public bool IsModerator { get; set; } = isModerator ?? false;
+        public bool IsModerator { get; set; }
 
-        public string Image { get; set; } = image ?? string.Empty;
+        public string Image { get; set; } = string.Empty;
 
-        public bool IsHidden { get; set; } = isHidden ?? false;
+        public bool IsHidden { get; set; }
+
+        public User(
+            string? cnp = null,
+            string? username = null,
+            string? description = null,
+            bool? isModerator = null,
+            string? image = null,
+            bool? isHidden = null)
+        {
+            Cnp = cnp ?? string.Empty;
+            Username = username ?? string.Empty;
+            Description = description ?? string.Empty;
+            IsModerator = isModerator ?? false;
+            Image = image ?? string.Empty;
+            IsHidden = isHidden ?? false;
+        }
     }
 }

@@ -3,7 +3,7 @@
     using System;
     using StockApp.Models;
 
-    public class AppState
+    public class AppState : IAppState
     {
         private static readonly Lazy<AppState> InstanceValue = new(() => new AppState());
 

@@ -1,7 +1,13 @@
 ﻿namespace StockApp.Models
 {
-    public class Stock(string name, string symbol, string author_cnp, int price) : BaseStock(name, symbol, author_cnp)
+    public class Stock : BaseStock, IStock
     {
-        public int Price { get; set; } = price;
+        public Stock(string name, string symbol, string authorCnp, int price)
+            : base(name, symbol, authorCnp)
+        {
+            Price = price;
+        }
+
+        public int Price { get; set; }
     }
 }

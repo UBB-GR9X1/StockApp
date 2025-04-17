@@ -4,39 +4,53 @@
     using System.ComponentModel;
     using System.Runtime.CompilerServices;
 
-    public class GemDeal(string title, int gemAmount, double price, bool isSpecial = false, int? durationMinutes = null) : INotifyPropertyChanged
+    public class GemDeal : IGemDeal
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        public string Title { get; set; } = title;
+        public string Title { get; }
 
-        public int GemAmount { get; set; } = gemAmount;
+        public int GemAmount { get; }
 
-        public double Price { get; set; } = price;
+        public double Price { get; }
 
-        public bool IsSpecial { get; set; } = isSpecial;
+        public bool IsSpecial { get; }
 
-        public int? DurationMinutes { get; set; } = durationMinutes;
+        public int? DurationMinutes { get; }
 
-        public DateTime? ExpirationTime { get; set; } =
-            isSpecial && durationMinutes.HasValue
-                ? DateTime.Now.AddMinutes(durationMinutes.Value)
+        public DateTime ExpirationTime
+            => IsSpecial && DurationMinutes.HasValue
+                ? DateTime.UtcNow.AddMinutes(DurationMinutes.Value)
                 : DateTime.MaxValue;
 
-        public string FormattedPrice => $"{this.Price}€";
+        public bool IsAvailable
+            => !IsSpecial
+               || DurationMinutes is null
+               || DateTime.UtcNow <= ExpirationTime;
 
-        public string ExpirationTimeFormatted => this.ExpirationTime?.ToString("HH:mm:ss") ?? string.Empty;
+        public string FormattedPrice
+            => $"{Price:0.00}€";
 
-        public bool IsAvailable()
+        public string ExpirationTimeFormatted
+            => ExpirationTime == DateTime.MaxValue
+                ? string.Empty
+                : ExpirationTime.ToString("HH:mm:ss");
+
+        public GemDeal(
+            string title,
+            int gemAmount,
+            double price,
+            bool isSpecial = false,
+            int? durationMinutes = null)
         {
-            return !this.IsSpecial
-                || !this.ExpirationTime.HasValue
-                || DateTime.Now <= this.ExpirationTime.Value;
+            Title = title;
+            GemAmount = gemAmount;
+            Price = price;
+            IsSpecial = isSpecial;
+            DurationMinutes = durationMinutes;
         }
 
-        public void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-        {
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+        protected void OnPropertyChanged([CallerMemberName] string? prop = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
     }
 }

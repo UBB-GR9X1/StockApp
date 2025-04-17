@@ -9,7 +9,7 @@
 
     public class AlertRepository
     {
-        private readonly List<Alert> alerts = [];
+        private readonly List<IAlert> alerts = [];
         private readonly SqlConnection dbConnection = DatabaseHelper.GetConnection();
 
         public AlertRepository()
@@ -57,15 +57,13 @@
             }));
         }
 
-        public List<Alert> GetAllAlerts() => this.alerts;
+        public IReadOnlyList<IAlert> GetAllAlerts() => alerts;
 
-        public Alert GetAlertById(int alertId)
-        {
-            return this.alerts.FirstOrDefault(a => a.AlertId == alertId)
-                ?? throw new KeyNotFoundException($"Alert with ID {alertId} not found.");
-        }
+        public IAlert GetAlertById(int alertId)
+        => alerts.FirstOrDefault(a => a.AlertId == alertId)
+           ?? throw new KeyNotFoundException($"Alert {alertId} not found.");
 
-        public void AddAlert(Alert alert)
+        public void AddAlert(IAlert alert)
         {
             string insertQuery = @"INSERT INTO ALERTS (STOCK_NAME, NAME, LOWER_BOUND, UPPER_BOUND, TOGGLE) 
                                    VALUES (@StockName, @Name, @LowerBound, @UpperBound, @ToggleOnOff);
@@ -84,7 +82,7 @@
             this.alerts.Add(alert);
         }
 
-        public void UpdateAlert(Alert alert)
+        public void UpdateAlert(IAlert alert)
         {
             string updateQuery = @"UPDATE ALERTS
                                    SET STOCK_NAME = @StockName, NAME = @Name, LOWER_BOUND = @LowerBound, 
@@ -148,7 +146,7 @@
             });
         }
 
-        public List<TriggeredAlert> GetTriggeredAlerts() => this.TriggeredAlerts;
+        public IReadOnlyList<ITriggeredAlert> GetTriggeredAlerts() => TriggeredAlerts;
 
         public void ClearTriggeredAlerts() => this.TriggeredAlerts.Clear();
     }

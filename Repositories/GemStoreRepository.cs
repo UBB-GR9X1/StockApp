@@ -4,7 +4,7 @@
     using Microsoft.Data.SqlClient;
     using StockApp.Database;
 
-    internal class GemStoreRepository
+    internal class GemStoreRepository: IGemStoreRepository
     {
         private readonly SqlConnection dbConnection = DatabaseHelper.GetConnection();
 

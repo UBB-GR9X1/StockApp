@@ -6,9 +6,9 @@
     using StockApp.Database;
     using StockApp.Models;
 
-    internal class BaseStocksRepository
+    internal class BaseStocksRepository : IBaseStocksRepository
     {
-        private readonly List<BaseStock> stocks = [];
+        private readonly List<IBaseStock> stocks = [];
         private readonly SqlConnection dbConnection = DatabaseHelper.GetConnection();
 
         public BaseStocksRepository()
@@ -32,7 +32,7 @@
             return (T)Convert.ChangeType(command.ExecuteScalar(), typeof(T));
         }
 
-        public void AddStock(BaseStock stock, int initialPrice = 100)
+        public void AddStock(IBaseStock stock, int initialPrice = 100)
         {
             using var transaction = this.dbConnection.BeginTransaction();
 
@@ -56,7 +56,7 @@
                 {
                     command.Parameters.AddWithValue("@StockName", stock.Name);
                     command.Parameters.AddWithValue("@StockSymbol", stock.Symbol);
-                    command.Parameters.AddWithValue("@AuthorCNP", stock.AuthorCNP);
+                    command.Parameters.AddWithValue("@AuthorCNP", stock.AuthorCnp);
                 }, transaction);
 
                 // Insert the initial stock value
@@ -97,6 +97,6 @@
             }
         }
 
-        public List<BaseStock> GetAllStocks() => [.. this.stocks];
+        public IReadOnlyList<IBaseStock> GetAllStocks() => [.. this.stocks];
     }
 }

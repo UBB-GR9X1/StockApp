@@ -2,7 +2,7 @@
 {
     using System;
 
-    public class TransactionFilterCriteria
+    public class TransactionFilterCriteria : ITransactionFilterCriteria
     {
         public string? StockName { get; set; }
 
@@ -18,19 +18,27 @@
 
         public void Validate()
         {
-            if (!string.IsNullOrEmpty(this.Type) && !this.Type.Equals("BUY") && !this.Type.Equals("SELL"))
+            if (!string.IsNullOrEmpty(Type)
+                && Type is not ("BUY" or "SELL"))
             {
-                throw new Exception("The type must be \"BUY\" or \"SELL\"!");
+                throw new ArgumentException(
+                    "Type must be \"BUY\" or \"SELL\".");
             }
 
-            if (this.MinTotalValue.HasValue && this.MaxTotalValue.HasValue && this.MinTotalValue > this.MaxTotalValue)
+            if (MinTotalValue.HasValue
+                && MaxTotalValue.HasValue
+                && MinTotalValue > MaxTotalValue)
             {
-                throw new Exception("The min total value cannot be greater than the max total value!");
+                throw new ArgumentException(
+                    "Min cannot exceed Max total value.");
             }
 
-            if (this.StartDate.HasValue && this.EndDate.HasValue && this.StartDate > this.EndDate)
+            if (StartDate.HasValue
+                && EndDate.HasValue
+                && StartDate > EndDate)
             {
-                throw new Exception("The start date cannot be chronologically after the end date!");
+                throw new ArgumentException(
+                    "StartDate cannot be after EndDate.");
             }
         }
     }

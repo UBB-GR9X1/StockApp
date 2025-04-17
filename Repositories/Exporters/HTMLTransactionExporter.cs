@@ -7,7 +7,7 @@
 
     public class HTMLTransactionExporter : ITransactionExporter
     {
-        public void Export(List<TransactionLogTransaction> transactions, string filePath)
+        public void Export(IReadOnlyList<ITransactionLogTransaction> transactions, string filePath)
         {
             // Build the HTML string
             StringBuilder htmlContent = new ();

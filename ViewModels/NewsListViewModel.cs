@@ -14,13 +14,13 @@
 
     public class NewsListViewModel : ViewModelBase
     {
-        private readonly NewsService _newsService;
+        private readonly INewsService _newsService;
         private readonly DispatcherQueue _dispatcherQueue;
-        private readonly AppState _appState;
+        private readonly IAppState _appState;
 
         // properties
-        private ObservableCollection<NewsArticle> _articles = new();
-        public ObservableCollection<NewsArticle> Articles
+        private ObservableCollection<INewsArticle> _articles = new();
+        public ObservableCollection<INewsArticle> Articles
         {
             get => _articles;
             set => SetProperty(ref _articles, value);
@@ -95,8 +95,8 @@
         }
 
         // user and auth properties
-        private User _currentUser;
-        public User CurrentUser
+        private IUser _currentUser;
+        public IUser CurrentUser
         {
             get => _currentUser;
             set
@@ -180,7 +180,7 @@
                 _dispatcherQueue.TryEnqueue(() =>
                 {
                     CurrentUser = user;
-                    _appState.CurrentUser = user;
+                    _appState.CurrentUser = (User)user;
                 });
             }
             catch (Exception ex)
@@ -371,7 +371,7 @@
                 if (user != null)
                 {
                     CurrentUser = user;
-                    _appState.CurrentUser = user;
+                    _appState.CurrentUser = (User)user;
 
                     // success message
                     var dialog = new ContentDialog
