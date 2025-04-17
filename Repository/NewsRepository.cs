@@ -7,14 +7,14 @@
     using StockApp.Database;
     using StockApp.Models;
 
-    public class NewsRepository
+    public class NewsRepository: INewsRepository
     {
         private static readonly object LockObject = new ();
         private static bool isInitialized = false;
 
         private readonly DatabaseHelper databaseHelper = DatabaseHelper.Instance;
-        private readonly List<NewsArticle> newsArticles = [];
-        private readonly List<UserArticle> userArticles = [];
+        private readonly List<INewsArticle> newsArticles = [];
+        private readonly List<IUserArticle> userArticles = [];
 
         public NewsRepository()
         {
@@ -111,7 +111,7 @@
             }
         }
 
-        public List<string> GetRelatedStocksForArticle(string articleId)
+        public IReadOnlyList<string> GetRelatedStocksForArticle(string articleId)
         {
             var relatedStocks = new List<string>();
 
@@ -191,7 +191,7 @@
             return relatedStocks;
         }
 
-        public void AddRelatedStocksForArticle(string articleId, List<string> stockNames, SqlConnection connection = null, SqlTransaction transaction = null)
+        public void AddRelatedStocksForArticle(string articleId, IReadOnlyList<string> stockNames, SqlConnection connection = null, SqlTransaction transaction = null)
         {
             if (stockNames == null || stockNames.Count == 0)
             {
@@ -320,7 +320,7 @@
             }
         }
 
-        public void AddNewsArticle(NewsArticle newsArticle)
+        public void AddNewsArticle(INewsArticle newsArticle)
         {
             lock (LockObject)
             {
@@ -384,7 +384,7 @@
             }
         }
 
-        public void UpdateNewsArticle(NewsArticle newsArticle)
+        public void UpdateNewsArticle(INewsArticle newsArticle)
         {
             lock (LockObject)
             {
@@ -489,7 +489,7 @@
             }
         }
 
-        public NewsArticle GetNewsArticleById(string articleId)
+        public INewsArticle GetNewsArticleById(string articleId)
         {
             if (string.IsNullOrWhiteSpace(articleId))
                 throw new ArgumentNullException(nameof(articleId));
@@ -507,17 +507,17 @@
             return article;
         }
 
-        public List<NewsArticle> GetAllNewsArticles()
+        public IReadOnlyList<INewsArticle> GetAllNewsArticles()
         {
-            return new List<NewsArticle>(newsArticles ?? throw new InvalidOperationException("News articles collection is not initialized"));
+            return newsArticles.AsReadOnly();
         }
 
-        public List<NewsArticle> GetNewsArticlesByStock(string stockName)
+        public IReadOnlyList<INewsArticle> GetNewsArticlesByStock(string stockName)
         {
             return newsArticles.Where(a => a.RelatedStocks.Contains(stockName)).ToList();
         }
 
-        public List<NewsArticle> GetNewsArticlesByCategory(string category)
+        public IReadOnlyList<INewsArticle> GetNewsArticlesByCategory(string category)
         {
             return newsArticles.Where(a => a.Category == category).ToList();
         }
@@ -569,7 +569,7 @@
             }
         }
 
-        public void AddUserArticle(UserArticle userArticle)
+        public void AddUserArticle(IUserArticle userArticle)
         {
             lock (LockObject)
             {
@@ -650,7 +650,7 @@
             }
         }
 
-        public void UpdateUserArticle(UserArticle userArticle)
+        public void UpdateUserArticle(IUserArticle userArticle)
         {
             lock (LockObject)
             {
@@ -754,27 +754,27 @@
             }
         }
 
-        public UserArticle GetUserArticleById(string articleId)
+        public IUserArticle GetUserArticleById(string articleId)
         {
             return userArticles.FirstOrDefault(a => a.ArticleId == articleId);
         }
 
-        public List<UserArticle> GetAllUserArticles()
+        public IReadOnlyList<IUserArticle> GetAllUserArticles()
         {
-            return new List<UserArticle>(userArticles);
+            return userArticles.AsReadOnly();
         }
 
-        public List<UserArticle> GetUserArticlesByStatus(string status)
+        public IReadOnlyList<IUserArticle> GetUserArticlesByStatus(string status)
         {
             return userArticles.Where(a => a.Status == status).ToList();
         }
 
-        public List<UserArticle> GetUserArticlesByTopic(string topic)
+        public IReadOnlyList<IUserArticle> GetUserArticlesByTopic(string topic)
         {
             return userArticles.Where(a => a.Topic == topic).ToList();
         }
 
-        public List<UserArticle> GetUserArticlesByStatusAndTopic(string status, string topic)
+        public IReadOnlyList<IUserArticle> GetUserArticlesByStatusAndTopic(string status, string topic)
         {
             return userArticles.Where(a => a.Status == status && a.Topic == topic).ToList();
         }

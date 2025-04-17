@@ -6,7 +6,7 @@
     using StockApp.Database;
     using StockApp.Models;
 
-    public class ProfileRepository
+    public class ProfileRepository : IProfileRepository
     {
         private readonly SqlConnection dbConnection = DatabaseHelper.GetConnection();
         private readonly string cnp;
@@ -25,7 +25,7 @@
             this.cnp = authorCNP;
         }
 
-        public User CurrentUser()
+        public IUser CurrentUser()
         {
             const string query = @"
                 SELECT CNP, NAME, PROFILE_PICTURE, DESCRIPTION, IS_HIDDEN
@@ -87,7 +87,7 @@
         }
 
         // Get current user profile
-        public User GetUserProfile(string authorCNP)
+        public IUser GetUserProfile(string authorCNP)
         {
             const string query = @"
                 SELECT CNP, NAME, PROFILE_PICTURE, DESCRIPTION, IS_HIDDEN
@@ -129,7 +129,7 @@
         }
 
         // Get user-owned stocks
-        public List<string> UserStocks()
+        public IReadOnlyList<string> UserStocks()
         {
             const string query = @"
                 WITH UserStocks AS (

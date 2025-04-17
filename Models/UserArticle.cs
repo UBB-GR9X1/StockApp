@@ -24,6 +24,8 @@
 
         public IReadOnlyList<string> RelatedStocks { get; set; }
 
+        public UserArticle() { }
+
         public UserArticle(
             string articleId,
             string title,

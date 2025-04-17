@@ -7,9 +7,9 @@
     using StockApp.Database;
     using StockApp.Models;
 
-    public class TransactionRepository
+    public class TransactionRepository : ITransactionRepository
     {
-        public List<TransactionLogTransaction> Transactions { get; private set; } = [];
+        public List<ITransactionLogTransaction> Transactions { get; private set; } = [];
 
         public TransactionRepository()
         {
@@ -40,7 +40,7 @@
             }
         }
 
-        public List<TransactionLogTransaction> GetByFilterCriteria(TransactionFilterCriteria criteria)
+        public List<ITransactionLogTransaction> GetByFilterCriteria(ITransactionFilterCriteria criteria)
         {
             return [.. this.Transactions.Where(transaction =>
                 (string.IsNullOrEmpty(criteria.StockName) || transaction.StockName.Equals(criteria.StockName)) &&
@@ -52,7 +52,7 @@
             )];
         }
 
-        public void AddTransaction(TransactionLogTransaction transaction)
+        public void AddTransaction(ITransactionLogTransaction transaction)
         {
             string connectionString = DatabaseHelper.GetConnection().ConnectionString;
 

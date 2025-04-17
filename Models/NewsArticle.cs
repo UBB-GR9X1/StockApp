@@ -6,7 +6,7 @@
 
     public class NewsArticle : INewsArticle
     {
-        public string ArticleId { get; }
+        public string ArticleId { get; set;  }
 
         public string Title { get; set; }
 
@@ -16,7 +16,7 @@
 
         public string Source { get; set; }
 
-        public DateTime PublishedDate { get; set; }
+        public string PublishedDate { get; set; }
 
         public bool IsRead { get; set; }
 
@@ -28,13 +28,15 @@
 
         public Status Status { get; set; }
 
+        public NewsArticle() { }
+
         public NewsArticle(
             string articleId,
             string title,
             string summary,
             string content,
             string source,
-            DateTime publishedDate,
+            string publishedDate,
             IEnumerable<string> relatedStocks,
             Status status = Status.Pending)
         {
