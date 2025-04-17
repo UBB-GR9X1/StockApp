@@ -4,12 +4,12 @@
     using StockApp.Models;
     using StockApp.Repository;
 
-    public class ProfieServices
+    public class ProfieServices : IProfileService
     {
         ProfileRepository _repo;
 
-        private User _user;
-        private List<string> userStocks;
+        private IUser _user;
+        private IReadOnlyList<string> userStocks;
 
         public ProfieServices(string authorCnp)
         {
@@ -24,7 +24,7 @@
         public string GetDescription() => _user.Description;
         public bool IsHidden() => _user.IsHidden;
         public bool IsAdmin() => _user.IsModerator;
-        public List<string> GetUserStocks() => userStocks;
+        public IReadOnlyList<string> GetUserStocks() => userStocks;
         public string GetPass() => "BombardinoCrocodilo";
 
         public void UpdateUser(string newUsername, string newImage, string newDescription, bool newHidden)
@@ -43,7 +43,7 @@
             _repo.UpdateRepoIsAdmin(isAdm);
         }
 
-        public List<string> ExtractStockNames()
+        public IReadOnlyList<string> ExtractStockNames()
         {
             List<string> stockNames = new List<string>();
 

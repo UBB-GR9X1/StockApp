@@ -5,7 +5,7 @@
 
     public interface INewsArticle
     {
-        string ArticleId { get; }
+        string ArticleId { get; set; }
 
         string Title { get; set; }
 

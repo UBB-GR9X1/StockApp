@@ -4,7 +4,7 @@
     using StockApp.Models;
     using StockApp.Repository;
 
-    public class StoreService
+    public class StoreService : IStoreService
     {
         private readonly GemStoreRepository repository = new GemStoreRepository();
 
@@ -32,7 +32,7 @@
             repository.UpdateUserGemBalance(cnp, newBalance);
         }
 
-        public async Task<string> BuyGems(string cnp, GemDeal deal, string selectedAccountId)
+        public async Task<string> BuyGems(string cnp, IGemDeal deal, string selectedAccountId)
         {
             if (IsGuest(cnp))
                 return "Guests cannot buy gems.";

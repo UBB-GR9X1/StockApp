@@ -5,7 +5,7 @@
     using StockApp.Models;
     using StockApp.Repository;
 
-    internal class CreateStockService
+    internal class CreateStockService : ICreateStockService
     {
         private readonly BaseStocksRepository stocksRepository;
         private readonly Random random = new();

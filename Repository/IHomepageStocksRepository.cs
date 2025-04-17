@@ -16,5 +16,7 @@
         void RemoveFromFavorites(IHomepageStock stock);
 
         public IReadOnlyList<int> GetStockHistory(string stockName);
+
+        void CreateUserProfile();
     }
 }

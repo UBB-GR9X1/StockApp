@@ -4,19 +4,20 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using Catel.Collections;
     using StockApp.Models;
     using StockApp.Repository;
 
-    public class NewsService
+    public class NewsService : INewsService
     {
         private readonly AppState _appState;
-        private static readonly Dictionary<string, NewsArticle> _previewArticles = new();
-        private static readonly Dictionary<string, UserArticle> _previewUserArticles = new();
-        private readonly List<NewsArticle> _cachedArticles = new();
-        private static readonly List<UserArticle> _userArticles = new();
+        private static readonly Dictionary<string, INewsArticle> _previewArticles = new();
+        private static readonly Dictionary<string, IUserArticle> _previewUserArticles = new();
+        private readonly List<INewsArticle> _cachedArticles = new();
+        private static readonly List<IUserArticle> _userArticles = new();
         private static bool _isInitialized = false;
-        private NewsRepository _repository = new NewsRepository();
-        private BaseStocksRepository _stocksRepository;
+        private INewsRepository _repository = new NewsRepository();
+        private IBaseStocksRepository _stocksRepository;
 
         public NewsService()
         {
@@ -25,13 +26,15 @@
 
             if (!_isInitialized)
             {
-                _userArticles.AddRange(_repository.GetAllUserArticles());
+                _userArticles.AddRange(
+                _repository.GetAllUserArticles()
+                           .Cast<IUserArticle>());
                 _isInitialized = true;
             }
         }
 
         // Article Methods
-        public async Task<List<NewsArticle>> GetNewsArticlesAsync()
+        public async Task<IReadOnlyList<INewsArticle>> GetNewsArticlesAsync()
         {
             await Task.Delay(200);
 
@@ -45,7 +48,7 @@
             }
         }
 
-        public async Task<NewsArticle> GetNewsArticleByIdAsync(string articleId)
+        public async Task<INewsArticle> GetNewsArticleByIdAsync(string articleId)
         {
             if (string.IsNullOrWhiteSpace(articleId))
                 throw new ArgumentNullException(nameof(articleId));
@@ -118,7 +121,7 @@
         }
 
         // User Article Methods
-        public async Task<List<UserArticle>> GetUserArticlesAsync(string status = null, string topic = null)
+        public async Task<IReadOnlyList<IUserArticle>> GetUserArticlesAsync(string status = null, string topic = null)
         {
             // ensure the user is admin
             if (_appState.CurrentUser == null || !_appState.CurrentUser.IsModerator)
@@ -127,15 +130,17 @@
             }
 
             await Task.Delay(300);
-            var userArticles = new List<UserArticle>();
+            List<IUserArticle> userArticles;
             try
             {
-                userArticles = await Task.Run(() => _repository.GetAllUserArticles());
+                userArticles = (await Task.Run(() => _repository.GetAllUserArticles()))
+                   .Cast<IUserArticle>()
+                   .ToList();
 
             }
             catch
             {
-                userArticles = new List<UserArticle>(_userArticles);
+                userArticles = new List<IUserArticle>(_userArticles);
             }
 
             // filters
@@ -255,7 +260,7 @@
             }
 
             // set author and submission date
-            article.Author = _appState.CurrentUser.CNP;
+            article.Author = _appState.CurrentUser.Cnp;
             article.SubmissionDate = DateTime.Now;
             article.Status = "Pending";
 
@@ -349,7 +354,7 @@
         }
 
         // Preview Methods
-        public void StorePreviewArticle(NewsArticle article, UserArticle userArticle)
+        public void StorePreviewArticle(INewsArticle article, IUserArticle userArticle)
         {
             // First, ensure both articles use the same ID format for consistent lookup
             string articleId = article.ArticleId;
@@ -380,7 +385,7 @@
             {
                 if (article.RelatedStocks != null && article.RelatedStocks.Count > 0)
                 {
-                    _repository.AddRelatedStocksForArticle(articleId, article.RelatedStocks, null);
+                    _repository.AddRelatedStocksForArticle(articleId, article.RelatedStocks, null, null);
                     System.Diagnostics.Debug.WriteLine($"StorePreviewArticle: Added {article.RelatedStocks.Count} related stocks to repository for article {articleId}");
                 }
             }
@@ -390,7 +395,7 @@
             }
         }
 
-        public UserArticle GetUserArticleForPreview(string articleId)
+        public IUserArticle GetUserArticleForPreview(string articleId)
         {
             if (_previewUserArticles.TryGetValue(articleId, out var previewArticle))
             {
@@ -401,7 +406,7 @@
             return _userArticles.FirstOrDefault(a => a.ArticleId == articleId);
         }
 
-        public List<string> GetRelatedStocksForArticle(string articleId)
+        public IReadOnlyList<string> GetRelatedStocksForArticle(string articleId)
         {
             // Remove "preview:" prefix if present
             string actualId = articleId.StartsWith("preview:") ? articleId.Substring(8) : articleId;
@@ -438,7 +443,7 @@
             }
         }
 
-        public List<NewsArticle> GetCachedArticles()
+        public IReadOnlyList<INewsArticle> GetCachedArticles()
         {
             return _cachedArticles.Count > 0 ? _cachedArticles : _repository.GetAllNewsArticles();
         }

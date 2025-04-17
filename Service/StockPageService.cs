@@ -6,7 +6,7 @@
     using StockApp.Models;
     using StockApp.Repository;
 
-    class StockPageService
+    class StockPageService : IStockPageService
     {
         StockPageRepository _repo;
         StockPageStock _stock;
@@ -35,9 +35,9 @@
             return _repo.User.GemBalance;
         }
 
-        public List<int> GetStockHistory()
+        public IReadOnlyList<int> GetStockHistory()
         {
-            List<int> res = _repo.GetStockHistory(_stock.Name);
+            IReadOnlyList<int> res = _repo.GetStockHistory(_stock.Name);
             // res.Reverse();
             return res;
         }
@@ -49,7 +49,7 @@
 
         public bool BuyStock(int quantity)
         {
-            List<int> stockHistory = GetStockHistory();
+            IReadOnlyList<int> stockHistory = GetStockHistory();
             int stockPrice = stockHistory.Last();
 
             int totalPrice = stockPrice * quantity;
@@ -73,7 +73,7 @@
 
         public bool SellStock(int quantity)
         {
-            List<int> stockHistory = GetStockHistory();
+            IReadOnlyList<int> stockHistory = GetStockHistory();
             int stockPrice = stockHistory.Last();
             int totalPrice = stockPrice * quantity;
             if (_repo.GetOwnedStocks(_stock.Name) >= quantity)
