@@ -1,16 +1,16 @@
-﻿using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Navigation;
-using System;
-
-namespace StockApp.Service
+﻿namespace StockApp.Service
 {
+    using System;
+    using Microsoft.UI.Xaml.Controls;
+    using Microsoft.UI.Xaml.Navigation;
+
     public class NavigationService
     {
-        private static readonly Lazy<NavigationService> _instance = new Lazy<NavigationService>(() => new NavigationService());
+        private static readonly Lazy<NavigationService> instance = new (() => new NavigationService());
 
-        public static NavigationService Instance => _instance.Value;
+        public static NavigationService Instance => instance.Value;
 
-        private Frame _frame;
+        private Frame frame;
 
         // Private constructor to enforce singleton pattern
         private NavigationService()
@@ -22,23 +22,29 @@ namespace StockApp.Service
             _frame = frame ?? throw new ArgumentNullException(nameof(frame));
         }
 
-        public bool Navigate(Type pageType, object parameter = null)
+        public bool Navigate(Type pageType, object? parameter = null)
         {
-            if (_frame == null)
+            if (this.frame == null)
+            {
                 throw new InvalidOperationException("NavigationService not initialized. Call Initialize first.");
+            }
 
-            return _frame.Navigate(pageType, parameter);
+            return this.frame.Navigate(pageType, parameter);
         }
 
         public void GoBack()
         {
-            if (_frame == null)
+            if (this.frame == null)
+            {
                 throw new InvalidOperationException("NavigationService not initialized. Call Initialize first.");
+            }
 
-            if (_frame.CanGoBack)
-                _frame.GoBack();
+            if (this.frame.CanGoBack)
+            {
+                this.frame.GoBack();
+            }
         }
 
-        public bool CanGoBack => _frame?.CanGoBack ?? false;
+        public bool CanGoBack => this.frame?.CanGoBack ?? false;
     }
 }

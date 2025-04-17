@@ -1,18 +1,18 @@
-﻿using System;
-using System.Text.RegularExpressions;
-using StockApp.Model;
-using StockApp.Repository;
-
-namespace StockApp.Service
+﻿namespace StockApp.Service
 {
+    using System;
+    using System.Text.RegularExpressions;
+    using StockApp.Models;
+    using StockApp.Repository;
+
     internal class CreateStockService
     {
-        private readonly BaseStocksRepository _stocksRepository;
-        private readonly Random _random = new Random();
+        private readonly BaseStocksRepository stocksRepository;
+        private readonly Random random = new ();
 
-        public CreateStockService(BaseStocksRepository stocksRepository = null)
+        public CreateStockService(BaseStocksRepository? stocksRepository = null)
         {
-            _stocksRepository = stocksRepository ?? new BaseStocksRepository();
+            this.stocksRepository = stocksRepository ?? new BaseStocksRepository();
         }
 
         public bool CheckIfUserIsGuest()
@@ -45,9 +45,9 @@ namespace StockApp.Service
 
                 var stock = new BaseStock(stockName, stockSymbol, authorCNP);
 
-                int initialPrice = _random.Next(50, 501);
+                int initialPrice = random.Next(50, 501);
 
-                _stocksRepository.AddStock(stock, initialPrice);
+                stocksRepository.AddStock(stock, initialPrice);
 
                 return "Stock added successfully with initial value!";
             }

@@ -1,25 +1,21 @@
-﻿using System.Collections.Generic;
-using Models;
-using StockApp.Repository;
-
-namespace StockApp.Service
+﻿namespace StockApp.Service
 {
+    using System.Collections.Generic;
+    using StockApp.Models;
+    using StockApp.Repository;
+
     public class AlertService
     {
-        private readonly AlertRepository _repository = new AlertRepository();
+        private readonly AlertRepository repository = new ();
 
-        public List<Alert> GetAllAlerts() => _repository.GetAllAlerts();
+        public List<Alert> GetAllAlerts() => repository.GetAllAlerts();
 
-        public List<Alert> GetAllAlertsOn() => _repository.GetAllAlerts().FindAll(a => a.ToggleOnOff);
+        public List<Alert> GetAllAlertsOn() => repository.GetAllAlerts().FindAll(a => a.ToggleOnOff);
 
-        public void CreateAlert(Alert alert) => _repository.AddAlert(alert);
+        public void CreateAlert(Alert alert) => repository.AddAlert(alert);
 
-        public void RemoveAlert(int alertId) => _repository.DeleteAlert(alertId);
+        public void RemoveAlert(int alertId) => repository.DeleteAlert(alertId);
 
-        public void UpdateAlert(Alert alert) => _repository.UpdateAlert(alert);
-
-
-
-
+        public void UpdateAlert(Alert alert) => repository.UpdateAlert(alert);
     }
 }

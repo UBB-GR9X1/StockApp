@@ -1,10 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using StockApp.Model;
-using StockApp.Repository;
-namespace StockApp.Service
+﻿namespace StockApp.Service
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using StockApp.Models;
+    using StockApp.Repository;
+
     class StockPageService
     {
         StockPageRepository _repo;

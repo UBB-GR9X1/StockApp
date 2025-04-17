@@ -1,11 +1,11 @@
-﻿using System.Collections.ObjectModel;
-using System.Linq;
-using StockApp.Model;
-using StockApp.Repository;
-
-namespace StockApp.Service
+﻿namespace StockApp.Service
 {
-    class HomePageService
+    using System.Collections.ObjectModel;
+    using System.Linq;
+    using StockApp.Models;
+    using StockApp.Repository;
+
+    class HomepageService
     {
         private HomepageStocksRepository _repo;
         public ObservableCollection<HomepageStock> FavoriteStocks { get; private set; }
@@ -93,14 +93,14 @@ namespace StockApp.Service
         {
             _repo.RemoveFromFavorites(stock);
             FavoriteStocks.Remove(stock);
-            stock.isFavorite = false;
+            stock.IsFavorite = false;
         }
 
         public void AddToFavorites(HomepageStock stock)
         {
             _repo.AddToFavorites(stock);
             FavoriteStocks.Add(stock);
-            stock.isFavorite = true;
+            stock.IsFavorite = true;
         }
         public bool IsGuestUser()
         {

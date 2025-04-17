@@ -1,9 +1,9 @@
-﻿using System.Threading.Tasks;
-using StockApp.Model;
-using StockApp.Repository;
-
-namespace StockApp.Service
+﻿namespace StockApp.Service
 {
+    using System.Threading.Tasks;
+    using StockApp.Models;
+    using StockApp.Repository;
+
     public class StoreService
     {
         private readonly GemStoreRepository repository = new GemStoreRepository();

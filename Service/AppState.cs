@@ -1,12 +1,13 @@
-﻿using System;
-
-namespace StockApp.Service
+﻿namespace StockApp.Service
 {
+    using System;
+    using StockApp.Models;
+
     public class AppState
     {
-        private static readonly Lazy<AppState> _instance = new Lazy<AppState>(() => new AppState());
+        private static readonly Lazy<AppState> instance = new (() => new AppState());
 
-        public static AppState Instance => _instance.Value;
+        public static AppState Instance => instance.Value;
 
         public Model.User CurrentUser 
         { 
@@ -18,7 +19,7 @@ namespace StockApp.Service
 
         private AppState()
         {
-            _currentUser = new Model.User("1234567890123", "Caramel", "asdf", false, "imagine", false);
+            this.CurrentUser = new ("1234567890123", "Caramel", "asdf", false, "imagine", false);
         }
     }
 }

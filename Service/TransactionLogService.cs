@@ -1,11 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using StockApp.Model;
-using StockApp.Repository;
-
-namespace StockApp.Service
+﻿namespace StockApp.Service
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using StockApp.Models;
+    using StockApp.Repository;
+    using StockApp.Repository.Exporter;
+
     public class TransactionLogService
     {
         private readonly TransactionRepository transactionRepository;
@@ -44,11 +45,11 @@ namespace StockApp.Service
 
         public void ExportTransactions(List<TransactionLogTransaction> transactions, string filePath, string format)
         {
-            Repository.Repository.Exporter.ITransactionExporter exporter = format.ToLower() switch
+            ITransactionExporter exporter = format.ToLower() switch
             {
-                "csv" => new Repository.Repository.Exporter.CSVTransactionExporter(),
-                "json" => new Repository.Repository.Exporter.JSONTransactionExporter(),
-                "html" => new Repository.Repository.Exporter.HTMLTransactionExporter(),
+                "csv" => new CSVTransactionExporter(),
+                "json" => new JSONTransactionExporter(),
+                "html" => new HTMLTransactionExporter(),
                 _ => throw new ArgumentException("Unsupported file format."),
             };
 

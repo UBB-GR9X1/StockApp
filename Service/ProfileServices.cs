@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
-using StockApp.Model;
-using StockApp.Repository;
-namespace StockApp.Service
+﻿namespace StockApp.Service
 {
+    using System.Collections.Generic;
+    using StockApp.Models;
+    using StockApp.Repository;
+
     public class ProfieServices
     {
         ProfileRepository _repo;
