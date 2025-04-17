@@ -15,9 +15,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Homepage\**" />
+    <Compile Remove="View\**" />
     <EmbeddedResource Remove="Homepage\**" />
+    <EmbeddedResource Remove="View\**" />
     <None Remove="Homepage\**" />
+    <None Remove="View\**" />
     <Page Remove="Homepage\**" />
+    <Page Remove="View\**" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="MainPage.xaml" />
@@ -78,10 +82,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="View\" />
-    <Folder Include="Page\" />
-  </ItemGroup>
 
   <!--
     Defining the "HasPackageAndPublishMenuAddedByProject" property here allows the Solution
@@ -106,6 +106,18 @@
     <None Update="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="SqlScripts\CheckTablesExist.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="SqlScripts\CreateTables.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="SqlScripts\ResetDatabase.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
+  <ItemGroup>
+    <PRIResource Remove="View\**" />
+  </ItemGroup>
 </Project>
