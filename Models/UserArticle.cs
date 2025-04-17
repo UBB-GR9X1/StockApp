@@ -13,7 +13,7 @@
 
         public string Content { get; set; }
 
-        public string Author { get; set; }
+        public User Author { get; set; }
 
         public DateTime SubmissionDate { get; set; }
 

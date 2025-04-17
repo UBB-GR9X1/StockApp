@@ -9,24 +9,24 @@
 
     public class NewsService
     {
-        private readonly AppState _appState;
-        private static readonly Dictionary<string, NewsArticle> _previewArticles = new();
-        private static readonly Dictionary<string, UserArticle> _previewUserArticles = new();
-        private readonly List<NewsArticle> _cachedArticles = new();
-        private static readonly List<UserArticle> _userArticles = new();
-        private static bool _isInitialized = false;
-        private NewsRepository _repository = new NewsRepository();
-        private BaseStocksRepository _stocksRepository;
+        private readonly AppState appState;
+        private static readonly Dictionary<string, NewsArticle> previewArticles = new();
+        private static readonly Dictionary<string, UserArticle> previewUserArticles = new();
+        private readonly List<NewsArticle> cachedArticles = new();
+        private static readonly List<UserArticle> userArticles = new();
+        private static bool isInitialized = false;
+        private NewsRepository repository = new NewsRepository();
+        private BaseStocksRepository stocksRepository;
 
         public NewsService()
         {
-            _appState = AppState.Instance;
-            _stocksRepository = new BaseStocksRepository();
+            this.appState = AppState.Instance;
+            this.stocksRepository = new BaseStocksRepository();
 
-            if (!_isInitialized)
+            if (!isInitialized)
             {
-                _userArticles.AddRange(_repository.GetAllUserArticles());
-                _isInitialized = true;
+                userArticles.AddRange(this.repository.GetAllUserArticles());
+                isInitialized = true;
             }
         }
 
@@ -37,11 +37,11 @@
 
             try
             {
-                return await Task.Run(() => _repository.GetAllNewsArticles());
+                return await Task.Run(() => this.repository.GetAllNewsArticles());
             }
             catch
             {
-                return _repository.GetAllNewsArticles();
+                return this.repository.GetAllNewsArticles();
             }
         }
 
@@ -51,7 +51,7 @@
                 throw new ArgumentNullException(nameof(articleId));
 
             // First check if this is a preview article using the correct lookup ID
-            if (_previewArticles.TryGetValue(articleId, out var previewArticle))
+            if (previewArticles.TryGetValue(articleId, out var previewArticle))
             {
                 return previewArticle;
             }
@@ -60,12 +60,12 @@
 
             try
             {
-                var article = await Task.Run(() => _repository.GetNewsArticleById(articleId));
+                var article = await Task.Run(() => this.repository.GetNewsArticleById(articleId));
                 return article ?? throw new KeyNotFoundException($"Article with ID {articleId} not found");
             }
             catch
             {
-                var mockArticles = _repository.GetAllNewsArticles();
+                var mockArticles = this.repository.GetAllNewsArticles();
                 return mockArticles.FirstOrDefault(a => a.ArticleId == articleId)
                     ?? throw new KeyNotFoundException($"Article with ID {articleId} not found");
             }
@@ -74,19 +74,21 @@
         public async Task<bool> MarkArticleAsReadAsync(string articleId)
         {
             if (string.IsNullOrWhiteSpace(articleId))
+            {
                 throw new ArgumentNullException(nameof(articleId));
+            }
 
             await Task.Delay(100);
 
             try
             {
-                await Task.Run(() => _repository.MarkArticleAsRead(articleId));
+                await Task.Run(() => this.repository.MarkArticleAsRead(articleId));
                 return true;
             }
             catch
             {
                 // mark as read in cached articles
-                var article = _cachedArticles.FirstOrDefault(a => a.ArticleId == articleId);
+                var article = this.cachedArticles.FirstOrDefault(a => a.ArticleId == articleId);
                 if (article != null)
                 {
                     article.IsRead = true;
@@ -98,7 +100,7 @@
         public async Task<bool> CreateArticleAsync(NewsArticle article)
         {
             // ensure user is logged in
-            if (_appState.CurrentUser == null)
+            if (this.appState.CurrentUser == null)
             {
                 throw new UnauthorizedAccessException("User must be logged in to create an article");
             }
@@ -107,12 +109,12 @@
 
             try
             {
-                await Task.Run(() => _repository.AddNewsArticle(article));
+                await Task.Run(() => this.repository.AddNewsArticle(article));
                 return true;
             }
             catch
             {
-                _cachedArticles.Add(article);
+                this.cachedArticles.Add(article);
                 return true;
             }
         }
@@ -121,7 +123,7 @@
         public async Task<List<UserArticle>> GetUserArticlesAsync(string status = null, string topic = null)
         {
             // ensure the user is admin
-            if (_appState.CurrentUser == null || !_appState.CurrentUser.IsModerator)
+            if (this.appState.CurrentUser == null || !this.appState.CurrentUser.IsModerator)
             {
                 throw new UnauthorizedAccessException("User must be an admin to access user articles");
             }
@@ -130,12 +132,12 @@
             var userArticles = new List<UserArticle>();
             try
             {
-                userArticles = await Task.Run(() => _repository.GetAllUserArticles());
+                userArticles = await Task.Run(() => this.repository.GetAllUserArticles());
 
             }
             catch
             {
-                userArticles = new List<UserArticle>(_userArticles);
+                userArticles = new List<UserArticle>(NewsService.userArticles);
             }
 
             // filters
@@ -155,7 +157,7 @@
         public async Task<bool> ApproveUserArticleAsync(string articleId)
         {
             // ensure the user is admin
-            if (_appState.CurrentUser == null || !_appState.CurrentUser.IsModerator)
+            if (this.appState.CurrentUser == null || !this.appState.CurrentUser.IsModerator)
             {
                 throw new UnauthorizedAccessException("User must be an admin to approve articles");
             }
@@ -167,18 +169,18 @@
 
             try
             {
-                await Task.Run(() => _repository.ApproveUserArticle(articleId));
-                _cachedArticles.Clear();
+                await Task.Run(() => this.repository.ApproveUserArticle(articleId));
+                this.cachedArticles.Clear();
                 return true;
             }
             catch
             {
-                var article = _userArticles.FirstOrDefault(a => a.ArticleId == articleId);
+                var article = userArticles.FirstOrDefault(a => a.ArticleId == articleId);
                 if (article == null)
                     throw new KeyNotFoundException($"Article with ID {articleId} not found");
 
                 article.Status = "Approved";
-                _cachedArticles.Clear();
+                this.cachedArticles.Clear();
                 return true;
             }
         }
@@ -186,7 +188,7 @@
         public async Task<bool> RejectUserArticleAsync(string articleId)
         {
             // ensure the user is admin
-            if (_appState.CurrentUser == null || !_appState.CurrentUser.IsModerator)
+            if (this.appState.CurrentUser == null || !this.appState.CurrentUser.IsModerator)
             {
                 throw new UnauthorizedAccessException("User must be an admin to reject articles");
             }
@@ -198,18 +200,18 @@
 
             try
             {
-                await Task.Run(() => _repository.RejectUserArticle(articleId));
-                _cachedArticles.Clear();
+                await Task.Run(() => this.repository.RejectUserArticle(articleId));
+                this.cachedArticles.Clear();
                 return true;
             }
             catch
             {
-                var article = _userArticles.FirstOrDefault(a => a.ArticleId == articleId);
+                var article = userArticles.FirstOrDefault(a => a.ArticleId == articleId);
                 if (article == null)
                     throw new KeyNotFoundException($"Article with ID {articleId} not found");
 
                 article.Status = "Rejected";
-                _cachedArticles.Clear();
+                this.cachedArticles.Clear();
                 return true;
             }
         }
@@ -217,7 +219,7 @@
         public async Task<bool> DeleteUserArticleAsync(string articleId)
         {
             // ensure the user is admin
-            if (_appState.CurrentUser == null || !_appState.CurrentUser.IsModerator)
+            if (this.appState.CurrentUser == null || !this.appState.CurrentUser.IsModerator)
             {
                 throw new UnauthorizedAccessException("User must be an admin to delete articles");
             }
@@ -229,19 +231,19 @@
 
             try
             {
-                await Task.Run(() => _repository.DeleteUserArticle(articleId));
-                await Task.Run(() => _repository.DeleteNewsArticle(articleId));
-                _cachedArticles.Clear();
+                await Task.Run(() => this.repository.DeleteUserArticle(articleId));
+                await Task.Run(() => this.repository.DeleteNewsArticle(articleId));
+                this.cachedArticles.Clear();
                 return true;
             }
             catch
             {
-                var article = _userArticles.FirstOrDefault(a => a.ArticleId == articleId);
+                var article = userArticles.FirstOrDefault(a => a.ArticleId == articleId);
                 if (article == null)
                     throw new KeyNotFoundException($"Article with ID {articleId} not found");
 
-                _userArticles.Remove(article);
-                _cachedArticles.Clear();
+                userArticles.Remove(article);
+                this.cachedArticles.Clear();
                 return true;
             }
         }
@@ -249,13 +251,13 @@
         public async Task<bool> SubmitUserArticleAsync(UserArticle article)
         {
             // ensure user is logged in
-            if (_appState.CurrentUser == null)
+            if (this.appState.CurrentUser == null)
             {
                 throw new UnauthorizedAccessException("User must be logged in to submit an article");
             }
 
             // set author and submission date
-            article.Author = _appState.CurrentUser.CNP;
+            article.Author = this.appState.CurrentUser;
             article.SubmissionDate = DateTime.Now;
             article.Status = "Pending";
 
@@ -263,15 +265,15 @@
 
             try
             {
-                await Task.Run(() => _repository.AddUserArticle(article));
-                _cachedArticles.Clear();
+                await Task.Run(() => this.repository.AddUserArticle(article));
+                this.cachedArticles.Clear();
                 return true;
             }
             catch
             {
                 // rn, return success and add to local data
-                _userArticles.Add(article);
-                _cachedArticles.Clear();
+                userArticles.Add(article);
+                this.cachedArticles.Clear();
                 return true;
             }
 
@@ -281,9 +283,9 @@
         public async Task<User> GetCurrentUserAsync()
         {
             // checks if user is already in app state
-            if (_appState.CurrentUser != null)
+            if (this.appState.CurrentUser != null)
             {
-                return _appState.CurrentUser;
+                return this.appState.CurrentUser;
             }
 
             await Task.Delay(200);
@@ -305,7 +307,7 @@
 
                 try
                 {
-                    _repository.EnsureUserExists(
+                    this.repository.EnsureUserExists(
                         adminCnp,
                         "admin",
                         "Administrator Account",
@@ -324,7 +326,10 @@
                     "admin",
                     "Administrator Account",
                     true,
-                    "img.jpg", false);
+                    "img.jpg",
+                    false,
+                    0
+                );
             }
             else if (username == "user" && password == "user")
             {
@@ -333,7 +338,10 @@
                     "Caramel",
                     "asdf",
                     false,
-                    "imagine", false);
+                    "imagine",
+                    false,
+                    1000
+                );
             }
 
             throw new UnauthorizedAccessException("Invalid username or password");
@@ -342,10 +350,10 @@
         public void Logout()
         {
             // this supposed to be DIFFERENT BUT AINT NO WAY IT COULD BE CHANGED WITH THE CURRENT CODEBASE
-            _appState.CurrentUser = null;
+            this.appState.CurrentUser = null;
             // clear preview articles
-            _previewArticles.Clear();
-            _previewUserArticles.Clear();
+            previewArticles.Clear();
+            previewUserArticles.Clear();
         }
 
         // Preview Methods
@@ -372,15 +380,15 @@
             }
 
             // Store the article and user article in the preview caches
-            _previewArticles[articleId] = article;
-            _previewUserArticles[articleId] = userArticle;
+            previewArticles[articleId] = article;
+            previewUserArticles[articleId] = userArticle;
 
             // Also update the repository with related stocks for this article
             try
             {
                 if (article.RelatedStocks != null && article.RelatedStocks.Count > 0)
                 {
-                    _repository.AddRelatedStocksForArticle(articleId, article.RelatedStocks, null);
+                    this.repository.AddRelatedStocksForArticle(articleId, article.RelatedStocks, null);
                     System.Diagnostics.Debug.WriteLine($"StorePreviewArticle: Added {article.RelatedStocks.Count} related stocks to repository for article {articleId}");
                 }
             }
@@ -392,13 +400,13 @@
 
         public UserArticle GetUserArticleForPreview(string articleId)
         {
-            if (_previewUserArticles.TryGetValue(articleId, out var previewArticle))
+            if (previewUserArticles.TryGetValue(articleId, out var previewArticle))
             {
                 return previewArticle;
             }
 
             // if not in preview cache, check the regular user articles
-            return _userArticles.FirstOrDefault(a => a.ArticleId == articleId);
+            return userArticles.FirstOrDefault(a => a.ArticleId == articleId);
         }
 
         public List<string> GetRelatedStocksForArticle(string articleId)
@@ -407,7 +415,7 @@
             string actualId = articleId.StartsWith("preview:") ? articleId.Substring(8) : articleId;
 
             // Check preview dictionary first
-            if (_previewUserArticles.TryGetValue(actualId, out var previewUserArticle) &&
+            if (previewUserArticles.TryGetValue(actualId, out var previewUserArticle) &&
                 previewUserArticle.RelatedStocks != null &&
                 previewUserArticle.RelatedStocks.Any())
             {
@@ -418,7 +426,7 @@
             // Then check repository
             try
             {
-                var stocks = _repository.GetRelatedStocksForArticle(actualId);
+                var stocks = this.repository.GetRelatedStocksForArticle(actualId);
                 System.Diagnostics.Debug.WriteLine($"GetRelatedStocksForArticle: Found {stocks.Count} stocks in repository");
                 return stocks;
             }
@@ -431,16 +439,16 @@
 
         public void UpdateCachedArticles(List<NewsArticle> articles)
         {
-            _cachedArticles.Clear();
+            this.cachedArticles.Clear();
             if (articles != null)
             {
-                _cachedArticles.AddRange(articles);
+                this.cachedArticles.AddRange(articles);
             }
         }
 
         public List<NewsArticle> GetCachedArticles()
         {
-            return _cachedArticles.Count > 0 ? _cachedArticles : _repository.GetAllNewsArticles();
+            return this.cachedArticles.Count > 0 ? this.cachedArticles : this.repository.GetAllNewsArticles();
         }
     }
 }

@@ -19,7 +19,7 @@
 
         private AppState()
         {
-            this.CurrentUser = new("1234567890123", "Caramel", "asdf", false, "imagine", false);
+            this.CurrentUser = new("1234567890123", "Caramel", "asdf", false, "imagine", false, 123);
         }
     }
 }

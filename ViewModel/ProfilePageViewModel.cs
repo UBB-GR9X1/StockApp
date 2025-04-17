@@ -4,11 +4,12 @@
     using System.Collections.Generic;
     using System.ComponentModel;
     using Microsoft.UI.Xaml.Media.Imaging;
+    using StockApp.Models;
     using StockApp.Service;
 
     public class ProfilePageViewModel : INotifyPropertyChanged
     {
-        private ProfieServices profServ;
+        private readonly ProfieService profileService;
 
         private BitmapImage _imageSource;
         public BitmapImage ImageSource
@@ -23,13 +24,13 @@
 
         public ProfilePageViewModel(string authorCnp)
         {
-            profServ = new ProfieServices(authorCnp);
+            profileService = new ProfieService(authorCnp);
             LoadProfileImage();
         }
 
         private void LoadProfileImage()
         {
-            string imageUrl = profServ.GetImage();
+            string imageUrl = profileService.GetImage();
             if (!string.IsNullOrEmpty(imageUrl))
             {
                 try
@@ -46,22 +47,17 @@
 
         public string GetLoggedInUserCnp()
         {
-            return profServ.GetLoggedInUserCnp();
+            return profileService.GetLoggedInUserCnp();
         }
 
-        public string GetUsername() => profServ.GetUsername();
-        public string GetDescription() => profServ.GetDescription();
-        public bool IsHidden() => profServ.IsHidden();
-        public bool IsAdmin() => profServ.IsAdmin();
-        public List<string> GetUserStocks() => profServ.GetUserStocks();
-        public string GetPassword() => profServ.GetPass();
-
-        public string ExtractMyStockName(string fullStock) => profServ.ExtractStockName(fullStock);
-
-
+        public string GetUsername() => profileService.GetUsername();
+        public string GetDescription() => profileService.GetDescription();
+        public bool IsHidden() => profileService.IsHidden();
+        public bool IsAdmin() => profileService.IsAdmin();
+        public List<Stock> GetUserStocks() => profileService.GetUserStocks();
         public void UpdateAdminMode(bool newIsAdmin)
         {
-            profServ.UpdateIsAdmin(newIsAdmin);
+            profileService.UpdateIsAdmin(newIsAdmin);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
