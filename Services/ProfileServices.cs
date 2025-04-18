@@ -11,7 +11,7 @@
         private User _user;
         private List<string> userStocks;
 
-        public ProfieServices(string authorCnp)
+        public ProfileServices(string authorCnp)
         {
             _repo = new ProfileRepository(authorCnp);
 

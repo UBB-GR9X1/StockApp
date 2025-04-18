@@ -7,11 +7,11 @@
     {
 
 
-        private ProfieServices profServ;
+        private ProfileServices profServ;
 
         public UpdateProfilePageViewModel(string myCnp)
         {
-            profServ = new ProfieServices(myCnp);
+            profServ = new ProfileServices(myCnp);
         }
 
         public string GetImage() => profServ.GetImage();

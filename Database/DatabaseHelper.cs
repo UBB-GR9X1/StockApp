@@ -23,7 +23,9 @@
         public static void InitializeDatabase()
         {
             if (string.IsNullOrWhiteSpace(App.ConnectionString))
+            {
                 throw new InvalidOperationException("Connection string is not initialized");
+            }
 
             bool databaseExists = false;
             bool tablesExist = false;
@@ -97,8 +99,6 @@
                 System.Diagnostics.Debug.WriteLine($"Error checking table existence: {ex.Message}");
                 throw;
             }
-
-            return false;
         }
 
         private static void ResetDatabase()

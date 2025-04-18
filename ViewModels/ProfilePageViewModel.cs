@@ -8,7 +8,7 @@
 
     public class ProfilePageViewModel : INotifyPropertyChanged
     {
-        private ProfieServices profServ;
+        private ProfileServices profServ;
 
         private BitmapImage _imageSource;
         public BitmapImage ImageSource
@@ -23,7 +23,7 @@
 
         public ProfilePageViewModel(string authorCnp)
         {
-            profServ = new ProfieServices(authorCnp);
+            profServ = new ProfileServices(authorCnp);
             LoadProfileImage();
         }
 
