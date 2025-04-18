@@ -93,8 +93,9 @@
                 return new Stock(
                     name: reader["STOCK_NAME"].ToString() ?? throw new Exception("Stock name not found."),
                     symbol: reader["STOCK_SYMBOL"].ToString() ?? throw new Exception("Stock symbol not found."),
-                    authorCnp: reader["AUTHOR_CNP"].ToString() ?? throw new Exception("Author CNP not found."),
-                    price: Convert.ToInt32(reader["PRICE"]));
+                    authorCNP: reader["AUTHOR_CNP"].ToString() ?? throw new Exception("Author CNP not found."),
+                    price: Convert.ToInt32(reader["PRICE"]),
+                    quantity: reader["QUANTITY"] != DBNull.Value ? Convert.ToInt32(reader["QUANTITY"]) : 0);
             }
 
             throw new InvalidOperationException($"Stock with name '{stockName}' not found.");

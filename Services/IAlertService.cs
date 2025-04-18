@@ -5,14 +5,14 @@
 
     public interface IAlertService
     {
+        Alert CreateAlert(string stockName, string name, decimal upperBound, decimal lowerBound, bool toggleOnOff);
+
         List<Alert> GetAllAlerts();
 
         List<Alert> GetAllAlertsOn();
 
-        void CreateAlert(Alert alert);
-
         void RemoveAlert(int alertId);
 
-        void UpdateAlert(Alert alert);
+        void UpdateAlert(int alertId, string stockName, string name, decimal upperBound, decimal lowerBound, bool toggleOnOff);
     }
 }

@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.ComponentModel;
     using Microsoft.UI.Xaml.Media.Imaging;
+    using StockApp.Models;
     using StockApp.Services;
 
     public class ProfilePageViewModel : INotifyPropertyChanged
@@ -21,9 +22,9 @@
             }
         }
 
-        public ProfilePageViewModel(string authorCnp)
+        public ProfilePageViewModel()
         {
-            profileService = new ProfieService(authorCnp);
+            profileService = new ProfieService();
             LoadProfileImage();
         }
 

@@ -6,7 +6,6 @@ namespace StockApp
     using Microsoft.UI.Xaml.Navigation;
     using StockApp.Database;
     using StockApp.Models;
-    using StockApp.Repositories;
     using StockApp.Services;
     using StockApp.Views;
 
@@ -55,25 +54,25 @@ namespace StockApp
             //rootFrame.Navigate(typeof(GemStore.GemStoreWindow), null);
 
             // TRANSACTION LOG:
-            //rootFrame.Navigate(typeof(TransactionLog.TransactionLogView), null);
+            //rootFrame.Navigate(typeof(TransactionLog.TransactionLogPage), null);
 
             // Alerts
             //rootFrame.Navigate(typeof(Alerts.AlertWindow), null);
         }
-        private void CheckAndHandleAlerts()
-        {
-            var alertRepository = new AlertRepository();
-            var triggeredAlerts = alertRepository.GetTriggeredAlerts();
+        //private void CheckAndHandleAlerts()
+        //{
+        //    var alertRepository = new AlertRepository();
+        //    var triggeredAlerts = alertRepository.GetTriggeredAlerts();
 
-            if (triggeredAlerts.Count > 0)
-            {
-                DisplayTriggeredAlerts(triggeredAlerts);
-            }
-            else
-            {
-                rootFrame.Navigate(typeof(HomepageView), null);
-            }
-        }
+        //    if (triggeredAlerts.Count > 0)
+        //    {
+        //        DisplayTriggeredAlerts(triggeredAlerts);
+        //    }
+        //    else
+        //    {
+        //        rootFrame.Navigate(typeof(HomepageView), null);
+        //    }
+        //}
         private void DisplayTriggeredAlerts(List<TriggeredAlert> triggeredAlerts)
         {
             rootFrame.Navigate(typeof(AlertsView), triggeredAlerts);

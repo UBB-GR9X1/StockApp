@@ -340,7 +340,7 @@
 
             storage = value;
             this.OnPropertyChanged(propertyName);
-            
+
             return true;
         }
     }

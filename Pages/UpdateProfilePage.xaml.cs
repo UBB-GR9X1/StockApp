@@ -20,14 +20,8 @@ namespace StockApp.Pages
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
-
-            // Retrieve the stock name passed during navigation
-            if (e.Parameter is string authorCNP)
-            {
-                viewModelUpdate = new(authorCNP);
-                this.DataContext = viewModelUpdate;
-            }
-
+            this.viewModelUpdate = new();
+            this.DataContext = this.viewModelUpdate;
         }
 
         private void GoToProfilePage(object sender, RoutedEventArgs e)

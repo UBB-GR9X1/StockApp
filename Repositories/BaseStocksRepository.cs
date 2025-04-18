@@ -56,7 +56,7 @@
                 {
                     command.Parameters.AddWithValue("@StockName", stock.Name);
                     command.Parameters.AddWithValue("@StockSymbol", stock.Symbol);
-                    command.Parameters.AddWithValue("@AuthorCNP", stock.AuthorCnp);
+                    command.Parameters.AddWithValue("@AuthorCNP", stock.AuthorCNP);
                 }, transaction);
 
                 // Insert the initial stock value

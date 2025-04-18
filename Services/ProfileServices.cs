@@ -4,13 +4,15 @@
     using StockApp.Models;
     using StockApp.Repositories;
 
-    public class ProfieServices : IProfileService
+    public class ProfieService
     {
         private ProfileRepository profileRepo;
+        private UserRepository userRepo;
 
-        public ProfieService(string authorCnp)
+        public ProfieService()
         {
-            profileRepo = new ProfileRepository(authorCnp);
+            this.userRepo = new();
+            this.profileRepo = new ProfileRepository(this.userRepo.CurrentUserCNP);
 
         }
 

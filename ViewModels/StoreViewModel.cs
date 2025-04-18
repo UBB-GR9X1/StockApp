@@ -195,7 +195,7 @@
             while (true)
             {
                 await Task.Delay(TimeSpan.FromSeconds(60));
-                this.AvailableDeals = new ObservableCollection<GemDeal>(this.AvailableDeals.Where(deal => deal.IsAvailable()));
+                this.AvailableDeals = new ObservableCollection<GemDeal>(this.AvailableDeals.Where(deal => deal.IsAvailable));
                 this.SortDeals();
                 this.OnPropertyChanged(nameof(this.AvailableDeals));
             }
@@ -203,7 +203,7 @@
 
         private void SortDeals()
         {
-            var sortedDeals = this.AvailableDeals.OrderBy(deal => deal.ExpirationTime ?? DateTime.MaxValue).ToList();
+            var sortedDeals = this.AvailableDeals.OrderBy(deal => deal.ExpirationTime).ToList();
             this.AvailableDeals = new ObservableCollection<GemDeal>(sortedDeals);
             this.OnPropertyChanged(nameof(this.AvailableDeals));
         }

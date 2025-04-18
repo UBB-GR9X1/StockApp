@@ -8,9 +8,9 @@ namespace StockApp.Views
         public AlertsView()
         {
             this.InitializeComponent();
-            this.DataContext = this.AlertViewModel;
+            this.DataContext = this.ViewModel;
         }
 
-        public AlertViewModel AlertViewModel { get; } = new ();
+        public AlertViewModel ViewModel { get; } = new ();
     }
 }

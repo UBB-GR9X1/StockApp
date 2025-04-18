@@ -1,13 +1,14 @@
 ﻿namespace StockApp.Models
 {
-    public class Stock : BaseStock
+    public class Stock(string name, string symbol, string authorCNP, int price, int quantity) : BaseStock(name, symbol, authorCNP)
     {
-        public Stock(string name, string symbol, string authorCnp, int price)
-            : base(name, symbol, authorCnp)
-        {
-            Price = price;
-        }
+        public int Price { get; set; } = price;
 
-        public int Price { get; set; }
+        public int Quantity { get; set; } = quantity;
+
+        public override string ToString()
+        {
+            return $"{this.Name} ({this.Symbol}) - x{this.Quantity} at {this.Price}";
+        }
     }
 }

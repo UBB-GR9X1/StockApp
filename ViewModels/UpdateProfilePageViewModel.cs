@@ -1,6 +1,7 @@
 ﻿namespace StockApp.ViewModels
 {
     using System.Collections.Generic;
+    using StockApp.Models;
     using StockApp.Services;
 
     internal class UpdateProfilePageViewModel
@@ -9,9 +10,9 @@
 
         private ProfieService profileService;
 
-        public UpdateProfilePageViewModel(string userCNP)
+        public UpdateProfilePageViewModel()
         {
-            this.profileService = new ProfieService(userCNP);
+            this.profileService = new ProfieService();
         }
 
         public string GetImage() => this.profileService.GetImage();

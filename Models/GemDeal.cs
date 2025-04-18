@@ -4,7 +4,7 @@
     using System.ComponentModel;
     using System.Runtime.CompilerServices;
 
-    public class GemDeal : IGemDeal
+    public class GemDeal(string title, int gemAmount, double price, bool isSpecial = false, int? durationMinutes = null)
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -35,20 +35,6 @@
             => ExpirationTime == DateTime.MaxValue
                 ? string.Empty
                 : ExpirationTime.ToString("HH:mm:ss");
-
-        public GemDeal(
-            string title,
-            int gemAmount,
-            double price,
-            bool isSpecial = false,
-            int? durationMinutes = null)
-        {
-            Title = title;
-            GemAmount = gemAmount;
-            Price = price;
-            IsSpecial = isSpecial;
-            DurationMinutes = durationMinutes;
-        }
 
         protected void OnPropertyChanged([CallerMemberName] string? prop = null)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));

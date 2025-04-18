@@ -1,15 +1,15 @@
-namespace StockApp.Views
+namespace StockApp.Pages
 {
     using Microsoft.UI.Xaml.Controls;
     using Microsoft.UI.Xaml.Input;
     using StockApp.Services;
     using StockApp.ViewModels;
 
-    public sealed partial class NewListView : Page
+    public sealed partial class NewsListPage : Page
     {
         public NewsListViewModel ViewModel { get; } = new();
 
-        public NewListView()
+        public NewsListPage()
         {
             this.InitializeComponent();
             this.Loaded += OnLoaded;

@@ -1,37 +1,59 @@
-﻿// return new global::StocksHomepage.Model.Stock { Change="", isFavorite=false, Name="", Price="", Symbol="" };
-
-namespace StockApp.ViewModels
+﻿namespace StockApp.ViewModels
 {
     using System;
     using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.Runtime.CompilerServices;
     using System.Windows.Input;
+    using Microsoft.UI.Xaml;
+    using StockApp.Commands;
     using StockApp.Models;
+    using StockApp.Pages;
     using StockApp.Services;
 
     public class HomepageViewModel : INotifyPropertyChanged
     {
-        private readonly HomepageService service;
-        private ObservableCollection<HomepageStock> filteredAllStocks;
-        private ObservableCollection<HomepageStock> filteredFavoriteStocks;
-        private string searchQuery;
-        private string selectedSortOption;
-        private bool isGuestUser = true;
-        private string guestButtonVisibility = "Visible";
-        private string profileButtonVisibility = "Collapsed";
+        private readonly HomepageService service = new();
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        private ObservableCollection<HomepageStock> filteredAllStocks = [];
+        private ObservableCollection<HomepageStock> filteredFavoriteStocks = [];
+        private string searchQuery = string.Empty;
+        private string selectedSortOption = string.Empty;
+        private bool isGuestUser;
+        private Visibility guestButtonVisibility = Visibility.Visible;
+        private Visibility profileButtonVisibility = Visibility.Collapsed;
+
+        public HomepageViewModel()
+        {
+            this.IsGuestUser = this.service.IsGuestUser();
+            this.LoadStocks();
+
+            // Initialize Commands
+            this.FavoriteCommand = new RelayCommand(obj => this.ToggleFavorite(obj as HomepageStock));
+            this.CreateProfileCommand = new RelayCommand(_ => this.CreateUserProfile());
+            this.NavigateCommand = new RelayCommand(param => this.NavigateToPage(param));
+            this.SearchCommand = new RelayCommand(_ => this.ApplyFilter());
+            this.SortCommand = new RelayCommand(_ => this.ApplySort());
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         public ICommand FavoriteCommand { get; }
 
+        public ICommand CreateProfileCommand { get; }
+
+        public ICommand NavigateCommand { get; }
+
+        public ICommand SearchCommand { get; }
+
+        public ICommand SortCommand { get; }
         public ObservableCollection<HomepageStock> FilteredAllStocks
         {
             get => this.filteredAllStocks;
             private set
             {
                 this.filteredAllStocks = value;
-                this.OnPropertyChanged(nameof(this.FilteredAllStocks));
+                this.OnPropertyChanged();
             }
         }
 
@@ -41,11 +63,11 @@ namespace StockApp.ViewModels
             private set
             {
                 this.filteredFavoriteStocks = value;
-                this.OnPropertyChanged(nameof(this.FilteredFavoriteStocks));
+                this.OnPropertyChanged();
             }
         }
 
-        public string GetUserCNP() => this.service.GetUserCNP();
+        public string GetUserCNP => this.service.GetUserCNP();
 
         public bool IsGuestUser
         {
@@ -53,30 +75,30 @@ namespace StockApp.ViewModels
             set
             {
                 this.isGuestUser = value;
-                this.GuestButtonVisibility = this.isGuestUser ? "Visible" : "Collapsed";
-                this.ProfileButtonVisibility = this.isGuestUser ? "Collapsed" : "Visible";
-                this.OnPropertyChanged(nameof(this.IsGuestUser));
-                this.OnPropertyChanged(nameof(this.CanModifyFavorites)); // Add this line
+                this.GuestButtonVisibility = this.isGuestUser ? Visibility.Visible : Visibility.Collapsed;
+                this.ProfileButtonVisibility = this.isGuestUser ? Visibility.Collapsed : Visibility.Visible;
+                this.OnPropertyChanged();
+                this.OnPropertyChanged(nameof(this.CanModifyFavorites));
             }
         }
 
-        public string GuestButtonVisibility
+        public Visibility GuestButtonVisibility
         {
             get => this.guestButtonVisibility;
             set
             {
                 this.guestButtonVisibility = value;
-                this.OnPropertyChanged(nameof(this.GuestButtonVisibility));
+                this.OnPropertyChanged();
             }
         }
 
-        public string ProfileButtonVisibility
+        public Visibility ProfileButtonVisibility
         {
             get => this.profileButtonVisibility;
             set
             {
                 this.profileButtonVisibility = value;
-                this.OnPropertyChanged(nameof(this.ProfileButtonVisibility));
+                this.OnPropertyChanged();
             }
         }
 
@@ -86,7 +108,7 @@ namespace StockApp.ViewModels
             set
             {
                 this.searchQuery = value;
-                this.OnPropertyChanged(nameof(this.SearchQuery));
+                this.OnPropertyChanged();
                 this.ApplyFilter();
             }
         }
@@ -97,99 +119,89 @@ namespace StockApp.ViewModels
             set
             {
                 this.selectedSortOption = value;
-                this.OnPropertyChanged(nameof(this.SelectedSortOption));
+                this.OnPropertyChanged();
                 this.ApplySort();
             }
         }
 
-        public HomepageViewModel()
+        public bool CanModifyFavorites => !this.isGuestUser;
+
+        private void LoadStocks()
         {
-            this.service = new HomepageService();
-            this.IsGuestUser = this.service.IsGuestUser();
             this.FilteredAllStocks = [.. this.service.GetAllStocks()];
             this.FilteredFavoriteStocks = [.. this.service.GetFavoriteStocks()];
-            this.FavoriteCommand = new RelayCommand(obj => this.ToggleFavorite(obj as HomepageStock), this.CanToggleFavorite);
-
-            //FavoriteCommand = new RelayCommand(ToggleFavorite, CanToggleFavorite);
         }
 
-        public bool CanModifyFavorites
+        public void ApplyFilter()
         {
-            get => !this.isGuestUser;
+            this.service.FilterStocks(this.SearchQuery);
+            this.LoadStocks();
         }
 
-        public bool CanToggleFavorite(object obj) => !this.IsGuestUser;
+        public void ApplySort()
+        {
+            this.service.SortStocks(this.SelectedSortOption);
+            this.LoadStocks();
+        }
+
+        public void CreateUserProfile()
+        {
+            this.service.CreateUserProfile();
+            this.IsGuestUser = false;
+            this.LoadStocks();
+        }
+
+        public void ToggleFavorite(HomepageStock stock)
+        {
+            if (stock == null)
+            {
+                return;
+            }
+
+            if (stock.IsFavorite)
+            {
+                this.service.RemoveFromFavorites(stock);
+            }
+            else
+            {
+                this.service.AddToFavorites(stock);
+            }
+
+            this.LoadStocks();
+        }
+
+        public void NavigateToPage(object parameter)
+        {
+            if (parameter is string pageName)
+            {
+                switch (pageName)
+                {
+                    case "NewsListPage":
+                        NavigationService.Instance.Navigate(typeof(NewsListPage), parameter);
+                        break;
+                    case "CreateStockPage":
+                        NavigationService.Instance.Navigate(typeof(CreateStockPage), parameter);
+                        break;
+                    case "TransactionLogPage":
+                        NavigationService.Instance.Navigate(typeof(TransactionLogPage), parameter);
+                        break;
+                    case "ProfilePage":
+                        NavigationService.Instance.Navigate(typeof(ProfilePage), parameter);
+                        break;
+                    case "GemStoreWindow":
+                        NavigationService.Instance.Navigate(typeof(GemStoreWindow), parameter);
+                        break;
+                    default:
+                        throw new ArgumentException($"Unknown page: {pageName}", nameof(pageName));
+                }
+            }
+        }
 
         protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public void ApplyFilter()
-        {
-            this.service.FilterStocks(this.SearchQuery);
-            this.FilteredAllStocks = this.service.FilteredAllStocks;
-            this.FilteredFavoriteStocks = this.service.FilteredFavoriteStocks;
-        }
 
-        public void CreateUserProfile()
-        {
-            // Call the service to create a user profile
-            this.service.CreateUserProfile();
-
-            // Update the guest status
-            this.IsGuestUser = false;
-
-            // Refresh the stocks to reflect new permissions
-            this.RefreshStocks();
-        }
-
-        public void ApplySort()
-        {
-            this.service.SortStocks(this.SelectedSortOption);
-            this.FilteredAllStocks = this.service.FilteredAllStocks;
-            this.FilteredFavoriteStocks = this.service.FilteredFavoriteStocks;
-        }
-
-        public void ToggleFavorite(HomepageStock stock)
-        {
-            if (stock.IsFavorite)
-            {
-                this.service.RemoveFromFavorites(stock);
-                this.RefreshStocks();
-                return;
-            }
-
-            this.service.AddToFavorites(stock);
-            this.RefreshStocks();
-        }
-
-        public void RefreshStocks()
-        {
-            this.FilteredAllStocks = [.. this.service.GetAllStocks()];
-            this.FilteredFavoriteStocks = [.. this.service.GetFavoriteStocks()];
-        }
-
-        public class RelayCommand : ICommand
-        {
-            private readonly Action<object> execute;
-            private readonly Func<object, bool> canExecute;
-
-            public RelayCommand(Action<object> execute, Func<object, bool>? canExecute = null)
-            {
-                this.execute = execute ?? throw new ArgumentNullException(nameof(execute));
-                this.canExecute = canExecute;
-            }
-
-            public event EventHandler CanExecuteChanged
-            {
-                add => CommandManager.RequerySuggested += value;
-                remove => CommandManager.RequerySuggested -= value;
-            }
-
-            public bool CanExecute(object parameter) => this.canExecute?.Invoke(parameter) ?? true;
-
-            public void Execute(object parameter) => this.execute(parameter);
-        }
     }
 }
