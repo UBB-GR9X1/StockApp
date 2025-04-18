@@ -60,7 +60,7 @@
             }));
         }
 
-        public List<Alert> GetAllAlerts() => alerts;
+        //public List<Alert> GetAllAlerts() => alerts;
 
         public Alert GetAlertById(int alertId)
         {

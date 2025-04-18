@@ -6,7 +6,6 @@ namespace StockApp
     using Microsoft.UI.Xaml.Navigation;
     using StockApp.Database;
     using StockApp.Models;
-    using StockApp.Repositories;
     using StockApp.Services;
     using StockApp.Views;
 
@@ -20,7 +19,7 @@ namespace StockApp
             this.InitializeComponent();
             DatabaseHelper.InitializeDatabase();
 
-            CheckAndHandleAlerts();
+            //CheckAndHandleAlerts();
 
             //rootFrame.Navigate(typeof(CreateStockPage), null);
             // rootFrame.Navigate(typeof(ProfilePage), null);
@@ -60,20 +59,20 @@ namespace StockApp
             // Alerts
             //rootFrame.Navigate(typeof(Alerts.AlertWindow), null);
         }
-        private void CheckAndHandleAlerts()
-        {
-            var alertRepository = new AlertRepository();
-            var triggeredAlerts = alertRepository.GetTriggeredAlerts();
+        //private void CheckAndHandleAlerts()
+        //{
+        //    var alertRepository = new AlertRepository();
+        //    var triggeredAlerts = alertRepository.GetTriggeredAlerts();
 
-            if (triggeredAlerts.Count > 0)
-            {
-                DisplayTriggeredAlerts(triggeredAlerts);
-            }
-            else
-            {
-                rootFrame.Navigate(typeof(HomepageView), null);
-            }
-        }
+        //    if (triggeredAlerts.Count > 0)
+        //    {
+        //        DisplayTriggeredAlerts(triggeredAlerts);
+        //    }
+        //    else
+        //    {
+        //        rootFrame.Navigate(typeof(HomepageView), null);
+        //    }
+        //}
         private void DisplayTriggeredAlerts(List<TriggeredAlert> triggeredAlerts)
         {
             rootFrame.Navigate(typeof(AlertsView), triggeredAlerts);

@@ -1,15 +1,15 @@
-namespace Alerts
+namespace StockApp.Views
 {
     using System;
     using System.Collections.ObjectModel;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
     using StockApp.Models;
-    using StockApp.ViewModel;
+    using StockApp.ViewModels;
 
     public sealed partial class AlertsView : Page
     {
-        private readonly AlertViewModel alertViewModel = new ();
+        private readonly AlertViewModel alertViewModel = new();
 
         public AlertsView()
         {

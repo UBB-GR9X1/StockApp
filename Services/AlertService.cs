@@ -1,7 +1,6 @@
 ﻿namespace StockApp.Services
 {
     using System.Collections.Generic;
-    using System.Linq;
     using StockApp.Models;
     using StockApp.Repositories;
 
