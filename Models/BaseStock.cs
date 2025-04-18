@@ -6,6 +6,6 @@
 
         public string Symbol { get; } = symbol;
 
-        public string AuthorCnp { get; } = authorCnp;
+        public string AuthorCNP { get; } = authorCnp;
     }
 }

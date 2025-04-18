@@ -17,11 +17,11 @@ namespace StockApp.Views
             this.LoadAlerts();
         }
 
-        private void LoadAlerts() => this.AlertsListView.ItemsSource = new ObservableCollection<Alert>(this.AlertViewModel.Alerts);
+        private void LoadAlerts() => this.AlertsListView.ItemsSource = new ObservableCollection<Alert>(this.alertViewModel.Alerts);
 
         private void PlusButton_Click(object sender, RoutedEventArgs e)
         {
-            Alert newAlert = this.AlertViewModel.CreateAlert("Tesla", "New Alert", 100, 0, true);
+            Alert newAlert = this.alertViewModel.CreateAlert("Tesla", "New Alert", 100, 0, true);
             this.AlertsListView.SelectedItem = newAlert;
         }
 
@@ -29,7 +29,7 @@ namespace StockApp.Views
         {
             if (this.AlertsListView.SelectedItem is Alert selectedAlert)
             {
-                this.AlertViewModel.DeleteAlert(selectedAlert.AlertId);
+                this.alertViewModel.DeleteAlert(selectedAlert.AlertId);
 
                 var dialog = new ContentDialog
                 {
@@ -59,14 +59,14 @@ namespace StockApp.Views
         {
             try
             {
-                foreach (var alert in this.AlertViewModel.Alerts)
+                foreach (var alert in this.alertViewModel.Alerts)
                 {
                     if (alert.LowerBound > alert.UpperBound)
                     {
                         throw new Exception("Lower bound cannot be greater than upper bound");
                     }
 
-                    this.AlertViewModel.UpdateAlert(alert);
+                    this.alertViewModel.UpdateAlert(alert);
                 }
 
                 var dialog = new ContentDialog
