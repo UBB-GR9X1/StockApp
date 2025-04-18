@@ -1,34 +1,101 @@
 ﻿namespace StockApp.ViewModels
 {
     using System;
-    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.Threading.Tasks;
+    using System.Windows.Input;
+    using StockApp.Commands;
     using StockApp.Models;
     using StockApp.Services;
 
     public class AlertViewModel
     {
-        private readonly AlertService alertService = new();
+        private readonly AlertService alertService = new ();
+        private readonly DialogService dialogService = new ();
 
-        public List<Alert> Alerts => this.alertService.GetAllAlerts();
+        public ObservableCollection<Alert> Alerts { get; } = [];
 
-        public Alert GetAlertById(int alertId) =>
-            this.alertService.GetAlertById(alertId) ?? throw new Exception($"Alert with ID {alertId} not found.");
+        public ICommand CreateAlertCommand { get; }
 
-        public Alert CreateAlert(string stockName, string name, int upperBound, int lowerBound, bool toggleOnOff) =>
-            this.alertService.CreateAlert(stockName, name, upperBound, lowerBound, toggleOnOff);
+        public ICommand SaveAlertsCommand { get; }
 
-        public void UpdateAlert(int alertId, string stockName, string name, int upperBound, int lowerBound, bool toggleOnOff) =>
-            this.alertService.UpdateAlert(alertId, stockName, name, upperBound, lowerBound, toggleOnOff);
+        public ICommand DeleteAlertCommand { get; }
 
-        public void UpdateAlert(Alert alert) =>
-            this.alertService.UpdateAlert(
-                alert.AlertId,
-                alert.StockName,
-                alert.Name,
-                alert.UpperBound,
-                alert.LowerBound,
-                alert.ToggleOnOff);
+        public ICommand CloseAppCommand { get; }
 
-        public void DeleteAlert(int alertId) => this.alertService.RemoveAlert(alertId);
+        public AlertViewModel()
+        {
+            // Initialize Commands
+            this.CreateAlertCommand = new RelayCommand(async _ => await this.CreateAlert());
+            this.SaveAlertsCommand = new RelayCommand(async _ => await this.SaveAlerts());
+            this.DeleteAlertCommand = new RelayCommand(async param => await this.DeleteAlert(param));
+            this.CloseAppCommand = new RelayCommand(_ => Environment.Exit(0));
+
+            // Load Alerts on Initialization
+            this.LoadAlerts();
+        }
+
+        private static void ValidateAlert(Alert alert)
+        {
+            if (alert.LowerBound > alert.UpperBound)
+            {
+                throw new Exception("Lower bound cannot be greater than upper bound.");
+            }
+        }
+
+        private async Task CreateAlert()
+        {
+            try
+            {
+                Alert newAlert = this.alertService.CreateAlert("Tesla", "New Alert", 100, 0, true);
+                this.Alerts.Add(newAlert);
+                await this.dialogService.ShowMessageAsync("Success", "Alert created successfully!");
+            }
+            catch (Exception ex)
+            {
+                await this.dialogService.ShowMessageAsync("Error", ex.Message);
+            }
+        }
+
+        private async Task SaveAlerts()
+        {
+            try
+            {
+                foreach (Alert alert in this.Alerts)
+                {
+                    ValidateAlert(alert);
+                    this.alertService.UpdateAlert(alert);
+                }
+
+                await this.dialogService.ShowMessageAsync("Success", "All alerts saved successfully!");
+            }
+            catch (Exception ex)
+            {
+                await this.dialogService.ShowMessageAsync("Error", ex.Message);
+            }
+        }
+
+        private async Task DeleteAlert(object parameter)
+        {
+            if (parameter is Alert alert)
+            {
+                this.alertService.RemoveAlert(alert.AlertId);
+                this.Alerts.Remove(alert);
+                await this.dialogService.ShowMessageAsync("Success", "Alert deleted successfully!");
+            }
+            else
+            {
+                await this.dialogService.ShowMessageAsync("Error", "Please select an alert to delete.");
+            }
+        }
+
+        private void LoadAlerts()
+        {
+            this.Alerts.Clear();
+            foreach (Alert alert in this.alertService.GetAllAlerts())
+            {
+                this.Alerts.Add(alert);
+            }
+        }
     }
 }

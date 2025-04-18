@@ -68,7 +68,7 @@
                 ?? throw new KeyNotFoundException($"Alert with ID {alertId} not found.");
         }
 
-        public Alert AddAlert(string stockName, string name, int upperBound, int lowerBound, bool toggleOnOff)
+        public Alert AddAlert(string stockName, string name, decimal upperBound, decimal lowerBound, bool toggleOnOff)
         {
             string insertQuery = @"
                 INSERT INTO ALERTS 
