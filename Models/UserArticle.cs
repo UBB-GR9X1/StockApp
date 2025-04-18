@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    public class UserArticle : IUserArticle
+    public class UserArticle
     {
         public string ArticleId { get; set; }
 
@@ -22,7 +22,7 @@
 
         public string Topic { get; set; }
 
-        public IReadOnlyList<string> RelatedStocks { get; set; }
+        public List<string> RelatedStocks { get; set; }
 
         public UserArticle() { }
 

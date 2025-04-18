@@ -1,4 +1,4 @@
-﻿namespace StockApp.Service
+﻿namespace StockApp.Services
 {
     using System.Collections.Generic;
 
@@ -12,7 +12,7 @@
 
         int GetUserBalance();
 
-        IReadOnlyList<int> GetStockHistory();
+        List<int> GetStockHistory();
 
         int GetOwnedStocks();
 

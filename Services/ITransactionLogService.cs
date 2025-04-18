@@ -1,21 +1,21 @@
-﻿namespace StockApp.Service
+﻿namespace StockApp.Services
 {
     using System.Collections.Generic;
     using StockApp.Models;
 
     public interface ITransactionLogService
     {
-        IReadOnlyList<ITransactionLogTransaction>
-            GetFilteredTransactions(ITransactionFilterCriteria criteria);
+        List<TransactionLogTransaction>
+            GetFilteredTransactions(TransactionFilterCriteria criteria);
 
-        IReadOnlyList<ITransactionLogTransaction>
+        List<TransactionLogTransaction>
             SortTransactions(
-                IReadOnlyList<ITransactionLogTransaction> transactions,
+                List<TransactionLogTransaction> transactions,
                 string sortType = "Date",
                 bool ascending = true);
 
         void ExportTransactions(
-            IReadOnlyList<ITransactionLogTransaction> transactions,
+            List<TransactionLogTransaction> transactions,
             string filePath,
             string format);
     }

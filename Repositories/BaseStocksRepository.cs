@@ -8,7 +8,7 @@
 
     internal class BaseStocksRepository : IBaseStocksRepository
     {
-        private readonly List<IBaseStock> stocks = [];
+        private readonly List<BaseStock> stocks = [];
         private readonly SqlConnection dbConnection = DatabaseHelper.GetConnection();
 
         public BaseStocksRepository()
@@ -32,7 +32,7 @@
             return (T)Convert.ChangeType(command.ExecuteScalar(), typeof(T));
         }
 
-        public void AddStock(IBaseStock stock, int initialPrice = 100)
+        public void AddStock(BaseStock stock, int initialPrice = 100)
         {
             using var transaction = this.dbConnection.BeginTransaction();
 
@@ -82,7 +82,7 @@
         {
             string query = "SELECT STOCK_NAME, STOCK_SYMBOL, AUTHOR_CNP FROM STOCK";
 
-            using SqlCommand command = new (query, this.dbConnection);
+            using SqlCommand command = new(query, this.dbConnection);
             using var reader = command.ExecuteReader();
             this.stocks.Clear();
 
@@ -97,6 +97,6 @@
             }
         }
 
-        public IReadOnlyList<IBaseStock> GetAllStocks() => [.. this.stocks];
+        public List<BaseStock> GetAllStocks() => [.. this.stocks];
     }
 }

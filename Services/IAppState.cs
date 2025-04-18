@@ -1,4 +1,4 @@
-﻿namespace StockApp.Service
+﻿namespace StockApp.Services
 {
     using StockApp.Models;
 

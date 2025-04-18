@@ -1,4 +1,4 @@
-﻿namespace StockApp.Service
+﻿namespace StockApp.Services
 {
     using System.Collections.Generic;
 
@@ -14,7 +14,7 @@
 
         bool IsAdmin();
 
-        IReadOnlyList<string> GetUserStocks();
+        List<string> GetUserStocks();
 
         string GetLoggedInUserCnp();
 
@@ -28,6 +28,6 @@
 
         string ExtractStockName(string fullStockInfo);
 
-        IReadOnlyList<string> ExtractStockNames();
+        List<string> ExtractStockNames();
     }
 }

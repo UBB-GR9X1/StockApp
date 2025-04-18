@@ -1,18 +1,15 @@
-﻿using System.Collections.Generic;
-using StockApp.Models;
-
-namespace StockApp.Repository
+﻿namespace StockApp.Repositories
 {
     using System.Collections.Generic;
     using StockApp.Models;
 
     public interface IProfileRepository
     {
-        IUser CurrentUser();
+        User CurrentUser();
 
         string GenerateUsername();
 
-        IUser GetUserProfile(string authorCNP);
+        User GetUserProfile(string authorCNP);
 
         void UpdateRepoIsAdmin(bool isAdmin);
 
@@ -22,7 +19,7 @@ namespace StockApp.Repository
             string newDescription,
             bool newHidden);
 
-        IReadOnlyList<string> UserStocks();
+        List<string> UserStocks();
 
         string GetLoggedInUserCNP();
     }

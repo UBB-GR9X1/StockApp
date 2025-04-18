@@ -9,7 +9,7 @@
 
     public class TransactionRepository : ITransactionRepository
     {
-        public List<ITransactionLogTransaction> Transactions { get; private set; } = [];
+        public List<TransactionLogTransaction> Transactions { get; private set; } = [];
 
         public TransactionRepository()
         {
@@ -40,7 +40,7 @@
             }
         }
 
-        public List<ITransactionLogTransaction> GetByFilterCriteria(ITransactionFilterCriteria criteria)
+        public List<TransactionLogTransaction> GetByFilterCriteria(TransactionFilterCriteria criteria)
         {
             return [.. this.Transactions.Where(transaction =>
                 (string.IsNullOrEmpty(criteria.StockName) || transaction.StockName.Equals(criteria.StockName)) &&
@@ -52,7 +52,7 @@
             )];
         }
 
-        public void AddTransaction(ITransactionLogTransaction transaction)
+        public void AddTransaction(TransactionLogTransaction transaction)
         {
             string connectionString = DatabaseHelper.GetConnection().ConnectionString;
 

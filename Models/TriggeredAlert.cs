@@ -1,6 +1,6 @@
 ﻿namespace StockApp.Models
 {
-    public class TriggeredAlert : ITriggeredAlert
+    public class TriggeredAlert
     {
         public string StockName { get; set; } = string.Empty;
 

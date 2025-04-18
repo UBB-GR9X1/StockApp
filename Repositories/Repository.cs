@@ -60,11 +60,11 @@
             this.userStocks.Add(new Tuple<string, UserStock>("1234567890127", new UserStock("stock1", "STK1", "1234567890123", 10)));
 
             // Transaction has no STOCK NAME??? km
-            this.Transactions.Add(new Transaction("stock1", "STK1", "1234567890123", "buy", 10, 120, 1200, DateTime.Now, "1234567890123"));
-            this.Transactions.Add(new Transaction("stock1", "STK1", "1234567890124", "buy", 10, 120, 1200, DateTime.Now, "1234567890124"));
-            this.Transactions.Add(new Transaction("stock1", "STK1", "1234567890125", "buy", 10, 120, 1200, DateTime.Now, "1234567890125"));
-            this.Transactions.Add(new Transaction("stock1", "STK1", "1234567890126", "buy", 10, 120, 1200, DateTime.Now, "1234567890126"));
-            this.Transactions.Add(new Transaction("stock1", "STK1", "1234567890127", "buy", 10, 120, 1200, DateTime.Now, "1234567890127"));
+            this.Transactions.Add(new Transaction("stock1", "STK1", "1234567890123", "buy", 10, 120, DateTime.Now, "1234567890123"));
+            this.Transactions.Add(new Transaction("stock1", "STK1", "1234567890124", "buy", 10, 120, DateTime.Now, "1234567890124"));
+            this.Transactions.Add(new Transaction("stock1", "STK1", "1234567890125", "buy", 10, 120, DateTime.Now, "1234567890125"));
+            this.Transactions.Add(new Transaction("stock1", "STK1", "1234567890126", "buy", 10, 120, DateTime.Now, "1234567890126"));
+            this.Transactions.Add(new Transaction("stock1", "STK1", "1234567890127", "buy", 10, 120, DateTime.Now, "1234567890127"));
 
             this.favorites.Add(new Tuple<string, string>("1234567890123", "stock1"));
             this.favorites.Add(new Tuple<string, string>("1234567890123", "stock2"));

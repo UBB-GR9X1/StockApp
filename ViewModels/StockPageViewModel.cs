@@ -55,7 +55,7 @@
                 UserGems = _service.GetUserBalance();
                 _ownedStocks.Text = "Owned: " + _service.GetOwnedStocks().ToString();
             }
-            IReadOnlyList<int> stockHistory = _service.GetStockHistory();
+            List<int> stockHistory = _service.GetStockHistory();
             _priceLabel.Text = stockHistory.Last().ToString() + " ❇️ Gems";
             if (stockHistory.Count > 1)
             {

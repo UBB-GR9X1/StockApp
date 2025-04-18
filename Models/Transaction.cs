@@ -2,7 +2,7 @@
 {
     using System;
 
-    public class Transaction : BaseStock, ITransaction
+    public class Transaction : BaseStock
     {
         public string TransactionType { get; set; }
 

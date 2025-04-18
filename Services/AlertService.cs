@@ -7,19 +7,19 @@
 
     public class AlertService : IAlertService
     {
-        private readonly AlertRepository repository = new ();
+        private readonly AlertRepository repository = new();
 
-        public IReadOnlyList<IAlert> GetAllAlerts() => repository.GetAllAlerts();
+        public List<Alert> GetAllAlerts() => repository.GetAllAlerts();
 
-        public IReadOnlyList<IAlert> GetAllAlertsOn()
+        public List<Alert> GetAllAlertsOn()
         => GetAllAlerts()
            .Where(a => a.ToggleOnOff)
            .ToList();
 
-        public void CreateAlert(IAlert alert) => repository.AddAlert(alert);
+        public void CreateAlert(Alert alert) => repository.AddAlert(alert);
 
         public void RemoveAlert(int alertId) => repository.DeleteAlert(alertId);
 
-        public void UpdateAlert(IAlert alert) => repository.UpdateAlert(alert);
+        public void UpdateAlert(Alert alert) => repository.UpdateAlert(alert);
     }
 }

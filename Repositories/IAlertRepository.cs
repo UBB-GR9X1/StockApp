@@ -1,17 +1,17 @@
-﻿namespace StockApp.Repository
+﻿namespace StockApp.Repositories
 {
     using System.Collections.Generic;
     using StockApp.Models;
 
     public interface IAlertRepository
     {
-        IReadOnlyList<IAlert> GetAllAlerts();
+        List<Alert> GetAllAlerts();
 
-        IAlert GetAlertById(int alertId);
+        Alert GetAlertById(int alertId);
 
-        void AddAlert(IAlert alert);
+        void AddAlert(Alert alert);
 
-        void UpdateAlert(IAlert alert);
+        void UpdateAlert(Alert alert);
 
         void DeleteAlert(int alertId);
 
@@ -19,7 +19,7 @@
 
         void TriggerAlert(string stockName, decimal currentPrice);
 
-        IReadOnlyList<ITriggeredAlert> GetTriggeredAlerts();
+        List<TriggeredAlert> GetTriggeredAlerts();
 
         void ClearTriggeredAlerts();
     }

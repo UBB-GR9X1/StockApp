@@ -5,6 +5,6 @@
 
     public interface ITransactionExporter
     {
-        void Export(IReadOnlyList<ITransactionLogTransaction> transactions, string filePath);
+        void Export(List<TransactionLogTransaction> transactions, string filePath);
     }
 }

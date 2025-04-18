@@ -1,4 +1,4 @@
-﻿namespace StockApp.Service
+﻿namespace StockApp.Services
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
@@ -6,15 +6,15 @@
 
     public interface INewsService
     {
-        Task<IReadOnlyList<INewsArticle>> GetNewsArticlesAsync();
+        Task<List<NewsArticle>> GetNewsArticlesAsync();
 
-        Task<INewsArticle> GetNewsArticleByIdAsync(string articleId);
+        Task<NewsArticle> GetNewsArticleByIdAsync(string articleId);
 
         Task<bool> MarkArticleAsReadAsync(string articleId);
 
-        Task<bool> CreateArticleAsync(INewsArticle article);
+        Task<bool> CreateArticleAsync(NewsArticle article);
 
-        Task<IReadOnlyList<IUserArticle>> GetUserArticlesAsync(string status = null, string topic = null);
+        Task<List<UserArticle>> GetUserArticlesAsync(string status = null, string topic = null);
 
         Task<bool> ApproveUserArticleAsync(string articleId);
 
@@ -22,22 +22,22 @@
 
         Task<bool> DeleteUserArticleAsync(string articleId);
 
-        Task<bool> SubmitUserArticleAsync(IUserArticle article);
+        Task<bool> SubmitUserArticleAsync(UserArticle article);
 
-        Task<IUser> GetCurrentUserAsync();
+        Task<User> GetCurrentUserAsync();
 
-        Task<IUser> LoginAsync(string username, string password);
+        Task<User> LoginAsync(string username, string password);
 
         void Logout();
 
-        void StorePreviewArticle(INewsArticle article, IUserArticle userArticle);
+        void StorePreviewArticle(NewsArticle article, UserArticle userArticle);
 
-        IUserArticle GetUserArticleForPreview(string articleId);
+        UserArticle GetUserArticleForPreview(string articleId);
 
-        IReadOnlyList<string> GetRelatedStocksForArticle(string articleId);
+        List<string> GetRelatedStocksForArticle(string articleId);
 
-        void UpdateCachedArticles(IReadOnlyList<INewsArticle> articles);
+        void UpdateCachedArticles(List<NewsArticle> articles);
 
-        IReadOnlyList<INewsArticle> GetCachedArticles();
+        List<NewsArticle> GetCachedArticles();
     }
 }

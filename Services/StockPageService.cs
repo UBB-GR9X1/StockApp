@@ -35,9 +35,9 @@
             return _repo.User.GemBalance;
         }
 
-        public IReadOnlyList<int> GetStockHistory()
+        public List<int> GetStockHistory()
         {
-            IReadOnlyList<int> res = _repo.GetStockHistory(_stock.Name);
+            List<int> res = _repo.GetStockHistory(_stock.Name);
             // res.Reverse();
             return res;
         }
@@ -49,7 +49,7 @@
 
         public bool BuyStock(int quantity)
         {
-            IReadOnlyList<int> stockHistory = GetStockHistory();
+            List<int> stockHistory = GetStockHistory();
             int stockPrice = stockHistory.Last();
 
             int totalPrice = stockPrice * quantity;
@@ -73,7 +73,7 @@
 
         public bool SellStock(int quantity)
         {
-            IReadOnlyList<int> stockHistory = GetStockHistory();
+            List<int> stockHistory = GetStockHistory();
             int stockPrice = stockHistory.Last();
             int totalPrice = stockPrice * quantity;
             if (_repo.GetOwnedStocks(_stock.Name) >= quantity)

@@ -4,7 +4,7 @@
     using System.ComponentModel;
     using System.Runtime.CompilerServices;
 
-    public class GemDeal : IGemDeal
+    public class GemDeal
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 

@@ -1,12 +1,11 @@
 ﻿namespace StockApp.Models
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
 
-    public class NewsArticle : INewsArticle
+    public class NewsArticle
     {
-        public string ArticleId { get; set;  }
+        public string ArticleId { get; set; }
 
         public string Title { get; set; }
 
@@ -24,7 +23,7 @@
 
         public string Category { get; set; }
 
-        public IReadOnlyList<string> RelatedStocks { get; set; }
+        public List<string> RelatedStocks { get; set; }
 
         public Status Status { get; set; }
 

@@ -19,7 +19,7 @@
         private bool isPreviewMode;
         private string previewId;
 
-        private INewsArticle article;
+        private NewsArticle article;
         private bool isLoading;
         private bool hasRelatedStocks;
         private bool isAdminPreview;
@@ -27,7 +27,7 @@
         private bool canApprove;
         private bool canReject;
 
-        public INewsArticle Article
+        public NewsArticle Article
         {
             get => article;
             set => SetProperty(ref article, value);

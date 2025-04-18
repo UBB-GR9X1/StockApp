@@ -4,14 +4,14 @@
     using Microsoft.Data.SqlClient;
     using StockApp.Database;
 
-    internal class GemStoreRepository: IGemStoreRepository
+    internal class GemStoreRepository : IGemStoreRepository
     {
         private readonly SqlConnection dbConnection = DatabaseHelper.GetConnection();
 
         public string GetCnp()
         {
             string cnpQuery = "SELECT CNP FROM HARDCODED_CNPS";
-            using SqlCommand cnpCommand = new (cnpQuery, this.dbConnection);
+            using SqlCommand cnpCommand = new(cnpQuery, this.dbConnection);
 
             var result = cnpCommand.ExecuteScalar();
             return result?.ToString() ?? string.Empty;
@@ -21,7 +21,7 @@
         {
             string checkQuery = "SELECT GEM_BALANCE FROM [USER] WHERE CNP = @CNP";
 
-            using SqlCommand checkCommand = new (checkQuery, this.dbConnection);
+            using SqlCommand checkCommand = new(checkQuery, this.dbConnection);
             checkCommand.Parameters.AddWithValue("@CNP", cnp);
 
             var result = checkCommand.ExecuteScalar();
@@ -31,7 +31,7 @@
         public void UpdateUserGemBalance(string cnp, int newBalance)
         {
             string updateQuery = "UPDATE [USER] SET GEM_BALANCE = @NewBalance WHERE CNP = @CNP";
-            using SqlCommand updateCommand = new (updateQuery, this.dbConnection);
+            using SqlCommand updateCommand = new(updateQuery, this.dbConnection);
 
             updateCommand.Parameters.AddWithValue("@NewBalance", newBalance);
             updateCommand.Parameters.AddWithValue("@CNP", cnp);
@@ -43,7 +43,7 @@
         {
             string checkQuery = "SELECT COUNT(*) FROM [USER] WHERE CNP = @CNP";
 
-            using SqlCommand checkCommand = new (checkQuery, dbConnection);
+            using SqlCommand checkCommand = new(checkQuery, dbConnection);
             checkCommand.Parameters.AddWithValue("@CNP", cnp);
 
             int count = Convert.ToInt32(checkCommand.ExecuteScalar());

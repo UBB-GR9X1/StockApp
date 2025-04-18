@@ -19,7 +19,7 @@
         public string GetDescription() => profServ.GetDescription();
         public bool IsHidden() => profServ.IsHidden();
         public bool IsAdmin() => profServ.IsAdmin();
-        public IReadOnlyList<string> GetUserStocks() => profServ.GetUserStocks();
+        public List<string> GetUserStocks() => profServ.GetUserStocks();
 
 
 

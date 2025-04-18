@@ -1,34 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.ObjectModel;
 using StockApp.Models;
 
-namespace StockApp.Service
+namespace StockApp.Services
 {
     public interface IHomepageService
     {
-        ObservableCollection<IHomepageStock> AllStocks { get; }
+        ObservableCollection<HomepageStock> AllStocks { get; }
 
-        ObservableCollection<IHomepageStock> FavoriteStocks { get; }
+        ObservableCollection<HomepageStock> FavoriteStocks { get; }
 
-        ObservableCollection<IHomepageStock> FilteredAllStocks { get; }
+        ObservableCollection<HomepageStock> FilteredAllStocks { get; }
 
-        ObservableCollection<IHomepageStock> FilteredFavoriteStocks { get; }
+        ObservableCollection<HomepageStock> FilteredFavoriteStocks { get; }
 
-        ObservableCollection<IHomepageStock> GetAllStocks();
+        ObservableCollection<HomepageStock> GetAllStocks();
 
-        ObservableCollection<IHomepageStock> GetFavoriteStocks();
+        ObservableCollection<HomepageStock> GetFavoriteStocks();
 
         void FilterStocks(string query);
 
         void SortStocks(string sortOption);
 
-        void AddToFavorites(IHomepageStock stock);
+        void AddToFavorites(HomepageStock stock);
 
-        void RemoveFromFavorites(IHomepageStock stock);
+        void RemoveFromFavorites(HomepageStock stock);
 
         bool IsGuestUser();
 

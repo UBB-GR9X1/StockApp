@@ -1,4 +1,4 @@
-﻿namespace StockApp.Repository
+﻿namespace StockApp.Repositories
 {
     using System.Collections.Generic;
     using StockApp.Models;
@@ -9,13 +9,13 @@
 
         bool IsGuestUser(string userCnp);
 
-        public IReadOnlyList<IHomepageStock> LoadStocks();
+        public List<HomepageStock> LoadStocks();
 
-        void AddToFavorites(IHomepageStock stock);
+        void AddToFavorites(HomepageStock stock);
 
-        void RemoveFromFavorites(IHomepageStock stock);
+        void RemoveFromFavorites(HomepageStock stock);
 
-        public IReadOnlyList<int> GetStockHistory(string stockName);
+        public List<int> GetStockHistory(string stockName);
 
         void CreateUserProfile();
     }

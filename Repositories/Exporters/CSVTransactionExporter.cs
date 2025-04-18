@@ -7,9 +7,9 @@
 
     public class CSVTransactionExporter : ITransactionExporter
     {
-        public void Export(IReadOnlyList<ITransactionLogTransaction> transactions, string filePath)
+        public void Export(List<TransactionLogTransaction> transactions, string filePath)
         {
-            using StreamWriter writer = new (filePath);
+            using StreamWriter writer = new(filePath);
             writer.WriteLine("StockSymbol,StockName,TransactionType,Amount,PricePerStock,TotalValue,Date,Author");
 
             foreach (var transaction in transactions)

@@ -25,7 +25,7 @@
             this.cnp = authorCNP;
         }
 
-        public IUser CurrentUser()
+        public User CurrentUser()
         {
             const string query = @"
                 SELECT CNP, NAME, PROFILE_PICTURE, DESCRIPTION, IS_HIDDEN
@@ -87,7 +87,7 @@
         }
 
         // Get current user profile
-        public IUser GetUserProfile(string authorCNP)
+        public User GetUserProfile(string authorCNP)
         {
             const string query = @"
                 SELECT CNP, NAME, PROFILE_PICTURE, DESCRIPTION, IS_HIDDEN
@@ -129,7 +129,7 @@
         }
 
         // Get user-owned stocks
-        public IReadOnlyList<string> UserStocks()
+        public List<string> UserStocks()
         {
             const string query = @"
                 WITH UserStocks AS (

@@ -1,6 +1,6 @@
 ﻿namespace StockApp.Models
 {
-    public class UserStock : BaseStock, IUserStock
+    public class UserStock : BaseStock
     {
         public int Quantity { get; set; }
 

@@ -8,8 +8,8 @@
     {
         ProfileRepository _repo;
 
-        private IUser _user;
-        private IReadOnlyList<string> userStocks;
+        private User _user;
+        private List<string> userStocks;
 
         public ProfieServices(string authorCnp)
         {
@@ -24,7 +24,7 @@
         public string GetDescription() => _user.Description;
         public bool IsHidden() => _user.IsHidden;
         public bool IsAdmin() => _user.IsModerator;
-        public IReadOnlyList<string> GetUserStocks() => userStocks;
+        public List<string> GetUserStocks() => userStocks;
         public string GetPass() => "BombardinoCrocodilo";
 
         public void UpdateUser(string newUsername, string newImage, string newDescription, bool newHidden)
@@ -43,7 +43,7 @@
             _repo.UpdateRepoIsAdmin(isAdm);
         }
 
-        public IReadOnlyList<string> ExtractStockNames()
+        public List<string> ExtractStockNames()
         {
             List<string> stockNames = new List<string>();
 

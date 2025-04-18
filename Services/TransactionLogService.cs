@@ -16,13 +16,13 @@
             this.transactionRepository = transactionRepository;
         }
 
-        public IReadOnlyList<ITransactionLogTransaction> GetFilteredTransactions(ITransactionFilterCriteria criteria)
+        public List<TransactionLogTransaction> GetFilteredTransactions(TransactionFilterCriteria criteria)
         {
             criteria.Validate();
             return transactionRepository.GetByFilterCriteria(criteria);
         }
 
-        public IReadOnlyList<ITransactionLogTransaction> SortTransactions(IReadOnlyList<ITransactionLogTransaction> transactions, string sortType = "Date", bool ascending = true)
+        public List<TransactionLogTransaction> SortTransactions(List<TransactionLogTransaction> transactions, string sortType = "Date", bool ascending = true)
         {
             switch (sortType)
             {
@@ -43,7 +43,7 @@
             }
         }
 
-        public void ExportTransactions(IReadOnlyList<ITransactionLogTransaction> transactions, string filePath, string format)
+        public void ExportTransactions(List<TransactionLogTransaction> transactions, string filePath, string format)
         {
             ITransactionExporter exporter = format.ToLower() switch
             {

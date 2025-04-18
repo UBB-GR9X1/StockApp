@@ -1,12 +1,12 @@
-﻿namespace StockApp.Repository
+﻿namespace StockApp.Repositories
 {
     using System.Collections.Generic;
     using StockApp.Models;
 
     public interface IBaseStocksRepository
     {
-        void AddStock(IBaseStock stock, int initialPrice = 100);
+        void AddStock(BaseStock stock, int initialPrice = 100);
 
-        IReadOnlyList<IBaseStock> GetAllStocks();
+        List<BaseStock> GetAllStocks();
     }
 }

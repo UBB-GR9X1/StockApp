@@ -1,22 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using StockApp.Models;
 
-namespace StockApp.Service
+namespace StockApp.Services
 {
     public interface IAlertService
     {
-        IReadOnlyList<IAlert> GetAllAlerts();
+        List<Alert> GetAllAlerts();
 
-        IReadOnlyList<IAlert> GetAllAlertsOn();
+        List<Alert> GetAllAlertsOn();
 
-        void CreateAlert(IAlert alert);
+        void CreateAlert(Alert alert);
 
         void RemoveAlert(int alertId);
 
-        void UpdateAlert(IAlert alert);
+        void UpdateAlert(Alert alert);
     }
 }

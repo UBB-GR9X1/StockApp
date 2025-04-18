@@ -7,10 +7,10 @@
 
     public class HTMLTransactionExporter : ITransactionExporter
     {
-        public void Export(IReadOnlyList<ITransactionLogTransaction> transactions, string filePath)
+        public void Export(List<TransactionLogTransaction> transactions, string filePath)
         {
             // Build the HTML string
-            StringBuilder htmlContent = new ();
+            StringBuilder htmlContent = new();
 
             htmlContent.AppendLine("<html>");
             htmlContent.AppendLine("<head><title>Transaction Log</title></head>");

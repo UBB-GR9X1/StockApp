@@ -4,17 +4,16 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using Catel.Collections;
     using StockApp.Models;
     using StockApp.Repositories;
 
     public class NewsService : INewsService
     {
         private readonly AppState _appState;
-        private static readonly Dictionary<string, INewsArticle> _previewArticles = new();
-        private static readonly Dictionary<string, IUserArticle> _previewUserArticles = new();
-        private readonly List<INewsArticle> _cachedArticles = new();
-        private static readonly List<IUserArticle> _userArticles = new();
+        private static readonly Dictionary<string, NewsArticle> _previewArticles = new();
+        private static readonly Dictionary<string, UserArticle> _previewUserArticles = new();
+        private readonly List<NewsArticle> _cachedArticles = new();
+        private static readonly List<UserArticle> _userArticles = new();
         private static bool _isInitialized = false;
         private INewsRepository _repository = new NewsRepository();
         private IBaseStocksRepository _stocksRepository;
@@ -28,13 +27,13 @@
             {
                 _userArticles.AddRange(
                 _repository.GetAllUserArticles()
-                           .Cast<IUserArticle>());
+                           .Cast<UserArticle>());
                 _isInitialized = true;
             }
         }
 
         // Article Methods
-        public async Task<IReadOnlyList<INewsArticle>> GetNewsArticlesAsync()
+        public async Task<List<NewsArticle>> GetNewsArticlesAsync()
         {
             await Task.Delay(200);
 
@@ -48,7 +47,7 @@
             }
         }
 
-        public async Task<INewsArticle> GetNewsArticleByIdAsync(string articleId)
+        public async Task<NewsArticle> GetNewsArticleByIdAsync(string articleId)
         {
             if (string.IsNullOrWhiteSpace(articleId))
                 throw new ArgumentNullException(nameof(articleId));
@@ -121,7 +120,7 @@
         }
 
         // User Article Methods
-        public async Task<IReadOnlyList<IUserArticle>> GetUserArticlesAsync(string status = null, string topic = null)
+        public async Task<List<UserArticle>> GetUserArticlesAsync(string status = null, string topic = null)
         {
             // ensure the user is admin
             if (_appState.CurrentUser == null || !_appState.CurrentUser.IsModerator)
@@ -130,17 +129,17 @@
             }
 
             await Task.Delay(300);
-            List<IUserArticle> userArticles;
+            List<UserArticle> userArticles;
             try
             {
                 userArticles = (await Task.Run(() => _repository.GetAllUserArticles()))
-                   .Cast<IUserArticle>()
+                   .Cast<UserArticle>()
                    .ToList();
 
             }
             catch
             {
-                userArticles = new List<IUserArticle>(_userArticles);
+                userArticles = new List<UserArticle>(_userArticles);
             }
 
             // filters
@@ -260,7 +259,7 @@
             }
 
             // set author and submission date
-            article.Author = _appState.CurrentUser.Cnp;
+            article.Author = _appState.CurrentUser.CNP;
             article.SubmissionDate = DateTime.Now;
             article.Status = "Pending";
 
@@ -354,7 +353,7 @@
         }
 
         // Preview Methods
-        public void StorePreviewArticle(INewsArticle article, IUserArticle userArticle)
+        public void StorePreviewArticle(NewsArticle article, UserArticle userArticle)
         {
             // First, ensure both articles use the same ID format for consistent lookup
             string articleId = article.ArticleId;
@@ -395,7 +394,7 @@
             }
         }
 
-        public IUserArticle GetUserArticleForPreview(string articleId)
+        public UserArticle GetUserArticleForPreview(string articleId)
         {
             if (_previewUserArticles.TryGetValue(articleId, out var previewArticle))
             {
@@ -406,7 +405,7 @@
             return _userArticles.FirstOrDefault(a => a.ArticleId == articleId);
         }
 
-        public IReadOnlyList<string> GetRelatedStocksForArticle(string articleId)
+        public List<string> GetRelatedStocksForArticle(string articleId)
         {
             // Remove "preview:" prefix if present
             string actualId = articleId.StartsWith("preview:") ? articleId.Substring(8) : articleId;
@@ -443,7 +442,7 @@
             }
         }
 
-        public IReadOnlyList<INewsArticle> GetCachedArticles()
+        public List<NewsArticle> GetCachedArticles()
         {
             return _cachedArticles.Count > 0 ? _cachedArticles : _repository.GetAllNewsArticles();
         }

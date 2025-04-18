@@ -47,7 +47,7 @@
             throw new InvalidOperationException("No hardcoded CNP found in the database");
         }
 
-        public IReadOnlyList<int> GetStockHistory(string stockName)
+        public List<int> GetStockHistory(string stockName)
         {
             const string query = "SELECT PRICE FROM STOCK_VALUE WHERE STOCK_NAME = @name ORDER BY STOCK_VALUE_ID";
             return this.ExecuteReader(query, command => command.Parameters.AddWithValue("@name", stockName),
@@ -69,7 +69,7 @@
             return cnps.FirstOrDefault() ?? throw new Exception("No CNP found in HARDCODED_CNPS table.");
         }
 
-        public IReadOnlyList<IHomepageStock> LoadStocks()
+        public List<HomepageStock> LoadStocks()
         {
             // Fetch stock histories
             const string historyQuery = "SELECT STOCK_NAME, PRICE FROM STOCK_VALUE ORDER BY STOCK_NAME, STOCK_VALUE_ID";
@@ -123,7 +123,7 @@
                 });
         }
 
-        public void AddToFavorites(IHomepageStock stock)
+        public void AddToFavorites(HomepageStock stock)
         {
             const string query = "INSERT INTO FAVORITE_STOCK (USER_CNP, STOCK_NAME, IS_FAVORITE) VALUES (@UserCNP, @Name, 1)";
             this.ExecuteSql(query, command =>
@@ -133,7 +133,7 @@
             });
         }
 
-        public void RemoveFromFavorites(IHomepageStock stock)
+        public void RemoveFromFavorites(HomepageStock stock)
         {
             const string query = "DELETE FROM FAVORITE_STOCK WHERE USER_CNP = @UserCNP AND STOCK_NAME = @Name";
             this.ExecuteSql(query, command =>

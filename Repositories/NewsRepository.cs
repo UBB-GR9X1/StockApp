@@ -7,14 +7,14 @@
     using StockApp.Database;
     using StockApp.Models;
 
-    public class NewsRepository: INewsRepository
+    public class NewsRepository : INewsRepository
     {
-        private static readonly object LockObject = new ();
+        private static readonly object LockObject = new();
         private static bool isInitialized = false;
 
         private readonly DatabaseHelper databaseHelper = DatabaseHelper.Instance;
-        private readonly List<INewsArticle> newsArticles = [];
-        private readonly List<IUserArticle> userArticles = [];
+        private readonly List<NewsArticle> newsArticles = [];
+        private readonly List<UserArticle> userArticles = [];
 
         public NewsRepository()
         {
@@ -54,7 +54,7 @@
         {
             using var connection = DatabaseHelper.GetConnection();
 
-            using SqlCommand command = new ("SELECT COUNT(*) FROM NEWS_ARTICLE", connection);
+            using SqlCommand command = new("SELECT COUNT(*) FROM NEWS_ARTICLE", connection);
             command.CommandTimeout = 30;
 
             int count = Convert.ToInt32(command.ExecuteScalar());
@@ -68,7 +68,7 @@
                                 "INSERT INTO [USER] (CNP, NAME, DESCRIPTION, IS_HIDDEN, IS_ADMIN, PROFILE_PICTURE, GEM_BALANCE) " +
                                 "VALUES (@CNP, @Name, @Description, @IsHidden, @IsAdmin, @ProfilePicture, @GemBalance)";
 
-            using SqlCommand command = new (checkQuery, connection);
+            using SqlCommand command = new(checkQuery, connection);
             command.Parameters.AddWithValue("@CNP", cnp);
             command.Parameters.AddWithValue("@Name", name);
             command.Parameters.AddWithValue("@Description", description);
@@ -80,13 +80,11 @@
             command.ExecuteNonQuery();
         }
 
-        #region News Articles
-
         public void LoadNewsArticles()
         {
             this.newsArticles.Clear();
             using var connection = DatabaseHelper.GetConnection();
-            using SqlCommand command = new ("SELECT * FROM NEWS_ARTICLE", connection);
+            using SqlCommand command = new("SELECT * FROM NEWS_ARTICLE", connection);
 
             command.CommandTimeout = 30;
             using var reader = command.ExecuteReader();
@@ -111,14 +109,14 @@
             }
         }
 
-        public IReadOnlyList<string> GetRelatedStocksForArticle(string articleId)
+        public List<string> GetRelatedStocksForArticle(string articleId)
         {
             var relatedStocks = new List<string>();
 
             try
             {
                 using var connection = DatabaseHelper.GetConnection();
-                using (SqlCommand command = new ("SELECT STOCK_NAME FROM RELATED_STOCKS WHERE ARTICLE_ID = @ArticleId", connection))
+                using (SqlCommand command = new("SELECT STOCK_NAME FROM RELATED_STOCKS WHERE ARTICLE_ID = @ArticleId", connection))
                 {
                     command.CommandTimeout = 30;
                     command.Parameters.AddWithValue("@ArticleId", articleId);
@@ -191,7 +189,7 @@
             return relatedStocks;
         }
 
-        public void AddRelatedStocksForArticle(string articleId, IReadOnlyList<string> stockNames, SqlConnection connection = null, SqlTransaction transaction = null)
+        public void AddRelatedStocksForArticle(string articleId, List<string> stockNames, SqlConnection connection = null, SqlTransaction transaction = null)
         {
             if (stockNames == null || stockNames.Count == 0)
             {
@@ -320,7 +318,7 @@
             }
         }
 
-        public void AddNewsArticle(INewsArticle newsArticle)
+        public void AddNewsArticle(NewsArticle newsArticle)
         {
             lock (LockObject)
             {
@@ -336,7 +334,7 @@
 
                     if (exists)
                     {
-                        UpdateNewsArticle(newsArticle);
+                        this.UpdateNewsArticle(newsArticle);
                         return;
                     }
 
@@ -362,15 +360,15 @@
 
                             if (newsArticle.RelatedStocks != null && newsArticle.RelatedStocks.Count > 0)
                             {
-                                AddRelatedStocksForArticle(newsArticle.ArticleId, newsArticle.RelatedStocks, connection, transaction);
+                                this.AddRelatedStocksForArticle(newsArticle.ArticleId, newsArticle.RelatedStocks, connection, transaction);
                             }
 
                             transaction.Commit();
 
                             // to in-memory collection if not already there
-                            if (!newsArticles.Any(a => a.ArticleId == newsArticle.ArticleId))
+                            if (!this.newsArticles.Any(a => a.ArticleId == newsArticle.ArticleId))
                             {
-                                newsArticles.Add(newsArticle);
+                                this.newsArticles.Add(newsArticle);
                             }
                         }
                         catch (Exception ex)
@@ -384,7 +382,7 @@
             }
         }
 
-        public void UpdateNewsArticle(INewsArticle newsArticle)
+        public void UpdateNewsArticle(NewsArticle newsArticle)
         {
             lock (LockObject)
             {
@@ -419,20 +417,20 @@
 
                             if (newsArticle.RelatedStocks != null && newsArticle.RelatedStocks.Count > 0)
                             {
-                                AddRelatedStocksForArticle(newsArticle.ArticleId, newsArticle.RelatedStocks, connection, transaction);
+                                this.AddRelatedStocksForArticle(newsArticle.ArticleId, newsArticle.RelatedStocks, connection, transaction);
                             }
 
                             transaction.Commit();
 
-                            var existingArticle = newsArticles.FirstOrDefault(a => a.ArticleId == newsArticle.ArticleId);
+                            var existingArticle = this.newsArticles.FirstOrDefault(a => a.ArticleId == newsArticle.ArticleId);
                             if (existingArticle != null)
                             {
-                                int index = newsArticles.IndexOf(existingArticle);
-                                newsArticles[index] = newsArticle;
+                                int index = this.newsArticles.IndexOf(existingArticle);
+                                this.newsArticles[index] = newsArticle;
                             }
                             else
                             {
-                                newsArticles.Add(newsArticle);
+                                this.newsArticles.Add(newsArticle);
                             }
                         }
                         catch (Exception ex)
@@ -472,10 +470,10 @@
 
                             transaction.Commit();
 
-                            var articleToRemove = newsArticles.FirstOrDefault(a => a.ArticleId == articleId);
+                            var articleToRemove = this.newsArticles.FirstOrDefault(a => a.ArticleId == articleId);
                             if (articleToRemove != null)
                             {
-                                newsArticles.Remove(articleToRemove);
+                                this.newsArticles.Remove(articleToRemove);
                             }
                         }
                         catch (Exception ex)
@@ -489,37 +487,37 @@
             }
         }
 
-        public INewsArticle GetNewsArticleById(string articleId)
+        public NewsArticle GetNewsArticleById(string articleId)
         {
             if (string.IsNullOrWhiteSpace(articleId))
                 throw new ArgumentNullException(nameof(articleId));
 
-            var article = newsArticles.FirstOrDefault(a => a.ArticleId == articleId) 
+            var article = this.newsArticles.FirstOrDefault(a => a.ArticleId == articleId)
                 ?? throw new KeyNotFoundException($"Article with ID {articleId} not found");
 
             if (article.RelatedStocks == null || !article.RelatedStocks.Any())
             {
                 // related stocks are loaded
-                article.RelatedStocks = GetRelatedStocksForArticle(articleId);
+                article.RelatedStocks = this.GetRelatedStocksForArticle(articleId);
                 System.Diagnostics.Debug.WriteLine($"GetNewsArticleById: Loaded {article.RelatedStocks?.Count ?? 0} related stocks for article {articleId}");
             }
 
             return article;
         }
 
-        public IReadOnlyList<INewsArticle> GetAllNewsArticles()
+        public List<NewsArticle> GetAllNewsArticles()
         {
-            return newsArticles.AsReadOnly();
+            return this.newsArticles;
         }
 
-        public IReadOnlyList<INewsArticle> GetNewsArticlesByStock(string stockName)
+        public List<NewsArticle> GetNewsArticlesByStock(string stockName)
         {
-            return newsArticles.Where(a => a.RelatedStocks.Contains(stockName)).ToList();
+            return this.newsArticles.Where(a => a.RelatedStocks.Contains(stockName)).ToList();
         }
 
-        public IReadOnlyList<INewsArticle> GetNewsArticlesByCategory(string category)
+        public List<NewsArticle> GetNewsArticlesByCategory(string category)
         {
-            return newsArticles.Where(a => a.Category == category).ToList();
+            return this.newsArticles.Where(a => a.Category == category).ToList();
         }
 
         public void MarkArticleAsRead(string articleId)
@@ -527,18 +525,15 @@
             if (string.IsNullOrWhiteSpace(articleId))
                 throw new ArgumentNullException(nameof(articleId));
 
-            var article = GetNewsArticleById(articleId);
+            var article = this.GetNewsArticleById(articleId);
             article.IsRead = true;
             UpdateNewsArticle(article);
         }
 
-        #endregion
-
-        #region User Articles
 
         public void LoadUserArticles()
         {
-            userArticles.Clear();
+            this.userArticles.Clear();
             using (var connection = DatabaseHelper.GetConnection())
             {
                 using (var command = new SqlCommand("SELECT * FROM USER_ARTICLE", connection))
@@ -569,7 +564,7 @@
             }
         }
 
-        public void AddUserArticle(IUserArticle userArticle)
+        public void AddUserArticle(UserArticle userArticle)
         {
             lock (LockObject)
             {
@@ -585,7 +580,7 @@
 
                     if (exists)
                     {
-                        UpdateUserArticle(userArticle);
+                        this.UpdateUserArticle(userArticle);
                         return;
                     }
 
@@ -628,15 +623,15 @@
                             // Now add related stocks if there are any
                             if (userArticle.RelatedStocks != null && userArticle.RelatedStocks.Count > 0)
                             {
-                                AddRelatedStocksForArticle(userArticle.ArticleId, userArticle.RelatedStocks, connection, transaction);
+                                this.AddRelatedStocksForArticle(userArticle.ArticleId, userArticle.RelatedStocks, connection, transaction);
                             }
 
                             transaction.Commit();
 
                             // Add to in-memory collection if not already there
-                            if (!userArticles.Any(a => a.ArticleId == userArticle.ArticleId))
+                            if (!this.userArticles.Any(a => a.ArticleId == userArticle.ArticleId))
                             {
-                                userArticles.Add(userArticle);
+                                this.userArticles.Add(userArticle);
                             }
                         }
                         catch (Exception ex)
@@ -650,7 +645,7 @@
             }
         }
 
-        public void UpdateUserArticle(IUserArticle userArticle)
+        public void UpdateUserArticle(UserArticle userArticle)
         {
             lock (LockObject)
             {
@@ -684,20 +679,20 @@
 
                             if (userArticle.RelatedStocks != null && userArticle.RelatedStocks.Count > 0)
                             {
-                                AddRelatedStocksForArticle(userArticle.ArticleId, userArticle.RelatedStocks, connection, transaction);
+                                this.AddRelatedStocksForArticle(userArticle.ArticleId, userArticle.RelatedStocks, connection, transaction);
                             }
 
                             transaction.Commit();
 
-                            var existingArticle = userArticles.FirstOrDefault(a => a.ArticleId == userArticle.ArticleId);
+                            var existingArticle = this.userArticles.FirstOrDefault(a => a.ArticleId == userArticle.ArticleId);
                             if (existingArticle != null)
                             {
-                                int index = userArticles.IndexOf(existingArticle);
-                                userArticles[index] = userArticle;
+                                int index = this.userArticles.IndexOf(existingArticle);
+                                this.userArticles[index] = userArticle;
                             }
                             else
                             {
-                                userArticles.Add(userArticle);
+                                this.userArticles.Add(userArticle);
                             }
                         }
                         catch (Exception ex)
@@ -737,10 +732,10 @@
 
                             transaction.Commit();
 
-                            var articleToRemove = userArticles.FirstOrDefault(a => a.ArticleId == articleId);
+                            var articleToRemove = this.userArticles.FirstOrDefault(a => a.ArticleId == articleId);
                             if (articleToRemove != null)
                             {
-                                userArticles.Remove(articleToRemove);
+                                this.userArticles.Remove(articleToRemove);
                             }
                         }
                         catch (Exception ex)
@@ -754,38 +749,38 @@
             }
         }
 
-        public IUserArticle GetUserArticleById(string articleId)
+        public UserArticle GetUserArticleById(string articleId)
         {
-            return userArticles.FirstOrDefault(a => a.ArticleId == articleId);
+            return this.userArticles.FirstOrDefault(a => a.ArticleId == articleId);
         }
 
-        public IReadOnlyList<IUserArticle> GetAllUserArticles()
+        public List<UserArticle> GetAllUserArticles()
         {
-            return userArticles.AsReadOnly();
+            return this.userArticles;
         }
 
-        public IReadOnlyList<IUserArticle> GetUserArticlesByStatus(string status)
+        public List<UserArticle> GetUserArticlesByStatus(string status)
         {
-            return userArticles.Where(a => a.Status == status).ToList();
+            return this.userArticles.Where(a => a.Status == status).ToList();
         }
 
-        public IReadOnlyList<IUserArticle> GetUserArticlesByTopic(string topic)
+        public List<UserArticle> GetUserArticlesByTopic(string topic)
         {
-            return userArticles.Where(a => a.Topic == topic).ToList();
+            return this.userArticles.Where(a => a.Topic == topic).ToList();
         }
 
-        public IReadOnlyList<IUserArticle> GetUserArticlesByStatusAndTopic(string status, string topic)
+        public List<UserArticle> GetUserArticlesByStatusAndTopic(string status, string topic)
         {
-            return userArticles.Where(a => a.Status == status && a.Topic == topic).ToList();
+            return this.userArticles.Where(a => a.Status == status && a.Topic == topic).ToList();
         }
 
         public void ApproveUserArticle(string articleId)
         {
-            var article = GetUserArticleById(articleId);
+            var article = this.GetUserArticleById(articleId);
             if (article != null)
             {
                 article.Status = "Approved";
-                UpdateUserArticle(article);
+                this.UpdateUserArticle(article);
 
                 // Create a news article from the approved user article
                 var newsArticle = new NewsArticle
@@ -803,14 +798,14 @@
                 };
 
                 // Check if the news article already exists
-                var existingNewsArticle = GetNewsArticleById(article.ArticleId);
+                var existingNewsArticle = this.GetNewsArticleById(article.ArticleId);
                 if (existingNewsArticle == null)
                 {
-                    AddNewsArticle(newsArticle);
+                    this.AddNewsArticle(newsArticle);
                 }
                 else
                 {
-                    UpdateNewsArticle(newsArticle);
+                    this.UpdateNewsArticle(newsArticle);
                 }
             }
         }
@@ -820,17 +815,17 @@
             if (string.IsNullOrWhiteSpace(articleId))
                 throw new ArgumentNullException(nameof(articleId));
 
-            var article = GetUserArticleById(articleId) 
+            var article = this.GetUserArticleById(articleId)
                 ?? throw new KeyNotFoundException($"User article with ID {articleId} not found");
 
             article.Status = "Rejected";
-            UpdateUserArticle(article);
+            this.UpdateUserArticle(article);
 
             // Remove from news articles if it exists
             try
             {
-                var existingNewsArticle = GetNewsArticleById(article.ArticleId);
-                DeleteNewsArticle(article.ArticleId);
+                var existingNewsArticle = this.GetNewsArticleById(article.ArticleId);
+                this.DeleteNewsArticle(article.ArticleId);
             }
             catch (KeyNotFoundException)
             {
@@ -838,9 +833,6 @@
             }
         }
 
-        #endregion
-
-        #region Mock Data
 
         private List<UserArticle> GetMockUserArticles()
         {
@@ -899,7 +891,7 @@
 
         private List<NewsArticle> GetMockArticles()
         {
-            var approvedUserArticles = userArticles
+            var approvedUserArticles = this.userArticles
                 .Where(ua => ua.Status == "Approved")
                 .Select(ua => new NewsArticle
                 {
@@ -999,8 +991,8 @@
                 {
                     using (var connection = DatabaseHelper.GetConnection())
                     {
-                        List<UserArticle> mockUserArticles = GetMockUserArticles();
-                        List<NewsArticle> mockNewsArticles = GetMockArticles();
+                        List<UserArticle> mockUserArticles = this.GetMockUserArticles();
+                        List<NewsArticle> mockNewsArticles = this.GetMockArticles();
 
                         using (var transaction = connection.BeginTransaction())
                         {
@@ -1231,8 +1223,8 @@
                         }
 
                         // Reload data after adding
-                        LoadNewsArticles();
-                        LoadUserArticles();
+                        this.LoadNewsArticles();
+                        this.LoadUserArticles();
                     }
                 }
                 catch (Exception ex)
@@ -1243,7 +1235,5 @@
             }
         }
 
-
-        #endregion
     }
 }

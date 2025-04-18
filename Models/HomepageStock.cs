@@ -3,7 +3,7 @@
     using Microsoft.UI;
     using Microsoft.UI.Xaml.Media;
 
-    public class HomepageStock : IHomepageStock
+    public class HomepageStock
     {
         public string Symbol { get; set; } = string.Empty;
 

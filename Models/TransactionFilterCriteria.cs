@@ -2,7 +2,7 @@
 {
     using System;
 
-    public class TransactionFilterCriteria : ITransactionFilterCriteria
+    public class TransactionFilterCriteria
     {
         public string? StockName { get; set; }
 

@@ -1,13 +1,13 @@
-﻿namespace StockApp.Repository
+﻿namespace StockApp.Repositories
 {
     using System.Collections.Generic;
     using StockApp.Models;
 
     public interface ITransactionRepository
     {
-        List<ITransactionLogTransaction> Transactions { get; }
-        List<ITransactionLogTransaction> GetByFilterCriteria(ITransactionFilterCriteria criteria);
+        List<TransactionLogTransaction> Transactions { get; }
+        List<TransactionLogTransaction> GetByFilterCriteria(TransactionFilterCriteria criteria);
 
-        void AddTransaction(ITransactionLogTransaction transaction);
+        void AddTransaction(TransactionLogTransaction transaction);
     }
 }

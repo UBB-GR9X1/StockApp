@@ -1,6 +1,6 @@
 ﻿namespace StockApp.Models
 {
-    public class Stock : BaseStock, IStock
+    public class Stock : BaseStock
     {
         public Stock(string name, string symbol, string authorCnp, int price)
             : base(name, symbol, authorCnp)

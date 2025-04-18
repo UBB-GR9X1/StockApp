@@ -18,8 +18,8 @@
         private readonly INewsService _newsService;
         private readonly DispatcherQueue _dispatcherQueue;
 
-        private ObservableCollection<IUserArticle> _userArticles = new();
-        public ObservableCollection<IUserArticle> UserArticles
+        private ObservableCollection<UserArticle> _userArticles = new();
+        public ObservableCollection<UserArticle> UserArticles
         {
             get => _userArticles;
             set => SetProperty(ref _userArticles, value);
@@ -72,8 +72,8 @@
             }
         }
 
-        private IUserArticle _selectedArticle;
-        public IUserArticle SelectedArticle
+        private UserArticle _selectedArticle;
+        public UserArticle SelectedArticle
         {
             get => _selectedArticle;
             set
@@ -176,7 +176,7 @@
             }
         }
 
-        private void NavigateToPreview(IUserArticle article)
+        private void NavigateToPreview(UserArticle article)
         {
             if (article != null)
             {

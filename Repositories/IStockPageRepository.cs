@@ -1,4 +1,4 @@
-﻿namespace StockApp.Repository
+﻿namespace StockApp.Repositories
 {
     using System.Collections.Generic;
     using StockApp.Models;
@@ -17,7 +17,7 @@
 
         StockPageStock GetStock(string stockName);
 
-        IReadOnlyList<int> GetStockHistory(string stockName);
+        List<int> GetStockHistory(string stockName);
 
         int GetOwnedStocks(string stockName);
 

@@ -7,38 +7,38 @@
 
     class HomepageService : IHomepageService
     {
-        private readonly IHomepageStocksRepository _repo;
-        public ObservableCollection<IHomepageStock> FavoriteStocks { get; private set; }
-        public ObservableCollection<IHomepageStock> AllStocks { get; private set; }
-        public ObservableCollection<IHomepageStock> FilteredAllStocks { get; private set; }
-        public ObservableCollection<IHomepageStock> FilteredFavoriteStocks { get; private set; }
+        private readonly HomepageStocksRepository _repo;
+        public ObservableCollection<HomepageStock> FavoriteStocks { get; private set; }
+        public ObservableCollection<HomepageStock> AllStocks { get; private set; }
+        public ObservableCollection<HomepageStock> FilteredAllStocks { get; private set; }
+        public ObservableCollection<HomepageStock> FilteredFavoriteStocks { get; private set; }
 
         public HomepageService()
         {
             _repo = new HomepageStocksRepository();
             var stocks = _repo.LoadStocks();
-            AllStocks = new ObservableCollection<IHomepageStock>(stocks);
-            FavoriteStocks = new ObservableCollection<IHomepageStock>(stocks.Where(stock => stock.IsFavorite).ToList());
+            AllStocks = new ObservableCollection<HomepageStock>(stocks);
+            FavoriteStocks = new ObservableCollection<HomepageStock>(stocks.Where(stock => stock.IsFavorite).ToList());
         }
 
-        public ObservableCollection<IHomepageStock> GetFavoriteStocks()
+        public ObservableCollection<HomepageStock> GetFavoriteStocks()
         {
             return FavoriteStocks;
         }
 
-        public ObservableCollection<IHomepageStock> GetAllStocks()
+        public ObservableCollection<HomepageStock> GetAllStocks()
         {
             return AllStocks;
         }
 
         public void FilterStocks(string query)
         {
-            FilteredAllStocks = new ObservableCollection<IHomepageStock>(AllStocks
+            FilteredAllStocks = new ObservableCollection<HomepageStock>(AllStocks
                 .Where(stock => stock.Name.ToLower().Contains(query.ToLower()) ||
                                 stock.Symbol.ToLower().Contains(query.ToLower()))
                 .ToList());
 
-            FilteredFavoriteStocks = new ObservableCollection<IHomepageStock>(FavoriteStocks
+            FilteredFavoriteStocks = new ObservableCollection<HomepageStock>(FavoriteStocks
                 .Where(stock => stock.Name.ToLower().Contains(query.ToLower()) ||
                                 stock.Symbol.ToLower().Contains(query.ToLower()))
                 .ToList());
@@ -48,26 +48,26 @@
         {
             if (FilteredAllStocks == null || FilteredFavoriteStocks == null)
             {
-                FilteredAllStocks = new ObservableCollection<IHomepageStock>(AllStocks);
-                FilteredFavoriteStocks = new ObservableCollection<IHomepageStock>(FavoriteStocks);
+                FilteredAllStocks = new ObservableCollection<HomepageStock>(AllStocks);
+                FilteredFavoriteStocks = new ObservableCollection<HomepageStock>(FavoriteStocks);
             }
 
             switch (sortOption)
             {
                 case "Sort by Name":
-                    FilteredAllStocks = new ObservableCollection<IHomepageStock>(FilteredAllStocks.OrderBy(stock => stock.Name).ToList());
-                    FilteredFavoriteStocks = new ObservableCollection<IHomepageStock>(FilteredFavoriteStocks.OrderBy(stock => stock.Name).ToList());
+                    FilteredAllStocks = new ObservableCollection<HomepageStock>(FilteredAllStocks.OrderBy(stock => stock.Name).ToList());
+                    FilteredFavoriteStocks = new ObservableCollection<HomepageStock>(FilteredFavoriteStocks.OrderBy(stock => stock.Name).ToList());
                     break;
                 case "Sort by Price":
-                    FilteredAllStocks = new ObservableCollection<IHomepageStock>(
+                    FilteredAllStocks = new ObservableCollection<HomepageStock>(
                         FilteredAllStocks.OrderBy(stock => stock.Price).ToList()
                     );
-                    FilteredFavoriteStocks = new ObservableCollection<IHomepageStock>(
+                    FilteredFavoriteStocks = new ObservableCollection<HomepageStock>(
                         FilteredFavoriteStocks.OrderBy(stock => stock.Price).ToList()
                     );
                     break;
                 case "Sort by Change":
-                    FilteredAllStocks = new ObservableCollection<IHomepageStock>(
+                    FilteredAllStocks = new ObservableCollection<HomepageStock>(
                         FilteredAllStocks.OrderBy(stock =>
                         {
                             // Remove '+' and '%' characters and parse to decimal
@@ -76,7 +76,7 @@
                             return change;
                         }).ToList()
                     );
-                    FilteredFavoriteStocks = new ObservableCollection<IHomepageStock>(
+                    FilteredFavoriteStocks = new ObservableCollection<HomepageStock>(
                         FilteredFavoriteStocks.OrderBy(stock =>
                         {
                             // Remove '+' and '%' characters and parse to decimal  
@@ -89,14 +89,14 @@
             }
         }
 
-        public void RemoveFromFavorites(IHomepageStock stock)
+        public void RemoveFromFavorites(HomepageStock stock)
         {
             _repo.RemoveFromFavorites(stock);
             FavoriteStocks.Remove(stock);
             stock.IsFavorite = false;
         }
 
-        public void AddToFavorites(IHomepageStock stock)
+        public void AddToFavorites(HomepageStock stock)
         {
             _repo.AddToFavorites(stock);
             FavoriteStocks.Add(stock);

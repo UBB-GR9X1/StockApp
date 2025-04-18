@@ -2,7 +2,7 @@
 {
     using System;
 
-    public class TransactionLogTransaction : ITransactionLogTransaction
+    public class TransactionLogTransaction
     {
         public string StockSymbol { get; }
 

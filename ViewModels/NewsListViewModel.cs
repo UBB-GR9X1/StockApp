@@ -19,8 +19,8 @@
         private readonly IAppState _appState;
 
         // properties
-        private ObservableCollection<INewsArticle> _articles = new();
-        public ObservableCollection<INewsArticle> Articles
+        private ObservableCollection<NewsArticle> _articles = new();
+        public ObservableCollection<NewsArticle> Articles
         {
             get => _articles;
             set => SetProperty(ref _articles, value);
@@ -95,8 +95,8 @@
         }
 
         // user and auth properties
-        private IUser _currentUser;
-        public IUser CurrentUser
+        private User _currentUser;
+        public User CurrentUser
         {
             get => _currentUser;
             set

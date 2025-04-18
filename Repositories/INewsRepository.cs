@@ -1,4 +1,4 @@
-﻿namespace StockApp.Repository
+﻿namespace StockApp.Repositories
 {
     using System.Collections.Generic;
     using Microsoft.Data.SqlClient;
@@ -17,41 +17,41 @@
 
         void LoadNewsArticles();
 
-        IReadOnlyList<INewsArticle> GetAllNewsArticles();
+        List<NewsArticle> GetAllNewsArticles();
 
-        INewsArticle GetNewsArticleById(string articleId);
+        NewsArticle GetNewsArticleById(string articleId);
 
-        IReadOnlyList<INewsArticle> GetNewsArticlesByStock(string stockName);
+        List<NewsArticle> GetNewsArticlesByStock(string stockName);
 
-        IReadOnlyList<INewsArticle> GetNewsArticlesByCategory(string category);
+        List<NewsArticle> GetNewsArticlesByCategory(string category);
 
-        void AddNewsArticle(INewsArticle newsArticle);
+        void AddNewsArticle(NewsArticle newsArticle);
 
-        void UpdateNewsArticle(INewsArticle newsArticle);
+        void UpdateNewsArticle(NewsArticle newsArticle);
 
         void DeleteNewsArticle(string articleId);
 
         void MarkArticleAsRead(string articleId);
 
-        IReadOnlyList<string> GetRelatedStocksForArticle(string articleId);
+        List<string> GetRelatedStocksForArticle(string articleId);
 
-        void AddRelatedStocksForArticle(string articleId, IReadOnlyList<string> stockNames, SqlConnection connection, SqlTransaction transaction);
+        void AddRelatedStocksForArticle(string articleId, List<string> stockNames, SqlConnection connection, SqlTransaction transaction);
 
         void LoadUserArticles();
 
-        IReadOnlyList<IUserArticle> GetAllUserArticles();
+        List<UserArticle> GetAllUserArticles();
 
-        IUserArticle GetUserArticleById(string articleId);
+        UserArticle GetUserArticleById(string articleId);
 
-        IReadOnlyList<IUserArticle> GetUserArticlesByStatus(string status);
+        List<UserArticle> GetUserArticlesByStatus(string status);
 
-        IReadOnlyList<IUserArticle> GetUserArticlesByTopic(string topic);
+        List<UserArticle> GetUserArticlesByTopic(string topic);
 
-        IReadOnlyList<IUserArticle> GetUserArticlesByStatusAndTopic(string status, string topic);
+        List<UserArticle> GetUserArticlesByStatusAndTopic(string status, string topic);
 
-        void AddUserArticle(IUserArticle userArticle);
+        void AddUserArticle(UserArticle userArticle);
 
-        void UpdateUserArticle(IUserArticle userArticle);
+        void UpdateUserArticle(UserArticle userArticle);
 
         void DeleteUserArticle(string articleId);
 
