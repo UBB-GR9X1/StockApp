@@ -31,4 +31,16 @@
         public StockPersistenceException(string message, Exception innerException)
             : base(message, innerException) { }
     }
+    public class ExportFormatNotSupportedException : Exception
+    {
+        public ExportFormatNotSupportedException(string format)
+            : base($"Export format '{format}' is not supported.") { }
+    }
+    public class InvalidSortTypeException : Exception
+    {
+        public InvalidSortTypeException(string sortType)
+            : base($"The sort type '{sortType}' is not supported.")
+        {
+        }
+    }
 }
