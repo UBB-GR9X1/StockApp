@@ -10,8 +10,8 @@
 
     public class AlertViewModel
     {
-        private readonly AlertService alertService = new ();
-        private readonly DialogService dialogService = new ();
+        private readonly IAlertService alertService;
+        private readonly IDialogService dialogService;
 
         public ObservableCollection<Alert> Alerts { get; } = [];
 
@@ -23,16 +23,24 @@
 
         public ICommand CloseAppCommand { get; }
 
-        public AlertViewModel()
+        public AlertViewModel(IAlertService alertService, IDialogService dialogService)
         {
-            // Initialize Commands
+            this.alertService = alertService ?? throw new ArgumentNullException(nameof(alertService));
+            this.dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
+
+            // Initialize commands exactly as before
             this.CreateAlertCommand = new RelayCommand(async _ => await this.CreateAlert());
             this.SaveAlertsCommand = new RelayCommand(async _ => await this.SaveAlerts());
-            this.DeleteAlertCommand = new RelayCommand(async param => await this.DeleteAlert(param));
+            this.DeleteAlertCommand = new RelayCommand(async p => await this.DeleteAlert(p));
             this.CloseAppCommand = new RelayCommand(_ => Environment.Exit(0));
 
-            // Load Alerts on Initialization
+            // Load initial alerts
             this.LoadAlerts();
+        }
+
+        public AlertViewModel()
+            : this(new AlertService(), new DialogService())
+        {
         }
 
         private static void ValidateAlert(Alert alert)
@@ -64,7 +72,14 @@
                 foreach (Alert alert in this.Alerts)
                 {
                     ValidateAlert(alert);
-                    this.alertService.UpdateAlert(alert);
+                    this.alertService.UpdateAlert(
+                        alert.AlertId,
+                        alert.StockName,
+                        alert.Name,
+                        alert.UpperBound,
+                        alert.LowerBound,
+                        alert.ToggleOnOff
+                    );
                 }
 
                 await this.dialogService.ShowMessageAsync("Success", "All alerts saved successfully!");

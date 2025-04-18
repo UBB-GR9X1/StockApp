@@ -18,9 +18,9 @@
     public class ArticleCreationViewModel : ViewModelBase
     {
         private readonly INewsService _newsService;
-        private readonly DispatcherQueue _dispatcherQueue;
+        private readonly IDispatcher _dispatcherQueue;
         private readonly IAppState _appState;
-        private readonly IBaseStocksRepository _stocksRepository = new BaseStocksRepository();
+        private readonly IBaseStocksRepository _stocksRepository;
 
         // properties
         private string _title;
@@ -97,11 +97,16 @@
         public ICommand SubmitCommand { get; }
 
         // constructor
-        public ArticleCreationViewModel()
+        public ArticleCreationViewModel(
+            INewsService newsService,
+            IDispatcher dispatcher,
+            IAppState appState,
+            IBaseStocksRepository stocksRepo)
         {
-            _newsService = new NewsService();
-            _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
-            _appState = AppState.Instance;
+            _newsService = newsService;
+            _dispatcherQueue = dispatcher;
+            _appState = appState;
+            _stocksRepository = stocksRepo;
 
             // init commands
             BackCommand = new StockNewsRelayCommand(() => NavigationService.Instance.GoBack());
@@ -119,6 +124,13 @@
             // set default values
             _selectedTopic = "Stock News";
         }
+
+        public ArticleCreationViewModel()
+          : this(new NewsService(),
+                 new DispatcherAdapter(),
+                 AppState.Instance,
+                 new BaseStocksRepository())
+        { }
 
         // methods
         public void Initialize()

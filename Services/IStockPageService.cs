@@ -1,6 +1,7 @@
 ﻿namespace StockApp.Services
 {
     using System.Collections.Generic;
+    using StockApp.Models;
 
     public interface IStockPageService
     {
@@ -24,6 +25,8 @@
 
         void ToggleFavorite(bool state);
 
-        string GetStockAuthor();
+        User GetStockAuthor();
+
+        void SelectStock(Stock stock);
     }
 }

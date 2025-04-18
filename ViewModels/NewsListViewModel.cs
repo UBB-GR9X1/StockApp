@@ -15,7 +15,7 @@
     public class NewsListViewModel : ViewModelBase
     {
         private readonly INewsService _newsService;
-        private readonly DispatcherQueue _dispatcherQueue;
+        private readonly IDispatcher _dispatcherQueue;
         private readonly IAppState _appState;
 
         // properties
@@ -121,13 +121,15 @@
         public ICommand ClearSearchCommand { get; }
 
         // constructor
-        public NewsListViewModel()
+        public NewsListViewModel(
+        INewsService newsService,
+        IDispatcher dispatcherQueue,
+        IAppState appState)
         {
-            _newsService = new NewsService();
-            _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
-            _appState = AppState.Instance;
+            _newsService = newsService ?? throw new ArgumentNullException(nameof(newsService));
+            _dispatcherQueue = dispatcherQueue ?? throw new ArgumentNullException(nameof(dispatcherQueue));
+            _appState = appState ?? throw new ArgumentNullException(nameof(appState));
 
-            // init commands
             RefreshCommand = new StockNewsRelayCommand(async () => await RefreshArticlesAsync());
             CreateArticleCommand = new StockNewsRelayCommand(() => NavigateToCreateArticle());
             AdminPanelCommand = new StockNewsRelayCommand(() => NavigateToAdminPanel());
@@ -135,16 +137,20 @@
             LogoutCommand = new StockNewsRelayCommand(() => LogoutUser());
             ClearSearchCommand = new StockNewsRelayCommand(() => SearchQuery = string.Empty);
 
-            // init categories
             Categories.Add("All");
             Categories.Add("Stock News");
             Categories.Add("Company News");
             Categories.Add("Market Analysis");
             Categories.Add("Economic News");
             Categories.Add("Functionality News");
-
-            // set default values
             _selectedCategory = "All";
+        }
+
+        public NewsListViewModel()
+          : this(new NewsService(),
+                 new DispatcherAdapter(),
+                 AppState.Instance)
+        {
         }
 
         // methods

@@ -5,6 +5,7 @@
     using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using System.Windows.Input;
+    using System.Windows.Threading;
     using Microsoft.UI.Dispatching;
     using Microsoft.UI.Xaml.Controls;
     using StockApp.Commands;
@@ -14,7 +15,7 @@
     public class NewsDetailViewModel : ViewModelBase
     {
         private readonly INewsService newsService;
-        private readonly DispatcherQueue dispatcherQueue;
+        private readonly IDispatcher dispatcherQueue;
         private string currentArticleId;
         private bool isPreviewMode;
         private string previewId;
@@ -80,17 +81,19 @@
         public ICommand DeleteCommand { get; }
 
         // constructor
-        public NewsDetailViewModel()
+        public NewsDetailViewModel(INewsService newsService, IDispatcher dispatcher)
         {
-            newsService = new NewsService();
-            dispatcherQueue = DispatcherQueue.GetForCurrentThread();
+            this.newsService = newsService ?? throw new ArgumentNullException(nameof(newsService));
+            this.dispatcherQueue = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
 
-            // init commands
             BackCommand = new StockNewsRelayCommand(() => NavigationService.Instance.GoBack());
             ApproveCommand = new StockNewsRelayCommand(async () => await ApproveArticleAsync());
             RejectCommand = new StockNewsRelayCommand(async () => await RejectArticleAsync());
             DeleteCommand = new StockNewsRelayCommand(async () => await DeleteArticleAsync());
         }
+
+        public NewsDetailViewModel()
+          : this(new NewsService(), new DispatcherAdapter()) { }
 
         public async void LoadArticle(string articleId)
         {

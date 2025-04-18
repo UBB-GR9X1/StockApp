@@ -16,7 +16,7 @@
     public class AdminNewsViewModel : ViewModelBase
     {
         private readonly INewsService newsService;
-        private readonly DispatcherQueue dispatcherQueue;
+        private readonly IDispatcher dispatcherQueue;
 
         private ObservableCollection<UserArticle> userArticles = [];
         private bool isLoading;
@@ -27,12 +27,21 @@
         private UserArticle? selectedArticle;
         private bool isEmptyState;
 
-        // Constructor
-        public AdminNewsViewModel()
+        public AdminNewsViewModel(
+        INewsService service,
+        IDispatcher dispatcherQueue)
         {
-            this.newsService = new NewsService();
-            this.dispatcherQueue = DispatcherQueue.GetForCurrentThread();
+            this.newsService = service ?? throw new ArgumentNullException(nameof(service));
+            this.dispatcherQueue = dispatcherQueue ?? throw new ArgumentNullException(nameof(dispatcherQueue));
+            InitializeCommandsAndFilters();
+        }
 
+        // Constructor
+        public AdminNewsViewModel() 
+            : this (new NewsService(), new DispatcherAdapter()) { }
+
+        private void InitializeCommandsAndFilters()
+        {
             // init commands
             this.RefreshCommand = new StockNewsRelayCommand(async () => await this.RefreshArticlesAsync());
             this.ApproveCommand = new RelayCommandGeneric<string>(async (id) => await this.ApproveArticleAsync(id));
@@ -131,17 +140,17 @@
         }
 
         // Commands
-        public ICommand RefreshCommand { get; }
+        public ICommand RefreshCommand { get; private set; }
 
-        public ICommand ApproveCommand { get; }
+        public ICommand ApproveCommand { get; private set; }
 
-        public ICommand RejectCommand { get; }
+        public ICommand RejectCommand { get; private set; }
 
-        public ICommand DeleteCommand { get; }
+        public ICommand DeleteCommand { get; private set; }
 
-        public ICommand BackCommand { get; }
+        public ICommand BackCommand { get; private set; }
 
-        public ICommand PreviewCommand { get; }
+        public ICommand PreviewCommand { get; private set; }
 
         public async void Initialize()
         {

@@ -9,7 +9,7 @@
 
     public class ProfilePageViewModel : INotifyPropertyChanged
     {
-        private readonly ProfieService profileService;
+        private readonly IProfileService profileService;
 
         private BitmapImage _imageSource;
         public BitmapImage ImageSource
@@ -22,13 +22,19 @@
             }
         }
 
-        public ProfilePageViewModel()
+        public ProfilePageViewModel(IProfileService profileService)
         {
-            profileService = new ProfieService();
+            this.profileService = profileService ?? throw new ArgumentNullException(nameof(profileService));
+        }
+
+        // default ctor for production
+        public ProfilePageViewModel()
+            : this(new ProfieService())
+        {
             LoadProfileImage();
         }
 
-        private void LoadProfileImage()
+        internal void LoadProfileImage()
         {
             string imageUrl = profileService.GetImage();
             if (!string.IsNullOrEmpty(imageUrl))

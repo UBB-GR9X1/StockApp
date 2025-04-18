@@ -2,7 +2,7 @@
 {
     using System.Threading.Tasks;
 
-    internal interface IDialogService
+    public interface IDialogService
     {
         Task ShowMessageAsync(string title, string content);
     }
