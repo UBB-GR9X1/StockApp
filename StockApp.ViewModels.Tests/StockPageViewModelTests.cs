@@ -1,11 +1,8 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using LiveChartsCore;
 using StockApp.Models;
 using StockApp.Services;
-using StockApp.ViewModels;
 
 namespace StockApp.ViewModels.Tests
 {
@@ -64,7 +61,7 @@ namespace StockApp.ViewModels.Tests
         [TestMethod]
         public void ToggleFavorite_CallsService_AndChangesColor()
         {
-            _vm.ToggleFavorite(); 
+            _vm.ToggleFavorite();
             _vm.ToggleFavorite();
 
             _svc.Verify(s => s.ToggleFavorite(true), Times.Once);

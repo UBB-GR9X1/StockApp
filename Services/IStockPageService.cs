@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using StockApp.Models;
 
-    internal interface IStockPageService
+    public interface IStockPageService
     {
         bool BuyStock(int quantity);
 
