@@ -37,7 +37,6 @@
                 {
                     _isAdmin = value;
                     OnPropertyChanged();
-                    (CreateStockCommand as RelayCommand)?.OnCanExecuteChanged();
                 }
             }
         }
@@ -93,7 +92,6 @@
                 {
                     _message = value;
                     OnPropertyChanged();
-                    (CreateStockCommand as RelayCommand)?.OnCanExecuteChanged();
                 }
             }
         }
@@ -106,7 +104,6 @@
                 if (_isInputValid != value)
                 {
                     _isInputValid = value;
-                    (CreateStockCommand as RelayCommand)?.OnCanExecuteChanged();
                 }
             }
         }
