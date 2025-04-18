@@ -1,4 +1,7 @@
-﻿namespace StockApp
+﻿// To learn more about WinUI, the WinUI project structure,
+// and more about our project templates, see: http://aka.ms/winui-project-info.
+
+namespace StockApp
 {
     using System;
     using Microsoft.Extensions.Configuration;
@@ -10,6 +13,24 @@
     /// </summary>
     public partial class App : Application
     {
+        private Window mainWindow;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="App"/> class.
+        /// Initializes the singleton application object.  This is the first line of authored code
+        /// executed, and as such is the logical equivalent of main() or WinMain().
+        /// </summary>
+        public App()
+        {
+            DatabaseHelper.InitializeDatabase();
+            this.InitializeComponent();
+
+            // explanation before the OnUnhandledException method
+            this.UnhandledException += this.OnUnhandledException;
+        }
+
+        public static Window CurrentWindow { get; set; }
+
         /// <summary>
         /// Gets Configuration object for the application.
         /// </summary>
@@ -22,20 +43,9 @@
         /// Gets ConnectionString string for the database.
         /// </summary>
         /// <exception cref="InvalidOperationException">Thrown when the connection string is not set in appsettings.json.</exception>
-        public static string ConnectionString { get; } = Configuration.GetConnectionString("StockApp_DB") ?? throw new InvalidOperationException("Connection string is not set in appsettings.json");
-
-        public static Window CurrentWindow { get; set; }
-        /// <summary>
-        /// Initializes the singleton application object.  This is the first line of authored code
-        /// executed, and as such is the logical equivalent of main() or WinMain().
-        /// </summary>
-        public App()
-        {
-            DatabaseHelper.InitializeDatabase();
-            this.InitializeComponent();
-            //explanation before the OnUnhandledException method
-            this.UnhandledException += OnUnhandledException;
-        }
+        public static string ConnectionString { get; } =
+            Configuration.GetConnectionString("StockApp_DB") ??
+            throw new InvalidOperationException("Connection string is not set in appsettings.json");
 
         /// <summary>
         /// Invoked when the application is launched normally by the end user.  Other entry points
@@ -44,12 +54,10 @@
         /// <param name="args">Details about the launch request and process.</param>
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
-            m_window = new MainWindow();
-            CurrentWindow = m_window;
-            m_window.Activate();
+            this.mainWindow = new MainWindow();
+            CurrentWindow = this.mainWindow;
+            this.mainWindow.Activate();
         }
-
-        private Window m_window;
 
         // i found some stupid ass error for the debugger, got it twice and couldn't
         // recreate it ever since thus this method exists if someone finds it there is something to see
@@ -61,7 +69,6 @@
         {
             System.Diagnostics.Debug.WriteLine($"Unhandled exception: {e.Exception.Message}");
             System.Diagnostics.Debug.WriteLine(e.Exception.StackTrace);
-
         }
     }
 }

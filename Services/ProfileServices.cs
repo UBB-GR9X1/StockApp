@@ -6,73 +6,36 @@
 
     public class ProfieServices : IProfileService
     {
-        ProfileRepository _repo;
+        private ProfileRepository profileRepo;
 
-        private User _user;
-        private List<string> userStocks;
-
-        public ProfieServices(string authorCnp)
+        public ProfieService(string authorCnp)
         {
-            _repo = new ProfileRepository(authorCnp);
+            profileRepo = new ProfileRepository(authorCnp);
 
-            _user = _repo.CurrentUser();
-            userStocks = _repo.UserStocks();
         }
 
-        public string GetImage() => _user.Image;
-        public string GetUsername() => _user.Username;
-        public string GetDescription() => _user.Description;
-        public bool IsHidden() => _user.IsHidden;
-        public bool IsAdmin() => _user.IsModerator;
-        public List<string> GetUserStocks() => userStocks;
-        public string GetPass() => "BombardinoCrocodilo";
+        public string GetImage() => this.profileRepo.CurrentUser().Image;
+
+        public string GetUsername() => this.profileRepo.CurrentUser().Username;
+
+        public string GetDescription() => this.profileRepo.CurrentUser().Description;
+
+        public bool IsHidden() => this.profileRepo.CurrentUser().IsHidden;
+
+        public bool IsAdmin() => this.profileRepo.CurrentUser().IsModerator;
+
+        public List<Stock> GetUserStocks() => this.profileRepo.UserStocks();
 
         public void UpdateUser(string newUsername, string newImage, string newDescription, bool newHidden)
         {
-            _repo.UpdateMyUser(newUsername, newImage, newDescription, newHidden);
-            /*
-                        _user.Username = newUsername;
-                        _user.Image = newImage;
-                        _user.Description = newDescription;
-                        _user.IsHidden = newHidden;*/
+            this.profileRepo.UpdateMyUser(newUsername, newImage, newDescription, newHidden);
         }
 
-        public void UpdateIsAdmin(bool isAdm)
+        public void UpdateIsAdmin(bool isAdmin)
         {
-            //_user.IsModerator = isAdm;
-            _repo.UpdateRepoIsAdmin(isAdm);
+            this.profileRepo.UpdateRepoIsAdmin(isAdmin);
         }
 
-        public List<string> ExtractStockNames()
-        {
-            List<string> stockNames = new List<string>();
-
-            foreach (var stockInfo in _repo.UserStocks())
-            {
-                // Assuming format: SYMBOL | NAME | Quantity: X | Price: Y
-                var parts = stockInfo.Split('|');
-                if (parts.Length >= 2)
-                {
-                    string stockName = parts[1].Trim();
-                    stockNames.Add(stockName);
-                }
-            }
-
-            return stockNames;
-        }
-
-        public string ExtractStockName(string fullStockInfo)
-        {
-            var parts = fullStockInfo.Split('|');
-            string extractedName = parts[1].Trim();
-            return extractedName;
-
-        }
-
-        public string GetLoggedInUserCnp()
-        {
-            return _repo.GetLoggedInUserCNP();
-        }
-
+        public string GetLoggedInUserCnp() => this.profileRepo.CurrentUser().CNP;
     }
 }

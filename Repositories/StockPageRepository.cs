@@ -6,148 +6,187 @@
     using StockApp.Database;
     using StockApp.Models;
 
-
+    /// <summary>
+    /// Repository for managing stock page data, including user and stock information.
+    /// </summary>
     public class StockPageRepository : IStockPageRepository
     {
         private readonly string cnp;
+        private readonly SqlConnection connection;
 
-        public StockPageUser User { get; private set; }
+        /// <summary>
+        /// Gets the user associated with the stock page.
+        /// </summary>
+        public User? User { get; private set; }
 
+        /// <summary>
+        /// Gets a value indicating whether the current user is a guest.
+        /// </summary>
         public bool IsGuest { get; private set; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StockPageRepository"/> class.
+        /// </summary>
         public StockPageRepository()
         {
-            SqlCommand getCNP = new("SELECT * FROM HARDCODED_CNPS", DatabaseHelper.GetConnection());
-
-            SqlDataReader reader = getCNP.ExecuteReader();
-            reader.Read();
-
-            this.cnp = reader["CNP"].ToString();
-            Console.WriteLine("CNP: " + this.cnp);
-
-            SqlCommand getUser = new("SELECT * FROM [USER] WHERE CNP = @cnp", DatabaseHelper.GetConnection());
-            getUser.Parameters.AddWithValue("@cnp", this.cnp);
-
-            SqlDataReader reader2 = getUser.ExecuteReader();
-            reader2.Read();
-
-            if (reader2.HasRows)
-            {
-                this.User = new StockPageUser(
-                    reader2["CNP"].ToString(),
-                    reader2["NAME"].ToString(),
-                    Convert.ToInt32(reader2["GEM_BALANCE"]));
-
-                this.IsGuest = false;
-            }
-            else
-            {
-                this.IsGuest = true;
-            }
+            connection = DatabaseHelper.GetConnection();
+            cnp = FetchCNP();
+            InitializeUser();
         }
 
         public void UpdateUserGems(int gems)
         {
-            SqlCommand updateUser = new("UPDATE [USER] SET GEM_BALANCE = @gems WHERE CNP = @cnp", DatabaseHelper.GetConnection());
-            updateUser.Parameters.AddWithValue("@gems", gems);
-            updateUser.Parameters.AddWithValue("@cnp", cnp);
-            updateUser.ExecuteNonQuery();
-            this.User.GemBalance = gems;
+            using var command = new SqlCommand("UPDATE [USER] SET GEM_BALANCE = @gems WHERE CNP = @cnp", connection);
+            command.Parameters.AddWithValue("@gems", gems);
+            command.Parameters.AddWithValue("@cnp", cnp);
+            command.ExecuteNonQuery();
+
+            if (User != null)
+            {
+                User.GemBalance = gems;
+            }
         }
 
         public void AddOrUpdateUserStock(string stockName, int quantity)
         {
-            SqlCommand addOrUpdateUserStock = new("IF EXISTS (SELECT * FROM USER_STOCK WHERE USER_CNP = @cnp AND STOCK_NAME = @name) " +
-                "BEGIN UPDATE USER_STOCK SET QUANTITY = QUANTITY + @quantity WHERE USER_CNP = @cnp AND STOCK_NAME = @name END " +
-                "ELSE BEGIN INSERT INTO USER_STOCK (USER_CNP, STOCK_NAME, QUANTITY) VALUES (@cnp, @name, @quantity) END", DatabaseHelper.GetConnection());
+            const string query = @"
+                        IF EXISTS (SELECT 1 FROM USER_STOCK WHERE USER_CNP = @cnp AND STOCK_NAME = @name)
+                        BEGIN
+                            UPDATE USER_STOCK SET QUANTITY = QUANTITY + @quantity WHERE USER_CNP = @cnp AND STOCK_NAME = @name
+                        END
+                        ELSE
+                        BEGIN
+                            INSERT INTO USER_STOCK (USER_CNP, STOCK_NAME, QUANTITY) VALUES (@cnp, @name, @quantity)
+                        END";
 
-            addOrUpdateUserStock.Parameters.AddWithValue("@cnp", cnp);
-            addOrUpdateUserStock.Parameters.AddWithValue("@name", stockName);
-            addOrUpdateUserStock.Parameters.AddWithValue("@quantity", quantity);
-
-            addOrUpdateUserStock.ExecuteNonQuery();
+            using var command = new SqlCommand(query, connection);
+            command.Parameters.AddWithValue("@cnp", cnp);
+            command.Parameters.AddWithValue("@name", stockName);
+            command.Parameters.AddWithValue("@quantity", quantity);
+            command.ExecuteNonQuery();
         }
 
         public void AddStockValue(string stockName, int price)
         {
-            SqlCommand addStockValue = new("INSERT INTO STOCK_VALUE (STOCK_NAME, PRICE) VALUES (@name, @price)", DatabaseHelper.GetConnection());
-
-            addStockValue.Parameters.AddWithValue("@name", stockName);
-            addStockValue.Parameters.AddWithValue("@price", price);
-
-            addStockValue.ExecuteNonQuery();
+            using var command = new SqlCommand("INSERT INTO STOCK_VALUE (STOCK_NAME, PRICE) VALUES (@name, @price)", connection);
+            command.Parameters.AddWithValue("@name", stockName);
+            command.Parameters.AddWithValue("@price", price);
+            command.ExecuteNonQuery();
         }
 
-        public StockPageStock GetStock(string stockName)
+        public Stock GetStock(string stockName)
         {
-            SqlCommand getStock = new("SELECT * FROM STOCK WHERE STOCK_NAME = @name", DatabaseHelper.GetConnection());
-            getStock.Parameters.AddWithValue("@name", stockName);
+            const string query = @"
+                SELECT s.*, sv.*, us.QUANTITY 
+                FROM STOCK s
+                INNER JOIN STOCK_VALUE sv ON s.STOCK_NAME = sv.STOCK_NAME
+                LEFT JOIN USER_STOCK us ON s.STOCK_NAME = us.STOCK_NAME AND us.USER_CNP = @cnp
+                WHERE s.STOCK_NAME = @name";
 
-            SqlDataReader reader = getStock.ExecuteReader();
-            reader.Read();
+            using var command = new SqlCommand(query, connection);
+            command.Parameters.AddWithValue("@name", stockName);
+            command.Parameters.AddWithValue("@cnp", cnp);
 
-            return new StockPageStock(
-                reader["STOCK_NAME"].ToString(),
-                reader["STOCK_SYMBOL"].ToString(),
-                reader["AUTHOR_CNP"].ToString());
+            using var reader = command.ExecuteReader();
+            if (reader.Read())
+            {
+                return new Stock(
+                    name: reader["STOCK_NAME"].ToString() ?? throw new Exception("Stock name not found."),
+                    symbol: reader["STOCK_SYMBOL"].ToString() ?? throw new Exception("Stock symbol not found."),
+                    authorCnp: reader["AUTHOR_CNP"].ToString() ?? throw new Exception("Author CNP not found."),
+                    price: Convert.ToInt32(reader["PRICE"]));
+            }
+
+            throw new InvalidOperationException($"Stock with name '{stockName}' not found.");
         }
 
         public List<int> GetStockHistory(string stockName)
         {
-            SqlCommand getStock = new("SELECT * FROM STOCK_VALUE WHERE STOCK_NAME = @name", DatabaseHelper.GetConnection());
-            getStock.Parameters.AddWithValue("@name", stockName);
+            using var command = new SqlCommand("SELECT PRICE FROM STOCK_VALUE WHERE STOCK_NAME = @name", connection);
+            command.Parameters.AddWithValue("@name", stockName);
 
-            SqlDataReader reader = getStock.ExecuteReader();
-
-            List<int> stock_values = [];
+            using var reader = command.ExecuteReader();
+            var stockValues = new List<int>();
             while (reader.Read())
             {
-                stock_values.Add(Convert.ToInt32(reader["PRICE"]));
+                stockValues.Add(Convert.ToInt32(reader["PRICE"]));
             }
-
-            return stock_values;
+            return stockValues;
         }
 
         public int GetOwnedStocks(string stockName)
         {
-            SqlCommand getOwnedStock = new SqlCommand("SELECT * FROM USER_STOCK WHERE USER_CNP = @cnp AND STOCK_NAME = @name", DatabaseHelper.GetConnection());
-            getOwnedStock.Parameters.AddWithValue("@cnp", cnp);
-            getOwnedStock.Parameters.AddWithValue("@name", stockName);
+            using var command = new SqlCommand("SELECT QUANTITY FROM USER_STOCK WHERE USER_CNP = @cnp AND STOCK_NAME = @name", connection);
+            command.Parameters.AddWithValue("@cnp", cnp);
+            command.Parameters.AddWithValue("@name", stockName);
 
-            SqlDataReader reader = getOwnedStock.ExecuteReader();
-            reader.Read();
-
-            return reader.HasRows ? Convert.ToInt32(reader["QUANTITY"]) : 0;
+            using var reader = command.ExecuteReader();
+            return reader.Read() ? Convert.ToInt32(reader["QUANTITY"]) : 0;
         }
 
         public bool GetFavorite(string stockName)
         {
-            SqlCommand getFavorite = new SqlCommand("SELECT * FROM FAVORITE_STOCK WHERE USER_CNP = @cnp AND STOCK_NAME = @name", DatabaseHelper.GetConnection());
-            getFavorite.Parameters.AddWithValue("@cnp", cnp);
-            getFavorite.Parameters.AddWithValue("@name", stockName);
+            using var command = new SqlCommand("SELECT 1 FROM FAVORITE_STOCK WHERE USER_CNP = @cnp AND STOCK_NAME = @name", connection);
+            command.Parameters.AddWithValue("@cnp", cnp);
+            command.Parameters.AddWithValue("@name", stockName);
 
-            SqlDataReader reader = getFavorite.ExecuteReader();
-            reader.Read();
-
-            return reader.HasRows;
+            using var reader = command.ExecuteReader();
+            return reader.Read();
         }
 
         public void ToggleFavorite(string stockName, bool state)
         {
             if (state)
             {
-                SqlCommand addFavorite = new("INSERT INTO FAVORITE_STOCK (USER_CNP, STOCK_NAME) VALUES (@cnp, @name)", DatabaseHelper.GetConnection());
-                addFavorite.Parameters.AddWithValue("@cnp", cnp);
-                addFavorite.Parameters.AddWithValue("@name", stockName);
+                using var command = new SqlCommand("INSERT INTO FAVORITE_STOCK (USER_CNP, STOCK_NAME) VALUES (@cnp, @name)", connection);
+                command.Parameters.AddWithValue("@cnp", cnp);
+                command.Parameters.AddWithValue("@name", stockName);
+                command.ExecuteNonQuery();
+            }
+            else
+            {
+                using var command = new SqlCommand("DELETE FROM FAVORITE_STOCK WHERE USER_CNP = @cnp AND STOCK_NAME = @name", connection);
+                command.Parameters.AddWithValue("@cnp", cnp);
+                command.Parameters.AddWithValue("@name", stockName);
+                command.ExecuteNonQuery();
+            }
+        }
 
-                addFavorite.ExecuteNonQuery();
-                return;
+        private string FetchCNP()
+        {
+            using var command = new SqlCommand("SELECT TOP 1 CNP FROM HARDCODED_CNPS", this.connection);
+            using var reader = command.ExecuteReader();
+            if (reader.Read())
+            {
+                return reader["CNP"].ToString();
             }
 
-            SqlCommand removeFavorite = new("DELETE FROM FAVORITE_STOCK WHERE USER_CNP = @cnp AND STOCK_NAME = @name", DatabaseHelper.GetConnection());
-            removeFavorite.Parameters.AddWithValue("@cnp", cnp);
-            removeFavorite.Parameters.AddWithValue("@name", stockName);
-            removeFavorite.ExecuteNonQuery();
+            throw new InvalidOperationException("No CNP found in HARDCODED_CNPS.");
+        }
+
+        private void InitializeUser()
+        {
+            using var command = new SqlCommand("SELECT * FROM [USER] WHERE CNP = @cnp", this.connection);
+            command.Parameters.AddWithValue("@cnp", cnp);
+
+            using var reader = command.ExecuteReader();
+            if (reader.Read())
+            {
+                this.User = new User(
+                    reader["CNP"].ToString(),
+                    reader["NAME"].ToString(),
+                    reader["DESCRIPTION"].ToString(),
+                    Convert.ToBoolean(reader["IS_ADMIN"]),
+                    reader["PROFILE_PICTURE"].ToString(),
+                    Convert.ToBoolean(reader["IS_HIDDEN"]),
+                    Convert.ToInt32(reader["GEM_BALANCE"]));
+                this.IsGuest = false;
+            }
+            else
+            {
+                this.User = null; // Explicitly set to null to satisfy CS8618
+                this.IsGuest = true;
+            }
         }
     }
 }

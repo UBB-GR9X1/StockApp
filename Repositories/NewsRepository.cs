@@ -16,10 +16,11 @@
         private readonly List<NewsArticle> newsArticles = [];
         private readonly List<UserArticle> userArticles = [];
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NewsRepository"/> class.
+        /// </summary>
         public NewsRepository()
         {
-            this.Initialize();
-        }
 
         private void Initialize()
         {
@@ -61,6 +62,16 @@
             return count > 0;
         }
 
+        /// <summary>
+        /// Ensures a user exists in the database. If not, creates a new user.
+        /// </summary>
+        /// <param name="cnp">The user's unique identifier.</param>
+        /// <param name="name">The user's name.</param>
+        /// <param name="description">The user's description.</param>
+        /// <param name="isAdmin">Indicates if the user is an admin.</param>
+        /// <param name="isHidden">Indicates if the user is hidden.</param>
+        /// <param name="profilePicture">The user's profile picture.</param>
+        /// <param name="gemBalance">The user's gem balance. Default is 1000.</param>
         public void EnsureUserExists(string cnp, string name, string description, bool isAdmin, bool isHidden, string profilePicture, int gemBalance = 1000)
         {
             using var connection = DatabaseHelper.GetConnection();
@@ -80,6 +91,9 @@
             command.ExecuteNonQuery();
         }
 
+        /// <summary>
+        /// Loads all news articles from the database into memory.
+        /// </summary>
         public void LoadNewsArticles()
         {
             this.newsArticles.Clear();
@@ -109,6 +123,11 @@
             }
         }
 
+        /// <summary>
+        /// Retrieves related stocks for a specific article.
+        /// </summary>
+        /// <param name="articleId">The ID of the article.</param>
+        /// <returns>A list of related stock names.</returns>
         public List<string> GetRelatedStocksForArticle(string articleId)
         {
             var relatedStocks = new List<string>();
@@ -444,22 +463,14 @@
             }
         }
 
+        /// <summary>
+        /// Deletes a news article from the database.
+        /// </summary>
+        /// <param name="articleId">The ID of the article to delete.</param>
         public void DeleteNewsArticle(string articleId)
         {
-            lock (LockObject)
-            {
-                using (var connection = DatabaseHelper.GetConnection())
-                {
-                    using (var transaction = connection.BeginTransaction())
-                    {
-                        try
-                        {
-                            using (var command = new SqlCommand("DELETE FROM RELATED_STOCKS WHERE ARTICLE_ID = @ArticleId", connection, transaction))
-                            {
-                                command.CommandTimeout = 30;
-                                command.Parameters.AddWithValue("@ArticleId", articleId);
-                                command.ExecuteNonQuery();
-                            }
+            this.DeleteArticle(articleId, "NEWS_ARTICLE");
+        }
 
                             using (var command = new SqlCommand("DELETE FROM NEWS_ARTICLE WHERE ARTICLE_ID = @ArticleId", connection, transaction))
                             {
@@ -502,8 +513,11 @@
                 System.Diagnostics.Debug.WriteLine($"GetNewsArticleById: Loaded {article.RelatedStocks?.Count ?? 0} related stocks for article {articleId}");
             }
 
-            return article;
-        }
+        /// <summary>
+        /// Retrieves all news articles.
+        /// </summary>
+        /// <returns>A list of all news articles.</returns>
+        public List<NewsArticle> GetAllNewsArticles() => [.. this.newsArticles];
 
         public List<NewsArticle> GetAllNewsArticles()
         {
@@ -520,6 +534,10 @@
             return this.newsArticles.Where(a => a.Category == category).ToList();
         }
 
+        /// <summary>
+        /// Marks a news article as read.
+        /// </summary>
+        /// <param name="articleId">The ID of the article to mark as read.</param>
         public void MarkArticleAsRead(string articleId)
         {
             if (string.IsNullOrWhiteSpace(articleId))
@@ -527,7 +545,7 @@
 
             var article = this.GetNewsArticleById(articleId);
             article.IsRead = true;
-            UpdateNewsArticle(article);
+            this.AddOrUpdateNewsArticle(article);
         }
 
 
@@ -645,6 +663,21 @@
             }
         }
 
+        /// <summary>
+        /// Adds or updates a user-submitted article in the database.
+        /// </summary>
+        /// <param name="userArticle">The user article to add or update.</param>
+        public void AddOrUpdateUserArticle(UserArticle userArticle)
+        {
+            if (this.ArticleExists(userArticle.ArticleId, "USER_ARTICLE"))
+            {
+                this.UpdateArticle(userArticle, "USER_ARTICLE", MapUserArticleParameters);
+            }
+            else
+            {
+                this.AddArticle(userArticle, "USER_ARTICLE", MapUserArticleParameters);
+            }
+        }
         public void UpdateUserArticle(UserArticle userArticle)
         {
             lock (LockObject)
@@ -706,22 +739,14 @@
             }
         }
 
+        /// <summary>
+        /// Deletes a user-submitted article from the database.
+        /// </summary>
+        /// <param name="articleId">The ID of the article to delete.</param>
         public void DeleteUserArticle(string articleId)
         {
-            lock (LockObject)
-            {
-                using (var connection = DatabaseHelper.GetConnection())
-                {
-                    using (var transaction = connection.BeginTransaction())
-                    {
-                        try
-                        {
-                            using (var command = new SqlCommand("DELETE FROM RELATED_STOCKS WHERE ARTICLE_ID = @ArticleId", connection, transaction))
-                            {
-                                command.CommandTimeout = 30;
-                                command.Parameters.AddWithValue("@ArticleId", articleId);
-                                command.ExecuteNonQuery();
-                            }
+            this.DeleteArticle(articleId, "USER_ARTICLE");
+        }
 
                             using (var command = new SqlCommand("DELETE FROM USER_ARTICLE WHERE ARTICLE_ID = @ArticleId", connection, transaction))
                             {
@@ -749,31 +774,43 @@
             }
         }
 
+        /// <summary>
+        /// Retrieves a user-submitted article by its ID.
+        /// </summary>
+        /// <param name="articleId">The ID of the article.</param>
+        /// <returns>The user article with the specified ID.</returns>
+        /// <exception cref="KeyNotFoundException">Thrown if the article is not found.</exception>
         public UserArticle GetUserArticleById(string articleId)
         {
             return this.userArticles.FirstOrDefault(a => a.ArticleId == articleId);
         }
 
-        public List<UserArticle> GetAllUserArticles()
-        {
-            return this.userArticles;
-        }
+        /// <summary>
+        /// Retrieves all user-submitted articles.
+        /// </summary>
+        /// <returns>A list of all user articles.</returns>
+        public List<UserArticle> GetAllUserArticles() => [.. this.userArticles];
 
-        public List<UserArticle> GetUserArticlesByStatus(string status)
-        {
-            return this.userArticles.Where(a => a.Status == status).ToList();
-        }
+        /// <summary>
+        /// Retrieves user-submitted articles by their status.
+        /// </summary>
+        /// <param name="status">The status of the articles.</param>
+        /// <returns>A list of user articles with the specified status.</returns>
+        public List<UserArticle> GetUserArticlesByStatus(string status) =>
+            [.. this.userArticles.Where(a => a.Status == status)];
 
-        public List<UserArticle> GetUserArticlesByTopic(string topic)
-        {
-            return this.userArticles.Where(a => a.Topic == topic).ToList();
-        }
+        /// <summary>
+        /// Retrieves user-submitted articles by their topic.
+        /// </summary>
+        /// <param name="topic">The topic of the articles.</param>
+        /// <returns>A list of user articles with the specified topic.</returns>
+        public List<UserArticle> GetUserArticlesByTopic(string topic) =>
+            [.. this.userArticles.Where(a => a.Topic == topic)];
 
-        public List<UserArticle> GetUserArticlesByStatusAndTopic(string status, string topic)
-        {
-            return this.userArticles.Where(a => a.Status == status && a.Topic == topic).ToList();
-        }
-
+        /// <summary>
+        /// Approves a user-submitted article and adds it to the news articles.
+        /// </summary>
+        /// <param name="articleId">The ID of the article to approve.</param>
         public void ApproveUserArticle(string articleId)
         {
             var article = this.GetUserArticleById(articleId);
@@ -810,6 +847,10 @@
             }
         }
 
+        /// <summary>
+        /// Rejects a user-submitted article and removes it from the news articles if it exists.
+        /// </summary>
+        /// <param name="articleId">The ID of the article to reject.</param>
         public void RejectUserArticle(string articleId)
         {
             if (string.IsNullOrWhiteSpace(articleId))
@@ -821,7 +862,6 @@
             article.Status = "Rejected";
             this.UpdateUserArticle(article);
 
-            // Remove from news articles if it exists
             try
             {
                 var existingNewsArticle = this.GetNewsArticleById(article.ArticleId);
@@ -833,407 +873,292 @@
             }
         }
 
-
-        private List<UserArticle> GetMockUserArticles()
+        /// <summary>
+        /// Checks if an article exists in the specified table.
+        /// </summary>
+        /// <param name="articleId">The ID of the article.</param>
+        /// <param name="tableName">The name of the table.</param>
+        /// <returns>True if the article exists, otherwise false.</returns>
+        private bool ArticleExists(string articleId, string tableName)
         {
-            return new List<UserArticle>
-    {
-        new UserArticle
-        {
-            ArticleId = "ua1",
-            Title = "Analysis of Recent Market Trends",
-            Summary = "A detailed analysis of recent market trends and their implications for investors.",
-            Content = "The market has shown significant volatility in recent weeks...",
-            Author = "1234567890123",
-            SubmissionDate = DateTime.Now.AddDays(-5),
-            Status = "Pending",
-            Topic = "Market Analysis",
-            RelatedStocks = ["Cesla"],
-        },
-        new UserArticle
-        {
-            ArticleId = "ua2",
-            Title = "The Future of Electric Vehicles",
-            Summary = "An exploration of the electric vehicle industry and its growth prospects.",
-            Content = "Electric vehicles (EVs) are rapidly transforming the automotive industry...",
-            Author = "1234567890124",
-            SubmissionDate = DateTime.Now.AddDays(-3),
-            Status = "Approved",
-            Topic = "Company News",
-            RelatedStocks = ["Tesla"],
-        },
-        new UserArticle
-        {
-            ArticleId = "ua3",
-            Title = "Cryptocurrency Market Update",
-            Summary = "A review of recent developments in the cryptocurrency market.",
-            Content = "The cryptocurrency market continues to evolve rapidly...",
-            Author = "1234567890125",
-            SubmissionDate = DateTime.Now.AddDays(-2),
-            Status = "Rejected",
-            Topic = "Market Analysis",
-            RelatedStocks = new List<string> { "Besla" }
-        },
-        new UserArticle
-        {
-            ArticleId = "ua4",
-            Title = "The Impact of Artificial Intelligence on Financial Services",
-            Summary = "An analysis of how AI is transforming the financial services industry.",
-            Content = "Artificial intelligence (AI) is revolutionizing the financial services industry...",
-            Author = "1234567890123",
-            SubmissionDate = DateTime.Now.AddDays(-1),
-            Status = "Pending",
-            Topic = "Functionality News",
-            RelatedStocks = ["Besla", "Tesla"],
-        },
-    };
+            return this.ExecuteScalar<int>(
+                $"SELECT COUNT(*) FROM {tableName} WHERE ARTICLE_ID = @ArticleId",
+                new Dictionary<string, object> { { "@ArticleId", articleId } }) > 0;
         }
 
-        private List<NewsArticle> GetMockArticles()
+        /// <summary>
+        /// Adds a new article to the specified table.
+        /// </summary>
+        /// <typeparam name="T">The type of the article.</typeparam>
+        /// <param name="article">The article to add.</param>
+        /// <param name="tableName">The name of the table.</param>
+        /// <param name="mapParameters">The function to map article properties to SQL parameters.</param>
+        private void AddArticle<T>(T article, string tableName, Action<SqlCommand, T> mapParameters)
         {
-            var approvedUserArticles = this.userArticles
-                .Where(ua => ua.Status == "Approved")
-                .Select(ua => new NewsArticle
-                {
-                    ArticleId = ua.ArticleId,
-                    Title = ua.Title,
-                    Summary = ua.Summary,
-                    Content = ua.Content,
-                    Source = $"User: {ua.Author}",
-                    PublishedDate = ua.SubmissionDate.ToString("MMMM dd, yyyy"),
-                    IsRead = false,
-                    IsWatchlistRelated = false,
-                    Category = ua.Topic,
-                    RelatedStocks = ua.RelatedStocks
-                })
-                .ToList();
+            this.ExecuteNonQuery(
+                $"INSERT INTO {tableName} VALUES ({GetColumnPlaceholders(tableName)})",
+                command => mapParameters(command, article));
+        }
 
-            var mockArticles = new List<NewsArticle>
+        /// <summary>
+        /// Updates an existing article in the specified table.
+        /// </summary>
+        /// <typeparam name="T">The type of the article.</typeparam>
+        /// <param name="article">The article to update.</param>
+        /// <param name="tableName">The name of the table.</param>
+        /// <param name="mapParameters">The function to map article properties to SQL parameters.</param>
+        private void UpdateArticle<T>(T article, string tableName, Action<SqlCommand, T> mapParameters)
+        {
+            this.ExecuteNonQuery(
+                $"UPDATE {tableName} SET {GetUpdatePlaceholders(tableName)} WHERE ARTICLE_ID = @ArticleId",
+                command => mapParameters(command, article));
+        }
+
+        /// <summary>
+        /// Deletes an article from the specified table.
+        /// </summary>
+        /// <param name="articleId">The ID of the article to delete.</param>
+        /// <param name="tableName">The name of the table.</param>
+        private void DeleteArticle(string articleId, string tableName)
+        {
+            this.ExecuteNonQuery(
+                $"DELETE FROM {tableName} WHERE ARTICLE_ID = @ArticleId",
+                new Dictionary<string, object> { { "@ArticleId", articleId } });
+        }
+
+        /// <summary>
+        /// Loads articles from the database using the specified query and mapping function.
+        /// </summary>
+        /// <typeparam name="T">The type of the articles.</typeparam>
+        /// <param name="query">The SQL query to execute.</param>
+        /// <param name="map">The function to map SQL data to article objects.</param>
+        /// <returns>A list of articles.</returns>
+        private List<T> LoadArticles<T>(string query, Func<SqlDataReader, T> map)
+        {
+            return this.ExecuteReader(query, [], map);
+        }
+
+        /// <summary>
+        /// Adds mock data to the database.
+        /// </summary>
+        private void AddMockData()
+        {
+            // Add mock data logic here
+        }
+
+        /// <summary>
+        /// Maps a <see cref="NewsArticle"/> object to SQL parameters.
+        /// </summary>
+        /// <param name="command">The SQL command.</param>
+        /// <param name="article">The news article to map.</param>
+        private static void MapNewsArticleParameters(SqlCommand command, NewsArticle article)
+        {
+            command.Parameters.AddWithValue("@ArticleId", article.ArticleId);
+            command.Parameters.AddWithValue("@Title", article.Title);
+            command.Parameters.AddWithValue("@Summary", article.Summary ?? string.Empty);
+            command.Parameters.AddWithValue("@Content", article.Content);
+            command.Parameters.AddWithValue("@Source", article.Source ?? string.Empty);
+            command.Parameters.AddWithValue("@PublishedDate", article.PublishedDate);
+            command.Parameters.AddWithValue("@IsRead", article.IsRead);
+            command.Parameters.AddWithValue("@IsWatchlistRelated", article.IsWatchlistRelated);
+            command.Parameters.AddWithValue("@Category", article.Category ?? string.Empty);
+        }
+
+        /// <summary>
+        /// Maps a <see cref="UserArticle"/> object to SQL parameters.
+        /// </summary>
+        /// <param name="command">The SQL command.</param>
+        /// <param name="article">The user article to map.</param>
+        private static void MapUserArticleParameters(SqlCommand command, UserArticle article)
+        {
+            command.Parameters.AddWithValue("@ArticleId", article.ArticleId);
+            command.Parameters.AddWithValue("@Title", article.Title);
+            command.Parameters.AddWithValue("@Summary", article.Summary ?? string.Empty);
+            command.Parameters.AddWithValue("@Content", article.Content);
+            command.Parameters.AddWithValue("@Author", article.Author.CNP);
+            command.Parameters.AddWithValue("@SubmissionDate", article.SubmissionDate);
+            command.Parameters.AddWithValue("@Status", article.Status);
+            command.Parameters.AddWithValue("@Topic", article.Topic ?? string.Empty);
+        }
+
+        /// <summary>
+        /// Maps a SQL data reader to a <see cref="NewsArticle"/> object.
+        /// </summary>
+        /// <param name="reader">The SQL data reader.</param>
+        /// <returns>A <see cref="NewsArticle"/> object.</returns>
+        private static NewsArticle MapNewsArticle(SqlDataReader reader)
+        {
+            return new NewsArticle
             {
-                new NewsArticle
-                {
-                    ArticleId = "1",
-                    Title = "Market Reaches All-Time High",
-                    Summary = "The stock market reached an all-time high today as tech stocks surged.",
-                    Content = "The stock market reached an all-time high today as tech stocks surged. Investors are optimistic about the future of technology companies as they continue to innovate and grow. The S&P 500 index rose 1.2% to close at a record high, while the Nasdaq Composite index gained 1.5%. Leading the gains were shares of major tech companies such as Apple, Microsoft, and Amazon, which all rose more than 2%. Analysts attribute the rally to strong earnings reports and positive economic data. \"The market is showing resilience despite concerns about inflation and interest rates,\" said John Smith, chief market strategist at XYZ Investment Firm. \"Tech companies are demonstrating their ability to adapt and thrive in the current economic environment.\" However, some experts caution that the market may be overvalued and due for a correction. \"We're seeing signs of froth in certain sectors,\" warned Jane Doe, portfolio manager at ABC Asset Management. \"Investors should be selective and focus on companies with strong fundamentals.\" The rally comes amid a backdrop of improving economic conditions, with unemployment falling and consumer spending rising. The Federal Reserve has signaled that it will maintain its accommodative monetary policy for the foreseeable future, providing further support for the market. Looking ahead, investors will be closely watching upcoming earnings reports and economic data for signs of continued growth or potential headwinds.",
-                    Source = "Financial Times",
-                    PublishedDate = "April 15, 2023",
-                    IsRead = false,
-                    IsWatchlistRelated = true,
-                    Category = "Market Analysis",
-                    RelatedStocks = new List<string> { "Besla" }
-                },
-                new NewsArticle
-                {
-                    ArticleId = "2",
-                    Title = "Tech Company Announces New Product Line",
-                    Summary = "A major tech company has announced a new product line that is expected to revolutionize the industry.",
-                    Content = "A major tech company has announced a new product line that is expected to revolutionize the industry. The company unveiled its latest innovations at a highly anticipated event yesterday, showcasing cutting-edge technology that promises to transform how consumers interact with their devices. The new products include a range of smart home devices, wearable technology, and advanced computing solutions. Industry analysts are bullish on the company's prospects following the announcement. \"This represents a significant leap forward in terms of both hardware and software integration,\" said tech analyst Sarah Johnson. \"The company has once again demonstrated its ability to innovate and stay ahead of the competition.\" The stock price of the company surged following the announcement, rising 5% in after-hours trading. Investors are particularly excited about the potential for new revenue streams from the expanded product ecosystem. Pre-orders for the new devices will begin next week, with shipping expected to start in early June. The company has also announced partnerships with several major retailers to ensure wide availability of the products at launch. Competitors are expected to respond with their own product announcements in the coming months, potentially setting up a fierce battle for market share in the second half of the year. \"This is just the beginning of what promises to be an exciting period of innovation in the tech sector,\" said industry consultant Michael Brown. \"Consumers will ultimately benefit from the increased competition and rapid pace of technological advancement.\"",
-                    Source = "Tech Insider",
-                    PublishedDate = "April 14, 2023",
-                    IsRead = true,
-                    IsWatchlistRelated = false,
-                    Category = "Company News",
-                    RelatedStocks = new List<string> { "Besla", "Tesla" }
-                },
-                new NewsArticle
-                {
-                    ArticleId = "3",
-                    Title = "Economic Growth Exceeds Expectations",
-                    Summary = "The economy grew faster than expected in the first quarter, according to new data.",
-                    Content = "The economy grew faster than expected in the first quarter, according to new data released by the Commerce Department today. Gross domestic product (GDP) increased at an annual rate of 3.2%, surpassing economists' forecasts of 2.5% growth. The stronger-than-expected growth was driven by robust consumer spending, business investment, and exports. Consumer spending, which accounts for more than two-thirds of economic activity, rose 3.5% as households increased purchases of durable goods and services. Business investment grew 5.2%, reflecting increased spending on equipment and intellectual property products. Exports surged 7.8%, outpacing imports which grew at a more modest 4.5%. The positive economic data has implications for monetary policy, as the Federal Reserve may need to reassess its interest rate projections. \"The strong GDP report suggests that the economy is on solid footing, which could lead the Fed to maintain higher interest rates for longer than previously anticipated,\" said economist Robert Johnson. Inflation, as measured by the personal consumption expenditures (PCE) price index, increased at a 2.7% rate in the first quarter, slightly above the Fed's 2% target. Core PCE, which excludes food and energy prices, rose 2.5%. The labor market remains tight, with the unemployment rate holding steady at 3.6%. Wage growth has moderated but remains above pre-pandemic levels. Looking ahead, economists expect growth to slow in the second quarter as the effects of higher interest rates continue to work their way through the economy. However, the risk of a recession in the near term has diminished given the strength of recent economic data.",
-                    Source = "Economic Journal",
-                    PublishedDate = "April 13, 2023",
-                    IsRead = false,
-                    IsWatchlistRelated = false,
-                    Category = "Economic News",
-                    RelatedStocks = new List<string> { "Besla", "Cesla" }
-                },
-                new NewsArticle
-                {
-                    ArticleId = "4",
-                    Title = "New Trading Feature Added to Platform",
-                    Summary = "Our platform has added a new trading feature that allows for more efficient order execution.",
-                    Content = "Our platform has added a new trading feature that allows for more efficient order execution. The new feature, called Smart Order Routing (SOR), automatically directs orders to the exchange or market center offering the best price at the time of the order. This ensures that traders get the best possible execution for their trades. SOR works by scanning multiple exchanges and market centers in real-time to find the best available price for a given security. It then routes the order to that venue for execution. If the order cannot be fully executed at a single venue, SOR will split the order and route it to multiple venues to achieve the best overall execution. \"This new feature represents a significant enhancement to our trading platform,\" said the company's Chief Technology Officer. \"It demonstrates our commitment to providing our users with the most advanced trading tools available.\" In addition to improving execution quality, SOR can also help reduce trading costs by minimizing market impact and slippage. It is particularly beneficial for large orders that might otherwise move the market if executed at a single venue. The feature is now available to all users of the platform at no additional cost. To access SOR, users simply need to select the \"Smart Routing\" option when placing an order. The company plans to release additional trading enhancements in the coming months, including advanced order types and improved risk management tools. These updates are part of a broader initiative to modernize the platform and provide users with a more comprehensive trading experience. \"We're constantly looking for ways to improve our platform and give our users an edge in the market,\" said the company's CEO. \"Smart Order Routing is just the beginning of what we have planned for this year.\"",
-                    Source = "Platform News",
-                    PublishedDate = "April 12, 2023",
-                    IsRead = false,
-                    IsWatchlistRelated = false,
-                    Category = "Functionality News",
-                    RelatedStocks = new List<string>()
-                },
-                new NewsArticle
-                {
-                    ArticleId = "5",
-                    Title = "Pharmaceutical Company Receives FDA Approval",
-                    Summary = "A major pharmaceutical company has received FDA approval for its new drug.",
-                    Content = "A major pharmaceutical company has received FDA approval for its new drug targeting a rare genetic disorder. The approval comes after extensive clinical trials demonstrated the drug's safety and efficacy in treating the condition, which affects approximately 1 in 50,000 people worldwide. The drug, which will be marketed under the name Genetix, works by targeting a specific protein involved in the disease pathway. In clinical trials, patients who received the drug showed significant improvement in symptoms compared to those who received a placebo. \"This approval represents a major milestone for patients suffering from this debilitating disorder,\" said the company's Chief Medical Officer. \"Until now, treatment options have been limited to managing symptoms rather than addressing the underlying cause of the disease.\" The company expects to launch the drug in the U.S. market within the next three months, with international launches to follow pending regulatory approvals in other countries. Analysts estimate that the drug could generate annual sales of $1-2 billion at peak. The stock price of the pharmaceutical company rose 8% following the announcement, reflecting investor optimism about the drug's commercial potential. Industry experts note that the approval also validates the company's research and development strategy, which has focused on rare diseases with high unmet medical needs. \"This approval strengthens the company's position in the rare disease space and demonstrates its ability to successfully navigate the regulatory approval process,\" said healthcare analyst David Wilson. The company has already begun work on expanding the drug's indications to related disorders and is conducting early-stage research on next-generation treatments based on similar mechanisms of action.",
-                    Source = "Health News",
-                    PublishedDate = "April 11, 2023",
-                    IsRead = true,
-                    IsWatchlistRelated = true,
-                    Category = "Company News",
-                    RelatedStocks = new List<string> { "Tesla" }
-                },
+                ArticleId = reader.GetString(0),
+                Title = reader.GetString(1),
+                Summary = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
+                Content = reader.GetString(3),
+                Source = reader.IsDBNull(4) ? string.Empty : reader.GetString(4),
+                PublishedDate = reader.GetString(5),
+                IsRead = reader.GetBoolean(6),
+                IsWatchlistRelated = reader.GetBoolean(7),
+                Category = reader.GetString(8),
+                RelatedStocks = [], // Load related stocks separately
             };
-
-            // Add approved user articles to the list
-            mockArticles.AddRange(approvedUserArticles);
-
-            return mockArticles;
         }
 
-        public void hardCodedNewsArticles()
+        /// <summary>
+        /// Maps a SQL data reader to a <see cref="UserArticle"/> object.
+        /// </summary>
+        /// <param name="reader">The SQL data reader.</param>
+        /// <returns>A <see cref="UserArticle"/> object.</returns>
+        private static UserArticle MapUserArticle(SqlDataReader reader)
         {
-            lock (LockObject)
+            string AuthorCNP = reader["AUTHOR_CNP"]?.ToString() ?? throw new Exception("Author CNP is null");
+            var author = new User
             {
-                try
+                CNP = AuthorCNP,
+                Username = reader["NAME"]?.ToString() ?? throw new Exception("Author name is null"),
+                Description = reader["DESCRIPTION"]?.ToString() ?? string.Empty,
+                IsHidden = reader["IS_HIDDEN"] != DBNull.Value && (bool)reader["IS_HIDDEN"],
+                Image = reader["PROFILE_PICTURE"]?.ToString() ?? string.Empty,
+            };
+            return new UserArticle
+            {
+                ArticleId = reader["ARTICLE_ID"]?.ToString() ?? throw new Exception("Article ID is null"),
+                Title = reader["TITLE"]?.ToString() ?? throw new Exception("Title is null"),
+                Summary = reader["SUMMARY"]?.ToString() ?? string.Empty,
+                Content = reader["CONTENT"]?.ToString() ?? throw new Exception("Content is null"),
+                Author = author,
+                SubmissionDate = DateTime.TryParse(reader["SUBMISSION_DATE"]?.ToString(), out var date) ? date : throw new Exception("Submission date is null"),
+                Status = reader["STATUS"]?.ToString() ?? throw new Exception("Status is null"),
+                Topic = reader["TOPIC"] != DBNull.Value ? (string)reader["TOPIC"] : string.Empty,
+                RelatedStocks = [], // Load related stocks separately
+            };
+        }
+
+        /// <summary>
+        /// Gets column placeholders for the specified table.
+        /// </summary>
+        /// <param name="tableName">The name of the table.</param>
+        /// <returns>A string of column placeholders.</returns>
+        private static string GetColumnPlaceholders(string tableName)
+        {
+            // Return column placeholders for the table
+            return string.Join(", ", ["@ArticleId", "@Title", "@Summary", "@Content", "@Source", "@PublishedDate", "@IsRead", "@IsWatchlistRelated", "@Category"]);
+        }
+
+        /// <summary>
+        /// Gets update placeholders for the specified table.
+        /// </summary>
+        /// <param name="tableName">The name of the table.</param>
+        /// <returns>A string of update placeholders.</returns>
+        private static string GetUpdatePlaceholders(string tableName)
+        {
+            // Return update placeholders for the table
+            return string.Join(", ", ["TITLE = @Title", "SUMMARY = @Summary", "CONTENT = @Content", "SOURCE = @Source", "PUBLISH_DATE = @PublishedDate", "IS_READ = @IsRead", "IS_WATCHLIST_RELATED = @IsWatchlistRelated", "CATEGORY = @Category"]);
+        }
+
+        /// <summary>
+        /// Executes a non-query SQL command.
+        /// </summary>
+        /// <param name="query">The SQL query to execute.</param>
+        /// <param name="parameters">The parameters for the query.</param>
+        private void ExecuteNonQuery(string query, Dictionary<string, object> parameters = null)
+        {
+            using var connection = DatabaseHelper.GetConnection();
+            using var command = new SqlCommand(query, connection);
+            if (parameters != null)
+            {
+                foreach (var param in parameters)
                 {
-                    using (var connection = DatabaseHelper.GetConnection())
-                    {
-                        List<UserArticle> mockUserArticles = this.GetMockUserArticles();
-                        List<NewsArticle> mockNewsArticles = this.GetMockArticles();
-
-                        using (var transaction = connection.BeginTransaction())
-                        {
-                            try
-                            {
-                                // gt all existing stocks
-                                List<string> existingStocks = new List<string>();
-                                using (var command = new SqlCommand("SELECT STOCK_NAME FROM STOCK", connection, transaction))
-                                {
-                                    command.CommandTimeout = 30;
-                                    using (var reader = command.ExecuteReader())
-                                    {
-                                        while (reader.Read())
-                                        {
-                                            existingStocks.Add(reader["STOCK_NAME"].ToString());
-                                        }
-                                    }
-                                }
-
-                                // unique stock names from articles
-                                HashSet<string> allStocksInArticles = new HashSet<string>();
-                                foreach (var article in mockNewsArticles)
-                                {
-                                    if (article.RelatedStocks != null)
-                                    {
-                                        foreach (var stock in article.RelatedStocks)
-                                        {
-                                            allStocksInArticles.Add(stock);
-                                        }
-                                    }
-                                }
-
-                                foreach (var article in mockUserArticles)
-                                {
-                                    if (article.RelatedStocks != null)
-                                    {
-                                        foreach (var stock in article.RelatedStocks)
-                                        {
-                                            allStocksInArticles.Add(stock);
-                                        }
-                                    }
-                                }
-
-
-                                transaction.Commit();
-                            }
-                            catch (Exception ex)
-                            {
-                                try { transaction.Rollback(); } catch { /* Ignore rollback errors */ }
-                                System.Diagnostics.Debug.WriteLine($"Error ensuring stocks exist: {ex.Message}");
-                                throw;
-                            }
-                        }
-
-                        using (var transaction = connection.BeginTransaction())
-                        {
-                            try
-                            {
-                                foreach (var userArticle in mockUserArticles)
-                                {
-                                    bool exists = false;
-                                    using (var checkCommand = new SqlCommand("SELECT COUNT(*) FROM USER_ARTICLE WHERE ARTICLE_ID = @ArticleId", connection, transaction))
-                                    {
-                                        checkCommand.CommandTimeout = 30;
-                                        checkCommand.Parameters.AddWithValue("@ArticleId", userArticle.ArticleId);
-                                        exists = Convert.ToInt32(checkCommand.ExecuteScalar()) > 0;
-                                    }
-
-                                    if (!exists)
-                                    {
-                                        string userArticleQuery = "INSERT INTO USER_ARTICLE (ARTICLE_ID, TITLE, SUMMARY, CONTENT, AUTHOR_CNP, SUBMISSION_DATE, STATUS, TOPIC) VALUES (@ArticleId, @Title, @Summary, @Content, @AuthorCNP, @SubmissionDate, @Status, @Topic)";
-                                        using (var command = new SqlCommand(userArticleQuery, connection, transaction))
-                                        {
-                                            command.CommandTimeout = 30;
-                                            command.Parameters.AddWithValue("@ArticleId", userArticle.ArticleId);
-                                            command.Parameters.AddWithValue("@Title", userArticle.Title);
-                                            command.Parameters.AddWithValue("@Summary", userArticle.Summary ?? "");
-                                            command.Parameters.AddWithValue("@Content", userArticle.Content);
-                                            command.Parameters.AddWithValue("@AuthorCNP", userArticle.Author);
-                                            command.Parameters.AddWithValue("@SubmissionDate", userArticle.SubmissionDate.ToString("yyyy-MM-dd HH:mm:ss"));
-                                            command.Parameters.AddWithValue("@Status", userArticle.Status);
-                                            command.Parameters.AddWithValue("@Topic", userArticle.Topic);
-                                            command.ExecuteNonQuery();
-                                        }
-                                    }
-                                }
-
-                                foreach (var newsArticle in mockNewsArticles)
-                                {
-                                    bool exists = false;
-                                    using (var checkCommand = new SqlCommand("SELECT COUNT(*) FROM NEWS_ARTICLE WHERE ARTICLE_ID = @ArticleId", connection, transaction))
-                                    {
-                                        checkCommand.CommandTimeout = 30;
-                                        checkCommand.Parameters.AddWithValue("@ArticleId", newsArticle.ArticleId);
-                                        exists = Convert.ToInt32(checkCommand.ExecuteScalar()) > 0;
-                                    }
-
-                                    if (!exists)
-                                    {
-                                        string newsArticleQuery = "INSERT INTO NEWS_ARTICLE (ARTICLE_ID, TITLE, SUMMARY, CONTENT, SOURCE, PUBLISH_DATE, IS_READ, IS_WATCHLIST_RELATED, CATEGORY) VALUES (@ArticleId, @Title, @Summary, @Content, @Source, @PublishedDate, @IsRead, @IsWatchlistRelated, @Category)";
-                                        using (var command = new SqlCommand(newsArticleQuery, connection, transaction))
-                                        {
-                                            command.CommandTimeout = 30;
-                                            command.Parameters.AddWithValue("@ArticleId", newsArticle.ArticleId);
-                                            command.Parameters.AddWithValue("@Title", newsArticle.Title);
-                                            command.Parameters.AddWithValue("@Summary", newsArticle.Summary ?? "");
-                                            command.Parameters.AddWithValue("@Content", newsArticle.Content);
-                                            command.Parameters.AddWithValue("@Source", newsArticle.Source ?? "");
-                                            command.Parameters.AddWithValue("@PublishedDate", newsArticle.PublishedDate);
-                                            command.Parameters.AddWithValue("@IsRead", newsArticle.IsRead);
-                                            command.Parameters.AddWithValue("@IsWatchlistRelated", newsArticle.IsWatchlistRelated);
-                                            command.Parameters.AddWithValue("@Category", newsArticle.Category ?? "");
-                                            command.ExecuteNonQuery();
-                                        }
-                                    }
-                                }
-
-                                foreach (var userArticle in mockUserArticles.Where(ua => ua.Status == "Approved"))
-                                {
-                                    bool exists = false;
-                                    using (var checkCommand = new SqlCommand("SELECT COUNT(*) FROM NEWS_ARTICLE WHERE ARTICLE_ID = @ArticleId", connection, transaction))
-                                    {
-                                        checkCommand.CommandTimeout = 30;
-                                        checkCommand.Parameters.AddWithValue("@ArticleId", userArticle.ArticleId);
-                                        exists = Convert.ToInt32(checkCommand.ExecuteScalar()) > 0;
-                                    }
-
-                                    if (!exists)
-                                    {
-                                        string newsArticleQuery = "INSERT INTO NEWS_ARTICLE (ARTICLE_ID, TITLE, SUMMARY, CONTENT, SOURCE, PUBLISH_DATE, IS_READ, IS_WATCHLIST_RELATED, CATEGORY) VALUES (@ArticleId, @Title, @Summary, @Content, @Source, @PublishedDate, @IsRead, @IsWatchlistRelated, @Category)";
-                                        using (var command = new SqlCommand(newsArticleQuery, connection, transaction))
-                                        {
-                                            command.CommandTimeout = 30;
-                                            command.Parameters.AddWithValue("@ArticleId", userArticle.ArticleId);
-                                            command.Parameters.AddWithValue("@Title", userArticle.Title);
-                                            command.Parameters.AddWithValue("@Summary", userArticle.Summary ?? "");
-                                            command.Parameters.AddWithValue("@Content", userArticle.Content);
-                                            command.Parameters.AddWithValue("@Source", $"User: {userArticle.Author}");
-                                            command.Parameters.AddWithValue("@PublishedDate", userArticle.SubmissionDate.ToString("MMMM dd, yyyy"));
-                                            command.Parameters.AddWithValue("@IsRead", false);
-                                            command.Parameters.AddWithValue("@IsWatchlistRelated", false);
-                                            command.Parameters.AddWithValue("@Category", userArticle.Topic);
-                                            command.ExecuteNonQuery();
-                                        }
-                                    }
-                                }
-
-                                transaction.Commit();
-                            }
-                            catch (Exception ex)
-                            {
-                                try { transaction.Rollback(); } catch { /* Ignore rollback errors */ }
-                                System.Diagnostics.Debug.WriteLine($"Error adding articles: {ex.Message}");
-                                throw;
-                            }
-                        }
-
-                        using (var transaction = connection.BeginTransaction())
-                        {
-                            try
-                            {
-                                foreach (var newsArticle in mockNewsArticles)
-                                {
-                                    if (newsArticle.RelatedStocks != null && newsArticle.RelatedStocks.Count > 0)
-                                    {
-                                        foreach (var stockName in newsArticle.RelatedStocks)
-                                        {
-                                            bool stockExists = false;
-                                            using (var checkCommand = new SqlCommand("SELECT COUNT(*) FROM RELATED_STOCKS WHERE STOCK_NAME = @StockName AND ARTICLE_ID = @ArticleId", connection, transaction))
-                                            {
-                                                checkCommand.CommandTimeout = 30;
-                                                checkCommand.Parameters.AddWithValue("@StockName", stockName);
-                                                checkCommand.Parameters.AddWithValue("@ArticleId", newsArticle.ArticleId);
-                                                stockExists = Convert.ToInt32(checkCommand.ExecuteScalar()) > 0;
-                                            }
-
-                                            if (!stockExists)
-                                            {
-                                                using (var command = new SqlCommand("INSERT INTO RELATED_STOCKS (STOCK_NAME, ARTICLE_ID) VALUES (@StockName, @ArticleId)", connection, transaction))
-                                                {
-                                                    command.CommandTimeout = 30;
-                                                    command.Parameters.AddWithValue("@StockName", stockName);
-                                                    command.Parameters.AddWithValue("@ArticleId", newsArticle.ArticleId);
-                                                    command.ExecuteNonQuery();
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-                                foreach (var userArticle in mockUserArticles.Where(ua => ua.Status == "Approved"))
-                                {
-                                    if (userArticle.RelatedStocks != null && userArticle.RelatedStocks.Count > 0)
-                                    {
-                                        foreach (var stockName in userArticle.RelatedStocks)
-                                        {
-                                            bool stockExists = false;
-                                            using (var checkCommand = new SqlCommand("SELECT COUNT(*) FROM RELATED_STOCKS WHERE STOCK_NAME = @StockName AND ARTICLE_ID = @ArticleId", connection, transaction))
-                                            {
-                                                checkCommand.CommandTimeout = 30;
-                                                checkCommand.Parameters.AddWithValue("@StockName", stockName);
-                                                checkCommand.Parameters.AddWithValue("@ArticleId", userArticle.ArticleId);
-                                                stockExists = Convert.ToInt32(checkCommand.ExecuteScalar()) > 0;
-                                            }
-
-                                            if (!stockExists)
-                                            {
-                                                using (var command = new SqlCommand("INSERT INTO RELATED_STOCKS (STOCK_NAME, ARTICLE_ID) VALUES (@StockName, @ArticleId)", connection, transaction))
-                                                {
-                                                    command.CommandTimeout = 30;
-                                                    command.Parameters.AddWithValue("@StockName", stockName);
-                                                    command.Parameters.AddWithValue("@ArticleId", userArticle.ArticleId);
-                                                    command.ExecuteNonQuery();
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-                                transaction.Commit();
-                            }
-                            catch (Exception ex)
-                            {
-                                try { transaction.Rollback(); } catch { /* Ignore rollback errors */ }
-                                System.Diagnostics.Debug.WriteLine($"Error adding related stocks: {ex.Message}");
-                                throw;
-                            }
-                        }
-
-                        // Reload data after adding
-                        this.LoadNewsArticles();
-                        this.LoadUserArticles();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Error in hardCodedNewsArticles: {ex.Message}");
-                    throw;
+                    command.Parameters.AddWithValue(param.Key, param.Value);
                 }
             }
+
+            command.ExecuteNonQuery();
         }
 
+        /// <summary>
+        /// Executes a non-query SQL command with a custom configuration.
+        /// </summary>
+        /// <param name="query">The SQL query to execute.</param>
+        /// <param name="configureCommand">The action to configure the SQL command.</param>
+        private void ExecuteNonQuery(string query, Action<SqlCommand> configureCommand)
+        {
+            using var connection = DatabaseHelper.GetConnection();
+            using var command = new SqlCommand(query, connection);
+            configureCommand(command);
+            command.ExecuteNonQuery();
+        }
+
+        /// <summary>
+        /// Executes a scalar SQL query and returns the result.
+        /// </summary>
+        /// <typeparam name="T">The type of the result.</typeparam>
+        /// <param name="query">The SQL query to execute.</param>
+        /// <param name="parameters">The parameters for the query.</param>
+        /// <returns>The result of the query.</returns>
+        private T ExecuteScalar<T>(string query, Dictionary<string, object> parameters)
+        {
+            using var connection = DatabaseHelper.GetConnection();
+            using var command = new SqlCommand(query, connection);
+            foreach (var param in parameters)
+            {
+                command.Parameters.AddWithValue(param.Key, param.Value);
+            }
+
+            return (T)command.ExecuteScalar();
+        }
+
+        /// <summary>
+        /// Executes a SQL query and maps the results using the specified function.
+        /// </summary>
+        /// <typeparam name="T">The type of the results.</typeparam>
+        /// <param name="query">The SQL query to execute.</param>
+        /// <param name="parameters">The parameters for the query.</param>
+        /// <param name="map">The function to map SQL data to objects.</param>
+        /// <returns>A list of results.</returns>
+        private List<T> ExecuteReader<T>(string query, Dictionary<string, object> parameters, Func<SqlDataReader, T> map)
+        {
+            var results = new List<T>();
+            using var connection = DatabaseHelper.GetConnection();
+            using var command = new SqlCommand(query, connection);
+            if (parameters != null)
+            {
+                foreach (var param in parameters)
+                {
+                    command.Parameters.AddWithValue(param.Key, param.Value);
+                }
+            }
+
+            using var reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                results.Add(map(reader));
+            }
+
+            return results;
+        }
+
+        public void AddNewsArticle(NewsArticle article)
+        {
+            this.newsArticles.Add(article);
+            this.AddOrUpdateNewsArticle(article);
+        }
+
+        internal void AddUserArticle(UserArticle article)
+        {
+            this.userArticles.Add(article);
+            this.AddOrUpdateUserArticle(article);
+        }
+
+        internal void AddRelatedStocksForArticle(string articleId, List<string> relatedStocks, object value)
+        {
+            using var connection = DatabaseHelper.GetConnection();
+            using var command = new SqlCommand("INSERT INTO RELATED_STOCKS (ARTICLE_ID, STOCK_NAME) VALUES (@ArticleId, @StockName)", connection);
+            command.Parameters.AddWithValue("@ArticleId", articleId);
+            foreach (var stock in relatedStocks)
+            {
+                command.Parameters.AddWithValue("@StockName", stock);
+                command.ExecuteNonQuery();
+            }
+        }
     }
 }

@@ -1,17 +1,100 @@
 ﻿namespace StockApp.Models
 {
-    public class Alert
+    using System.ComponentModel;
+    using System.Runtime.CompilerServices;
+
+    public class Alert : INotifyPropertyChanged
     {
-        required public int AlertId { get; set; } // Primary Key
+        private int alertId;
+        private string stockName = string.Empty;
+        private string name = string.Empty;
+        private decimal upperBound;
+        private decimal lowerBound;
+        private bool toggleOnOff;
 
-        public string StockName { get; set; }
+        public event PropertyChangedEventHandler PropertyChanged;
 
-        public string Name { get; set; }
+        public int AlertId
+        {
+            get => this.alertId;
+            set
+            {
+                if (this.alertId != value)
+                {
+                    this.alertId = value;
+                    this.OnPropertyChanged();
+                }
+            }
+        }
 
-        public decimal UpperBound { get; set; }
+        public string StockName
+        {
+            get => this.stockName;
+            set
+            {
+                if (this.stockName != value)
+                {
+                    this.stockName = value;
+                    this.OnPropertyChanged();
+                }
+            }
+        }
 
-        public decimal LowerBound { get; set; }
+        public string Name
+        {
+            get => this.name;
+            set
+            {
+                if (this.name != value)
+                {
+                    this.name = value;
+                    this.OnPropertyChanged();
+                }
+            }
+        }
 
-        public bool ToggleOnOff { get; set; }
+        public decimal UpperBound
+        {
+            get => this.upperBound;
+            set
+            {
+                if (this.upperBound != value)
+                {
+                    this.upperBound = value;
+                    this.OnPropertyChanged();
+                }
+            }
+        }
+
+        public decimal LowerBound
+        {
+            get => this.lowerBound;
+            set
+            {
+                if (this.lowerBound != value)
+                {
+                    this.lowerBound = value;
+                    this.OnPropertyChanged();
+                }
+            }
+        }
+
+        public bool ToggleOnOff
+        {
+            get => this.toggleOnOff;
+            set
+            {
+                if (this.toggleOnOff != value)
+                {
+                    this.toggleOnOff = value;
+                    this.OnPropertyChanged();
+                }
+            }
+        }
+
+        private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        {
+            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 }

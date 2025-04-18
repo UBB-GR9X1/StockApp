@@ -1,8 +1,8 @@
-namespace StockApp.Views
+namespace StockNewsPage.Views
 {
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
-    using StockApp.ViewModels;
+    using StockApp.ViewModel;
 
     public sealed partial class AdminNewsControlView : Page
     {

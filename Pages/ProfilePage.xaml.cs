@@ -88,20 +88,22 @@ namespace StockApp.Pages
 
         public void GoToStockButton(object sender, RoutedEventArgs e)
         {
-            if (StocksListView.SelectedItem is not string selectedStock)
-                throw new InvalidOperationException("No stock selected");
+            if (this.StocksListView.SelectedItem is Stock selectedStock)
+            {
+                NavigationService.Initialize(this.Frame);
+                NavigationService.Instance.Navigate(typeof(StockPage), selectedStock);
+                return;
+            }
 
-            string stockName = viewModel.ExtractMyStockName(selectedStock)
-                ?? throw new InvalidOperationException("Could not extract stock name");
-
-            NavigationService.Initialize(this.Frame);
-            NavigationService.Instance.Navigate(typeof(StockPage), stockName);
+            throw new InvalidOperationException("No stock selected");
         }
 
         public void GoToStock(object sender, ItemClickEventArgs e)
         {
-            if (e.ClickedItem is not string myStock)
+            if (e.ClickedItem is not Stock myStock)
+            {
                 throw new InvalidOperationException("Clicked item is not a valid stock");
+            }
 
             NavigationService.Initialize(this.Frame);
             NavigationService.Instance.Navigate(typeof(StockPage), myStock);

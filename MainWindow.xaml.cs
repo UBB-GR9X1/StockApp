@@ -20,7 +20,7 @@ namespace StockApp
             this.InitializeComponent();
             DatabaseHelper.InitializeDatabase();
 
-            CheckAndHandleAlerts();
+            //CheckAndHandleAlerts();
 
             //rootFrame.Navigate(typeof(CreateStockPage), null);
             // rootFrame.Navigate(typeof(ProfilePage), null);
