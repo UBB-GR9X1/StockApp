@@ -8,11 +8,12 @@
     using Microsoft.UI.Xaml;
     using StockApp.Commands;
     using StockApp.Models;
+    using StockApp.Pages;
     using StockApp.Services;
 
     public class HomepageViewModel : INotifyPropertyChanged
     {
-        private readonly HomepageService service = new ();
+        private readonly HomepageService service = new();
 
         private ObservableCollection<HomepageStock> filteredAllStocks = [];
         private ObservableCollection<HomepageStock> filteredFavoriteStocks = [];
@@ -46,7 +47,6 @@
         public ICommand SearchCommand { get; }
 
         public ICommand SortCommand { get; }
-
         public ObservableCollection<HomepageStock> FilteredAllStocks
         {
             get => this.filteredAllStocks;
@@ -174,7 +174,26 @@
         {
             if (parameter is string pageName)
             {
-                NavigationService.Instance.Navigate(Type.GetType(pageName), this.GetUserCNP);
+                switch (pageName)
+                {
+                    case "NewsListPage":
+                        NavigationService.Instance.Navigate(typeof(NewsListPage), parameter);
+                        break;
+                    case "CreateStockPage":
+                        NavigationService.Instance.Navigate(typeof(CreateStockPage), parameter);
+                        break;
+                    case "TransactionLogPage":
+                        NavigationService.Instance.Navigate(typeof(TransactionLogPage), parameter);
+                        break;
+                    case "ProfilePage":
+                        NavigationService.Instance.Navigate(typeof(ProfilePage), parameter);
+                        break;
+                    case "GemStoreWindow":
+                        NavigationService.Instance.Navigate(typeof(GemStoreWindow), parameter);
+                        break;
+                    default:
+                        throw new ArgumentException($"Unknown page: {pageName}", nameof(pageName));
+                }
             }
         }
 
@@ -182,5 +201,7 @@
         {
             this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+
     }
 }

@@ -12,7 +12,6 @@
     public class ProfileRepository
     {
         private readonly SqlConnection dbConnection = DatabaseHelper.GetConnection();
-        private readonly string cnp;
         private readonly string loggedInUserCNP;
 
         /// <summary>
@@ -21,15 +20,8 @@
         /// <param name="authorCNP">The CNP of the user whose profile is being managed.</param>
         public ProfileRepository(string authorCNP)
         {
-            // Get logged-in user CNP
-            this.loggedInUserCNP =
-                this.ExecuteScalar<string>(
-                    "SELECT TOP 1 CNP FROM HARDCODED_CNPS ORDER BY CNP DESC",
-                    null)
-                ?? throw new Exception("No CNP found in HARDCODED_CNPS table.");
-
             // Assign the working user CNP
-            this.cnp = authorCNP;
+            this.loggedInUserCNP = authorCNP;
         }
 
         /// <summary>
@@ -44,7 +36,7 @@
                     WHERE CNP = @CNP";
 
             using SqlCommand command = new(query, this.dbConnection);
-            command.Parameters.AddWithValue("@CNP", this.cnp);
+            command.Parameters.AddWithValue("@CNP", this.loggedInUserCNP);
 
             using SqlDataReader reader = command.ExecuteReader();
             if (reader.Read())
@@ -108,7 +100,7 @@
             this.ExecuteNonQuery("UPDATE [USER] SET IS_ADMIN = @IsAdmin WHERE CNP = @CNP", command =>
             {
                 command.Parameters.AddWithValue("@IsAdmin", isAdmin ? 1 : 0);
-                command.Parameters.AddWithValue("@CNP", this.cnp);
+                command.Parameters.AddWithValue("@CNP", this.loggedInUserCNP);
             });
         }
 
@@ -132,7 +124,7 @@
                     command.Parameters.AddWithValue("@NewProfilePicture", newImage);
                     command.Parameters.AddWithValue("@NewDescription", newDescription);
                     command.Parameters.AddWithValue("@NewIsHidden", newHidden ? 1 : 0);
-                    command.Parameters.AddWithValue("@CNP", this.cnp);
+                    command.Parameters.AddWithValue("@CNP", this.loggedInUserCNP);
                 }
             );
         }
@@ -170,7 +162,7 @@
                     WHERE us.USER_CNP = @UserCNP";
 
             using var command = new SqlCommand(query, DatabaseHelper.GetConnection());
-            command.Parameters.AddWithValue("@UserCNP", this.cnp);
+            command.Parameters.AddWithValue("@UserCNP", this.loggedInUserCNP);
             using var reader = command.ExecuteReader();
             List<Stock> stocks = new();
             while (reader.Read())
@@ -180,7 +172,7 @@
                     name: reader["STOCK_NAME"]?.ToString() ?? throw new Exception("Stock name not found."),
                     quantity: reader["QUANTITY"] != DBNull.Value ? (int)reader["QUANTITY"] : throw new Exception("Stock quantity not found."),
                     price: reader["PRICE"] != DBNull.Value ? (int)reader["PRICE"] : throw new Exception("Stock price not found."),
-                    authorCNP: this.cnp
+                    authorCNP: this.loggedInUserCNP
                 ));
             }
             return stocks;

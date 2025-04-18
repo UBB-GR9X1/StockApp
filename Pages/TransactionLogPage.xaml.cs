@@ -1,4 +1,4 @@
-﻿namespace StockApp.Views
+﻿namespace StockApp.Pages
 {
     using System;
     using Microsoft.UI.Xaml;
@@ -10,11 +10,11 @@
     /// <summary>
     /// A page that displays transaction log data.
     /// </summary>
-    public sealed partial class TransactionLogView : Page
+    public sealed partial class TransactionLogPage : Page
     {
         private readonly TransactionLogViewModel viewModel;
 
-        public TransactionLogView()
+        public TransactionLogPage()
         {
             this.InitializeComponent();
             viewModel = new(new TransactionLogService(new TransactionRepository()));

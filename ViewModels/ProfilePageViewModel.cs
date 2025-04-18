@@ -22,9 +22,9 @@
             }
         }
 
-        public ProfilePageViewModel(string authorCnp)
+        public ProfilePageViewModel()
         {
-            profileService = new ProfieService(authorCnp);
+            profileService = new ProfieService();
             LoadProfileImage();
         }
 

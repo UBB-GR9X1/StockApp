@@ -39,12 +39,9 @@ namespace StockApp.Pages
         {
             base.OnNavigatedTo(e);
 
-            if (e.Parameter is string authorCNP)
-            {
-                viewModel = new ProfilePageViewModel(authorCNP);
-                this.DataContext = viewModel;
-            }
-
+            viewModel = new ProfilePageViewModel();
+            this.DataContext = viewModel;
+            //TODO:fix this naming jesus
             DoStuff();
         }
 
@@ -99,16 +96,7 @@ namespace StockApp.Pages
             throw new InvalidOperationException("No stock selected");
         }
 
-        public void GoToStock(object sender, ItemClickEventArgs e)
-        {
-            if (e.ClickedItem is not Stock myStock)
-            {
-                throw new InvalidOperationException("Clicked item is not a valid stock");
-            }
 
-            NavigationService.Initialize(this.Frame);
-            NavigationService.Instance.Navigate(typeof(StockPage), myStock);
-        }
 
 
     }

@@ -10,9 +10,9 @@
 
         private ProfieService profileService;
 
-        public UpdateProfilePageViewModel(string userCNP)
+        public UpdateProfilePageViewModel()
         {
-            this.profileService = new ProfieService(userCNP);
+            this.profileService = new ProfieService();
         }
 
         public string GetImage() => this.profileService.GetImage();

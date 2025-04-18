@@ -521,7 +521,7 @@
             this.userArticles.Clear();
             using (var connection = DatabaseHelper.GetConnection())
             {
-                using (var command = new SqlCommand("SELECT * FROM USER_ARTICLE", connection))
+                using (var command = new SqlCommand("SELECT u.*,ua.* FROM USER_ARTICLE ua INNER JOIN [USER] u ON u.CNP = ua.AUTHOR_CNP", connection))
                 {
                     command.CommandTimeout = 30;
                     using (var reader = command.ExecuteReader())
@@ -533,12 +533,12 @@
                             User author = new()
                             {
                                 CNP = authorCNP,
-                                Username = reader["AUTHOR_NAME"].ToString(),
-                                Description = reader["AUTHOR_DESCRIPTION"].ToString(),
-                                IsModerator = reader.GetBoolean(5),
-                                IsHidden = reader.GetBoolean(6),
-                                Image = reader["AUTHOR_PROFILE_PICTURE"].ToString(),
-                                GemBalance = reader.GetInt32(7),
+                                Username = reader["NAME"].ToString() ?? throw new Exception("Username is null"),
+                                Description = reader["DESCRIPTION"].ToString() ?? throw new Exception("Description is null"),
+                                IsModerator = Convert.ToBoolean(reader["IS_ADMIN"]),
+                                IsHidden = Convert.ToBoolean(reader["IS_HIDDEN"]),
+                                Image = reader["PROFILE_PICTURE"].ToString() ?? throw new Exception("Image is null"),
+                                GemBalance = Convert.ToInt32(reader["GEM_BALANCE"]),
                             };
 
                             var article = new UserArticle

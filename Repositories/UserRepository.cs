@@ -9,6 +9,8 @@
 
     public class UserRepository
     {
+        public string CurrentUserCNP { get; set; } = "1234567890124";
+
         // Create a new user
         public async Task CreateUserAsync(User user)
         {

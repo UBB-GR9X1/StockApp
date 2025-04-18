@@ -54,7 +54,7 @@ namespace StockApp
             //rootFrame.Navigate(typeof(GemStore.GemStoreWindow), null);
 
             // TRANSACTION LOG:
-            //rootFrame.Navigate(typeof(TransactionLog.TransactionLogView), null);
+            //rootFrame.Navigate(typeof(TransactionLog.TransactionLogPage), null);
 
             // Alerts
             //rootFrame.Navigate(typeof(Alerts.AlertWindow), null);
