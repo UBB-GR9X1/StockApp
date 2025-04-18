@@ -29,7 +29,7 @@
 
         // default ctor for production
         public ProfilePageViewModel()
-            : this(new ProfieService())
+            : this(new ProfileService())
         {
             LoadProfileImage();
         }

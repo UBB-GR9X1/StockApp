@@ -17,7 +17,7 @@
         }
 
         public UpdateProfilePageViewModel()
-          : this(new ProfieService())
+          : this(new ProfileService())
         { }
 
         public string GetImage() => this.profileService.GetImage();
