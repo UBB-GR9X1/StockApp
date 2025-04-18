@@ -10,7 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockApp.ViewModels.Tests", "..\StockApp.ViewModels.Tests\StockApp.ViewModels.Tests.csproj", "{44864486-CD7D-4141-915B-8B8FCFC84BF4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockApp.ViewModels.Tests", "StockApp.ViewModels.Tests\StockApp.ViewModels.Tests.csproj", "{44864486-CD7D-4141-915B-8B8FCFC84BF4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
