@@ -5,9 +5,11 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:StockApp.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    DataContext="{Binding AlertViewModel, RelativeSource={RelativeSource Self}}"
     mc:Ignorable="d">
 
     <Grid Padding="10">
+        <!-- Background Gradient -->
         <Grid.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                 <GradientStop Color="LightSkyBlue" Offset="0.0"/>
@@ -36,7 +38,7 @@
         </StackPanel>
 
         <!-- ListView -->
-        <ListView x:Name="AlertsListView" Grid.Row="2" Grid.Column="0" Margin="5">
+        <ListView x:Name="AlertsListView" Grid.Row="2" Grid.Column="0" Margin="5" ItemsSource="{Binding Alerts}">
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal">
@@ -45,18 +47,27 @@
                         <TextBox Text="{Binding LowerBound, Mode=TwoWay}" Width="80" Margin="5"/>
                         <TextBox Text="{Binding UpperBound, Mode=TwoWay}" Width="80" Margin="5"/>
                         <CheckBox IsChecked="{Binding ToggleOnOff, Mode=TwoWay}" 
-                                 Content="Active" Width="80" Margin="5"/>
+                                  Content="Active" Width="80" Margin="5"/>
                     </StackPanel>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
 
         <!-- Buttons -->
-        <StackPanel Grid.Row="0" Grid.Column="1" VerticalAlignment="Top">
-            <Button Content="Add New" Click="PlusButton_Click" Width="100" Margin="5"/>
-            <Button Content="Remove" Click="MinusButtonClick" Width="100" Margin="5"/>
-            <Button Content="Save All" Click="SaveButtonClick" Width="100" Margin="5"/>
-            <Button Content="Close" Click="ExitButtonClick" Width="100" Margin="5"/>
+        <StackPanel Grid.Row="0" Grid.Column="1" VerticalAlignment="Top" Margin="5">
+            <Button Content="Add New"
+                    Command="{Binding CreateAlertCommand}" 
+                    Width="100" Margin="5"/>
+            <Button Content="Remove"
+                    Command="{Binding DeleteAlertCommand}" 
+                    CommandParameter="{Binding SelectedItem, ElementName=AlertsListView}" 
+                    Width="100" Margin="5"/>
+            <Button Content="Save All"
+                    Command="{Binding SaveAlertsCommand}" 
+                    Width="100" Margin="5"/>
+            <Button Content="Close"
+                    Command="{Binding CloseAppCommand}" 
+                    Width="100" Margin="5"/>
         </StackPanel>
     </Grid>
 </Page>

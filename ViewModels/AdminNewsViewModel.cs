@@ -15,8 +15,8 @@
 
     public class AdminNewsViewModel : ViewModelBase
     {
-        private readonly INewsService _newsService;
-        private readonly DispatcherQueue _dispatcherQueue;
+        private readonly INewsService newsService;
+        private readonly DispatcherQueue dispatcherQueue;
 
         private ObservableCollection<UserArticle> userArticles = [];
         private bool isLoading;
