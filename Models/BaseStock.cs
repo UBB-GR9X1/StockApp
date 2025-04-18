@@ -1,18 +1,11 @@
 ﻿namespace StockApp.Models
 {
-    public class BaseStock
+    public class BaseStock(string name, string symbol, string authorCnp)
     {
-        public string Name { get; }
+        public string Name { get; } = name;
 
-        public string Symbol { get; }
+        public string Symbol { get; } = symbol;
 
-        public string AuthorCNP { get; }
-
-        public BaseStock(string name, string symbol, string authorCnp)
-        {
-            Name = name;
-            Symbol = symbol;
-            AuthorCNP = authorCnp;
-        }
+        public string AuthorCnp { get; } = authorCnp;
     }
 }

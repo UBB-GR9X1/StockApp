@@ -6,24 +6,6 @@
 
     public class UserArticle
     {
-        public string ArticleId { get; set; }
-
-        public string Title { get; set; }
-
-        public string Summary { get; set; }
-
-        public string Content { get; set; }
-
-        public User Author { get; set; }
-
-        public DateTime SubmissionDate { get; set; }
-
-        public string Status { get; set; }
-
-        public string Topic { get; set; }
-
-        public List<string> RelatedStocks { get; set; }
-
         public UserArticle() { }
 
         public UserArticle(
@@ -45,7 +27,25 @@
             SubmissionDate = submissionDate;
             Status = status;
             Topic = topic;
-            RelatedStocks = relatedStocks.ToList();
+            RelatedStocks = [.. relatedStocks];
         }
+
+        public string ArticleId { get; set; }
+
+        public string Title { get; set; }
+
+        public string Summary { get; set; }
+
+        public string Content { get; set; }
+
+        public User Author { get; set; }
+
+        public DateTime SubmissionDate { get; set; }
+
+        public string Status { get; set; }
+
+        public string Topic { get; set; }
+
+        public List<string> RelatedStocks { get; set; }
     }
 }
