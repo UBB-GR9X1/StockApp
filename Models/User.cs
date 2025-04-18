@@ -13,5 +13,7 @@
         public string Image { get; set; } = image ?? string.Empty;
 
         public bool IsHidden { get; set; } = isHidden ?? false;
+
+        public int GemBalance { get; set; } = gem_balance ?? 0;
     }
 }
