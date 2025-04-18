@@ -6,7 +6,7 @@
     using StockApp.Models;
     using StockApp.Repositories;
 
-    class StockPageService
+    class StockPageService : IStockPageService
     {
         private StockPageRepository stockRepo;
         private string selectedStockName;

@@ -1,29 +1,21 @@
-﻿namespace StockApp.Services
+﻿using System.Collections.Generic;
+using StockApp.Models;
+
+namespace StockApp.Services
 {
-    using System.Collections.Generic;
-
-    public interface IStockPageService
+    internal interface IStockPageService
     {
-        bool IsGuest();
-
-        string GetStockName();
-
-        string GetStockSymbol();
-
-        int GetUserBalance();
-
-        List<int> GetStockHistory();
-
-        int GetOwnedStocks();
-
         bool BuyStock(int quantity);
-
-        bool SellStock(int quantity);
-
         bool GetFavorite();
-
+        int GetOwnedStocks();
+        User GetStockAuthor();
+        List<int> GetStockHistory();
+        string GetStockName();
+        string GetStockSymbol();
+        int GetUserBalance();
+        bool IsGuest();
+        void SelectStock(Stock stock);
+        bool SellStock(int quantity);
         void ToggleFavorite(bool state);
-
-        string GetStockAuthor();
     }
 }
