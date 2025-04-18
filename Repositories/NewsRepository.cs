@@ -7,7 +7,7 @@
     using StockApp.Database;
     using StockApp.Models;
 
-    public class NewsRepository : INewsRepository
+    public class NewsRepository
     {
         private static readonly object LockObject = new();
         private static bool isInitialized = false;
@@ -21,7 +21,8 @@
         /// </summary>
         public NewsRepository()
         {
-
+            this.Initialize();
+        }
         private void Initialize()
         {
             lock (LockObject)
@@ -34,12 +35,6 @@
                     // Load existing data
                     this.LoadNewsArticles();
                     this.LoadUserArticles();
-
-                    // Only add mock data if no data exists
-                    if (!hasData)
-                    {
-                        this.hardCodedNewsArticles();
-                    }
 
                     isInitialized = true;
                 }
@@ -472,32 +467,6 @@
             this.DeleteArticle(articleId, "NEWS_ARTICLE");
         }
 
-                            using (var command = new SqlCommand("DELETE FROM NEWS_ARTICLE WHERE ARTICLE_ID = @ArticleId", connection, transaction))
-                            {
-                                command.CommandTimeout = 30;
-                                command.Parameters.AddWithValue("@ArticleId", articleId);
-                                command.ExecuteNonQuery();
-                            }
-
-                            transaction.Commit();
-
-                            var articleToRemove = this.newsArticles.FirstOrDefault(a => a.ArticleId == articleId);
-                            if (articleToRemove != null)
-                            {
-                                this.newsArticles.Remove(articleToRemove);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            try { transaction.Rollback(); } catch { /* Ignore rollback errors */ }
-                            System.Diagnostics.Debug.WriteLine($"Error deleting news article: {ex.Message}");
-                            throw;
-                        }
-                    }
-                }
-            }
-        }
-
         public NewsArticle GetNewsArticleById(string articleId)
         {
             if (string.IsNullOrWhiteSpace(articleId))
@@ -512,6 +481,8 @@
                 article.RelatedStocks = this.GetRelatedStocksForArticle(articleId);
                 System.Diagnostics.Debug.WriteLine($"GetNewsArticleById: Loaded {article.RelatedStocks?.Count ?? 0} related stocks for article {articleId}");
             }
+            return article;
+        }
 
         /// <summary>
         /// Retrieves all news articles.
@@ -519,10 +490,6 @@
         /// <returns>A list of all news articles.</returns>
         public List<NewsArticle> GetAllNewsArticles() => [.. this.newsArticles];
 
-        public List<NewsArticle> GetAllNewsArticles()
-        {
-            return this.newsArticles;
-        }
 
         public List<NewsArticle> GetNewsArticlesByStock(string stockName)
         {
@@ -545,7 +512,7 @@
 
             var article = this.GetNewsArticleById(articleId);
             article.IsRead = true;
-            this.AddOrUpdateNewsArticle(article);
+            this.UpdateNewsArticle(article);
         }
 
 
@@ -561,18 +528,30 @@
                     {
                         while (reader.Read())
                         {
+                            string authorCNP = reader["AUTHOR_CNP"].ToString();
+
+                            User author = new()
+                            {
+                                CNP = authorCNP,
+                                Username = reader["AUTHOR_NAME"].ToString(),
+                                Description = reader["AUTHOR_DESCRIPTION"].ToString(),
+                                IsModerator = reader.GetBoolean(5),
+                                IsHidden = reader.GetBoolean(6),
+                                Image = reader["AUTHOR_PROFILE_PICTURE"].ToString(),
+                                GemBalance = reader.GetInt32(7),
+                            };
+
                             var article = new UserArticle
                             {
-                                ArticleId = reader.GetString(0),
-                                Title = reader.GetString(1),
-                                Summary = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
-                                Content = reader.GetString(3),
-
-                                Author = reader.GetString(4),
-                                SubmissionDate = DateTime.Parse(reader.GetString(5)),
-                                Status = reader.GetString(6),
-                                Topic = reader.GetString(7),
-                                RelatedStocks = this.GetRelatedStocksForArticle(reader.GetString(0)),
+                                ArticleId = reader["ARTICLE_ID"].ToString(),
+                                Title = reader["TITLE"].ToString(),
+                                Summary = reader["SUMMARY"].ToString(),
+                                Content = reader["CONTENT"].ToString(),
+                                Author = author,
+                                SubmissionDate = reader["SUBMISSION_DATE"] is DateTime dateTime ? dateTime : DateTime.Now,
+                                Status = reader["STATUS"].ToString(),
+                                Topic = reader["TOPIC"].ToString(),
+                                RelatedStocks = this.GetRelatedStocksForArticle(reader["ARTICLE_ID"].ToString()),
                             };
 
                             this.userArticles.Add(article);
@@ -663,21 +642,22 @@
             }
         }
 
-        /// <summary>
-        /// Adds or updates a user-submitted article in the database.
-        /// </summary>
-        /// <param name="userArticle">The user article to add or update.</param>
-        public void AddOrUpdateUserArticle(UserArticle userArticle)
-        {
-            if (this.ArticleExists(userArticle.ArticleId, "USER_ARTICLE"))
-            {
-                this.UpdateArticle(userArticle, "USER_ARTICLE", MapUserArticleParameters);
-            }
-            else
-            {
-                this.AddArticle(userArticle, "USER_ARTICLE", MapUserArticleParameters);
-            }
-        }
+        ///// <summary>
+        ///// Adds or updates a user-submitted article in the database.
+        ///// </summary>
+        ///// <param name="userArticle">The user article to add or update.</param>
+        //public void AddOrUpdateUserArticle(UserArticle userArticle)
+        //{
+        //    if (this.ArticleExists(userArticle.ArticleId, "USER_ARTICLE"))
+        //    {
+        //        this.UpdateArticle(userArticle, "USER_ARTICLE", MapUserArticleParameters);
+        //    }
+        //    else
+        //    {
+        //        this.AddArticle(userArticle, "USER_ARTICLE", MapUserArticleParameters);
+        //    }
+        //}
+
         public void UpdateUserArticle(UserArticle userArticle)
         {
             lock (LockObject)
@@ -748,31 +728,6 @@
             this.DeleteArticle(articleId, "USER_ARTICLE");
         }
 
-                            using (var command = new SqlCommand("DELETE FROM USER_ARTICLE WHERE ARTICLE_ID = @ArticleId", connection, transaction))
-                            {
-                                command.CommandTimeout = 30;
-                                command.Parameters.AddWithValue("@ArticleId", articleId);
-                                command.ExecuteNonQuery();
-                            }
-
-                            transaction.Commit();
-
-                            var articleToRemove = this.userArticles.FirstOrDefault(a => a.ArticleId == articleId);
-                            if (articleToRemove != null)
-                            {
-                                this.userArticles.Remove(articleToRemove);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            try { transaction.Rollback(); } catch { /* Ignore rollback errors */ }
-                            System.Diagnostics.Debug.WriteLine($"Error deleting user article: {ex.Message}");
-                            throw;
-                        }
-                    }
-                }
-            }
-        }
 
         /// <summary>
         /// Retrieves a user-submitted article by its ID.
@@ -936,14 +891,6 @@
         private List<T> LoadArticles<T>(string query, Func<SqlDataReader, T> map)
         {
             return this.ExecuteReader(query, [], map);
-        }
-
-        /// <summary>
-        /// Adds mock data to the database.
-        /// </summary>
-        private void AddMockData()
-        {
-            // Add mock data logic here
         }
 
         /// <summary>
@@ -1135,18 +1082,6 @@
             }
 
             return results;
-        }
-
-        public void AddNewsArticle(NewsArticle article)
-        {
-            this.newsArticles.Add(article);
-            this.AddOrUpdateNewsArticle(article);
-        }
-
-        internal void AddUserArticle(UserArticle article)
-        {
-            this.userArticles.Add(article);
-            this.AddOrUpdateUserArticle(article);
         }
 
         internal void AddRelatedStocksForArticle(string articleId, List<string> relatedStocks, object value)

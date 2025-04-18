@@ -5,7 +5,7 @@ using Microsoft.Data.SqlClient;
 using StockApp.Database;
 using StockApp.Models;
 
-namespace StockApp.Repository
+namespace StockApp.Repositories
 {
     public class UserRepository
     {

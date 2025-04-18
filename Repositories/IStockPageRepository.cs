@@ -5,7 +5,7 @@
 
     public interface IStockPageRepository
     {
-        StockPageUser User { get; }
+        User User { get; }
 
         bool IsGuest { get; }
 
@@ -15,7 +15,7 @@
 
         void AddStockValue(string stockName, int price);
 
-        StockPageStock GetStock(string stockName);
+        Stock GetStock(string stockName);
 
         List<int> GetStockHistory(string stockName);
 

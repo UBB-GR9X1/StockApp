@@ -31,7 +31,7 @@
             string title,
             string summary,
             string content,
-            string author,
+            User author,
             DateTime submissionDate,
             string status,
             string topic,

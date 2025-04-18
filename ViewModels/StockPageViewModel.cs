@@ -11,6 +11,7 @@
     using Microsoft.UI.Xaml.Controls;
     using Microsoft.UI.Xaml.Media;
     using SkiaSharp;
+    using StockApp.Models;
     using StockApp.Services;
 
     class StockPageViewModel : INotifyPropertyChanged

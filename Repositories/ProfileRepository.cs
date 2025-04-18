@@ -9,7 +9,7 @@
     /// <summary>
     /// Repository for managing user profiles and related operations.
     /// </summary>
-    public class ProfileRepository : IProfileRepository
+    public class ProfileRepository
     {
         private readonly SqlConnection dbConnection = DatabaseHelper.GetConnection();
         private readonly string cnp;

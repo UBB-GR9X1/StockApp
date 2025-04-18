@@ -2,12 +2,15 @@
 {
     public class Stock : BaseStock
     {
-        public Stock(string name, string symbol, string authorCnp, int price)
-            : base(name, symbol, authorCnp)
+        public Stock(string name, string symbol, string authorCNP, int price, int quantity)
+            : base(name, symbol, authorCNP)
         {
             Price = price;
+            Quantity = quantity;
         }
 
         public int Price { get; set; }
+
+        public int Quantity { get; set; }
     }
 }

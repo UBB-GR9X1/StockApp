@@ -1,6 +1,7 @@
 ﻿namespace StockApp.ViewModels
 {
     using System.Collections.Generic;
+    using StockApp.Models;
     using StockApp.Services;
 
     internal class UpdateProfilePageViewModel

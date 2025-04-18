@@ -6,6 +6,7 @@ namespace StockApp.Pages
     using Microsoft.UI.Xaml.Controls;
     using Microsoft.UI.Xaml.Navigation;
     using StockApp.Commands;
+    using StockApp.Models;
     using StockApp.Services;
     using StockApp.ViewModels;
 

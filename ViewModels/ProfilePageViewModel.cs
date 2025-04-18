@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.ComponentModel;
     using Microsoft.UI.Xaml.Media.Imaging;
+    using StockApp.Models;
     using StockApp.Services;
 
     public class ProfilePageViewModel : INotifyPropertyChanged
