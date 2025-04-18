@@ -7,7 +7,7 @@
     using StockApp.Database;
     using StockApp.Models;
 
-    public class UserRepository
+    public class UserRepository : IUserRepository
     {
         public string CurrentUserCNP { get; set; } = "1234567890124";
 

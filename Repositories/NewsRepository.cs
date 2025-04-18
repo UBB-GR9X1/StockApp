@@ -7,7 +7,7 @@
     using StockApp.Database;
     using StockApp.Models;
 
-    public class NewsRepository
+    public class NewsRepository : INewsRepository
     {
         private static readonly object LockObject = new();
         private static bool isInitialized = false;

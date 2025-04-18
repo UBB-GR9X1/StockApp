@@ -3,7 +3,7 @@
     using System;
     using Microsoft.UI.Xaml.Controls;
 
-    public class NavigationService
+    public class NavigationService : INavigationService
     {
         private static readonly Lazy<NavigationService> instance = new(() => new NavigationService());
 
