@@ -51,7 +51,7 @@
                 };
             }
 
-            return null;
+            throw new KeyNotFoundException($"User with CNP '{cnp}' not found.");
         }
 
         // Update a user

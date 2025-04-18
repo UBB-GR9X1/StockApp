@@ -5,6 +5,7 @@
     using System.Linq;
     using Microsoft.Data.SqlClient;
     using StockApp.Database;
+    using StockApp.Exceptions;
     using StockApp.Models;
 
     public class TransactionRepository : ITransactionRepository
@@ -71,7 +72,7 @@
                 int stockExists = (int)checkCommand.ExecuteScalar();
                 if (stockExists == 0)
                 {
-                    throw new Exception($"Stock with name '{transaction.StockName}' does not exist.");
+                    throw new TransactionRepositoryException($"Stock with name '{transaction.StockName}' does not exist.");
                 }
             }
 

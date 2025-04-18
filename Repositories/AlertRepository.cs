@@ -5,6 +5,7 @@
     using System.Linq;
     using Microsoft.Data.SqlClient;
     using StockApp.Database;
+    using StockApp.Exceptions;
     using StockApp.Models;
 
     public class AlertRepository
@@ -107,38 +108,42 @@
         public void UpdateAlert(int alertId, string stockName, string name, decimal upperBound, decimal lowerBound, bool toggleOnOff)
         {
             string updateQuery = @"
-                UPDATE ALERTS
-                SET 
-                    STOCK_NAME = @StockName, 
-                    NAME = @Name, 
-                    LOWER_BOUND = @LowerBound, 
-                    UPPER_BOUND = @UpperBound, 
-                    TOGGLE = @ToggleOnOff
-                WHERE ALERT_ID = @AlertId";
+        UPDATE ALERTS SET 
+            STOCK_NAME = @StockName, 
+            NAME = @Name, 
+            LOWER_BOUND = @LowerBound, 
+            UPPER_BOUND = @UpperBound, 
+            TOGGLE = @ToggleOnOff
+        WHERE ALERT_ID = @AlertId";
 
-            this.ExecuteSql(updateQuery, command =>
+            try
             {
-                command.Parameters.AddWithValue("@AlertId", alertId);
-                command.Parameters.AddWithValue("@StockName", stockName);
-                command.Parameters.AddWithValue("@Name", name);
-                command.Parameters.AddWithValue("@LowerBound", lowerBound);
-                command.Parameters.AddWithValue("@UpperBound", upperBound);
-                command.Parameters.AddWithValue("@ToggleOnOff", toggleOnOff);
-            });
+                this.ExecuteSql(updateQuery, command =>
+                {
+                    command.Parameters.AddWithValue("@AlertId", alertId);
+                    command.Parameters.AddWithValue("@StockName", stockName);
+                    command.Parameters.AddWithValue("@Name", name);
+                    command.Parameters.AddWithValue("@LowerBound", lowerBound);
+                    command.Parameters.AddWithValue("@UpperBound", upperBound);
+                    command.Parameters.AddWithValue("@ToggleOnOff", toggleOnOff);
+                });
 
-            var existingAlert = this.Alerts.FirstOrDefault(a => a.AlertId == alertId);
-
-            if (existingAlert == null)
-            {
-                return;
+                var existingAlert = this.Alerts.FirstOrDefault(a => a.AlertId == alertId);
+                if (existingAlert != null)
+                {
+                    existingAlert.StockName = stockName;
+                    existingAlert.Name = name;
+                    existingAlert.LowerBound = lowerBound;
+                    existingAlert.UpperBound = upperBound;
+                    existingAlert.ToggleOnOff = toggleOnOff;
+                }
             }
-
-            existingAlert.StockName = stockName;
-            existingAlert.Name = name;
-            existingAlert.LowerBound = lowerBound;
-            existingAlert.UpperBound = upperBound;
-            existingAlert.ToggleOnOff = toggleOnOff;
+            catch (SqlException ex)
+            {
+                throw new AlertRepositoryException($"Failed to update alert with ID {alertId}.", ex);
+            }
         }
+
 
         public void DeleteAlert(int alertId)
         {
@@ -167,7 +172,7 @@
             }
 
             var alert = this.Alerts.First(a => a.StockName == stockName);
-            var message = $"⚠ Alert triggered for {stockName}: Price = {currentPrice}, Bounds: [{alert.LowerBound} - {alert.UpperBound}]";
+            var message = $"Alert triggered for {stockName}: Price = {currentPrice}, Bounds: [{alert.LowerBound} - {alert.UpperBound}]";
 
             this.TriggeredAlerts.Add(new TriggeredAlert
             {
@@ -175,6 +180,5 @@
                 Message = message,
             });
         }
-
     }
 }

@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using Microsoft.Data.SqlClient;
     using StockApp.Database;
+    using StockApp.Exceptions;
     using StockApp.Models;
 
     /// <summary>
@@ -31,29 +32,37 @@
         public User CurrentUser()
         {
             const string query = @"
-                    SELECT CNP, NAME, PROFILE_PICTURE, DESCRIPTION, IS_HIDDEN, GEM_BALANCE
-                    FROM [USER]
-                    WHERE CNP = @CNP";
+        SELECT CNP, NAME, PROFILE_PICTURE, DESCRIPTION, IS_HIDDEN, GEM_BALANCE
+        FROM [USER]
+        WHERE CNP = @CNP";
 
-            using SqlCommand command = new(query, this.dbConnection);
-            command.Parameters.AddWithValue("@CNP", this.loggedInUserCNP);
-
-            using SqlDataReader reader = command.ExecuteReader();
-            if (reader.Read())
+            try
             {
-                return new User(
-                    cnp: reader["CNP"]?.ToString(),
-                    username: reader["NAME"]?.ToString(),
-                    description: reader["DESCRIPTION"]?.ToString(),
-                    isModerator: false, // Assuming this is not part of the query
-                    image: reader["PROFILE_PICTURE"]?.ToString(),
-                    isHidden: reader["IS_HIDDEN"] != DBNull.Value && (bool)reader["IS_HIDDEN"],
-                    gem_balance: reader["GEM_BALANCE"] != DBNull.Value ? (int)reader["GEM_BALANCE"] : 0
-                );
-            }
+                using SqlCommand command = new(query, this.dbConnection);
+                command.Parameters.AddWithValue("@CNP", this.loggedInUserCNP);
 
-            throw new Exception("User not found.");
+                using SqlDataReader reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    return new User(
+                        cnp: reader["CNP"]?.ToString(),
+                        username: reader["NAME"]?.ToString(),
+                        description: reader["DESCRIPTION"]?.ToString(),
+                        isModerator: false,
+                        image: reader["PROFILE_PICTURE"]?.ToString(),
+                        isHidden: reader["IS_HIDDEN"] != DBNull.Value && (bool)reader["IS_HIDDEN"],
+                        gem_balance: reader["GEM_BALANCE"] != DBNull.Value ? (int)reader["GEM_BALANCE"] : 0
+                    );
+                }
+
+                throw new ProfilePersistenceException("User not found.");
+            }
+            catch (SqlException ex)
+            {
+                throw new ProfilePersistenceException("SQL error while retrieving current user.", ex);
+            }
         }
+
 
 
         /// <summary>
@@ -82,14 +91,23 @@
         public User GetUserProfile(string authorCNP)
         {
             const string query = @"
-                    SELECT CNP, NAME, PROFILE_PICTURE, DESCRIPTION, IS_HIDDEN
-                    FROM [USER]
-                    WHERE CNP = @CNP";
-            return this.ExecuteScalar<User>(query, command =>
+        SELECT CNP, NAME, PROFILE_PICTURE, DESCRIPTION, IS_HIDDEN
+        FROM [USER]
+        WHERE CNP = @CNP";
+
+            try
             {
-                command.Parameters.AddWithValue("@CNP", authorCNP);
-            }) ?? throw new Exception("User not found.");
+                return this.ExecuteScalar<User>(query, command =>
+                {
+                    command.Parameters.AddWithValue("@CNP", authorCNP);
+                }) ?? throw new ProfilePersistenceException("User not found.");
+            }
+            catch (SqlException ex)
+            {
+                throw new ProfilePersistenceException("SQL error while retrieving user profile.", ex);
+            }
         }
+
 
         /// <summary>
         /// Updates the admin status of the current user.
@@ -136,47 +154,58 @@
         public List<Stock> UserStocks()
         {
             const string query = @"
-                    WITH UserStocks AS (
-                        SELECT STOCK_NAME
-                        FROM USER_STOCK
-                        WHERE USER_CNP = @UserCNP
-                    ),
-                    LatestStockValue AS (
-                        SELECT sv1.STOCK_NAME, sv1.PRICE
-                        FROM STOCK_VALUE sv1
-                        WHERE sv1.STOCK_NAME IN (SELECT STOCK_NAME FROM UserStocks)
-                          AND sv1.PRICE = (
-                              SELECT MAX(sv2.PRICE)
-                              FROM STOCK_VALUE sv2
-                              WHERE sv2.STOCK_NAME = sv1.STOCK_NAME
-                          )
-                    )
-                    SELECT 
-                        s.STOCK_SYMBOL,
-                        us.STOCK_NAME,
-                        us.QUANTITY,
-                        COALESCE(lsv.PRICE, 0) AS PRICE
-                    FROM USER_STOCK us
-                    JOIN STOCK s ON us.STOCK_NAME = s.STOCK_NAME
-                    LEFT JOIN LatestStockValue lsv ON s.STOCK_NAME = lsv.STOCK_NAME
-                    WHERE us.USER_CNP = @UserCNP";
+        WITH UserStocks AS (
+            SELECT STOCK_NAME
+            FROM USER_STOCK
+            WHERE USER_CNP = @UserCNP
+        ),
+        LatestStockValue AS (
+            SELECT sv1.STOCK_NAME, sv1.PRICE
+            FROM STOCK_VALUE sv1
+            WHERE sv1.STOCK_NAME IN (SELECT STOCK_NAME FROM UserStocks)
+              AND sv1.PRICE = (
+                  SELECT MAX(sv2.PRICE)
+                  FROM STOCK_VALUE sv2
+                  WHERE sv2.STOCK_NAME = sv1.STOCK_NAME
+              )
+        )
+        SELECT 
+            s.STOCK_SYMBOL,
+            us.STOCK_NAME,
+            us.QUANTITY,
+            COALESCE(lsv.PRICE, 0) AS PRICE
+        FROM USER_STOCK us
+        JOIN STOCK s ON us.STOCK_NAME = s.STOCK_NAME
+        LEFT JOIN LatestStockValue lsv ON s.STOCK_NAME = lsv.STOCK_NAME
+        WHERE us.USER_CNP = @UserCNP";
 
-            using var command = new SqlCommand(query, DatabaseHelper.GetConnection());
-            command.Parameters.AddWithValue("@UserCNP", this.loggedInUserCNP);
-            using var reader = command.ExecuteReader();
-            List<Stock> stocks = new();
-            while (reader.Read())
+            try
             {
-                stocks.Add(new Stock(
-                    symbol: reader["STOCK_SYMBOL"]?.ToString() ?? throw new Exception("Stock symbol not found."),
-                    name: reader["STOCK_NAME"]?.ToString() ?? throw new Exception("Stock name not found."),
-                    quantity: reader["QUANTITY"] != DBNull.Value ? (int)reader["QUANTITY"] : throw new Exception("Stock quantity not found."),
-                    price: reader["PRICE"] != DBNull.Value ? (int)reader["PRICE"] : throw new Exception("Stock price not found."),
-                    authorCNP: this.loggedInUserCNP
-                ));
+                using var command = new SqlCommand(query, this.dbConnection);
+                command.Parameters.AddWithValue("@UserCNP", this.loggedInUserCNP);
+
+                using var reader = command.ExecuteReader();
+                List<Stock> stocks = new();
+
+                while (reader.Read())
+                {
+                    stocks.Add(new Stock(
+                        symbol: reader["STOCK_SYMBOL"]?.ToString() ?? throw new ProfilePersistenceException("Stock symbol missing."),
+                        name: reader["STOCK_NAME"]?.ToString() ?? throw new ProfilePersistenceException("Stock name missing."),
+                        quantity: reader["QUANTITY"] != DBNull.Value ? (int)reader["QUANTITY"] : throw new ProfilePersistenceException("Stock quantity missing."),
+                        price: reader["PRICE"] != DBNull.Value ? (int)reader["PRICE"] : throw new ProfilePersistenceException("Stock price missing."),
+                        authorCNP: this.loggedInUserCNP
+                    ));
+                }
+
+                return stocks;
             }
-            return stocks;
+            catch (SqlException ex)
+            {
+                throw new ProfilePersistenceException("SQL error while fetching user stocks.", ex);
+            }
         }
+
 
         /// <summary>
         /// Executes a SQL query and returns a scalar value.
@@ -187,14 +216,22 @@
         /// <returns>The scalar value of type <typeparamref name="T"/>.</returns>
         private T? ExecuteScalar<T>(string query, Action<SqlCommand> parameterize)
         {
-            using SqlCommand command = new(query, this.dbConnection);
-            parameterize?.Invoke(command);
+            try
+            {
+                using SqlCommand command = new(query, this.dbConnection);
+                parameterize?.Invoke(command);
 
-            var result = command.ExecuteScalar();
-            return result == null || result == DBNull.Value
-                ? default
-                : (T)Convert.ChangeType(result, typeof(T));
+                var result = command.ExecuteScalar();
+                return result == null || result == DBNull.Value
+                    ? default
+                    : (T)Convert.ChangeType(result, typeof(T));
+            }
+            catch (SqlException ex)
+            {
+                throw new ProfilePersistenceException("SQL error in scalar query.", ex);
+            }
         }
+
 
         /// <summary>
         /// Executes a non-query SQL command.
@@ -203,9 +240,17 @@
         /// <param name="parameterize">An action to parameterize the SQL command.</param>
         private void ExecuteNonQuery(string query, Action<SqlCommand> parameterize)
         {
-            using SqlCommand command = new(query, this.dbConnection);
-            parameterize?.Invoke(command);
-            command.ExecuteNonQuery();
+            try
+            {
+                using SqlCommand command = new(query, this.dbConnection);
+                parameterize?.Invoke(command);
+                command.ExecuteNonQuery();
+            }
+            catch (SqlException ex)
+            {
+                throw new ProfilePersistenceException("SQL error in non-query execution.", ex);
+            }
         }
+
     }
 }
