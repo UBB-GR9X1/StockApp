@@ -9,11 +9,10 @@
         private ProfileRepository profileRepo;
         private UserRepository userRepo;
 
-        public ProfieService()
+        public ProfileService()
         {
             this.userRepo = new();
             this.profileRepo = new ProfileRepository(this.userRepo.CurrentUserCNP);
-
         }
 
         public string GetImage() => this.profileRepo.CurrentUser().Image;

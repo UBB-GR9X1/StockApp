@@ -9,7 +9,7 @@
 
     public class ProfilePageViewModel : INotifyPropertyChanged
     {
-        private readonly ProfieService profileService;
+        private readonly ProfileService profileService;
 
         private BitmapImage _imageSource;
         public BitmapImage ImageSource
@@ -24,7 +24,7 @@
 
         public ProfilePageViewModel()
         {
-            profileService = new ProfieService();
+            profileService = new ProfileService();
             LoadProfileImage();
         }
 
