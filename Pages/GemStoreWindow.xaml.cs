@@ -49,7 +49,12 @@ namespace StockApp.Pages
                 ContentDialogResult result = await confirmDialog.ShowAsync();
                 if (result == ContentDialogResult.Primary)
                 {
-                    string selectedAccount = bankAccountDropdown.SelectedItem.ToString();
+                    if (bankAccountDropdown.SelectedItem is not string selectedAccount)
+                    {
+                        ShowErrorDialog("No bank account selected.");
+                        return;
+                    }
+
                     string purchaseResult = await viewModel.BuyGemsAsync(selectedDeal, selectedAccount);
                     ShowSuccessDialog(purchaseResult);
                 }
@@ -126,7 +131,12 @@ namespace StockApp.Pages
             ContentDialogResult result = await sellDialog.ShowAsync();
             if (result == ContentDialogResult.Primary)
             {
-                string selectedAccount = bankAccountDropdown.SelectedItem.ToString();
+                if (bankAccountDropdown.SelectedItem is not string selectedAccount)
+                {
+                    ShowErrorDialog("No bank account selected.");
+                    return;
+                }
+
                 string sellResult = await viewModel.SellGemsAsync(gemsToSell, selectedAccount);
                 ShowSuccessDialog(sellResult);
             }

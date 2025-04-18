@@ -9,7 +9,7 @@
         {
             if (value is not bool statusIsReading)
             {
-                return FontWeights.Normal;
+                throw new InvalidCastException("Expected a boolean value for ReadStatusToFontWeightConverter.");
             }
 
             // if read return normal, else return semi bold font for article title
@@ -20,7 +20,7 @@
 
         public override object ConvertBack(object value, Type targetType, object parameter, string language)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException("ConvertBack is not implemented in ReadStatusToFontWeightConverter.");
         }
     }
 }

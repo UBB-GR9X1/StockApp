@@ -7,7 +7,7 @@ namespace StockApp.Pages
 
     public sealed partial class NewsListPage : Page
     {
-        public NewsListViewModel ViewModel { get; } = new();
+        public NewsListViewModel ViewModel { get; } = new ();
 
         public NewsListPage()
         {

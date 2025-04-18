@@ -1,4 +1,4 @@
-﻿namespace StockApp.Repositories
+﻿namespace StockApp.Repository
 {
     using System;
     using System.Collections.Generic;
@@ -7,10 +7,8 @@
     using StockApp.Database;
     using StockApp.Models;
 
-    public class UserRepository : IUserRepository
+    public class UserRepository
     {
-        public string CurrentUserCNP { get; set; } = "1234567890124";
-
         // Create a new user
         public async Task CreateUserAsync(User user)
         {
@@ -51,7 +49,7 @@
                 };
             }
 
-            throw new KeyNotFoundException($"User with CNP '{cnp}' not found.");
+            throw new KeyNotFoundException($"No user found with CNP: {cnp}");
         }
 
         // Update a user
