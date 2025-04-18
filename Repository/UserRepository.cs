@@ -49,7 +49,7 @@ namespace StockApp.Repository
                 };
             }
 
-            return null;
+            throw new KeyNotFoundException($"No user found with CNP: {cnp}");
         }
 
         // Update a user
