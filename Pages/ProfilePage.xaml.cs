@@ -93,7 +93,7 @@ namespace StockApp.Pages
         {
             if (this.StocksListView.SelectedItem is Stock selectedStock)
             {
-                NavigationService.Initialize(this.Frame);
+                NavigationService.Initialize(new FrameAdapter(this.Frame));
                 NavigationService.Instance.Navigate(typeof(StockPage), selectedStock);
             }
             else

@@ -31,7 +31,7 @@ namespace StockApp
             // rootFrame.Navigate(typeof(CreateStockPage.MainPage), null);
 
             rootFrame.Navigate(typeof(HomepageView), null);
-            NavigationService.Initialize(rootFrame);
+            NavigationService.Initialize(new FrameAdapter(rootFrame));
 
             // string stockName = "Tesla";
 

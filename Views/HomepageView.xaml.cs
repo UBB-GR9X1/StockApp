@@ -24,7 +24,7 @@
                 throw new InvalidOperationException("Clicked item is not a valid stock");
             }
 
-            NavigationService.Initialize(this.Frame);
+            NavigationService.Initialize(new FrameAdapter(this.Frame));
             NavigationService.Instance.Navigate(typeof(StockPage), myStock);
         }
     }
