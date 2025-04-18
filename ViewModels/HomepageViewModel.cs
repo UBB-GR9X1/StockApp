@@ -5,15 +5,18 @@
     using System.ComponentModel;
     using System.Runtime.CompilerServices;
     using System.Windows.Input;
+    using Catel.Services;
     using Microsoft.UI.Xaml;
     using StockApp.Commands;
     using StockApp.Models;
     using StockApp.Pages;
     using StockApp.Services;
+    using NavigationService = Services.NavigationService;
+
 
     public class HomepageViewModel : INotifyPropertyChanged
     {
-        private readonly HomepageService service = new();
+        private readonly IHomepageService service;
 
         private ObservableCollection<HomepageStock> filteredAllStocks = [];
         private ObservableCollection<HomepageStock> filteredFavoriteStocks = [];
@@ -23,8 +26,10 @@
         private Visibility guestButtonVisibility = Visibility.Visible;
         private Visibility profileButtonVisibility = Visibility.Collapsed;
 
-        public HomepageViewModel()
+        public HomepageViewModel(IHomepageService service)
         {
+            this.service = service ?? throw new ArgumentNullException(nameof(service));
+
             this.IsGuestUser = this.service.IsGuestUser();
             this.LoadStocks();
 
@@ -35,6 +40,9 @@
             this.SearchCommand = new RelayCommand(_ => this.ApplyFilter());
             this.SortCommand = new RelayCommand(_ => this.ApplySort());
         }
+
+        public HomepageViewModel()
+          : this(new HomepageService()) { }
 
         public event PropertyChangedEventHandler? PropertyChanged;
 

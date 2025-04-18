@@ -12,7 +12,7 @@
 
     public class StoreViewModel : INotifyPropertyChanged
     {
-        private readonly StoreService storeService = new StoreService();
+        private readonly IStoreService storeService;
 
         private bool testMode = false; // Set to true for testing without the database
 
@@ -23,16 +23,26 @@
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        public StoreViewModel()
+        public StoreViewModel(IStoreService service)
         {
-            this._currentUserCnp = this.storeService.GetCnp();
-            this.LoadUserData();
-            this.LoadGemDeals();
-            this.LoadPossibleDeals();
-            this.GenerateRandomDeals();
+            this.storeService = service ?? throw new ArgumentNullException(nameof(service));
+            Initialize();
         }
 
-        public bool IsGuest()
+        public StoreViewModel()
+        : this(new StoreService())
+        { }
+
+        private void Initialize()
+        {
+            this._currentUserCnp = this.storeService.GetCnp();
+            LoadUserData();
+            LoadGemDeals();
+            LoadPossibleDeals();
+            GenerateRandomDeals();
+        }
+
+public bool IsGuest()
         {
             if (this.testMode)
                 return false;

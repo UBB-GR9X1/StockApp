@@ -1,5 +1,6 @@
 ﻿namespace StockApp.ViewModels
 {
+    using System;
     using System.Collections.Generic;
     using StockApp.Models;
     using StockApp.Services;
@@ -8,12 +9,16 @@
     {
 
 
-        private ProfileService profileService;
+        private IProfileService profileService;
+
+        public UpdateProfilePageViewModel(IProfileService service)
+        {
+            this.profileService = service ?? throw new ArgumentNullException(nameof(service));
+        }
 
         public UpdateProfilePageViewModel()
-        {
-            this.profileService = new ProfileService();
-        }
+          : this(new ProfieService())
+        { }
 
         public string GetImage() => this.profileService.GetImage();
 

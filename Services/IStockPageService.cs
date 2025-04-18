@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
-using StockApp.Models;
+﻿namespace StockApp.Services
+{
+    using System.Collections.Generic;
+    using StockApp.Models;
 
 namespace StockApp.Services
 {
@@ -17,5 +19,9 @@ namespace StockApp.Services
         void SelectStock(Stock stock);
         bool SellStock(int quantity);
         void ToggleFavorite(bool state);
+
+        User GetStockAuthor();
+
+        void SelectStock(Stock stock);
     }
 }

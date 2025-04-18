@@ -1,8 +1,10 @@
 ﻿namespace StockApp.ViewModels
 {
+    using System;
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Linq;
+    using Catel.Services;
     using LiveChartsCore;
     using LiveChartsCore.SkiaSharpView;
     using LiveChartsCore.SkiaSharpView.Painting;
@@ -18,7 +20,7 @@
     {
         private string _stockName;
         private string _stockSymbol;
-        private StockPageService stockPageService = new();
+        private readonly IStockPageService stockPageService;
         private bool _isFavorite = false;
         private string _favoriteButtonColor = "#ffff5c";
         private bool _isGuest = false;
@@ -26,28 +28,48 @@
         private int _userGems = 0;
         private string _userGemsText = "0 ❇️ Gems";
 
-        private TextBlock _priceLabel;
-        private TextBlock _increaseLabel;
-        private TextBlock _ownedStocks;
-        private CartesianChart _stockChart;
+        private ITextBlock _priceLabel;
+        private ITextBlock _increaseLabel;
+        private ITextBlock _ownedStocks;
+        private IChart _stockChart;
 
-        public StockPageViewModel(Stock selectedStock, TextBlock priceLabel, TextBlock increaseLabel, TextBlock ownedStocks, CartesianChart stockChart)
+
+        public StockPageViewModel(
+            IStockPageService service,
+            Stock selectedStock,
+            ITextBlock priceLabel,
+            ITextBlock increaseLabel,
+            ITextBlock ownedStocks,
+            IChart stockChart)
         {
+            this.stockPageService = service ?? throw new ArgumentNullException(nameof(service));
+            this._priceLabel = priceLabel ?? throw new ArgumentNullException(nameof(priceLabel));
+            this._increaseLabel = increaseLabel ?? throw new ArgumentNullException(nameof(increaseLabel));
+            this._ownedStocks = ownedStocks ?? throw new ArgumentNullException(nameof(ownedStocks));
+            this._stockChart = stockChart ?? throw new ArgumentNullException(nameof(stockChart));
+
             this.stockPageService.SelectStock(selectedStock);
-            this._priceLabel = priceLabel;
-            this._increaseLabel = increaseLabel;
-            this._ownedStocks = ownedStocks;
-            this._stockChart = stockChart;
-
             this.IsGuest = this.stockPageService.IsGuest();
-
-            this._stockName = this.stockPageService.GetStockName();
-            this._stockSymbol = this.stockPageService.GetStockSymbol();
-
+            this.StockName = this.stockPageService.GetStockName();
+            this.StockSymbol = this.stockPageService.GetStockSymbol();
             this.UpdateStockValue();
-
             this.IsFavorite = this.stockPageService.GetFavorite();
         }
+
+        public StockPageViewModel(
+            Stock selectedStock,
+            TextBlock priceLabel,
+            TextBlock increaseLabel,
+            TextBlock ownedStocks,
+            CartesianChart stockChart)
+          : this(
+        new StockPageService(),
+        selectedStock,
+        new TextBlockAdapter(priceLabel),
+        new TextBlockAdapter(increaseLabel),
+        new TextBlockAdapter(ownedStocks),
+        new ChartAdapter(stockChart))
+        { }
 
         public void UpdateStockValue()
         {

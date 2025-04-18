@@ -5,14 +5,22 @@ namespace StockApp.Services
 {
     public interface IProfileService
     {
-        string GetDescription();
         string GetImage();
+
         string GetLoggedInUserCnp();
+
         string GetUsername();
-        List<Stock> GetUserStocks();
-        bool IsAdmin();
+
+        string GetDescription();
+
         bool IsHidden();
-        void UpdateIsAdmin(bool isAdmin);
+
+        bool IsAdmin();
+
+        List<Stock> GetUserStocks();
+
+        void UpdateIsAdmin(bool newIsAdmin);
+
         void UpdateUser(string newUsername, string newImage, string newDescription, bool newHidden);
     }
 }

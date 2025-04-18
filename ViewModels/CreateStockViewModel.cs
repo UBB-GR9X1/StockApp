@@ -1,5 +1,9 @@
-﻿namespace StockApp.ViewModels
+﻿using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("StockApp.ViewModels.Tests")]
+namespace StockApp.ViewModels
 {
+    using System;
     using System.ComponentModel;
     using System.Runtime.CompilerServices;
     using System.Text.RegularExpressions;
@@ -14,18 +18,23 @@
         private string _authorCnp;
         private string _message;
         private bool _suppressValidation = false;
-        private readonly CreateStockService _stockService;
+        private readonly ICreateStockService _stockService;
         private bool _isAdmin;
         private bool _isInputValid;
 
         public event PropertyChangedEventHandler? PropertyChanged;
         public ICommand CreateStockCommand { get; }
 
-        public CreateStockViewModel()
+        public CreateStockViewModel(ICreateStockService stockService)
         {
-            _stockService = new CreateStockService();
+            _stockService = stockService ?? throw new ArgumentNullException(nameof(stockService));
             CreateStockCommand = new RelayCommand(CreateStock, CanCreateStock);
             IsAdmin = CheckIfUserIsAdmin();
+        }
+
+        public CreateStockViewModel()
+            : this(new CreateStockService())
+        {
         }
 
         public bool IsAdmin

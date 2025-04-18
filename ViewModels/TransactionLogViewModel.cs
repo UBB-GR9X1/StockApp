@@ -9,19 +9,20 @@
     using System.Windows.Input;
     using Microsoft.UI.Xaml.Controls;
     using StockApp.Models;
+    using StockApp.Repositories;
     using StockApp.Services;
 
     public class TransactionLogViewModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        private readonly TransactionLogService service;
+        private readonly ITransactionLogService service;
 
         private string _stockNameFilter;
-        private ComboBoxItem _selectedTransactionType;
-        private ComboBoxItem _selectedSortBy;
-        private ComboBoxItem _selectedSortOrder;
-        private ComboBoxItem _selectedExportFormat;
+        private string _selectedTransactionType;
+        private string _selectedSortBy;
+        private string _selectedSortOrder;
+        private string _selectedExportFormat;
         private string _minTotalValue;
         private string _maxTotalValue;
         private DateTime? _startDate;
@@ -37,7 +38,7 @@
             set { _stockNameFilter = value; OnPropertyChanged(nameof(StockNameFilter)); }
         }
 
-        public ComboBoxItem SelectedTransactionType
+        public string SelectedTransactionType
         {
             get => _selectedTransactionType;
             set
@@ -48,7 +49,7 @@
             }
         }
 
-        public ComboBoxItem SelectedSortBy
+        public string SelectedSortBy
         {
             get => _selectedSortBy;
             set
@@ -59,7 +60,7 @@
             }
         }
 
-        public ComboBoxItem SelectedSortOrder
+        public string SelectedSortOrder
         {
             get => _selectedSortOrder;
             set
@@ -70,7 +71,7 @@
             }
         }
 
-        public ComboBoxItem SelectedExportFormat
+        public string SelectedExportFormat
         {
             get => _selectedExportFormat;
             set
@@ -131,15 +132,15 @@
         public ICommand SearchCommand { get; }
         public ICommand ExportCommand { get; }
 
-        public TransactionLogViewModel(TransactionLogService service)
+        public TransactionLogViewModel(ITransactionLogService service)
         {
-            this.service = service;
+            this.service = service ?? throw new ArgumentNullException(nameof(service));
 
             // Initialize ComboBoxItems for options if they are null
-            SelectedTransactionType = new ComboBoxItem { Content = "ALL" };
-            SelectedSortBy = new ComboBoxItem { Content = "Date" };
-            SelectedSortOrder = new ComboBoxItem { Content = "ASC" };
-            SelectedExportFormat = new ComboBoxItem { Content = "CSV" };
+            SelectedTransactionType = "ALL";
+            SelectedSortBy = "Date";
+            SelectedSortOrder = "ASC";
+            SelectedExportFormat = "CSV";
 
             // Set up commands
             SearchCommand = new Commands.Command(Search);
@@ -148,6 +149,10 @@
             LoadTransactions();
         }
 
+        public TransactionLogViewModel()
+          : this(new TransactionLogService(new TransactionRepository()))
+        { }
+
         private void Search()
         {
             LoadTransactions();
@@ -155,7 +160,7 @@
 
         private async Task Export()
         {
-            string format = SelectedExportFormat.Content?.ToString();
+            string format = SelectedExportFormat.ToString();
             string fileName = "transactions";
 
             // Save the file to the user's Documents folder
@@ -206,9 +211,9 @@
                 throw new InvalidOperationException("Transaction service is not initialized");
 
             // Add null checks here for all ComboBoxItem properties to prevent null reference
-            string transactionType = SelectedTransactionType?.Content?.ToString() ?? "ALL";
-            string sortBy = SelectedSortBy?.Content?.ToString() ?? "Date";
-            string sortOrder = SelectedSortOrder?.Content?.ToString() ?? "ASC";
+            string transactionType = SelectedTransactionType?.ToString() ?? "ALL";
+            string sortBy = SelectedSortBy?.ToString() ?? "Date";
+            string sortOrder = SelectedSortOrder?.ToString() ?? "ASC";
 
             // Validate MinTotalValue < MaxTotalValue
             if (!ValidateTotalValues(MinTotalValue, MaxTotalValue))

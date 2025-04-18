@@ -10,6 +10,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockApp.ViewModels.Tests", "StockApp.ViewModels.Tests\StockApp.ViewModels.Tests.csproj", "{44864486-CD7D-4141-915B-8B8FCFC84BF4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM64 = Debug|ARM64
@@ -38,6 +40,18 @@ Global
 		{99404076-145E-46D8-ACF7-93FE40EEA798}.Release|x86.ActiveCfg = Release|x86
 		{99404076-145E-46D8-ACF7-93FE40EEA798}.Release|x86.Build.0 = Release|x86
 		{99404076-145E-46D8-ACF7-93FE40EEA798}.Release|x86.Deploy.0 = Release|x86
+		{44864486-CD7D-4141-915B-8B8FCFC84BF4}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{44864486-CD7D-4141-915B-8B8FCFC84BF4}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{44864486-CD7D-4141-915B-8B8FCFC84BF4}.Debug|x64.ActiveCfg = Debug|x64
+		{44864486-CD7D-4141-915B-8B8FCFC84BF4}.Debug|x64.Build.0 = Debug|x64
+		{44864486-CD7D-4141-915B-8B8FCFC84BF4}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{44864486-CD7D-4141-915B-8B8FCFC84BF4}.Debug|x86.Build.0 = Debug|Any CPU
+		{44864486-CD7D-4141-915B-8B8FCFC84BF4}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{44864486-CD7D-4141-915B-8B8FCFC84BF4}.Release|ARM64.Build.0 = Release|Any CPU
+		{44864486-CD7D-4141-915B-8B8FCFC84BF4}.Release|x64.ActiveCfg = Release|Any CPU
+		{44864486-CD7D-4141-915B-8B8FCFC84BF4}.Release|x64.Build.0 = Release|Any CPU
+		{44864486-CD7D-4141-915B-8B8FCFC84BF4}.Release|x86.ActiveCfg = Release|Any CPU
+		{44864486-CD7D-4141-915B-8B8FCFC84BF4}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
