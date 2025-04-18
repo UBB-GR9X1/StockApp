@@ -4,6 +4,8 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using Microsoft.Data.SqlClient;
+    using StockApp.Exceptions;
     using StockApp.Models;
     using StockApp.Repositories;
 
@@ -30,7 +32,6 @@
             }
         }
 
-        // Article Methods
         public async Task<List<NewsArticle>> GetNewsArticlesAsync()
         {
             await Task.Delay(200);
@@ -39,16 +40,18 @@
             {
                 return await Task.Run(() => this.repository.GetAllNewsArticles());
             }
-            catch
+            catch (NewsPersistenceException ex)
             {
-                return this.repository.GetAllNewsArticles();
+                throw new NewsPersistenceException("Failed to retrieve news articles.", ex);
             }
         }
 
         public async Task<NewsArticle> GetNewsArticleByIdAsync(string articleId)
         {
             if (string.IsNullOrWhiteSpace(articleId))
+            {
                 throw new ArgumentNullException(nameof(articleId));
+            }
 
             // First check if this is a preview article using the correct lookup ID
             if (previewArticles.TryGetValue(articleId, out var previewArticle))
@@ -63,11 +66,9 @@
                 var article = await Task.Run(() => this.repository.GetNewsArticleById(articleId));
                 return article ?? throw new KeyNotFoundException($"Article with ID {articleId} not found");
             }
-            catch
+            catch (NewsPersistenceException ex)
             {
-                var mockArticles = this.repository.GetAllNewsArticles();
-                return mockArticles.FirstOrDefault(a => a.ArticleId == articleId)
-                    ?? throw new KeyNotFoundException($"Article with ID {articleId} not found");
+                throw new NewsPersistenceException($"Failed to load article with ID {articleId}.", ex);
             }
         }
 
@@ -85,15 +86,9 @@
                 await Task.Run(() => this.repository.MarkArticleAsRead(articleId));
                 return true;
             }
-            catch
+            catch (NewsPersistenceException ex)
             {
-                // mark as read in cached articles
-                var article = this.cachedArticles.FirstOrDefault(a => a.ArticleId == articleId);
-                if (article != null)
-                {
-                    article.IsRead = true;
-                }
-                return true;
+                throw new NewsPersistenceException($"Failed to mark article {articleId} as read.", ex);
             }
         }
 
@@ -112,14 +107,12 @@
                 await Task.Run(() => this.repository.AddNewsArticle(article));
                 return true;
             }
-            catch
+            catch (NewsPersistenceException ex)
             {
-                this.cachedArticles.Add(article);
-                return true;
+                throw new NewsPersistenceException("Failed to create news article.", ex);
             }
         }
 
-        // User Article Methods
         public async Task<List<UserArticle>> GetUserArticlesAsync(string status = null, string topic = null)
         {
             // ensure the user is admin
@@ -129,29 +122,27 @@
             }
 
             await Task.Delay(300);
-            List<UserArticle> userArticles;
+
             try
             {
                 userArticles = await Task.Run(() => this.repository.GetAllUserArticles());
 
-            }
-            catch
-            {
-                userArticles = new List<UserArticle>(NewsService.userArticles);
-            }
+                if (!string.IsNullOrEmpty(status) && status != "All")
+                {
+                    userArticles = userArticles.Where(a => a.Status == status).ToList();
+                }
 
-            // filters
-            if (!string.IsNullOrEmpty(status) && status != "All")
-            {
-                userArticles = userArticles.Where(a => a.Status == status).ToList();
-            }
+                if (!string.IsNullOrEmpty(topic) && topic != "All")
+                {
+                    userArticles = userArticles.Where(a => a.Topic == topic).ToList();
+                }
 
-            if (!string.IsNullOrEmpty(topic) && topic != "All")
-            {
-                userArticles = userArticles.Where(a => a.Topic == topic).ToList();
+                return userArticles;
             }
-
-            return userArticles;
+            catch (NewsPersistenceException ex)
+            {
+                throw new NewsPersistenceException("Failed to load user articles.", ex);
+            }
         }
 
         public async Task<bool> ApproveUserArticleAsync(string articleId)
@@ -163,7 +154,9 @@
             }
 
             if (string.IsNullOrWhiteSpace(articleId))
+            {
                 throw new ArgumentNullException(nameof(articleId));
+            }
 
             await Task.Delay(300);
 
@@ -173,15 +166,9 @@
                 this.cachedArticles.Clear();
                 return true;
             }
-            catch
+            catch (NewsPersistenceException ex)
             {
-                var article = userArticles.FirstOrDefault(a => a.ArticleId == articleId);
-                if (article == null)
-                    throw new KeyNotFoundException($"Article with ID {articleId} not found");
-
-                article.Status = "Approved";
-                this.cachedArticles.Clear();
-                return true;
+                throw new NewsPersistenceException($"Failed to approve article {articleId}.", ex);
             }
         }
 
@@ -194,7 +181,9 @@
             }
 
             if (string.IsNullOrWhiteSpace(articleId))
+            {
                 throw new ArgumentNullException(nameof(articleId));
+            }
 
             await Task.Delay(300);
 
@@ -204,15 +193,9 @@
                 this.cachedArticles.Clear();
                 return true;
             }
-            catch
+            catch (NewsPersistenceException ex)
             {
-                var article = userArticles.FirstOrDefault(a => a.ArticleId == articleId);
-                if (article == null)
-                    throw new KeyNotFoundException($"Article with ID {articleId} not found");
-
-                article.Status = "Rejected";
-                this.cachedArticles.Clear();
-                return true;
+                throw new NewsPersistenceException($"Failed to reject article {articleId}.", ex);
             }
         }
 
@@ -225,7 +208,9 @@
             }
 
             if (string.IsNullOrWhiteSpace(articleId))
+            {
                 throw new ArgumentNullException(nameof(articleId));
+            }
 
             await Task.Delay(300);
 
@@ -236,15 +221,9 @@
                 this.cachedArticles.Clear();
                 return true;
             }
-            catch
+            catch (NewsPersistenceException ex)
             {
-                var article = userArticles.FirstOrDefault(a => a.ArticleId == articleId);
-                if (article == null)
-                    throw new KeyNotFoundException($"Article with ID {articleId} not found");
-
-                userArticles.Remove(article);
-                this.cachedArticles.Clear();
-                return true;
+                throw new NewsPersistenceException($"Failed to delete article {articleId}.", ex);
             }
         }
 
@@ -269,17 +248,12 @@
                 this.cachedArticles.Clear();
                 return true;
             }
-            catch
+            catch (NewsPersistenceException ex)
             {
-                // rn, return success and add to local data
-                userArticles.Add(article);
-                this.cachedArticles.Clear();
-                return true;
+                throw new NewsPersistenceException("Failed to submit user article.", ex);
             }
-
         }
 
-        // User Authentication Methods
         public async Task<User> GetCurrentUserAsync()
         {
             // checks if user is already in app state
@@ -295,9 +269,14 @@
         public async Task<User> LoginAsync(string username, string password)
         {
             if (string.IsNullOrWhiteSpace(username))
+            {
                 throw new ArgumentNullException(nameof(username));
+            }
+
             if (string.IsNullOrWhiteSpace(password))
+            {
                 throw new ArgumentNullException(nameof(password));
+            }
 
             await Task.Delay(300);
 
@@ -316,7 +295,7 @@
                         "img.jpg"
                     );
                 }
-                catch (Exception ex)
+                catch (NewsPersistenceException ex)
                 {
                     System.Diagnostics.Debug.WriteLine($"Error ensuring admin user exists: {ex.Message}");
                 }
@@ -356,47 +335,33 @@
             previewUserArticles.Clear();
         }
 
-        // Preview Methods
         public void StorePreviewArticle(NewsArticle article, UserArticle userArticle)
         {
-            // First, ensure both articles use the same ID format for consistent lookup
-            string articleId = article.ArticleId;
-            if (articleId.StartsWith("preview:"))
-            {
-                articleId = articleId.Substring(8);
-                article.ArticleId = articleId;
-            }
+            string articleId = article.ArticleId.StartsWith("preview:") ? article.ArticleId[8..] : article.ArticleId;
+            article.ArticleId = articleId;
 
-            // Properly copy related stocks from userArticle to the preview article
-            if (userArticle.RelatedStocks != null && userArticle.RelatedStocks.Count > 0)
-            {
-                article.RelatedStocks = new List<string>(userArticle.RelatedStocks);
-                System.Diagnostics.Debug.WriteLine($"StorePreviewArticle: Storing {article.RelatedStocks.Count} related stocks for article {articleId}");
-            }
-            else
-            {
-                article.RelatedStocks = new List<string>();
-                System.Diagnostics.Debug.WriteLine($"StorePreviewArticle: No related stocks found in user article {articleId}");
-            }
+            article.RelatedStocks = userArticle.RelatedStocks != null
+                ? new List<string>(userArticle.RelatedStocks)
+                : new List<string>();
 
             // Store the article and user article in the preview caches
             previewArticles[articleId] = article;
             previewUserArticles[articleId] = userArticle;
 
-            // Also update the repository with related stocks for this article
-            try
+            if (article.RelatedStocks?.Count > 0)
             {
-                if (article.RelatedStocks != null && article.RelatedStocks.Count > 0)
+                try
                 {
-                    this.repository.AddRelatedStocksForArticle(articleId, article.RelatedStocks, null);
-                    System.Diagnostics.Debug.WriteLine($"StorePreviewArticle: Added {article.RelatedStocks.Count} related stocks to repository for article {articleId}");
+                    this.repository.AddRelatedStocksForArticle(articleId, article.RelatedStocks, null, null);
+                }
+                catch (NewsPersistenceException ex)
+                {
+                    throw new NewsPersistenceException(
+                        $"Failed to persist related stocks for preview article '{articleId}'.", ex);
                 }
             }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"StorePreviewArticle: Error adding related stocks to repository: {ex.Message}");
-            }
         }
+
 
         public UserArticle GetUserArticleForPreview(string articleId)
         {
@@ -411,31 +376,29 @@
 
         public List<string> GetRelatedStocksForArticle(string articleId)
         {
-            // Remove "preview:" prefix if present
-            string actualId = articleId.StartsWith("preview:") ? articleId.Substring(8) : articleId;
+            string actualId = articleId.StartsWith("preview:") ? articleId[8..] : articleId;
 
             // Check preview dictionary first
             if (previewUserArticles.TryGetValue(actualId, out var previewUserArticle) &&
                 previewUserArticle.RelatedStocks != null &&
                 previewUserArticle.RelatedStocks.Any())
             {
-                System.Diagnostics.Debug.WriteLine($"GetRelatedStocksForArticle: Found {previewUserArticle.RelatedStocks.Count} stocks in preview");
                 return previewUserArticle.RelatedStocks;
             }
 
-            // Then check repository
             try
             {
                 var stocks = this.repository.GetRelatedStocksForArticle(actualId);
                 System.Diagnostics.Debug.WriteLine($"GetRelatedStocksForArticle: Found {stocks.Count} stocks in repository");
                 return stocks;
             }
-            catch (Exception ex)
+            catch (NewsPersistenceException ex)
             {
-                System.Diagnostics.Debug.WriteLine($"GetRelatedStocksForArticle: Error: {ex.Message}");
-                return new List<string>();
+                throw new NewsPersistenceException(
+                    $"Failed to retrieve related stocks for article '{actualId}'.", ex);
             }
         }
+
 
         public void UpdateCachedArticles(List<NewsArticle> articles)
         {
@@ -452,4 +415,3 @@
         }
     }
 }
-

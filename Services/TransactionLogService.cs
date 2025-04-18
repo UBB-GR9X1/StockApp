@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using StockApp.Exceptions;
     using StockApp.Models;
     using StockApp.Repositories;
     using StockApp.Repositories.Exporters;
@@ -13,7 +14,7 @@
 
         public TransactionLogService(TransactionRepository transactionRepository)
         {
-            this.transactionRepository = transactionRepository;
+            this.transactionRepository = transactionRepository ?? throw new ArgumentNullException(nameof(transactionRepository));
         }
 
         public List<TransactionLogTransaction> GetFilteredTransactions(TransactionFilterCriteria criteria)
@@ -24,33 +25,47 @@
 
         public List<TransactionLogTransaction> SortTransactions(List<TransactionLogTransaction> transactions, string sortType = "Date", bool ascending = true)
         {
-            switch (sortType)
+            return sortType switch
             {
-                case "Date":
-                    return ascending
-                        ? [.. transactions.OrderBy(transaction => transaction.Date)]
-                        : [.. transactions.OrderByDescending(transaction => transaction.Date)];
-                case "Stock Name":
-                    return ascending
-                        ? [.. transactions.OrderBy(transaction => transaction.StockName)]
-                        : [.. transactions.OrderByDescending(transaction => transaction.StockName)];
-                case "Total Value":
-                    return ascending
-                        ? [.. transactions.OrderBy(transaction => transaction.TotalValue)]
-                        : [.. transactions.OrderByDescending(transaction => transaction.TotalValue)];
-                default:
-                    throw new Exception("Invalid sorting type!");
-            }
+                "Date" => ascending
+                    ? transactions.OrderBy(t => t.Date).ToList()
+                    : transactions.OrderByDescending(t => t.Date).ToList(),
+
+                "Stock Name" => ascending
+                    ? transactions.OrderBy(t => t.StockName).ToList()
+                    : transactions.OrderByDescending(t => t.StockName).ToList(),
+
+                "Total Value" => ascending
+                    ? transactions.OrderBy(t => t.TotalValue).ToList()
+                    : transactions.OrderByDescending(t => t.TotalValue).ToList(),
+
+                _ => throw new InvalidSortTypeException(sortType),
+            };
         }
 
         public void ExportTransactions(List<TransactionLogTransaction> transactions, string filePath, string format)
         {
+            if (transactions == null)
+            {
+                throw new ArgumentNullException(nameof(transactions));
+            }
+
+            if (string.IsNullOrWhiteSpace(filePath))
+            {
+                throw new ArgumentException("File path cannot be null or empty.", nameof(filePath));
+            }
+
+            if (string.IsNullOrWhiteSpace(format))
+            {
+                throw new ArgumentException("Export format is required.", nameof(format));
+            }
+
             ITransactionExporter exporter = format.ToLower() switch
             {
                 "csv" => new CSVTransactionExporter(),
                 "json" => new JSONTransactionExporter(),
                 "html" => new HTMLTransactionExporter(),
-                _ => throw new ArgumentException("Unsupported file format."),
+                _ => throw new ExportFormatNotSupportedException(format),
             };
 
             exporter.Export(transactions, filePath);

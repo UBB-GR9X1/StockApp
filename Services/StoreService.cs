@@ -1,12 +1,14 @@
 ﻿namespace StockApp.Services
 {
+    using System;
     using System.Threading.Tasks;
     using StockApp.Models;
     using StockApp.Repositories;
+    using StockApp.Exceptions;
 
     public class StoreService : IStoreService
     {
-        private readonly GemStoreRepository repository = new GemStoreRepository();
+        private readonly GemStoreRepository repository = new ();
 
         public string GetCnp()
         {
@@ -30,15 +32,15 @@
 
         public async Task<string> BuyGems(string userCNP, GemDeal deal, string selectedAccountId)
         {
-            if (this.IsGuest(userCNP))
+            if (IsGuest(cnp))
             {
-                return "Guests cannot buy gems.";
+                throw new GuestUserOperationException("Guests cannot buy gems.");
             }
 
             bool transactionSuccess = await this.ProcessBankTransaction(selectedAccountId, -deal.Price);
             if (!transactionSuccess)
             {
-                return "Transaction failed. Please check your bank account balance.";
+                throw new GemTransactionFailedException("Transaction failed. Please check your bank account balance.");
             }
 
             int currentBalance = this.GetUserGemBalance(userCNP);
@@ -49,22 +51,22 @@
 
         public async Task<string> SellGems(string cnp, int gemAmount, string selectedAccountId)
         {
-            if (this.IsGuest(cnp))
+            if (IsGuest(cnp))
             {
-                return "Guests cannot sell gems.";
+                throw new GuestUserOperationException("Guests cannot sell gems.");
             }
 
             int currentBalance = this.GetUserGemBalance(cnp);
             if (gemAmount > currentBalance)
             {
-                return "Not enough Gems.";
+                throw new InsufficientGemsException($"Not enough gems to sell. You have {currentBalance}, attempted to sell {gemAmount}.");
             }
 
             double moneyEarned = gemAmount / 100.0;
             bool transactionSuccess = await this.ProcessBankTransaction(selectedAccountId, moneyEarned);
             if (!transactionSuccess)
             {
-                return "Transaction failed. Unable to deposit funds.";
+                throw new GemTransactionFailedException("Transaction failed. Unable to deposit funds.");
             }
 
             this.UpdateUserGemBalance(cnp, currentBalance - gemAmount);

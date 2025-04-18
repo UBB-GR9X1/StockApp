@@ -4,7 +4,7 @@
     using StockApp.Models;
     using StockApp.Repositories;
 
-    public class ProfieService : IProfieService
+    public class ProfileService : IProfileService
     {
         private ProfileRepository profileRepo;
         private UserRepository userRepo;
