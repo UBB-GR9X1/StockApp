@@ -60,6 +60,7 @@
             }));
         }
 
+        public List<Alert> GetAllAlerts() => alerts;
         public Alert GetAlertById(int alertId)
         {
             return this.Alerts.FirstOrDefault(a => a.AlertId == alertId)
@@ -174,5 +175,8 @@
             });
         }
 
+        public List<TriggeredAlert> GetTriggeredAlerts() => TriggeredAlerts;
+
+        public void ClearTriggeredAlerts() => this.TriggeredAlerts.Clear();
     }
 }

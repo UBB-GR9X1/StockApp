@@ -1,15 +1,8 @@
 ﻿namespace StockApp.Models
 {
-    public class User(
-        string? cnp = null,
-        string? username = null,
-        string? description = null,
-        bool? isModerator = null,
-        string? image = null,
-        bool? isHidden = null,
-        int? gem_balance = null)
+    public class User
     {
-        public string CNP { get; set; } = cnp ?? string.Empty;
+        public string CNP { get; set; } = string.Empty;
 
         public string Username { get; set; } = username ?? string.Empty;
 
@@ -21,6 +14,23 @@
 
         public bool IsHidden { get; set; } = isHidden ?? false;
 
+        public User(
+            string? cnp = null,
+            string? username = null,
+            string? description = null,
+            bool? isModerator = null,
+            string? image = null,
+            bool? isHidden = null,
+            int? gem_balance = null)
+        {
+            CNP = cnp ?? string.Empty;
+            Username = username ?? string.Empty;
+            Description = description ?? string.Empty;
+            IsModerator = isModerator ?? false;
+            Image = image ?? string.Empty;
+            IsHidden = isHidden ?? false;
+            GemBalance = gem_balance ?? 0;
+        }
         public int GemBalance { get; set; } = gem_balance ?? 0;
     }
 }

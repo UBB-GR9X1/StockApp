@@ -9,11 +9,9 @@
 
         List<Alert> GetAllAlertsOn();
 
-        Alert CreateAlert(string stockName, string name, decimal upperBound, decimal lowerBound, bool toggleOnOff);
+        void CreateAlert(Alert alert);
 
         void RemoveAlert(int alertId);
-
-        void UpdateAlert(int alertId, string stockName, string name, decimal upperBound, decimal lowerBound, bool toggleOnOff);
 
         void UpdateAlert(Alert alert);
     }

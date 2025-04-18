@@ -1,9 +1,10 @@
 ﻿namespace StockApp.Models
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
-    public class NewsArticle
+    public class NewsArticle : INewsArticle
     {
         public NewsArticle() { }
 

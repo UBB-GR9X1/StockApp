@@ -30,5 +30,6 @@
 
         public void RemoveAlert(int alertId) => this.repository.DeleteAlert(alertId);
 
+        public void UpdateAlert(Alert alert) => repository.UpdateAlert(alert);
     }
 }

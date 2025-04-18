@@ -21,6 +21,8 @@
         /// </summary>
         public NewsRepository()
         {
+            this.Initialize();
+        }
 
         private void Initialize()
         {
