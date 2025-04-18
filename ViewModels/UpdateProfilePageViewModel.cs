@@ -8,11 +8,11 @@
     {
 
 
-        private ProfieService profileService;
+        private ProfileService profileService;
 
         public UpdateProfilePageViewModel()
         {
-            this.profileService = new ProfieService();
+            this.profileService = new ProfileService();
         }
 
         public string GetImage() => this.profileService.GetImage();

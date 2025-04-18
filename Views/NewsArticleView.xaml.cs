@@ -1,33 +1,22 @@
 namespace StockApp.Views
 {
     using System;
-    using System.Linq;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
     using Microsoft.UI.Xaml.Navigation;
+    using StockApp.Pages;
     using StockApp.Services;
     using StockApp.ViewModels;
-    using StockApp.Pages;
 
     public sealed partial class NewsArticleView : Page
     {
         public NewsDetailViewModel ViewModel { get; } = new();
 
+        private string selectedArticleId;
         public NewsArticleView()
         {
             this.InitializeComponent();
-            this.Loaded += OnLoaded;
         }
-
-        private void OnLoaded(object sender, RoutedEventArgs e)
-        {
-            if (ViewModel.Article == null)
-                throw new InvalidOperationException("Article is not initialized");
-
-            // Using null-conditional operator for safe access
-            ViewModel.HasRelatedStocks = ViewModel.Article.RelatedStocks?.Any() ?? false;
-        }
-
         private void RelatedStockClick(object sender, RoutedEventArgs e)
         {
             if (sender is not Button button)

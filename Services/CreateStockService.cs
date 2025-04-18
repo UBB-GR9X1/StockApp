@@ -2,6 +2,8 @@
 {
     using System;
     using System.Text.RegularExpressions;
+    using Microsoft.Data.SqlClient;
+    using StockApp.Exceptions;
     using StockApp.Models;
     using StockApp.Repositories;
 
@@ -23,36 +25,41 @@
 
         public string AddStock(string stockName, string stockSymbol, string authorCNP)
         {
+            if (string.IsNullOrWhiteSpace(stockName) ||
+                string.IsNullOrWhiteSpace(stockSymbol) ||
+                string.IsNullOrWhiteSpace(authorCNP))
+            {
+                throw new ArgumentException("All stock fields (name, symbol, author CNP) are required.");
+            }
+
+            if (!Regex.IsMatch(stockSymbol, @"^[A-Z]{1,5}$"))
+            {
+                throw new ArgumentException("Stock symbol must consist of 1 to 5 uppercase letters.");
+            }
+
+            if (!Regex.IsMatch(authorCNP, @"^\d{13}$"))
+            {
+                throw new ArgumentException("Author CNP must be exactly 13 digits.");
+            }
+
             try
             {
-                if (string.IsNullOrWhiteSpace(stockName) ||
-                    string.IsNullOrWhiteSpace(stockSymbol) ||
-                    string.IsNullOrWhiteSpace(authorCNP))
-                {
-                    return "All fields are required!";
-                }
-
-                if (!Regex.IsMatch(stockSymbol, @"^[A-Z]{1,5}$"))
-                {
-                    return "Stock symbol must be 1-5 uppercase letters!";
-                }
-
-                if (!Regex.IsMatch(authorCNP, @"^\d{13}$"))
-                {
-                    return "Invalid CNP! It must be exactly 13 digits.";
-                }
-
                 var stock = new BaseStock(stockName, stockSymbol, authorCNP);
-
                 int initialPrice = this.random.Next(50, 501);
-
                 this.stocksRepository.AddStock(stock, initialPrice);
-
                 return "Stock added successfully with initial value!";
             }
-            catch (Exception ex)
+            catch (DuplicateStockException duplicateStockEx)
             {
-                return $"Failed to add stock: {ex.Message}";
+                throw;
+            }
+            catch (InvalidOperationException operationFailure)
+            {
+                throw new StockPersistenceException("Failed to add stock due to a persistence operation error.", operationFailure);
+            }
+            catch (SqlException sqlIssue)
+            {
+                throw new StockPersistenceException("Database error occurred while adding the stock.", sqlIssue);
             }
         }
     }
