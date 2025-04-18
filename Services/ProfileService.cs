@@ -4,14 +4,14 @@
     using StockApp.Models;
     using StockApp.Repositories;
 
-    public class ProfieServices : IProfileService
+    public class ProfileService : IProfileService
     {
         ProfileRepository _repo;
 
         private User _user;
         private List<string> userStocks;
 
-        public ProfileServices(string authorCnp)
+        public ProfileService(string authorCnp)
         {
             _repo = new ProfileRepository(authorCnp);
 
