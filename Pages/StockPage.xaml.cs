@@ -1,6 +1,7 @@
 namespace StockApp.Pages
 {
     using System;
+    using System.Threading.Tasks;
     using System.Windows.Input;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
@@ -17,9 +18,7 @@ namespace StockApp.Pages
     public sealed partial class StockPage : Page
     {
         private StockPageViewModel? _viewModel;
-
         ICommand command { get; }
-
 
         public StockPage()
         {
@@ -32,11 +31,12 @@ namespace StockApp.Pages
             NavigationService.Instance.GoBack();
         }
 
-
         public void AuthorButtonClick()
         {
             if (_viewModel == null)
+            {
                 throw new InvalidOperationException("ViewModel is not initialized");
+            }
 
             NavigationService.Instance.Navigate(typeof(ProfilePage), _viewModel.GetStockAuthor());
         }
@@ -50,9 +50,11 @@ namespace StockApp.Pages
             {
                 _viewModel = new StockPageViewModel(stockName, PriceLabel, IncreaseLabel, OwnedStocks, StockChart);
                 this.DataContext = _viewModel;
-                return;
             }
-            throw new InvalidOperationException("Parameter is not of type Stock");
+            else
+            {
+                throw new InvalidOperationException("Parameter is not of type Stock");
+            }
         }
 
         public void FavoriteButtonClick(object sender, RoutedEventArgs e)
@@ -65,41 +67,40 @@ namespace StockApp.Pages
             NavigationService.Instance.Navigate(typeof(AlertsView));
         }
 
-        public void BuyButtonClick(object sender, RoutedEventArgs e)
+        public async void BuyButtonClick(object sender, RoutedEventArgs e)
         {
             int quantity = (int)QuantityInput.Value;
-            bool r = _viewModel.BuyStock(quantity);
+            bool success = _viewModel?.BuyStock(quantity) ?? false;
             QuantityInput.Value = 1;
-            if (!r)
+
+            if (!success)
             {
-                //var dialog = new ContentDialog
-                //{
-                //    Title = "Not enough gems",
-                //    Content = "You don't have enough gems to buy this stock.",
-                //    CloseButtonText = "OK"
-                //};
-                //dialog.ShowAsync();
-                Console.WriteLine("Not enough Gems!");
+                await ShowDialogAsync("Not enough gems", "You don't have enough gems to buy this stock.");
             }
         }
 
-        public void SellButtonClick(object sender, RoutedEventArgs e)
+        public async void SellButtonClick(object sender, RoutedEventArgs e)
         {
             int quantity = (int)QuantityInput.Value;
-            bool r = _viewModel.SellStock(quantity);
+            bool success = _viewModel?.SellStock(quantity) ?? false;
             QuantityInput.Value = 1;
-            if (!r)
-            {
-                //var dialog = new ContentDialog
-                //{
-                //    Title = "Not enough stocks",
-                //    Content = "You don't have enough stocks to sell.",
-                //    CloseButtonText = "OK"
-                //};
 
-                //dialog.ShowAsync();
-                Console.WriteLine("Not enough Stocks!");
+            if (!success)
+            {
+                await ShowDialogAsync("Not enough stocks", "You don't have enough stocks to sell.");
             }
+        }
+
+        private async Task ShowDialogAsync(string title, string content)
+        {
+            var dialog = new ContentDialog
+            {
+                Title = title,
+                Content = content,
+                CloseButtonText = "OK",
+                XamlRoot = this.XamlRoot
+            };
+            await dialog.ShowAsync();
         }
     }
 }

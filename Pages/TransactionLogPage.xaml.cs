@@ -61,8 +61,7 @@
             }
             else
             {
-                // Fallback logic if Window.Current is null (e.g., error logging)
-                System.Diagnostics.Debug.WriteLine("Window.Current is null. Cannot show the message box.");
+                throw new InvalidOperationException("Window.Current is null. Cannot show the message box.");
             }
         }
 
@@ -71,8 +70,11 @@
         {
             if (Window.Current != null)
             {
-                // Now you can safely access Window.Current
                 System.Diagnostics.Debug.WriteLine("Page is now activated and Window.Current is available.");
+            }
+            else
+            {
+                throw new InvalidOperationException("Window.Current is null during page activation.");
             }
         }
 

@@ -45,7 +45,9 @@ namespace StockApp.Pages
         private async void UpdateUserProfile(object sender, RoutedEventArgs e)
         {
             if (viewModelUpdate == null)
+            {
                 throw new InvalidOperationException("ViewModel is not initialized");
+            }
 
             bool DescriptionEmpty = MyDescriptionCheckBox?.IsChecked == true;
             bool newHidden = MyCheckBox?.IsChecked == true;

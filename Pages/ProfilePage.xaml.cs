@@ -49,7 +49,6 @@ namespace StockApp.Pages
         {
             UsernameTextBlock.Text = viewModel.GetUsername();
             ProfileDescription.Text = viewModel.GetDescription();
-
             ProfileImage.Source = viewModel.ImageSource;
         }
 
@@ -60,8 +59,14 @@ namespace StockApp.Pages
 
         private void GetSelectedStock(object sender, RoutedEventArgs e)
         {
-            string selectedStock = (string)StocksListView.SelectedItem;
-            StockName.Text = selectedStock;
+            if (StocksListView.SelectedItem is string selectedStock)
+            {
+                StockName.Text = selectedStock;
+            }
+            else
+            {
+                StockName.Text = "No stock selected";
+            }
         }
 
         private void HideProfile()
@@ -90,14 +95,11 @@ namespace StockApp.Pages
             {
                 NavigationService.Initialize(this.Frame);
                 NavigationService.Instance.Navigate(typeof(StockPage), selectedStock);
-                return;
             }
-
-            throw new InvalidOperationException("No stock selected");
+            else
+            {
+                throw new InvalidOperationException("No stock selected");
+            }
         }
-
-
-
-
     }
 }
