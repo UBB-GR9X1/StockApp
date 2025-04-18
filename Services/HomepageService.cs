@@ -7,19 +7,21 @@
 
     class HomepageService : IHomepageService
     {
-        private readonly HomepageStocksRepository _repo;
+        private readonly IHomepageStocksRepository _repo;
         public ObservableCollection<HomepageStock> FavoriteStocks { get; private set; }
         public ObservableCollection<HomepageStock> AllStocks { get; private set; }
         public ObservableCollection<HomepageStock> FilteredAllStocks { get; private set; }
         public ObservableCollection<HomepageStock> FilteredFavoriteStocks { get; private set; }
 
-        public HomepageService()
+        public HomepageService(IHomepageStocksRepository repo)
         {
-            _repo = new HomepageStocksRepository();
+            _repo = repo;
             var stocks = _repo.LoadStocks();
             AllStocks = new ObservableCollection<HomepageStock>(stocks);
-            FavoriteStocks = new ObservableCollection<HomepageStock>(stocks.Where(stock => stock.IsFavorite).ToList());
+            FavoriteStocks = new ObservableCollection<HomepageStock>(stocks.Where(s => s.IsFavorite).ToList());
         }
+
+        public HomepageService() : this(new HomepageStocksRepository()) { }
 
         public ObservableCollection<HomepageStock> GetFavoriteStocks()
         {
