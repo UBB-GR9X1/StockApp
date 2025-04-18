@@ -4,6 +4,7 @@
     using System.Data;
     using System.IO;
     using Microsoft.Data.SqlClient;
+    using StockApp.Exceptions;
 
     internal class DatabaseHelper
     {
@@ -24,34 +25,27 @@
         {
             if (string.IsNullOrWhiteSpace(App.ConnectionString))
             {
-                throw new InvalidOperationException("Connection string is not initialized");
+                throw new InvalidOperationException("Connection string is not initialized.");
             }
-
-            bool databaseExists = false;
-            bool tablesExist = false;
 
             try
             {
-                tablesExist = CheckIfTablesExist();
-                databaseExists = true;
+                bool tablesExist = CheckIfTablesExist();
+                if (!tablesExist)
+                {
+                    CreateDatabaseTables();
+                }
+            }
+            catch (SqlScriptMissingException ex)
+            {
+                throw new DatabaseInitializationException("Missing required SQL script during initialization.", ex);
             }
             catch (SqlException ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error checking database existence: {ex.Message}");
-                throw;
-            }
-
-            if (!databaseExists)
-            {
-                ResetDatabase();
-                tablesExist = false; // new database, tables don't exist
-            }
-
-            if (!tablesExist)
-            {
-                CreateDatabaseTables();
+                throw new DatabaseInitializationException("SQL error during database initialization.", ex);
             }
         }
+
 
         public static void CloseConnection(SqlConnection connection)
         {
@@ -72,10 +66,10 @@
             }
             catch (SqlException ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error opening SQL Server connection: {ex.Message}");
-                throw;
+                throw new DatabaseInitializationException("Failed to open SQL connection.", ex);
             }
         }
+
 
         private static bool CheckIfTablesExist()
         {
@@ -91,23 +85,21 @@
             }
             catch (FileNotFoundException ex)
             {
-                System.Diagnostics.Debug.WriteLine($"SQL script file not found: {ex.Message}");
-                throw;
+                throw new SqlScriptMissingException($"SQL script file '{CheckTablesExistScriptPath}' was not found.", ex);
             }
             catch (SqlException ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error checking table existence: {ex.Message}");
-                throw;
+                throw new DatabaseInitializationException("An error occurred while checking if database tables exist.", ex);
             }
         }
 
         private static void ResetDatabase()
         {
             const string masterConnection = @"
-                Data Source=VM;
-                Initial Catalog=StockApp_DB;
-                Integrated Security=True;
-                Trust Server Certificate=True";
+        Data Source=VM;
+        Initial Catalog=StockApp_DB;
+        Integrated Security=True;
+        Trust Server Certificate=True";
 
             try
             {
@@ -121,15 +113,14 @@
             }
             catch (FileNotFoundException ex)
             {
-                System.Diagnostics.Debug.WriteLine($"SQL script file not found: {ex.Message}");
-                throw;
+                throw new SqlScriptMissingException(ResetDatabaseScriptPath, ex);
             }
             catch (SqlException ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error resetting database: {ex.Message}");
-                throw;
+                throw new DatabaseInitializationException("Failed to reset the database.", ex);
             }
         }
+
 
         private static void CreateDatabaseTables()
         {
@@ -145,27 +136,26 @@
             }
             catch (FileNotFoundException ex)
             {
-                System.Diagnostics.Debug.WriteLine($"SQL script file not found: {ex.Message}");
-                throw;
+                throw new SqlScriptMissingException(CreateTablesScriptPath, ex);
             }
             catch (SqlException ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error creating tables: {ex.Message}");
-                throw;
+                throw new DatabaseInitializationException("Failed to create database tables.", ex);
             }
         }
 
+
         private static string LoadSqlScript(string relativePath)
         {
-            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            string fullPath = Path.Combine(baseDirectory, relativePath);
+            string fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, relativePath);
 
             if (!File.Exists(fullPath))
             {
-                throw new FileNotFoundException($"SQL script file not found: {fullPath}");
+                throw new SqlScriptMissingException(fullPath);
             }
 
             return File.ReadAllText(fullPath);
         }
+
     }
 }
