@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.Data.SqlClient;
-using StockApp.Database;
-using StockApp.Models;
-
-namespace StockApp.Repository
+﻿namespace StockApp.Repository
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using Microsoft.Data.SqlClient;
+    using StockApp.Database;
+    using StockApp.Models;
+
     public class UserRepository
     {
         // Create a new user

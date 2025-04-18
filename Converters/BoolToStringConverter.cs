@@ -20,7 +20,7 @@
 
         public override object ConvertBack(object value, Type targetType, object parameter, string language)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException("ConvertBack is not implemented in BoolToStringConverter.");
         }
     }
 }

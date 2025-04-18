@@ -9,7 +9,7 @@
         {
             if (value is not bool booleanValue)
             {
-                return Visibility.Collapsed;
+                throw new InvalidCastException("Expected a boolean value for BoolToVisibilityConverter.");
             }
 
             if (ShouldInvert(parameter))
@@ -26,7 +26,7 @@
         {
             if (value is not Visibility visibilityValue)
             {
-                return false;
+                throw new InvalidCastException("Expected a Visibility value for BoolToVisibilityConverter.");
             }
 
             return ShouldInvert(parameter)
