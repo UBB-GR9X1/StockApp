@@ -9,7 +9,7 @@ namespace Alerts
 
     public sealed partial class AlertWindow : Page
     {
-        private readonly AlertViewModel alertViewModel = new ();
+        public AlertViewModel AlertViewModel { get; } = new ();
 
         public AlertWindow()
         {
@@ -17,11 +17,11 @@ namespace Alerts
             this.LoadAlerts();
         }
 
-        private void LoadAlerts() => this.AlertsListView.ItemsSource = new ObservableCollection<Alert>(this.alertViewModel.Alerts);
+        private void LoadAlerts() => this.AlertsListView.ItemsSource = new ObservableCollection<Alert>(this.AlertViewModel.Alerts);
 
         private void PlusButton_Click(object sender, RoutedEventArgs e)
         {
-            Alert newAlert = this.alertViewModel.CreateAlert("Tesla", "New Alert", 100, 0, true);
+            Alert newAlert = this.AlertViewModel.CreateAlert("Tesla", "New Alert", 100, 0, true);
             this.AlertsListView.SelectedItem = newAlert;
         }
 
@@ -29,7 +29,7 @@ namespace Alerts
         {
             if (this.AlertsListView.SelectedItem is Alert selectedAlert)
             {
-                this.alertViewModel.DeleteAlert(selectedAlert.AlertId);
+                this.AlertViewModel.DeleteAlert(selectedAlert.AlertId);
 
                 var dialog = new ContentDialog
                 {
@@ -59,14 +59,14 @@ namespace Alerts
         {
             try
             {
-                foreach (var alert in this.alertViewModel.Alerts)
+                foreach (var alert in this.AlertViewModel.Alerts)
                 {
                     if (alert.LowerBound > alert.UpperBound)
                     {
                         throw new Exception("Lower bound cannot be greater than upper bound");
                     }
 
-                    this.alertViewModel.UpdateAlert(alert);
+                    this.AlertViewModel.UpdateAlert(alert);
                 }
 
                 var dialog = new ContentDialog
