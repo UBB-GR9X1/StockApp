@@ -5,17 +5,18 @@ namespace StockApp.Views
 
     public sealed partial class ArticleCreationView : Page
     {
-        public ArticleCreationViewModel ViewModel { get; } = new();
-
         public ArticleCreationView()
         {
             this.InitializeComponent();
-            this.Loaded += OnLoaded;
+            this.DataContext = this.ViewModel;
+            this.Loaded += this.OnLoaded;
         }
+
+        public ArticleCreationViewModel ViewModel { get; } = new ();
 
         private void OnLoaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
-            ViewModel.Initialize();
+            this.ViewModel.Initialize();
         }
     }
 }
