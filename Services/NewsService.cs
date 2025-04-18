@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using Microsoft.Data.SqlClient;
     using StockApp.Exceptions;
     using StockApp.Models;
     using StockApp.Repositories;
@@ -15,7 +14,7 @@
         private static readonly Dictionary<string, NewsArticle> previewArticles = new();
         private static readonly Dictionary<string, UserArticle> previewUserArticles = new();
         private readonly List<NewsArticle> cachedArticles = new();
-        private static readonly List<UserArticle> userArticles = new();
+        private static List<UserArticle> userArticles = new();
         private static bool isInitialized = false;
         private NewsRepository repository = new NewsRepository();
         private BaseStocksRepository stocksRepository;

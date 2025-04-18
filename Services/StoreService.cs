@@ -1,14 +1,13 @@
 ﻿namespace StockApp.Services
 {
-    using System;
     using System.Threading.Tasks;
+    using StockApp.Exceptions;
     using StockApp.Models;
     using StockApp.Repositories;
-    using StockApp.Exceptions;
 
     public class StoreService : IStoreService
     {
-        private readonly GemStoreRepository repository = new ();
+        private readonly GemStoreRepository repository = new();
 
         public string GetCnp()
         {
@@ -32,7 +31,7 @@
 
         public async Task<string> BuyGems(string userCNP, GemDeal deal, string selectedAccountId)
         {
-            if (IsGuest(cnp))
+            if (IsGuest(userCNP))
             {
                 throw new GuestUserOperationException("Guests cannot buy gems.");
             }
