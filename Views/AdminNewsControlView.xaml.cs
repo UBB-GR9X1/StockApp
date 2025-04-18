@@ -6,6 +6,8 @@ namespace StockApp.Views
 
     public sealed partial class AdminNewsControlView : Page
     {
+        public AdminNewsViewModel ViewModel { get; } = new ();
+
         public AdminNewsControlView()
         {
             this.InitializeComponent();
@@ -13,8 +15,6 @@ namespace StockApp.Views
 
             this.ArticlesList.DataContext = this.ViewModel;
         }
-
-        public AdminNewsViewModel ViewModel { get; } = new ();
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
