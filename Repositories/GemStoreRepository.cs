@@ -7,22 +7,26 @@
     internal class GemStoreRepository : IGemStoreRepository
     {
         private readonly IDbExecutor dbConnection;
+        private readonly string cnp;
 
         public GemStoreRepository()
-           : this(new SqlDbExecutor(DatabaseHelper.GetConnection()))
+            : this(new SqlDbExecutor(DatabaseHelper.GetConnection()))
         {
+            var userRepo = new UserRepository();
+            this.cnp = userRepo.CurrentUserCNP;
         }
 
         internal GemStoreRepository(IDbExecutor executor)
         {
             dbConnection = executor ?? throw new ArgumentNullException(nameof(executor));
+
+            var userRepo = new UserRepository();
+            this.cnp = userRepo.CurrentUserCNP;
         }
 
         public string GetCnp()
         {
-            string cnpQuery = "SELECT CNP FROM HARDCODED_CNPS";
-            var result = dbConnection.ExecuteScalar(cnpQuery, cmd => { });
-            return result?.ToString() ?? string.Empty;
+            return new UserRepository().CurrentUserCNP;
         }
 
         public int GetUserGemBalance(string cnp)

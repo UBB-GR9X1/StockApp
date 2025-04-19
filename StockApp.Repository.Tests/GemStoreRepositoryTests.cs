@@ -21,17 +21,17 @@ namespace StockApp.Repository.Tests
         }
 
         [TestMethod]
-        public void GetCnp_ReturnsValueFromExecutor()
+        public void GetCnp_ReturnsCurrentUserCnpFromUserRepository()
         {
-            _dbMock
-                .Setup(d => d.ExecuteScalar(
-                    "SELECT CNP FROM HARDCODED_CNPS",
-                    It.IsAny<Action<SqlCommand>>()))
-                .Returns("ABC123");
+            // Arrange
+            var userRepo = new UserRepository();
+            var expectedCnp = userRepo.CurrentUserCNP;
 
-            var cnp = _repo.GetCnp();
+            // Act
+            var actualCnp = _repo.GetCnp();
 
-            Assert.AreEqual("ABC123", cnp);
+            // Assert
+            Assert.AreEqual(expectedCnp, actualCnp);
         }
 
         [TestMethod]

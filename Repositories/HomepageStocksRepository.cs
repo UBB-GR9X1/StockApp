@@ -31,23 +31,8 @@ namespace StockApp.Repositories
 
         public HomepageStocksRepository()
         {
-            // TODO: don't just load a mock user
-            string query = "SELECT TOP 1 CNP FROM HARDCODED_CNPS ORDER BY CNP DESC";
-
-            using (var command = new SqlCommand(query, DatabaseHelper.GetConnection()))
-            {
-                command.ExecuteNonQuery();
-                using (var reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        this.UserCNP = reader["CNP"].ToString() ?? throw new Exception("No CNP found in HARDCODED_CNPS table.");
-                        return;
-                    }
-                }
-            }
-
-            throw new InvalidOperationException("No hardcoded CNP found in the database");
+            var userRepository = new UserRepository();
+            this.UserCNP = userRepository.CurrentUserCNP;
         }
 
         public List<int> GetStockHistory(string stockName)
@@ -67,9 +52,7 @@ namespace StockApp.Repositories
 
         public string GetUserCnp()
         {
-            const string query = "SELECT TOP 1 CNP FROM HARDCODED_CNPS ORDER BY CNP DESC";
-            var cnps = this.ExecuteReader(query, null, reader => reader["CNP"]?.ToString());
-            return cnps.FirstOrDefault() ?? throw new Exception("No CNP found in HARDCODED_CNPS table.");
+            return new UserRepository().CurrentUserCNP;
         }
 
         public List<HomepageStock> LoadStocks()

@@ -4,12 +4,21 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using Microsoft.Data.SqlClient;
+    using Microsoft.Extensions.Configuration;
     using StockApp.Database;
     using StockApp.Models;
 
     public class UserRepository : IUserRepository
     {
-        public string CurrentUserCNP { get; set; } = "1234567890124";
+        public string CurrentUserCNP { get; set; }
+
+        public UserRepository(string? cnp = null)
+        {
+            this.CurrentUserCNP = !string.IsNullOrWhiteSpace(cnp)
+                ? cnp
+                : App.Configuration["DefaultUserCNP"]
+                    ?? throw new InvalidOperationException("DefaultUserCNP is not set in appsettings.json");
+        }
 
         // Create a new user
         public async Task CreateUserAsync(User user)

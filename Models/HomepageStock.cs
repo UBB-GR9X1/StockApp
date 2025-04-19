@@ -1,5 +1,6 @@
 ﻿namespace StockApp.Models
 {
+    using System.Windows.Input;
     using Microsoft.UI;
     using Microsoft.UI.Xaml.Media;
 

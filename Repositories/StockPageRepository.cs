@@ -29,8 +29,11 @@
         /// </summary>
         public StockPageRepository()
         {
-            connection = DatabaseHelper.GetConnection();
-            cnp = FetchCNP();
+            this.connection = DatabaseHelper.GetConnection();
+            
+            var userRepository = new UserRepository();
+            this.cnp = userRepository.CurrentUserCNP;
+
             InitializeUser();
         }
 
@@ -151,18 +154,6 @@
                 command.Parameters.AddWithValue("@name", stockName);
                 command.ExecuteNonQuery();
             }
-        }
-
-        private string FetchCNP()
-        {
-            using var command = new SqlCommand("SELECT TOP 1 CNP FROM HARDCODED_CNPS", this.connection);
-            using var reader = command.ExecuteReader();
-            if (reader.Read())
-            {
-                return reader["CNP"].ToString();
-            }
-
-            throw new InvalidOperationException("No CNP found in HARDCODED_CNPS.");
         }
 
         private void InitializeUser()

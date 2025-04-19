@@ -67,6 +67,8 @@ namespace StockApp
         // if you find it pls fix it (if it's in the news stuff cuz i fucked something up tell me and i'll fix it)
         private void OnUnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
         {
+            e.Handled = true;
+
             System.Diagnostics.Debug.WriteLine($"Unhandled exception: {e.Exception.Message}");
             System.Diagnostics.Debug.WriteLine(e.Exception.StackTrace);
         }
