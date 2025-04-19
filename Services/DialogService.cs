@@ -6,6 +6,12 @@
 
     internal class DialogService : IDialogService
     {
+        /// <summary>
+        /// Shows a message dialog with the specified title and content.
+        /// </summary>
+        /// <param name="title"></param>
+        /// <param name="content"></param>
+        /// <returns></returns>
         public async Task ShowMessageAsync(string title, string content)
         {
             var dialog = new ContentDialog
