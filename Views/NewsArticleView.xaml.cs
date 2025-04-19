@@ -10,13 +10,30 @@ namespace StockApp.Views
 
     public sealed partial class NewsArticleView : Page
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NewsArticleView"/> class.
+        /// </summary>
         public NewsDetailViewModel ViewModel { get; } = new();
 
+        /// <summary>
+        /// The ID of the selected article.
+        /// </summary>
         private string selectedArticleId;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NewsArticleView"/> class.
+        /// </summary>
         public NewsArticleView()
         {
             this.InitializeComponent();
         }
+
+        /// <summary>
+        /// Handles the click event for the related stock button.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// <exception cref="ArgumentException"></exception>
         private void RelatedStockClick(object sender, RoutedEventArgs e)
         {
             if (sender is not Button button)
