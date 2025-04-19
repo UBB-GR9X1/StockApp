@@ -268,7 +268,9 @@ namespace StockApp.ViewModels
         private async Task ApproveArticleAsync()
         {
             if (!this.isPreviewMode || string.IsNullOrEmpty(this.previewId))
+            {
                 return;
+            }
 
             this.IsLoading = true;
 
@@ -317,7 +319,9 @@ namespace StockApp.ViewModels
         private async Task RejectArticleAsync()
         {
             if (!this.isPreviewMode || string.IsNullOrEmpty(this.previewId))
+            {
                 return;
+            }
 
             this.IsLoading = true;
 
@@ -364,7 +368,9 @@ namespace StockApp.ViewModels
         private async Task DeleteArticleAsync()
         {
             if (!this.isPreviewMode || string.IsNullOrEmpty(this.previewId))
+            {
                 return;
+            }
 
             try
             {
@@ -418,7 +424,9 @@ namespace StockApp.ViewModels
         protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
         {
             if (Equals(storage, value))
+            {
                 return false;
+            }
 
             storage = value;
             this.OnPropertyChanged(propertyName);

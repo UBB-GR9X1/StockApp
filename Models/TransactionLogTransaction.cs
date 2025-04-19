@@ -69,27 +69,39 @@
         {
             // Validate that the stock symbol is provided
             if (string.IsNullOrWhiteSpace(stockSymbol))
+            {
                 throw new ArgumentException("StockSymbol required");
+            }
 
             // Validate that the stock name is provided
             if (string.IsNullOrWhiteSpace(stockName))
+            {
                 throw new ArgumentException("StockName required");
+            }
 
             // Validate that the transaction type is either BUY or SELL
             if (type is not ("BUY" or "SELL"))
+            {
                 throw new ArgumentException("Type must be BUY or SELL");
+            }
 
             // Validate that the amount is positive
             if (amount <= 0)
+            {
                 throw new ArgumentException("Amount > 0");
+            }
 
             // Validate that the price per stock is positive
             if (pricePerStock <= 0)
+            {
                 throw new ArgumentException("PricePerStock > 0");
+            }
 
             // Validate that the author identifier is provided
             if (string.IsNullOrWhiteSpace(author))
+            {
                 throw new ArgumentException("Author required");
+            }
 
             this.StockSymbol = stockSymbol;
             this.StockName = stockName;

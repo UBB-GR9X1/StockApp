@@ -291,7 +291,9 @@
         public void LoadTransactions()
         {
             if (this.service == null)
+            {
                 throw new InvalidOperationException("Transaction service is not initialized");
+            }
 
             // Add null checks here for all ComboBoxItem properties to prevent null reference
             string transactionType = this.selectedTransactionType?.ToString() ?? "ALL";

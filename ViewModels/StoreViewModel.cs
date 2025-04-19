@@ -65,7 +65,9 @@
         public bool IsGuest()
         {
             if (this.testMode)
+            {
                 return false;
+            }
 
             bool guest = this.storeService.IsGuest(this.currentUserCnp);
             return guest;
@@ -131,14 +133,19 @@
         public async Task<string> BuyGemsAsync(GemDeal deal, string selectedBankAccount)
         {
             if (string.IsNullOrEmpty(selectedBankAccount))
+            {
                 return "No bank account selected.";
+            }
 
             if (this.testMode)
             {
                 // Inline: simulate purchase in test mode
                 this.UserGems += deal.GemAmount;
                 if (deal.IsSpecial)
+                {
                     this.AvailableDeals.Remove(deal);
+                }
+
                 this.OnPropertyChanged(nameof(this.UserGems));
                 this.OnPropertyChanged(nameof(this.AvailableDeals));
                 return $"(TEST) Bought {deal.GemAmount} gems.";
@@ -149,7 +156,10 @@
             {
                 this.UserGems += deal.GemAmount;
                 if (deal.IsSpecial)
+                {
                     this.AvailableDeals.Remove(deal);
+                }
+
                 this.OnPropertyChanged(nameof(this.UserGems));
                 this.OnPropertyChanged(nameof(this.AvailableDeals));
             }
@@ -165,13 +175,19 @@
         public async Task<string> SellGemsAsync(int amount, string selectedBankAccount)
         {
             if (string.IsNullOrEmpty(selectedBankAccount))
+            {
                 return "No bank account selected.";
+            }
 
             if (amount <= 0)
+            {
                 return "Invalid amount.";
+            }
 
             if (amount > this.UserGems)
+            {
                 return "Not enough Gems.";
+            }
 
             if (this.testMode)
             {

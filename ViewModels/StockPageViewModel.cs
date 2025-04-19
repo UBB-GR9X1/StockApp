@@ -138,7 +138,11 @@
             get => this.isFavorite;
             set
             {
-                if (this.isFavorite == value) return;
+                if (this.isFavorite == value)
+                {
+                    return;
+                }
+
                 this.isFavorite = value;
                 this.stockPageService.ToggleFavorite(this.isFavorite);
                 if (this.isFavorite)

@@ -37,10 +37,14 @@ namespace StockApp.Views
         private void RelatedStockClick(object sender, RoutedEventArgs e)
         {
             if (sender is not Button button)
+            {
                 throw new ArgumentException("Sender is not a Button", nameof(sender));
+            }
 
             if (button.Content is not string stockName)
+            {
                 throw new ArgumentException("Button content is not a valid stock name", nameof(sender));
+            }
 
             NavigationService.Instance.Navigate(typeof(StockPage), stockName);
         }
@@ -50,7 +54,9 @@ namespace StockApp.Views
             base.OnNavigatedTo(e);
 
             if (e.Parameter is not string articleId)
+            {
                 throw new ArgumentException("Navigation parameter is not a valid article ID", nameof(e));
+            }
 
             this.ViewModel.LoadArticle(articleId);
         }

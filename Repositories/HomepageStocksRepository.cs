@@ -68,7 +68,9 @@ namespace StockApp.Repositories
         public bool IsGuestUser(string userCNP)
         {
             if (userCNP.IsNullOrEmpty())
+            {
                 throw new ArgumentNullException(nameof(userCNP), "CNP cannot be null or empty.");
+            }
 
             const string query = "SELECT COUNT(*) FROM [USER] WHERE CNP = @UserCNP";
             int count = this.ExecuteScalar<int>(query,

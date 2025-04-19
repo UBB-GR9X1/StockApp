@@ -217,7 +217,9 @@
         private async Task PreviewArticleAsync()
         {
             if (!this.ValidateForm())
+            {
                 return;
+            }
 
             try
             {
@@ -278,7 +280,9 @@
         private async Task SubmitArticleAsync()
         {
             if (!this.ValidateForm())
+            {
                 return;
+            }
 
             this.IsLoading = true;
             this.ErrorMessage = string.Empty;
@@ -379,10 +383,14 @@
         private async Task<bool> ValidateStocksAsync(List<string> enteredStocks)
         {
             if (enteredStocks == null)
+            {
                 throw new ArgumentNullException(nameof(enteredStocks));
+            }
 
             if (enteredStocks.Count == 0)
+            {
                 return true;
+            }
 
             var allStocks = this.stocksRepository.GetAllStocks()
                 ?? throw new InvalidOperationException("Stocks repository returned null");
@@ -392,7 +400,9 @@
             foreach (var stock in enteredStocks)
             {
                 if (string.IsNullOrWhiteSpace(stock))
+                {
                     throw new ArgumentException("Stock name cannot be null or whitespace.", nameof(enteredStocks));
+                }
 
                 bool stockExists = allStocks.Any(s =>
                     s.Name.Equals(stock, StringComparison.OrdinalIgnoreCase) ||
@@ -446,7 +456,9 @@
         {
             // Split the comma-separated input into a cleaned list
             if (string.IsNullOrWhiteSpace(this.RelatedStocksText))
+            {
                 return new List<string>();
+            }
 
             return this.RelatedStocksText
                 .Split(',')

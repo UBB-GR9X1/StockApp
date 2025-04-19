@@ -147,7 +147,10 @@ namespace StockApp.ViewModels
         /// </summary>
         private void ValidateInputs()
         {
-            if (this.suppressValidation) return;
+            if (this.suppressValidation)
+            {
+                return;
+            }
 
             this.Message = string.Empty;
             this.IsInputValid = true;
@@ -196,7 +199,10 @@ namespace StockApp.ViewModels
 
         private void CreateStock(object obj)
         {
-            if (!this.CanCreateStock(null)) return;
+            if (!this.CanCreateStock(null))
+            {
+                return;
+            }
 
             this.Message = this.stockService.AddStock(this.StockName, this.StockSymbol, this.AuthorCnp);
 
@@ -219,7 +225,10 @@ namespace StockApp.ViewModels
             // This method should check if the user is an admin.
             // For now, let's assume the user is an admin.
             if (this.stockService.CheckIfUserIsGuest())
+            {
                 this.Message = "You are a guest user and cannot create stocks!";
+            }
+
             return !this.stockService.CheckIfUserIsGuest();
         }
 

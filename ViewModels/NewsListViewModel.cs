@@ -271,7 +271,9 @@
         private async Task RefreshArticlesAsync()
         {
             if (this.IsRefreshing)
+            {
                 return;
+            }
 
             this.IsRefreshing = true;
             this.IsEmptyState = false;
