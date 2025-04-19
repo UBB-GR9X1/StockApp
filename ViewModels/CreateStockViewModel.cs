@@ -139,6 +139,10 @@ namespace StockApp.ViewModels
                 if (this.isInputValid != value)
                 {
                     this.isInputValid = value;
+                    this.OnPropertyChanged();
+
+                    // Notify the command that it can execute or not
+                    ((RelayCommand)this.CreateStockCommand).RaiseCanExecuteChanged();
                 }
             }
         }
@@ -153,20 +157,20 @@ namespace StockApp.ViewModels
                 return;
             }
 
-            this.Message = string.Empty;
-            this.IsInputValid = true;
-
             // Validate stock name presence and format
             if (string.IsNullOrWhiteSpace(this.StockName))
             {
                 this.Message = "Stock Name is required!";
                 this.IsInputValid = false;
+                return;
             }
-            else if (!Regex.IsMatch(this.StockName, @"^[A-Za-z ]{1,20}$"))
+
+            if (!Regex.IsMatch(this.StockName, @"^[A-Za-z ]{1,20}$"))
             {
                 // Only letters and spaces, up to 20 characters
                 this.Message = "Stock Name must be max 20 characters and contain only letters & spaces!";
                 this.IsInputValid = false;
+                return;
             }
 
             // Validate stock symbol presence and format
@@ -174,12 +178,15 @@ namespace StockApp.ViewModels
             {
                 this.Message = "Stock Symbol is required!";
                 this.IsInputValid = false;
+                return;
             }
-            else if (!Regex.IsMatch(this.StockSymbol, @"^[A-Za-z0-9]{1,5}$"))
+
+            if (!Regex.IsMatch(this.StockSymbol, @"^[A-Za-z0-9]{1,5}$"))
             {
                 // Alphanumeric only, up to 5 characters
                 this.Message = "Stock Symbol must be alphanumeric and max 5 characters!";
                 this.IsInputValid = false;
+                return;
             }
 
             // Validate CNP presence and format
@@ -187,16 +194,22 @@ namespace StockApp.ViewModels
             {
                 this.Message = "Author CNP is required!";
                 this.IsInputValid = false;
+                return;
             }
-            else if (!Regex.IsMatch(this.AuthorCnp, @"^\d{13}$"))
+
+            if (!Regex.IsMatch(this.AuthorCnp, @"^\d{13}$"))
             {
                 // Exactly 13 digits required
                 this.Message = "Author CNP must be exactly 13 digits!";
                 this.IsInputValid = false;
+                return;
             }
+
+            this.Message = string.Empty;
+            this.IsInputValid = true;
         }
 
-        private bool CanCreateStock(object obj) => this.IsAdmin && this.IsInputValid;
+        private bool CanCreateStock(object? obj) => this.isAdmin && this.IsInputValid;
 
         private void CreateStock(object obj)
         {

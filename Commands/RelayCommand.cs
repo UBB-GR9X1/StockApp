@@ -34,6 +34,14 @@
         public bool CanExecute(object? parameter) => this.canExecute?.Invoke(parameter ?? new object()) ?? true;
 
         /// <summary>
+        /// Raises the <see cref="CanExecuteChanged"/> event to notify that the command's ability to execute has changed.
+        /// </summary>
+        public void RaiseCanExecuteChanged()
+        {
+            CommandManager.InvalidateRequerySuggested();
+        }
+
+        /// <summary>
         /// Invokes the <see cref="Execute"/> method on the command.
         /// </summary>
         /// <param name="parameter">The parameter to pass to the execute action.</param>
