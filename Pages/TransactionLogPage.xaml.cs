@@ -14,6 +14,9 @@
     {
         private readonly TransactionLogViewModel viewModel;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TransactionLogPage"/> class.
+        /// </summary>
         public TransactionLogPage()
         {
             this.InitializeComponent();
@@ -26,7 +29,6 @@
             viewModel.ShowMessageBoxRequested += ShowMessageBoxRequested;
         }
 
-        // Event handler when the start date changes
         private void StartDateChanged(object sender, DatePickerValueChangedEventArgs e)
         {
             // Trigger the load operation when the start date changes
@@ -34,7 +36,6 @@
             viewModel.LoadTransactions();
         }
 
-        // Event handler when the end date changes
         private void EndDateChanged(object sender, DatePickerValueChangedEventArgs e)
         {
             // Trigger the load operation when the end date changes
@@ -78,6 +79,11 @@
             }
         }
 
+        /// <summary>
+        /// Handles the event when the user clicks the "Export" button.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         public void GoBack(object sender, RoutedEventArgs e)
         {
             this.Frame.GoBack();
