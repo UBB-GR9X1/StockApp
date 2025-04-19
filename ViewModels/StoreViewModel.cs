@@ -12,20 +12,20 @@
 
     public class StoreViewModel : INotifyPropertyChanged
     {
-        private readonly IStoreService storeService;
+        private readonly IStoreService StoreService;
 
-        private bool testMode = false; // Set to true for testing without the database
+        private bool TestMode = false; // Set to true for testing without the database
 
-        private int _userGems;
-        private string _currentUserCnp;
-        private ObservableCollection<GemDeal> _availableDeals = new ObservableCollection<GemDeal>();
-        private List<GemDeal> _possibleDeals = new List<GemDeal>();
+        private int UserGems;
+        private string CurrentUserCnp;
+        private ObservableCollection<GemDeal> AvailableDeals = new ObservableCollection<GemDeal>();
+        private List<GemDeal> PossibleDeals = new List<GemDeal>();
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public StoreViewModel(IStoreService service)
         {
-            this.storeService = service ?? throw new ArgumentNullException(nameof(service));
+            this.StoreService = service ?? throw new ArgumentNullException(nameof(service));
             Initialize();
         }
 
@@ -35,7 +35,7 @@
 
         private void Initialize()
         {
-            this._currentUserCnp = this.storeService.GetCnp();
+            this.CurrentUserCnp = this.StoreService.GetCnp();
             LoadUserData();
             LoadGemDeals();
             LoadPossibleDeals();
@@ -44,49 +44,49 @@
 
 public bool IsGuest()
         {
-            if (this.testMode)
+            if (this.TestMode)
                 return false;
 
-            bool guest = this.storeService.IsGuest(this._currentUserCnp);
+            bool guest = this.StoreService.IsGuest(this.CurrentUserCnp);
             return guest;
         }
 
         public int UserGems
         {
-            get => this._userGems;
+            get => this.UserGems;
             set
             {
-                this._userGems = value;
+                this.UserGems = value;
                 this.OnPropertyChanged();
             }
         }
 
         public ObservableCollection<GemDeal> AvailableDeals
         {
-            get => this._availableDeals;
+            get => this.AvailableDeals;
             set
             {
-                this._availableDeals = value;
+                this.AvailableDeals = value;
                 this.OnPropertyChanged();
             }
         }
 
         public async void LoadUserData()
         {
-            if (this.testMode)
+            if (this.TestMode)
             {
                 this.UserGems = 1234; // Mocked gem balance
             }
             else
             {
-                bool guest = this.storeService.IsGuest(this._currentUserCnp);
+                bool guest = this.StoreService.IsGuest(this.CurrentUserCnp);
                 if (guest)
                 {
                     this.UserGems = 0;
                 }
                 else
                 {
-                    this.UserGems = await Task.Run(() => this.storeService.GetUserGemBalance(this._currentUserCnp));
+                    this.UserGems = await Task.Run(() => this.StoreService.GetUserGemBalance(this.CurrentUserCnp));
                 }
             }
         }
@@ -97,7 +97,7 @@ public bool IsGuest()
             if (string.IsNullOrEmpty(selectedBankAccount))
                 return "No bank account selected.";
 
-            if (this.testMode)
+            if (this.TestMode)
             {
                 this.UserGems += deal.GemAmount;
                 if (deal.IsSpecial)
@@ -107,7 +107,7 @@ public bool IsGuest()
                 return $"(TEST) Bought {deal.GemAmount} gems.";
             }
 
-            var result = await this.storeService.BuyGems(this._currentUserCnp, deal, selectedBankAccount);
+            var result = await this.StoreService.BuyGems(this.CurrentUserCnp, deal, selectedBankAccount);
             if (result.StartsWith("Successfully"))
             {
                 this.UserGems += deal.GemAmount;
@@ -131,14 +131,14 @@ public bool IsGuest()
             if (amount > this.UserGems)
                 return "Not enough Gems.";
 
-            if (this.testMode)
+            if (this.TestMode)
             {
                 this.UserGems -= amount;
                 this.OnPropertyChanged(nameof(this.UserGems));
                 return $"(TEST) Sold {amount} gems for {amount / 100.0}€.";
             }
 
-            var result = await this.storeService.SellGems(this._currentUserCnp, amount, selectedBankAccount);
+            var result = await this.StoreService.SellGems(this.CurrentUserCnp, amount, selectedBankAccount);
             if (result.StartsWith("Successfully"))
             {
                 this.UserGems -= amount;
@@ -155,7 +155,7 @@ public bool IsGuest()
 
         private void LoadGemDeals()
         {
-            this._availableDeals = new ObservableCollection<GemDeal>
+            this.AvailableDeals = new ObservableCollection<GemDeal>
             {
                 new GemDeal("LEGENDARY DEAL!!!!", 4999, 100.0),
                 new GemDeal("MYTHIC DEAL!!!!", 3999, 90.0),
@@ -175,7 +175,7 @@ public bool IsGuest()
 
         private void LoadPossibleDeals()
         {
-            this._possibleDeals = new List<GemDeal>
+            this.PossibleDeals = new List<GemDeal>
             {
                 new GemDeal("🔥 Limited Deal!", 6000, 120.0, true, 1),
                 new GemDeal("🔥 Flash Sale!", 5000, 100.0, true, 60),
@@ -192,7 +192,7 @@ public bool IsGuest()
             while (true)
             {
                 await Task.Delay(TimeSpan.FromSeconds(15));
-                var randomDeal = this._possibleDeals[random.Next(this._possibleDeals.Count)];
+                var randomDeal = this.PossibleDeals[random.Next(this.PossibleDeals.Count)];
                 var specialDeal = new GemDeal(randomDeal.Title, randomDeal.GemAmount, randomDeal.Price, true, randomDeal.DurationMinutes);
                 this.AvailableDeals.Add(specialDeal);
                 this.SortDeals();
