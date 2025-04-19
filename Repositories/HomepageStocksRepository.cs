@@ -32,7 +32,7 @@ namespace StockApp.Repositories
         public HomepageStocksRepository()
         {
             var userRepository = new UserRepository();
-            this.UserCNP = userRepository.CurrentUserCNP;
+            this.userCnp = userRepository.CurrentUserCNP;
         }
 
         public List<int> GetStockHistory(string stockName)

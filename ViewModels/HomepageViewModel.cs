@@ -22,7 +22,7 @@
         private ObservableCollection<HomepageStock> filteredFavoriteStocks = [];
         private string searchQuery = string.Empty;
         private string selectedSortOption = string.Empty;
-        private bool isGuestUser;
+        private bool isGuestUser = true;
         private Visibility guestButtonVisibility = Visibility.Visible;
         private Visibility profileButtonVisibility = Visibility.Collapsed;
 
@@ -30,7 +30,8 @@
         {
             this.service = service ?? throw new ArgumentNullException(nameof(service));
 
-            this.isGuestUser = this.service.IsGuestUser();
+            // setter used intentionally
+            this.IsGuestUser = this.service.IsGuestUser();
             this.LoadStocks();
 
             // Initialize Commands

@@ -30,10 +30,6 @@
         public StockPageRepository()
         {
             this.connection = DatabaseHelper.GetConnection();
-            
-            var userRepository = new UserRepository();
-            this.cnp = userRepository.CurrentUserCNP;
-
             InitializeUser();
         }
 
