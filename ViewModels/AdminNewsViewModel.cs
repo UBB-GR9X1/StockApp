@@ -13,6 +13,10 @@
     using StockApp.Services;
     using StockApp.Views;
 
+    /// <summary>
+    /// ViewModel for the admin news moderation screen, handling retrieval,
+    /// filtering, and actions on user-submitted articles.
+    /// </summary>
     public class AdminNewsViewModel : ViewModelBase
     {
         private readonly INewsService newsService;
@@ -27,22 +31,32 @@
         private UserArticle? selectedArticle;
         private bool isEmptyState;
 
+        /// <summary>
+        /// Initializes a new instance of <see cref="AdminNewsViewModel"/> with the specified service and dispatcher.
+        /// </summary>
+        /// <param name="service">Service for retrieving and modifying news articles.</param>
+        /// <param name="dispatcherQueue">Dispatcher used for UI thread operations.</param>
         public AdminNewsViewModel(
-        INewsService service,
-        IDispatcher dispatcherQueue)
+            INewsService service,
+            IDispatcher dispatcherQueue)
         {
             this.newsService = service ?? throw new ArgumentNullException(nameof(service));
             this.dispatcherQueue = dispatcherQueue ?? throw new ArgumentNullException(nameof(dispatcherQueue));
             InitializeCommandsAndFilters();
         }
 
-        // Constructor
-        public AdminNewsViewModel() 
-            : this (new NewsService(), new DispatcherAdapter()) { }
+        /// <summary>
+        /// Initializes a new instance of <see cref="AdminNewsViewModel"/> using default implementations.
+        /// </summary>
+        public AdminNewsViewModel()
+            : this(new NewsService(), new DispatcherAdapter()) { }
 
+        /// <summary>
+        /// Sets up commands and default filter values.
+        /// </summary>
         private void InitializeCommandsAndFilters()
         {
-            // init commands
+            // Initialize command bindings
             this.RefreshCommand = new StockNewsRelayCommand(async () => await this.RefreshArticlesAsync());
             this.ApproveCommand = new RelayCommandGeneric<string>(async (id) => await this.ApproveArticleAsync(id));
             this.RejectCommand = new RelayCommandGeneric<string>(async (id) => await this.RejectArticleAsync(id));
@@ -50,13 +64,13 @@
             this.BackCommand = new StockNewsRelayCommand(() => NavigationService.Instance.GoBack());
             this.PreviewCommand = new RelayCommandGeneric<UserArticle>((article) => this.NavigateToPreview(article));
 
-            // init statuses
+            // Populate status filter options
             this.Statuses.Add("All");
             this.Statuses.Add("Pending");
             this.Statuses.Add("Approved");
             this.Statuses.Add("Rejected");
 
-            // init topics
+            // Populate topic filter options
             this.Topics.Add("All");
             this.Topics.Add("Stock News");
             this.Topics.Add("Company News");
@@ -64,29 +78,42 @@
             this.Topics.Add("Market Analysis");
             this.Topics.Add("Economic News");
 
-            // set default values
+            // Set default selections
             this.selectedStatus = "All";
             this.selectedTopic = "All";
         }
 
+        /// <summary>
+        /// Gets or sets the collection of user articles to display.
+        /// </summary>
         public ObservableCollection<UserArticle> UserArticles
         {
             get => this.userArticles;
             set => this.SetProperty(ref this.userArticles, value);
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether articles are currently being loaded.
+        /// </summary>
         public bool IsLoading
         {
             get => this.isLoading;
             set => this.SetProperty(ref this.isLoading, value);
         }
 
+        /// <summary>
+        /// Gets or sets the available statuses for filtering.
+        /// </summary>
         public ObservableCollection<string> Statuses
         {
             get => this.statuses;
             set => this.SetProperty(ref this.statuses, value);
         }
 
+        /// <summary>
+        /// Gets or sets the currently selected status filter.
+        /// Changing this triggers an article refresh.
+        /// </summary>
         public string SelectedStatus
         {
             get => this.selectedStatus;
@@ -94,17 +121,25 @@
             {
                 if (this.SetProperty(ref this.selectedStatus, value))
                 {
+                    // Refresh articles when the filter changes
                     this.RefreshArticlesAsync();
                 }
             }
         }
 
+        /// <summary>
+        /// Gets or sets the available topics for filtering.
+        /// </summary>
         public ObservableCollection<string> Topics
         {
             get => this.topics;
             set => this.SetProperty(ref this.topics, value);
         }
 
+        /// <summary>
+        /// Gets or sets the currently selected topic filter.
+        /// Changing this triggers an article refresh.
+        /// </summary>
         public string SelectedTopic
         {
             get => this.selectedTopic;
@@ -112,11 +147,16 @@
             {
                 if (this.SetProperty(ref this.selectedTopic, value))
                 {
+                    // Refresh articles when the filter changes
                     this.RefreshArticlesAsync();
                 }
             }
         }
 
+        /// <summary>
+        /// Gets or sets the article selected by the user for preview.
+        /// Selecting an article navigates to the preview view.
+        /// </summary>
         public UserArticle? SelectedArticle
         {
             get => this.selectedArticle;
@@ -126,37 +166,63 @@
                 {
                     ArgumentNullException.ThrowIfNull(value);
 
-                    // nav to preview when selected article changes
+                    // Navigate to preview when selected article changes
                     this.NavigateToPreview(value);
                     this.selectedArticle = null; // Reset after navigation
                 }
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether the empty state (no articles) is shown.
+        /// </summary>
         public bool IsEmptyState
         {
             get => this.isEmptyState;
             set => this.SetProperty(ref this.isEmptyState, value);
         }
 
-        // Commands
+        /// <summary>
+        /// Gets the command to refresh the article list.
+        /// </summary>
         public ICommand RefreshCommand { get; private set; }
 
+        /// <summary>
+        /// Gets the command to approve an article.
+        /// </summary>
         public ICommand ApproveCommand { get; private set; }
 
+        /// <summary>
+        /// Gets the command to reject an article.
+        /// </summary>
         public ICommand RejectCommand { get; private set; }
 
+        /// <summary>
+        /// Gets the command to delete an article.
+        /// </summary>
         public ICommand DeleteCommand { get; private set; }
 
+        /// <summary>
+        /// Gets the command to navigate back.
+        /// </summary>
         public ICommand BackCommand { get; private set; }
 
+        /// <summary>
+        /// Gets the command to preview an article.
+        /// </summary>
         public ICommand PreviewCommand { get; private set; }
 
+        /// <summary>
+        /// Initializes the ViewModel by loading articles.
+        /// </summary>
         public async void Initialize()
         {
             await this.RefreshArticlesAsync();
         }
 
+        /// <summary>
+        /// Asynchronously retrieves and applies filters to the list of user articles.
+        /// </summary>
         private async Task RefreshArticlesAsync()
         {
             this.IsLoading = true;
@@ -164,11 +230,13 @@
 
             try
             {
+                // Determine filter values (null means no filter for "All")
                 string? status = this.SelectedStatus == "All" ? null : this.SelectedStatus;
                 string? topic = this.SelectedTopic == "All" ? null : this.SelectedTopic;
 
                 var articles = await this.newsService.GetUserArticlesAsync(status, topic);
 
+                // Update the collection on the UI thread
                 this.dispatcherQueue.TryEnqueue(() =>
                 {
                     this.UserArticles.Clear();
@@ -182,14 +250,21 @@
             }
             catch
             {
+                // If fetching fails, show the empty state
                 this.IsEmptyState = true;
             }
             finally
             {
+                // Always hide the loading indicator
                 this.IsLoading = false;
             }
         }
 
+        /// <summary>
+        /// Converts a <see cref="UserArticle"/> into a <see cref="NewsArticle"/> preview
+        /// and navigates to the preview view.
+        /// </summary>
+        /// <param name="article">The user article to preview.</param>
         private void NavigateToPreview(UserArticle article)
         {
             if (article == null)
@@ -197,7 +272,7 @@
                 return;
             }
 
-            // convert UserArticle to NewsArticle for preview
+            // Prepare a preview NewsArticle from the user-submitted article
             var previewArticle = new NewsArticle
             {
                 ArticleId = article.ArticleId,
@@ -209,16 +284,23 @@
                 IsRead = false,
                 IsWatchlistRelated = false,
                 Category = article.Topic,
+                // FIXME: '?? []' is invalid C# syntax; provide a default collection instead, e.g. new List<string>()
                 RelatedStocks = article.RelatedStocks ?? [],
             };
 
-            // store preview article in the NewsService for retrieval
+            // Store the preview for later retrieval
             this.newsService.StorePreviewArticle(previewArticle, article);
 
-            // nav to the article view with a flag indicating it's a preview
-            NavigationService.Instance.Navigate(typeof(NewsArticleView), $"preview:{article.ArticleId}");
+            // Navigate to the article view in preview mode
+            NavigationService.Instance.Navigate(
+                typeof(NewsArticleView),
+                $"preview:{article.ArticleId}");
         }
 
+        /// <summary>
+        /// Approves a user-submitted article and shows a confirmation dialog.
+        /// </summary>
+        /// <param name="articleId">The identifier of the article to approve.</param>
         private async Task ApproveArticleAsync(string articleId)
         {
             try
@@ -228,7 +310,7 @@
                 {
                     await this.RefreshArticlesAsync();
 
-                    // success message
+                    // Show success dialog
                     var dialog = new ContentDialog
                     {
                         Title = "Success",
@@ -242,6 +324,7 @@
             }
             catch
             {
+                // Show error dialog on failure
                 var dialog = new ContentDialog
                 {
                     Title = "Error",
@@ -254,6 +337,10 @@
             }
         }
 
+        /// <summary>
+        /// Rejects a user-submitted article and shows a confirmation dialog.
+        /// </summary>
+        /// <param name="articleId">The identifier of the article to reject.</param>
         private async Task RejectArticleAsync(string articleId)
         {
             try
@@ -263,7 +350,7 @@
                 {
                     await this.RefreshArticlesAsync();
 
-                    // success message
+                    // Show success dialog
                     var dialog = new ContentDialog
                     {
                         Title = "Success",
@@ -277,6 +364,7 @@
             }
             catch
             {
+                // Show error dialog on failure
                 var dialog = new ContentDialog
                 {
                     Title = "Error",
@@ -289,11 +377,15 @@
             }
         }
 
+        /// <summary>
+        /// Deletes a user-submitted article after confirmation and shows a result dialog.
+        /// </summary>
+        /// <param name="articleId">The identifier of the article to delete.</param>
         private async Task DeleteArticleAsync(string articleId)
         {
             try
             {
-                // confirm deletion
+                // Confirm deletion with the user
                 var confirmDialog = new ContentDialog
                 {
                     Title = "Confirm Deletion",
@@ -304,7 +396,6 @@
                 };
 
                 var result = await confirmDialog.ShowAsync();
-
                 if (result == ContentDialogResult.Primary)
                 {
                     var success = await this.newsService.DeleteUserArticleAsync(articleId);
@@ -312,7 +403,7 @@
                     {
                         await this.RefreshArticlesAsync();
 
-                        // success message
+                        // Show success dialog
                         var dialog = new ContentDialog
                         {
                             Title = "Success",
@@ -327,6 +418,7 @@
             }
             catch
             {
+                // Show error dialog on failure
                 var dialog = new ContentDialog
                 {
                     Title = "Error",
@@ -339,7 +431,14 @@
             }
         }
 
-        // method to set property and raise PropertyChanged event
+        /// <summary>
+        /// Sets the backing field for a property and raises <see cref="OnPropertyChanged"/> if the value changed.
+        /// </summary>
+        /// <typeparam name="T">Type of the property.</typeparam>
+        /// <param name="storage">Reference to the backing field.</param>
+        /// <param name="value">New value to assign.</param>
+        /// <param name="propertyName">Name of the property (automatically supplied).</param>
+        /// <returns>True if the value changed; otherwise false.</returns>
         protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string? propertyName = null)
         {
             if (Equals(storage, value))

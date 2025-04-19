@@ -8,6 +8,9 @@ namespace StockApp.Pages
     {
         private readonly AlertRepository _alertRepository;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TriggeredAlertsPage"/> class.
+        /// </summary>
         public TriggeredAlertsPage()
         {
             this.InitializeComponent();

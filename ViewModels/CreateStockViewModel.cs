@@ -22,7 +22,14 @@ namespace StockApp.ViewModels
         private bool isAdmin;
         private bool isInputValid;
 
+        /// <summary>
+        /// Occurs when a property value changes.
+        /// </summary>
         public event PropertyChangedEventHandler? PropertyChanged;
+
+        /// <summary>
+        /// Gets the command to create a new stock entry.
+        /// </summary>
         public ICommand CreateStockCommand { get; }
 
         public CreateStockViewModel(ICreateStockService stockService)
@@ -37,6 +44,9 @@ namespace StockApp.ViewModels
         {
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether the current user is an administrator.
+        /// </summary>
         public bool IsAdmin
         {
             get => this.isAdmin;
@@ -50,6 +60,9 @@ namespace StockApp.ViewModels
             }
         }
 
+        /// <summary>
+        /// Gets or sets the name of the stock to create.
+        /// </summary>
         public string StockName
         {
             get => this.stockName;
@@ -64,6 +77,9 @@ namespace StockApp.ViewModels
             }
         }
 
+        /// <summary>
+        /// Gets or sets the symbol of the stock to create.
+        /// </summary>
         public string StockSymbol
         {
             get => this.stockSymbol;
@@ -78,6 +94,9 @@ namespace StockApp.ViewModels
             }
         }
 
+        /// <summary>
+        /// Gets or sets the CNP identifier of the author.
+        /// </summary>
         public string AuthorCnp
         {
             get => this.authorCnp;
@@ -92,6 +111,9 @@ namespace StockApp.ViewModels
             }
         }
 
+        /// <summary>
+        /// Gets or sets the validation or service message to display.
+        /// </summary>
         public string Message
         {
             get => this.message;
@@ -105,6 +127,9 @@ namespace StockApp.ViewModels
             }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether the current inputs are valid for creating a stock.
+        /// </summary>
         public bool IsInputValid
         {
             get => this.isInputValid;
@@ -117,6 +142,9 @@ namespace StockApp.ViewModels
             }
         }
 
+        /// <summary>
+        /// Validates all input fields and sets <see cref="IsInputValid"/> and <see cref="Message"/> accordingly.
+        /// </summary>
         private void ValidateInputs()
         {
             if (this.suppressValidation) return;
@@ -124,6 +152,7 @@ namespace StockApp.ViewModels
             this.Message = string.Empty;
             this.IsInputValid = true;
 
+            // Validate stock name presence and format
             if (string.IsNullOrWhiteSpace(this.StockName))
             {
                 this.Message = "Stock Name is required!";
@@ -131,10 +160,12 @@ namespace StockApp.ViewModels
             }
             else if (!Regex.IsMatch(this.StockName, @"^[A-Za-z ]{1,20}$"))
             {
+                // Only letters and spaces, up to 20 characters
                 this.Message = "Stock Name must be max 20 characters and contain only letters & spaces!";
                 this.IsInputValid = false;
             }
 
+            // Validate stock symbol presence and format
             if (string.IsNullOrWhiteSpace(this.StockSymbol))
             {
                 this.Message = "Stock Symbol is required!";
@@ -142,10 +173,12 @@ namespace StockApp.ViewModels
             }
             else if (!Regex.IsMatch(this.StockSymbol, @"^[A-Za-z0-9]{1,5}$"))
             {
+                // Alphanumeric only, up to 5 characters
                 this.Message = "Stock Symbol must be alphanumeric and max 5 characters!";
                 this.IsInputValid = false;
             }
 
+            // Validate CNP presence and format
             if (string.IsNullOrWhiteSpace(this.AuthorCnp))
             {
                 this.Message = "Author CNP is required!";
@@ -153,6 +186,7 @@ namespace StockApp.ViewModels
             }
             else if (!Regex.IsMatch(this.AuthorCnp, @"^\d{13}$"))
             {
+                // Exactly 13 digits required
                 this.Message = "Author CNP must be exactly 13 digits!";
                 this.IsInputValid = false;
             }
@@ -176,6 +210,10 @@ namespace StockApp.ViewModels
             }
         }
 
+        /// <summary>
+        /// Checks whether the current user has administrative privileges.
+        /// </summary>
+        /// <returns>True if the user is an admin; otherwise false.</returns>
         protected virtual bool CheckIfUserIsAdmin()
         {
             // This method should check if the user is an admin.
@@ -185,6 +223,10 @@ namespace StockApp.ViewModels
             return !this.stockService.CheckIfUserIsGuest();
         }
 
+        /// <summary>
+        /// Raises the <see cref="PropertyChanged"/> event for the specified property.
+        /// </summary>
+        /// <param name="propertyName">Name of the property that changed. Auto-supplied if omitted.</param>
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

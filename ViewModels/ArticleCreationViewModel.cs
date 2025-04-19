@@ -15,6 +15,9 @@
     using StockApp.Services;
     using StockApp.Views;
 
+    /// <summary>
+    /// ViewModel for creating, previewing, and submitting user‐authored news articles.
+    /// </summary>
     public class ArticleCreationViewModel : ViewModelBase
     {
         private readonly INewsService newsService;
@@ -22,8 +25,10 @@
         private readonly IAppState appState;
         private readonly IBaseStocksRepository stocksRepository;
 
-        // properties
         private string title;
+        /// <summary>
+        /// Gets or sets the article title.
+        /// </summary>
         public string Title
         {
             get => title;
@@ -31,6 +36,9 @@
         }
 
         private string summary;
+        /// <summary>
+        /// Gets or sets the article summary.
+        /// </summary>
         public string Summary
         {
             get => summary;
@@ -38,6 +46,9 @@
         }
 
         private string content;
+        /// <summary>
+        /// Gets or sets the full article content.
+        /// </summary>
         public string Content
         {
             get => content;
@@ -45,6 +56,9 @@
         }
 
         private ObservableCollection<string> topics = new();
+        /// <summary>
+        /// Gets or sets the list of available topics for the article.
+        /// </summary>
         public ObservableCollection<string> Topics
         {
             get => topics;
@@ -52,6 +66,9 @@
         }
 
         private string selectedTopic;
+        /// <summary>
+        /// Gets or sets the currently selected topic.
+        /// </summary>
         public string SelectedTopic
         {
             get => selectedTopic;
@@ -59,6 +76,9 @@
         }
 
         private string relatedStocksText;
+        /// <summary>
+        /// Gets or sets the comma‑separated string of related stock symbols.
+        /// </summary>
         public string RelatedStocksText
         {
             get => relatedStocksText;
@@ -66,6 +86,9 @@
         }
 
         private bool isLoading;
+        /// <summary>
+        /// Gets or sets a value indicating whether an operation is in progress.
+        /// </summary>
         public bool IsLoading
         {
             get => isLoading;
@@ -73,6 +96,9 @@
         }
 
         private bool hasError;
+        /// <summary>
+        /// Gets or sets a value indicating whether the view is in an error state.
+        /// </summary>
         public bool HasError
         {
             get => hasError;
@@ -80,6 +106,9 @@
         }
 
         private string errorMessage;
+        /// <summary>
+        /// Gets or sets the current error message; also updates <see cref="HasError"/>.
+        /// </summary>
         public string ErrorMessage
         {
             get => errorMessage;
@@ -90,62 +119,91 @@
             }
         }
 
-        // commands
+        /// <summary>
+        /// Command to navigate back to the previous view.
+        /// </summary>
         public ICommand BackCommand { get; }
+
+        /// <summary>
+        /// Command to clear the article creation form.
+        /// </summary>
         public ICommand ClearCommand { get; }
+
+        /// <summary>
+        /// Command to preview the article before submission.
+        /// </summary>
         public ICommand PreviewCommand { get; }
+
+        /// <summary>
+        /// Command to submit the article for review.
+        /// </summary>
         public ICommand SubmitCommand { get; }
 
-        // constructor
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ArticleCreationViewModel"/> class with dependencies.
+        /// </summary>
+        /// <param name="newsService">Service for news operations.</param>
+        /// <param name="dispatcher">Dispatcher for UI thread invocation.</param>
+        /// <param name="appState">Global application state.</param>
+        /// <param name="stocksRepo">Repository for base stock data.</param>
         public ArticleCreationViewModel(
             INewsService newsService,
             IDispatcher dispatcher,
             IAppState appState,
             IBaseStocksRepository stocksRepo)
         {
-            this.newsService = newsService;
-            this.dispatcherQueue = dispatcher;
-            this.appState = appState;
-            this.stocksRepository = stocksRepo;
+            this.newsService = newsService ?? throw new ArgumentNullException(nameof(newsService));
+            this.dispatcherQueue = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
+            this.appState = appState ?? throw new ArgumentNullException(nameof(appState));
+            this.stocksRepository = stocksRepo ?? throw new ArgumentNullException(nameof(stocksRepo));
 
-            // init commands
-            BackCommand = new StockNewsRelayCommand(() => NavigationService.Instance.GoBack());
-            ClearCommand = new StockNewsRelayCommand(() => ClearForm());
-            PreviewCommand = new StockNewsRelayCommand(async () => await PreviewArticleAsync());
-            SubmitCommand = new StockNewsRelayCommand(async () => await SubmitArticleAsync());
+            // Initialize commands
+            this.BackCommand = new StockNewsRelayCommand(() => NavigationService.Instance.GoBack());
+            this.ClearCommand = new StockNewsRelayCommand(() => ClearForm());
+            this.PreviewCommand = new StockNewsRelayCommand(async () => await PreviewArticleAsync());
+            this.SubmitCommand = new StockNewsRelayCommand(async () => await SubmitArticleAsync());
 
-            // init topics
-            Topics.Add("Stock News");
-            Topics.Add("Company News");
-            Topics.Add("Market Analysis");
-            Topics.Add("Economic News");
-            Topics.Add("Functionality News");
+            // Initialize topic list
+            this.Topics.Add("Stock News");
+            this.Topics.Add("Company News");
+            this.Topics.Add("Market Analysis");
+            this.Topics.Add("Economic News");
+            this.Topics.Add("Functionality News");
 
-            // set default values
-            selectedTopic = "Stock News";
+            // Set default selected topic
+            this.selectedTopic = "Stock News";
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ArticleCreationViewModel"/> class using default implementations.
+        /// </summary>
         public ArticleCreationViewModel()
-          : this(new NewsService(),
-                 new DispatcherAdapter(),
-                 AppState.Instance,
-                 new BaseStocksRepository())
+          : this(
+              new NewsService(),
+              new DispatcherAdapter(),
+              AppState.Instance,
+              new BaseStocksRepository())
         { }
 
-        // methods
+        /// <summary>
+        /// Performs initial setup, including checking user authentication and clearing the form.
+        /// </summary>
         public void Initialize()
         {
-            // check if user is logged in
+            // Ensure user is logged in before allowing article creation
             if (appState.CurrentUser == null)
             {
-                // error and navigate back
                 ShowErrorDialog("You must be logged in to create an article.");
                 NavigationService.Instance.GoBack();
+                return;
             }
 
             ClearForm();
         }
 
+        /// <summary>
+        /// Clears all form fields and resets state.
+        /// </summary>
         private void ClearForm()
         {
             Title = string.Empty;
@@ -165,14 +223,15 @@
             {
                 IsLoading = true;
 
-                // create preview article
+                // Create a unique ID for this preview
                 var previewId = Guid.NewGuid().ToString();
 
+                // Build the NewsArticle for display
                 var article = new NewsArticle
                 {
                     ArticleId = previewId,
                     Title = Title,
-                    Summary = Summary ?? "",
+                    Summary = Summary ?? string.Empty,
                     Content = Content,
                     Source = $"User: {appState.CurrentUser?.CNP ?? "Anonymous"}",
                     PublishedDate = DateTime.Now.ToString("MMMM dd, yyyy"),
@@ -182,12 +241,12 @@
                     RelatedStocks = ParseRelatedStocks()
                 };
 
-                // create temp user article
+                // Build a temporary UserArticle for preview context
                 var userArticle = new UserArticle
                 {
                     ArticleId = previewId,
                     Title = Title,
-                    Summary = Summary ?? "",
+                    Summary = Summary ?? string.Empty,
                     Content = Content,
                     Author = appState.CurrentUser ?? throw new InvalidOperationException("User not found"),
                     SubmissionDate = DateTime.Now,
@@ -196,14 +255,17 @@
                     RelatedStocks = ParseRelatedStocks()
                 };
 
-                // store preview in service
+                // Store preview in the service
                 newsService.StorePreviewArticle(article, userArticle);
 
-                // nav to preview
-                NavigationService.Instance.Navigate(typeof(NewsArticleView), $"preview:{previewId}");
+                // Navigate to the preview view
+                NavigationService.Instance.Navigate(
+                    typeof(NewsArticleView),
+                    $"preview:{previewId}");
             }
             catch (Exception ex)
             {
+                // Log and display an error if preview fails
                 System.Diagnostics.Debug.WriteLine($"Error previewing article: {ex.Message}");
                 ErrorMessage = "An error occurred while trying to preview the article.";
             }
@@ -223,10 +285,9 @@
 
             try
             {
-                // parse and validate related stocks before submitting
+                // Parse and validate the related stocks list
                 List<string> relatedStocks = ParseRelatedStocks();
 
-                // validate stocks and show dialog if needed
                 bool continueSubmission = await ValidateStocksAsync(relatedStocks);
                 if (!continueSubmission)
                 {
@@ -234,6 +295,7 @@
                     return;
                 }
 
+                // Build the UserArticle to submit
                 var article = new UserArticle
                 {
                     ArticleId = Guid.NewGuid().ToString(),
@@ -251,6 +313,7 @@
 
                 if (success)
                 {
+                    // Show confirmation and clear form once done
                     dispatcherQueue.TryEnqueue(async () =>
                     {
                         var dialog = new ContentDialog
@@ -285,28 +348,25 @@
         {
             ErrorMessage = string.Empty;
 
-            // validate title
+            // Ensure required fields are populated
             if (string.IsNullOrWhiteSpace(Title))
             {
                 ErrorMessage = "Title is required.";
                 return false;
             }
 
-            // validate summary
             if (string.IsNullOrWhiteSpace(Summary))
             {
                 ErrorMessage = "Summary is required.";
                 return false;
             }
 
-            // validate content
             if (string.IsNullOrWhiteSpace(Content))
             {
                 ErrorMessage = "Content is required.";
                 return false;
             }
 
-            // validate topic
             if (string.IsNullOrWhiteSpace(SelectedTopic))
             {
                 ErrorMessage = "Topic is required.";
@@ -327,12 +387,12 @@
             var allStocks = stocksRepository.GetAllStocks()
                 ?? throw new InvalidOperationException("Stocks repository returned null");
 
-            // check if all entered stocks exist (by name or symbol)
             var invalidStocks = new List<string>();
+
             foreach (var stock in enteredStocks)
             {
                 if (string.IsNullOrWhiteSpace(stock))
-                    throw new ArgumentException("Stock name cannot be null or whitespace", nameof(enteredStocks));
+                    throw new ArgumentException("Stock name cannot be null or whitespace.", nameof(enteredStocks));
 
                 bool stockExists = allStocks.Any(s =>
                     s.Name.Equals(stock, StringComparison.OrdinalIgnoreCase) ||
@@ -346,23 +406,23 @@
 
             if (invalidStocks.Count > 0)
             {
-                // a string of available stocks for the dialog
+                // Build a short list of available stocks for user reference
                 var availableStocksList = allStocks
                     .OrderBy(s => s.Name)
-                    .Take(20) // first 20 to avoid large dialog
+                    .Take(20) // Limit to first 20 to keep dialog concise
                     .Select(s => $"• {s.Name} ({s.Symbol})")
                     .ToList();
 
                 string invalidStocksMessage = string.Join(", ", invalidStocks);
                 string availableStocksMessage = string.Join("\n", availableStocksList);
-
                 if (allStocks.Count > 20)
                 {
                     availableStocksMessage += $"\n(and {allStocks.Count - 20} more...)";
                 }
 
-                string message = $"The following stocks are not found in our database: {invalidStocksMessage}\n\n" +
-                    $"Would you like to continue anyway? We'll create these stocks automatically.\n\n" +
+                string message =
+                    $"The following stocks are not found: {invalidStocksMessage}\n\n" +
+                    "Would you like to continue anyway? We'll create these automatically.\n\n" +
                     $"Available stocks include:\n{availableStocksMessage}";
 
                 var dialog = new ContentDialog
@@ -384,6 +444,7 @@
 
         private List<string> ParseRelatedStocks()
         {
+            // Split the comma-separated input into a cleaned list
             if (string.IsNullOrWhiteSpace(RelatedStocksText))
                 return new List<string>();
 
@@ -411,6 +472,10 @@
             };
         }
 
+        /// <summary>
+        /// Displays an error message dialog with the specified text.
+        /// </summary>
+        /// <param name="message">The error message to display.</param>
         private async void ShowErrorDialog(string message)
         {
             try
@@ -422,14 +487,13 @@
                     CloseButtonText = "OK",
                     XamlRoot = App.CurrentWindow.Content.XamlRoot
                 };
-
                 await dialog.ShowAsync();
             }
             catch (Exception ex)
             {
+                // If dialog fails, write to debug output
                 System.Diagnostics.Debug.WriteLine($"Error showing error dialog: {ex.Message}");
             }
         }
     }
 }
-

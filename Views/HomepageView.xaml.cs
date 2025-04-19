@@ -9,14 +9,26 @@
 
     public sealed partial class HomepageView : Page
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="HomepageView"/> class.
+        /// </summary>
         public HomepageView()
         {
             this.InitializeComponent();
             this.DataContext = this.ViewModel;
         }
 
+        /// <summary>
+        /// Gets the view model for the homepage view.
+        /// </summary>
         public HomepageViewModel ViewModel { get; } = new();
 
+        /// <summary>
+        /// Handles the click event for the stock item in the homepage.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// <exception cref="InvalidOperationException"></exception>
         public void GoToStock(object sender, ItemClickEventArgs e)
         {
             if (e.ClickedItem is not Stock myStock)

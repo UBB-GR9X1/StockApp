@@ -7,15 +7,31 @@
     {
         private readonly Frame frame;
 
-        public FrameAdapter(Frame frame)
-        {
-            this.frame = frame;
-        }
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FrameAdapter"/> class.
+    /// </summary>
+    /// <param name="frame"></param>
+    public FrameAdapter(Frame frame)
+    {
+        this.frame = frame;
+    }
 
-        public bool Navigate(Type pageType, object parameter) => this.frame.Navigate(pageType, parameter);
+    /// <summary>
+    /// Navigates to the specified page type with the given parameter.
+    /// </summary>
+    /// <param name="pageType"></param>
+    /// <param name="parameter"></param>
+    /// <returns></returns>
+    public bool Navigate(Type pageType, object parameter) => this.frame.Navigate(pageType, parameter);
 
-        public void GoBack() => this.frame.GoBack();
+    /// <summary>
+    /// Navigates back in the frame's navigation history.
+    /// </summary>
+    public void GoBack() => this.frame.GoBack();
 
-        public bool CanGoBack => this.frame.CanGoBack;
+    /// <summary>
+    /// Checks if the frame can navigate back in its navigation history.
+    /// </summary>
+    public bool CanGoBack => this.frame.CanGoBack;
     }
 }

@@ -7,8 +7,14 @@ namespace StockApp.Pages
 
     public sealed partial class NewsListPage : Page
     {
+        /// <summary>
+        /// The view model for the NewsListPage.
+        /// </summary>
         public NewsListViewModel ViewModel { get; } = new ();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NewsListPage"/> class.
+        /// </summary>
         public NewsListPage()
         {
             this.InitializeComponent();

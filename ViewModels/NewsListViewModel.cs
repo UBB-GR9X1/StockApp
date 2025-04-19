@@ -20,6 +20,9 @@
 
         // properties
         private ObservableCollection<NewsArticle> articles = new();
+        /// <summary>
+        /// Gets or sets the collection of news articles.
+        /// </summary>
         public ObservableCollection<NewsArticle> Articles
         {
             get => this.articles;
@@ -27,6 +30,9 @@
         }
 
         private bool isLoading;
+        /// <summary>
+        /// Gets or sets a value indicating whether data is currently loading.
+        /// </summary>
         public bool IsLoading
         {
             get => this.isLoading;
@@ -34,6 +40,9 @@
         }
 
         private bool isRefreshing;
+        /// <summary>
+        /// Gets or sets a value indicating whether a refresh operation is in progress.
+        /// </summary>
         public bool IsRefreshing
         {
             get => this.isRefreshing;
@@ -41,6 +50,9 @@
         }
 
         private bool isEmptyState;
+        /// <summary>
+        /// Gets or sets a value indicating whether the UI should show the empty state.
+        /// </summary>
         public bool IsEmptyState
         {
             get => this.isEmptyState;
@@ -48,6 +60,9 @@
         }
 
         private string searchQuery = string.Empty;
+        /// <summary>
+        /// Gets or sets the query text used to filter articles.
+        /// </summary>
         public string SearchQuery
         {
             get => this.searchQuery;
@@ -61,6 +76,9 @@
         }
 
         private ObservableCollection<string> categories = new();
+        /// <summary>
+        /// Gets or sets the list of available article categories.
+        /// </summary>
         public ObservableCollection<string> Categories
         {
             get => this.categories;
@@ -68,6 +86,9 @@
         }
 
         private string selectedCategory;
+        /// <summary>
+        /// Gets or sets the currently selected category for filtering.
+        /// </summary>
         public string SelectedCategory
         {
             get => this.selectedCategory;
@@ -81,6 +102,10 @@
         }
 
         private NewsArticle selectedArticle;
+        /// <summary>
+        /// Gets or sets the currently selected news article.
+        /// Selecting an article will navigate to its detail view.
+        /// </summary>
         public NewsArticle SelectedArticle
         {
             get => this.selectedArticle;
@@ -101,6 +126,9 @@
 
         // user and auth properties
         private User currentUser;
+        /// <summary>
+        /// Gets or sets the current authenticated user.
+        /// </summary>
         public User CurrentUser
         {
             get => this.currentUser;
@@ -114,22 +142,50 @@
             }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether the current user has moderator privileges.
+        /// </summary>
         public bool IsAdmin => this.CurrentUser?.IsModerator ?? false;
+
+        /// <summary>
+        /// Gets a value indicating whether there is a user currently logged in.
+        /// </summary>
         public bool IsLoggedIn => this.CurrentUser != null;
 
         // commands
+        /// <summary>
+        /// Gets the command to refresh the list of articles.
+        /// </summary>
         public ICommand RefreshCommand { get; }
+        /// <summary>
+        /// Gets the command to navigate to the article creation view.
+        /// </summary>
         public ICommand CreateArticleCommand { get; }
+        /// <summary>
+        /// Gets the command to navigate to the admin panel.
+        /// </summary>
         public ICommand AdminPanelCommand { get; }
+        /// <summary>
+        /// Gets the command to show the login dialog.
+        /// </summary>
         public ICommand LoginCommand { get; }
+        /// <summary>
+        /// Gets the command to log out the current user.
+        /// </summary>
         public ICommand LogoutCommand { get; }
+        /// <summary>
+        /// Gets the command to clear the current search query.
+        /// </summary>
         public ICommand ClearSearchCommand { get; }
 
-        // constructor
+        // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NewsListViewModel"/> class with specified services.
+        /// </summary>
         public NewsListViewModel(
-        INewsService newsService,
-        IDispatcher dispatcherQueue,
-        IAppState appState)
+            INewsService newsService,
+            IDispatcher dispatcherQueue,
+            IAppState appState)
         {
             this.newsService = newsService ?? throw new ArgumentNullException(nameof(newsService));
             this.dispatcherQueue = dispatcherQueue ?? throw new ArgumentNullException(nameof(dispatcherQueue));
@@ -151,6 +207,9 @@
             this.selectedCategory = "All";
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NewsListViewModel"/> class with default services.
+        /// </summary>
         public NewsListViewModel()
           : this(new NewsService(),
                  new DispatcherAdapter(),
@@ -159,6 +218,10 @@
         }
 
         // methods
+        /// <summary>
+        /// Initializes the view model by loading the current user and articles.
+        /// </summary>
+        // FIXME: Consider changing async void to async Task for better error handling
         public async void Initialize()
         {
             this.IsLoading = true;
@@ -276,11 +339,11 @@
                     a.Title.ToLower().Contains(query) ||
                     a.Summary.ToLower().Contains(query) ||
                     a.Content.ToLower().Contains(query) ||
-                    a.RelatedStocks != null && a.RelatedStocks.Any(s => s.ToLower().Contains(query))
+                    (a.RelatedStocks != null && a.RelatedStocks.Any(s => s.ToLower().Contains(query)))
                 ).ToList();
             }
 
-            // sort articles - watchlist items first, then by date (newest first)
+            // Inline: Sort watchlist items first, then by date (newest first)
             filteredArticles = filteredArticles
                 .OrderByDescending(a => a.IsWatchlistRelated)
                 .ThenByDescending(a => DateTime.TryParse(a.PublishedDate, out var date) ? date : DateTime.MinValue)
@@ -334,7 +397,7 @@
                 };
 
                 var panel = new StackPanel { Spacing = 10 };
-
+                // Inline: Build login dialog UI elements
                 var usernameBox = new TextBox
                 {
                     PlaceholderText = "Username",
@@ -456,4 +519,3 @@
         }
     }
 }
-

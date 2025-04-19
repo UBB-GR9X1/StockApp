@@ -16,6 +16,9 @@ namespace StockApp.Pages
 
         ICommand UpdateProfileButton { get; }
 
+        /// <summary>
+        /// Constructor for the ProfilePage class.
+        /// </summary>
         public ProfilePage()
         {
             UpdateProfileButton = new StockNewsRelayCommand(() => GoToUpdatePage());
@@ -77,18 +80,30 @@ namespace StockApp.Pages
             EnterStockButton.Visibility = Visibility.Collapsed;
         }
 
+        /// <summary>
+        /// Handles the click event for the "Go Back" button.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         public void GoBack(object sender, RoutedEventArgs e)
         {
-            // Go back to the previous page
             NavigationService.Instance.GoBack();
         }
 
+        /// <summary>
+        /// Sets the text of the UsernameMyStocks TextBlock to the user's username.
+        /// </summary>
         public void UserStocksShowUsername()
         {
-            // Show the username in the user's stock list
             UsernameMyStocks.Text = viewModel.GetUsername() + "'s STOCKS: ";
         }
 
+        /// <summary>
+        /// Handles the click event for the "Go To Stock" button.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// <exception cref="InvalidOperationException"></exception>
         public void GoToStockButton(object sender, RoutedEventArgs e)
         {
             if (this.StocksListView.SelectedItem is Stock selectedStock)

@@ -10,6 +10,9 @@
 
     public class UserRepository : IUserRepository
     {
+        /// <summary>
+        /// Gets or sets the CNP (unique identifier) of the current user.
+        /// </summary>
         public string CurrentUserCNP { get; set; }
 
         public UserRepository(string? cnp = null)
@@ -20,9 +23,14 @@
                     ?? throw new InvalidOperationException("DefaultUserCNP is not set in appsettings.json");
         }
 
-        // Create a new user
+        /// <summary>
+        /// Creates a new user in the database.
+        /// </summary>
+        /// <param name="user">The user entity to create.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
         public async Task CreateUserAsync(User user)
         {
+            // Prepare database connection and insertion command
             using var connection = DatabaseHelper.GetConnection();
             var command = new SqlCommand("INSERT INTO [USER] (CNP, NAME, DESCRIPTION, IS_HIDDEN, IS_ADMIN, PROFILE_PICTURE, GEM_BALANCE) VALUES (@cnp, @name, @description, @isHidden, @isAdmin, @profilePicture, @gemBalance)", connection);
             command.Parameters.AddWithValue("@cnp", user.CNP);
@@ -37,7 +45,12 @@
             await command.ExecuteNonQueryAsync();
         }
 
-        // Read a user by CNP
+        /// <summary>
+        /// Retrieves a user by their CNP.
+        /// </summary>
+        /// <param name="cnp">The CNP of the user to retrieve.</param>
+        /// <returns>The user matching the specified CNP.</returns>
+        /// <exception cref="KeyNotFoundException">Thrown if no user with the specified CNP exists.</exception>
         public async Task<User> GetUserByCnpAsync(string userCnp)
         {
             using var connection = DatabaseHelper.GetConnection();
@@ -46,8 +59,10 @@
 
             await connection.OpenAsync();
             using var reader = await command.ExecuteReaderAsync();
+
             if (await reader.ReadAsync())
             {
+                // Map database columns to User model
                 return new User
                 {
                     CNP = reader["CNP"].ToString(),
@@ -63,7 +78,11 @@
             throw new KeyNotFoundException($"User with CNP '{userCnp}' not found.");
         }
 
-        // Update a user
+        /// <summary>
+        /// Updates an existing user's details in the database.
+        /// </summary>
+        /// <param name="user">The user entity with updated information.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
         public async Task UpdateUserAsync(User user)
         {
             using var connection = DatabaseHelper.GetConnection();
@@ -80,7 +99,11 @@
             await command.ExecuteNonQueryAsync();
         }
 
-        // Delete a user
+        /// <summary>
+        /// Deletes a user from the database by their CNP.
+        /// </summary>
+        /// <param name="cnp">The CNP of the user to delete.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
         public async Task DeleteUserAsync(string userCnp)
         {
             using var connection = DatabaseHelper.GetConnection();
@@ -91,7 +114,10 @@
             await command.ExecuteNonQueryAsync();
         }
 
-        // Get all users
+        /// <summary>
+        /// Retrieves all users from the database.
+        /// </summary>
+        /// <returns>A list of all user entities.</returns>
         public async Task<List<User>> GetAllUsersAsync()
         {
             var users = new List<User>();
@@ -100,8 +126,10 @@
 
             await connection.OpenAsync();
             using var reader = await command.ExecuteReaderAsync();
+
             while (await reader.ReadAsync())
             {
+                // Map each database record to a User model
                 users.Add(new User
                 {
                     CNP = reader["CNP"].ToString() ?? throw new Exception("CNP not found."),

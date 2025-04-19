@@ -20,17 +20,29 @@ namespace StockApp.Pages
         private StockPageViewModel? _viewModel;
         ICommand command { get; }
 
+        /// <summary>
+        /// Constructor for the StockPage class.
+        /// </summary>
         public StockPage()
         {
             this.InitializeComponent();
             command = new StockNewsRelayCommand(() => AuthorButtonClick());
         }
 
+        /// <summary>
+        /// Handles the click event for the return button.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         public void ReturnButtonClick(object sender, RoutedEventArgs e)
         {
             NavigationService.Instance.GoBack();
         }
 
+        /// <summary>
+        /// Handles the click event for the author button.
+        /// </summary>
+        /// <exception cref="InvalidOperationException"></exception>
         public void AuthorButtonClick()
         {
             if (_viewModel == null)
@@ -57,16 +69,31 @@ namespace StockApp.Pages
             }
         }
 
+        /// <summary>
+        /// Handles the click event for the favorite button.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         public void FavoriteButtonClick(object sender, RoutedEventArgs e)
         {
             _viewModel.ToggleFavorite();
         }
 
+        /// <summary>
+        /// Handles the click event for the alerts button.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         public void AlertsButtonClick(object sender, RoutedEventArgs e)
         {
             NavigationService.Instance.Navigate(typeof(AlertsView));
         }
 
+        /// <summary>
+        /// Handles the click event for the buy button.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         public async void BuyButtonClick(object sender, RoutedEventArgs e)
         {
             int quantity = (int)QuantityInput.Value;
@@ -79,6 +106,11 @@ namespace StockApp.Pages
             }
         }
 
+        /// <summary>
+        /// Handles the click event for the sell button.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         public async void SellButtonClick(object sender, RoutedEventArgs e)
         {
             int quantity = (int)QuantityInput.Value;
