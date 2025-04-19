@@ -450,13 +450,13 @@
                     command.CommandTimeout = 30;
                     command.Parameters.AddWithValue("@ArticleId", newsArticle.ArticleId);
                     command.Parameters.AddWithValue("@Title", newsArticle.Title);
-                    command.Parameters.AddWithValue("@Summary", newsArticle.Summary ?? "");
+                    command.Parameters.AddWithValue("@Summary", newsArticle.Summary ?? string.Empty);
                     command.Parameters.AddWithValue("@Content", newsArticle.Content);
-                    command.Parameters.AddWithValue("@Source", newsArticle.Source ?? "");
+                    command.Parameters.AddWithValue("@Source", newsArticle.Source ?? string.Empty);
                     command.Parameters.AddWithValue("@PublishedDate", newsArticle.PublishedDate);
                     command.Parameters.AddWithValue("@IsRead", newsArticle.IsRead);
                     command.Parameters.AddWithValue("@IsWatchlistRelated", newsArticle.IsWatchlistRelated);
-                    command.Parameters.AddWithValue("@Category", newsArticle.Category ?? "");
+                    command.Parameters.AddWithValue("@Category", newsArticle.Category ?? string.Empty);
                     command.ExecuteNonQuery();
 
                     if (newsArticle.RelatedStocks?.Count > 0)
@@ -515,13 +515,13 @@
                     updateCommand.CommandTimeout = 30;
                     updateCommand.Parameters.AddWithValue("@ArticleId", newsArticle.ArticleId);
                     updateCommand.Parameters.AddWithValue("@Title", newsArticle.Title);
-                    updateCommand.Parameters.AddWithValue("@Summary", newsArticle.Summary ?? "");
+                    updateCommand.Parameters.AddWithValue("@Summary", newsArticle.Summary ?? string.Empty);
                     updateCommand.Parameters.AddWithValue("@Content", newsArticle.Content);
-                    updateCommand.Parameters.AddWithValue("@Source", newsArticle.Source ?? "");
+                    updateCommand.Parameters.AddWithValue("@Source", newsArticle.Source ?? string.Empty);
                     updateCommand.Parameters.AddWithValue("@PublishedDate", newsArticle.PublishedDate);
                     updateCommand.Parameters.AddWithValue("@IsRead", newsArticle.IsRead);
                     updateCommand.Parameters.AddWithValue("@IsWatchlistRelated", newsArticle.IsWatchlistRelated);
-                    updateCommand.Parameters.AddWithValue("@Category", newsArticle.Category ?? "");
+                    updateCommand.Parameters.AddWithValue("@Category", newsArticle.Category ?? string.Empty);
                     updateCommand.ExecuteNonQuery();
 
                     using var deleteCommand = new SqlCommand("DELETE FROM RELATED_STOCKS WHERE ARTICLE_ID = @ArticleId", connection, transaction);
@@ -773,7 +773,7 @@
                             command.CommandTimeout = 30;
                             command.Parameters.AddWithValue("@ArticleId", userArticle.ArticleId);
                             command.Parameters.AddWithValue("@Title", userArticle.Title);
-                            command.Parameters.AddWithValue("@Summary", userArticle.Summary ?? "");
+                            command.Parameters.AddWithValue("@Summary", userArticle.Summary ?? string.Empty);
                             command.Parameters.AddWithValue("@Content", userArticle.Content);
                             command.Parameters.AddWithValue("@AuthorCNP", userArticle.Author.CNP);
                             command.Parameters.AddWithValue("@SubmissionDate", userArticle.SubmissionDate.ToString("yyyy-MM-dd HH:mm:ss"));
@@ -792,13 +792,13 @@
                             command.CommandTimeout = 30;
                             command.Parameters.AddWithValue("@ArticleId", userArticle.ArticleId);
                             command.Parameters.AddWithValue("@Title", userArticle.Title);
-                            command.Parameters.AddWithValue("@Summary", userArticle.Summary ?? "");
+                            command.Parameters.AddWithValue("@Summary", userArticle.Summary ?? string.Empty);
                             command.Parameters.AddWithValue("@Content", userArticle.Content);
                             command.Parameters.AddWithValue("@Source", $"User: {userArticle.Author}");
                             command.Parameters.AddWithValue("@PublishedDate", userArticle.SubmissionDate.ToString("MMMM dd, yyyy"));
                             command.Parameters.AddWithValue("@IsRead", false);
                             command.Parameters.AddWithValue("@IsWatchlistRelated", false);
-                            command.Parameters.AddWithValue("@Category", userArticle.Topic ?? "");
+                            command.Parameters.AddWithValue("@Category", userArticle.Topic ?? string.Empty);
                             command.ExecuteNonQuery();
                         }
 
@@ -874,7 +874,7 @@
                             command.CommandTimeout = 30;
                             command.Parameters.AddWithValue("@ArticleId", userArticle.ArticleId);
                             command.Parameters.AddWithValue("@Title", userArticle.Title);
-                            command.Parameters.AddWithValue("@Summary", userArticle.Summary ?? "");
+                            command.Parameters.AddWithValue("@Summary", userArticle.Summary ?? string.Empty);
                             command.Parameters.AddWithValue("@Content", userArticle.Content);
                             command.Parameters.AddWithValue("@AuthorCNP", userArticle.Author);
                             command.Parameters.AddWithValue("@SubmissionDate", userArticle.SubmissionDate.ToString("yyyy-MM-dd HH:mm:ss"));
@@ -990,7 +990,7 @@
                 {
                     ArticleId = article.ArticleId,
                     Title = article.Title,
-                    Summary = article.Summary ?? "",
+                    Summary = article.Summary ?? string.Empty,
                     Content = article.Content,
                     Source = $"User: {article.Author}",
                     PublishedDate = article.SubmissionDate.ToString("MMMM dd, yyyy"),

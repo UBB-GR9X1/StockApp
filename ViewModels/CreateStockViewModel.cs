@@ -209,9 +209,9 @@ namespace StockApp.ViewModels
             if (this.Message == "Stock added successfully with initial value!")
             {
                 this.suppressValidation = true;
-                this.StockName = "";
-                this.StockSymbol = "";
-                this.AuthorCnp = "";
+                this.StockName = string.Empty;
+                this.StockSymbol = string.Empty;
+                this.AuthorCnp = string.Empty;
                 this.suppressValidation = false;
             }
         }

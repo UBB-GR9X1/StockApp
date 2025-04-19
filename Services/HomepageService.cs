@@ -112,7 +112,7 @@
                         this.FilteredAllStocks.OrderBy(stock =>
                         {
                             // Remove '+' and '%' characters and parse to decimal
-                            string cleanValue = stock.Change.Replace("+", "").Replace("%", "");
+                            string cleanValue = stock.Change.Replace("+", string.Empty).Replace("%", string.Empty);
                             decimal.TryParse(cleanValue, out var change);
                             return change;
                         }).ToList()
@@ -121,7 +121,7 @@
                         this.FilteredFavoriteStocks.OrderBy(stock =>
                         {
                             // Remove '+' and '%' characters and parse to decimal
-                            string cleanValue = stock.Change.Replace("+", "").Replace("%", "");
+                            string cleanValue = stock.Change.Replace("+", string.Empty).Replace("%", string.Empty);
                             decimal.TryParse(cleanValue, out var change);
                             return change;
                         }).ToList()
