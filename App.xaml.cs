@@ -13,7 +13,7 @@ namespace StockApp
     /// </summary>
     public partial class App : Application
     {
-        private Window mainWindow;
+        private Window MainWindow;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="App"/> class.
@@ -51,12 +51,12 @@ namespace StockApp
         /// Invoked when the application is launched normally by the end user.  Other entry points
         /// will be used such as when the application is launched to open a specific file.
         /// </summary>
-        /// <param name="args">Details about the launch request and process.</param>
-        protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
+        /// <param name="launchActivatedEventArgs">Details about the launch request and process.</param>
+        protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs launchActivatedEventArgs)
         {
-            this.mainWindow = new MainWindow();
-            CurrentWindow = this.mainWindow;
-            this.mainWindow.Activate();
+            this.MainWindow = new MainWindow();
+            CurrentWindow = this.MainWindow;
+            this.MainWindow.Activate();
         }
 
         // i found some stupid ass error for the debugger, got it twice and couldn't
@@ -65,10 +65,10 @@ namespace StockApp
         // and opens up a new VS window for the project
         // NO IDEA HOW THAT HAPPENS
         // if you find it pls fix it (if it's in the news stuff cuz i fucked something up tell me and i'll fix it)
-        private void OnUnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
+        private void OnUnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs unhandledExceptionEventArgs)
         {
-            System.Diagnostics.Debug.WriteLine($"Unhandled exception: {e.Exception.Message}");
-            System.Diagnostics.Debug.WriteLine(e.Exception.StackTrace);
+            System.Diagnostics.Debug.WriteLine($"Unhandled exception: {unhandledExceptionEventArgs.Exception.Message}");
+            System.Diagnostics.Debug.WriteLine(unhandledExceptionEventArgs.Exception.StackTrace);
         }
     }
 }
