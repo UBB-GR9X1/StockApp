@@ -12,12 +12,20 @@
         private string selectedStockName;
         private UserRepository userRepo;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StockPageService"/> class.
+        /// </summary>
         public StockPageService()
         {
             this.stockRepo = new();
             this.userRepo = new();
         }
 
+        /// <summary>
+        /// Selects a stock for the user to view or interact with.
+        /// </summary>
+        /// <param name="stock"></param>
+        /// <exception cref="Exception"></exception>
         public void SelectStock(Stock stock)
         {
             if (stock == null)
@@ -28,26 +36,47 @@
             this.selectedStockName = stock.Name;
         }
 
+        /// <summary>
+        /// Checks if the user is a guest.
+        /// </summary>
+        /// <returns></returns>
         public bool IsGuest()
         {
             return stockRepo.IsGuest;
         }
 
+        /// <summary>
+        /// Gets the name of the selected stock.
+        /// </summary>
+        /// <returns></returns>
         public string GetStockName()
         {
             return this.stockRepo.GetStock(this.selectedStockName).Name;
         }
 
+        /// <summary>
+        /// Gets the symbol of the selected stock.
+        /// </summary>
+        /// <returns></returns>
         public string GetStockSymbol()
         {
             return this.stockRepo.GetStock(this.selectedStockName).Symbol;
         }
 
+        /// <summary>
+        /// Gets the price of the selected stock.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public int GetUserBalance()
         {
             return this.stockRepo.User?.GemBalance ?? throw new Exception("User not found.");
         }
 
+        /// <summary>
+        /// Gets the history of stock prices for the selected stock.
+        /// </summary>
+        /// <returns></returns>
         public List<int> GetStockHistory()
         {
             List<int> res = this.stockRepo.GetStockHistory(this.selectedStockName);
@@ -55,11 +84,20 @@
             return res;
         }
 
+        /// <summary>
+        /// Gets the number of stocks owned by the user.
+        /// </summary>
+        /// <returns></returns>
         public int GetOwnedStocks()
         {
             return this.stockRepo.GetOwnedStocks(this.selectedStockName);
         }
 
+        /// <summary>
+        /// Buys a specified quantity of the selected stock.
+        /// </summary>
+        /// <param name="quantity"></param>
+        /// <returns></returns>
         public bool BuyStock(int quantity)
         {
             List<int> stockHistory = GetStockHistory();
@@ -97,6 +135,12 @@
             return false;
         }
 
+        /// <summary>
+        /// Sells a specified quantity of the selected stock.
+        /// </summary>
+        /// <param name="quantity"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public bool SellStock(int quantity)
         {
             List<int> stockHistory = GetStockHistory();
@@ -131,16 +175,28 @@
             return false;
         }
 
+        /// <summary>
+        /// Gets the favorite status of the selected stock.
+        /// </summary>
+        /// <returns></returns>
         public bool GetFavorite()
         {
             return this.stockRepo.GetFavorite(this.selectedStockName);
         }
 
+        /// <summary>
+        /// Toggles the favorite status of the selected stock.
+        /// </summary>
+        /// <param name="state"></param>
         public void ToggleFavorite(bool state)
         {
             this.stockRepo.ToggleFavorite(this.selectedStockName, state);
         }
 
+        /// <summary>
+        /// Gets the author of the selected stock.
+        /// </summary>
+        /// <returns></returns>
         public User GetStockAuthor()
         {
             string authorCNP = this.stockRepo.GetStock(this.selectedStockName).AuthorCnp;
