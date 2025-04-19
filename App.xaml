@@ -4,7 +4,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:StockApp"
-    xmlns:converters="using:StockNewsPage.Converters">
+    xmlns:converters="using:StockApp.Converters">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -18,9 +18,9 @@
             <converters:DateTimeToStringConverter x:Key="DateTimeToStringConverter" />
             <converters:BoolToStringConverter x:Key="BoolToStringConverter" />
             <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter" />
-            <converters:BoolToInverseVisibilityConverter x:Key="BoolToInverseVisibilityConverter" />
-            <converters:StatusToApproveVisibilityConverter x:Key="StatusToApproveVisibilityConverter" />
-            <converters:StatusToRejectVisibilityConverter x:Key="StatusToRejectVisibilityConverter" />
+            <converters:StatusToVisibilityConverter x:Key="BoolToInverseVisibilityConverter" />
+            <converters:StatusToVisibilityConverter x:Key="StatusToApproveVisibilityConverter" />
+            <converters:StatusToVisibilityConverter x:Key="StatusToRejectVisibilityConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>
