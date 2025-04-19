@@ -13,14 +13,14 @@ namespace StockApp.ViewModels
 
     internal class CreateStockViewModel : INotifyPropertyChanged
     {
-        private string StockName;
-        private string StockSymbol;
-        private string AuthorCnp;
-        private string Message;
-        private bool SuppressValidation = false;
+        private string StockNameValue;
+        private string StockSymbolValue;
+        private string AuthorCnpValue;
+        private string MessageValue;
+        private bool SuppressValidationValue = false;
         private readonly ICreateStockService StockService;
-        private bool IsAdmin;
-        private bool IsInputValid;
+        private bool IsAdminValue;
+        private bool IsInputValidValue;
 
         public event PropertyChangedEventHandler? PropertyChanged;
         public ICommand CreateStockCommand { get; }
@@ -39,12 +39,12 @@ namespace StockApp.ViewModels
 
         public bool IsAdmin
         {
-            get => this.IsAdmin;
+            get => this.IsAdminValue;
             set
             {
-                if (this.IsAdmin != value)
+                if (this.IsAdminValue != value)
                 {
-                    this.IsAdmin = value;
+                    this.IsAdminValue = value;
                     this.OnPropertyChanged();
                 }
             }
@@ -52,12 +52,12 @@ namespace StockApp.ViewModels
 
         public string StockName
         {
-            get => this.StockName;
+            get => this.StockNameValue;
             set
             {
-                if (this.StockName != value)
+                if (this.StockNameValue != value)
                 {
-                    this.StockName = value;
+                    this.StockNameValue = value;
                     this.ValidateInputs();
                     this.OnPropertyChanged();
                 }
@@ -66,12 +66,12 @@ namespace StockApp.ViewModels
 
         public string StockSymbol
         {
-            get => this.StockSymbol;
+            get => this.StockSymbolValue;
             set
             {
-                if (this.StockSymbol != value)
+                if (this.StockSymbolValue != value)
                 {
-                    this.StockSymbol = value;
+                    this.StockSymbolValue = value;
                     this.ValidateInputs();
                     this.OnPropertyChanged();
                 }
@@ -80,12 +80,12 @@ namespace StockApp.ViewModels
 
         public string AuthorCnp
         {
-            get => this.AuthorCnp;
+            get => this.AuthorCnpValue;
             set
             {
-                if (this.AuthorCnp != value)
+                if (this.AuthorCnpValue != value)
                 {
-                    this.AuthorCnp = value;
+                    this.AuthorCnpValue = value;
                     this.ValidateInputs();
                     this.OnPropertyChanged();
                 }
@@ -94,12 +94,12 @@ namespace StockApp.ViewModels
 
         public string Message
         {
-            get => this.Message;
+            get => this.MessageValue;
             set
             {
-                if (this.Message != value)
+                if (this.MessageValue != value)
                 {
-                    this.Message = value;
+                    this.MessageValue = value;
                     this.OnPropertyChanged();
                 }
             }
@@ -107,19 +107,19 @@ namespace StockApp.ViewModels
 
         public bool IsInputValid
         {
-            get => this.IsInputValid;
+            get => this.IsInputValidValue;
             private set
             {
-                if (this.IsInputValid != value)
+                if (this.IsInputValidValue != value)
                 {
-                    this.IsInputValid = value;
+                    this.IsInputValidValue = value;
                 }
             }
         }
 
         private void ValidateInputs()
         {
-            if (this.SuppressValidation) return;
+            if (this.SuppressValidationValue) return;
 
             this.Message = string.Empty;
             this.IsInputValid = true;
@@ -168,11 +168,11 @@ namespace StockApp.ViewModels
 
             if (this.Message == "Stock added successfully with initial value!")
             {
-                this.SuppressValidation = true;
+                this.SuppressValidationValue = true;
                 this.StockName = "";
                 this.StockSymbol = "";
                 this.AuthorCnp = "";
-                this.SuppressValidation = false;
+                this.SuppressValidationValue = false;
             }
         }
 
