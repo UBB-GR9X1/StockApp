@@ -4,43 +4,69 @@
     using Microsoft.Data.SqlClient;
     using StockApp.Database;
 
+    /// <summary>
+    /// Repository for retrieving and updating user gem balances and CNP values.
+    /// </summary>
     internal class GemStoreRepository : IGemStoreRepository
     {
         private readonly IDbExecutor dbConnection;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GemStoreRepository"/> class with the default SQL executor.
+        /// </summary>
         public GemStoreRepository()
-           : this(new SqlDbExecutor(DatabaseHelper.GetConnection()))
+            : this(new SqlDbExecutor(DatabaseHelper.GetConnection()))
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GemStoreRepository"/> class with the specified database executor.
+        /// </summary>
+        /// <param name="executor">Executor used to run SQL commands.</param>
         internal GemStoreRepository(IDbExecutor executor)
         {
             dbConnection = executor ?? throw new ArgumentNullException(nameof(executor));
         }
 
+        /// <summary>
+        /// Retrieves the CNP for the current user.
+        /// </summary>
+        /// <returns>The CNP string, or empty if not found.</returns>
         public string GetCnp()
         {
-            string cnpQuery = "SELECT CNP FROM HARDCODED_CNPS";
+            const string cnpQuery = "SELECT CNP FROM HARDCODED_CNPS";
+            // Inline: execute scalar query to fetch CNP
             var result = dbConnection.ExecuteScalar(cnpQuery, cmd => { });
+            // TODO: handle multiple results or empty table case more robustly
             return result?.ToString() ?? string.Empty;
         }
 
+        /// <summary>
+        /// Retrieves the current gem balance for the specified user.
+        /// </summary>
+        /// <param name="cnp">User identifier (CNP).</param>
+        /// <returns>User's gem balance as an integer.</returns>
         public int GetUserGemBalance(string cnp)
         {
-            string checkQuery = "SELECT GEM_BALANCE FROM [USER] WHERE CNP = @CNP";
-
+            const string checkQuery = "SELECT GEM_BALANCE FROM [USER] WHERE CNP = @CNP";
+            // Inline: pass CNP parameter and execute scalar
             var result = dbConnection.ExecuteScalar(checkQuery, cmd =>
             {
                 cmd.Parameters.AddWithValue("@CNP", cnp);
             });
-
+            // FIXME: consider throwing an exception if the user is not found
             return result != null ? Convert.ToInt32(result) : 0;
         }
 
+        /// <summary>
+        /// Updates the gem balance for a given user.
+        /// </summary>
+        /// <param name="cnp">User identifier (CNP).</param>
+        /// <param name="newBalance">New gem balance to set.</param>
         public void UpdateUserGemBalance(string cnp, int newBalance)
         {
-            string updateQuery = "UPDATE [USER] SET GEM_BALANCE = @NewBalance WHERE CNP = @CNP";
-
+            const string updateQuery = "UPDATE [USER] SET GEM_BALANCE = @NewBalance WHERE CNP = @CNP";
+            // Inline: parameterize update and execute non-query
             dbConnection.ExecuteNonQuery(updateQuery, cmd =>
             {
                 cmd.Parameters.AddWithValue("@NewBalance", newBalance);
@@ -48,18 +74,25 @@
             });
         }
 
+        /// <summary>
+        /// Determines if the specified user is considered a guest (no record in the database).
+        /// </summary>
+        /// <param name="cnp">User identifier (CNP).</param>
+        /// <returns><c>true</c> if no user record exists; otherwise, <c>false</c>.</returns>
         public bool IsGuest(string cnp)
         {
-            string checkQuery = "SELECT COUNT(*) FROM [USER] WHERE CNP = @CNP";
-
+            const string checkQuery = "SELECT COUNT(*) FROM [USER] WHERE CNP = @CNP";
+            // Inline: count matching CNP entries
             var result = dbConnection.ExecuteScalar(checkQuery, cmd =>
             {
                 cmd.Parameters.AddWithValue("@CNP", cnp);
             });
+            // TODO: consider caching the result to avoid constant database hits
             var count = result != null ? Convert.ToInt32(result) : 0;
             return count == 0;
         }
     }
+}
 
     //public void PopulateHardcodedCnps()
     //{
@@ -98,4 +131,3 @@
     //        }
     //    }
     //}
-}
