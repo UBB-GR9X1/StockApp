@@ -30,8 +30,8 @@ namespace StockApp
 
             // rootFrame.Navigate(typeof(CreateStockPage.MainPage), null);
 
-            RootFrame.Navigate(typeof(HomepageView), null);
-            NavigationService.Initialize(new FrameAdapter(RootFrame));
+            rootFrame.Navigate(typeof(HomepageView), null);
+            NavigationService.Initialize(new FrameAdapter(rootFrame));
 
             // string stockName = "Tesla";
 
@@ -75,7 +75,7 @@ namespace StockApp
         //}
         private void DisplayTriggeredAlerts(List<TriggeredAlert> triggeredAlerts)
         {
-            RootFrame.Navigate(typeof(AlertsView), triggeredAlerts);
+            rootFrame.Navigate(typeof(AlertsView), triggeredAlerts);
         }
 
         void OnNavigationFailed(object sender, NavigationFailedEventArgs navigationFailedEventArgs)

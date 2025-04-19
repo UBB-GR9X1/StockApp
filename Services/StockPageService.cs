@@ -6,7 +6,7 @@
     using StockApp.Models;
     using StockApp.Repositories;
 
-    class StockPageService : IStockPageService
+    public class StockPageService : IStockPageService
     {
         private StockPageRepository stockRepo;
         private string selectedStockName;
@@ -30,7 +30,7 @@
 
         public bool IsGuest()
         {
-            return stockRepo.IsGuest;
+            return this.stockRepo.IsGuest;
         }
 
         public string GetStockName()
@@ -62,7 +62,7 @@
 
         public bool BuyStock(int quantity)
         {
-            List<int> stockHistory = GetStockHistory();
+            List<int> stockHistory = this.GetStockHistory();
             int stockPrice = stockHistory.Last();
 
             int totalPrice = stockPrice * quantity;
@@ -99,10 +99,10 @@
 
         public bool SellStock(int quantity)
         {
-            List<int> stockHistory = GetStockHistory();
+            List<int> stockHistory = this.GetStockHistory();
             int stockPrice = stockHistory.Last();
             int totalPrice = stockPrice * quantity;
-            if (stockRepo.GetOwnedStocks(selectedStockName) >= quantity)
+            if (this.stockRepo.GetOwnedStocks(this.selectedStockName) >= quantity)
             {
                 Random r = new Random();
                 int new_price = stockPrice + ((r.Next(0, 10) - 5) * quantity);

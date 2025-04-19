@@ -9,7 +9,7 @@
 
         public static NavigationService Instance => instance.Value;
 
-        private static INavigationFrame RootFrame;
+        private static INavigationFrame rootFrame;
 
         // Private constructor to enforce singleton pattern
         private NavigationService()
@@ -18,42 +18,42 @@
 
         public static void Initialize(INavigationFrame frame)
         {
-            RootFrame = frame ?? throw new ArgumentNullException(nameof(frame));
+            rootFrame = frame ?? throw new ArgumentNullException(nameof(frame));
         }
 
         public bool Navigate(Type pageType, object? parameter = null)
         {
-            if (RootFrame == null)
+            if (rootFrame == null)
             {
                 throw new InvalidOperationException("NavigationService not initialized. Call Initialize first.");
             }
 
-            return RootFrame.Navigate(pageType, parameter);
+            return rootFrame.Navigate(pageType, parameter);
         }
 
         public void GoBack()
         {
-            if (RootFrame == null)
+            if (rootFrame == null)
             {
                 throw new InvalidOperationException("NavigationService not initialized. Call Initialize first.");
             }
 
-            if (RootFrame.CanGoBack)
+            if (rootFrame.CanGoBack)
             {
-                RootFrame.GoBack();
+                rootFrame.GoBack();
             }
         }
 
-        public bool CanGoBack => RootFrame?.CanGoBack ?? false;
+        public bool CanGoBack => rootFrame?.CanGoBack ?? false;
 
         public void NavigateToArticleDetail(string articleId)
         {
-            if (RootFrame == null)
+            if (rootFrame == null)
             {
                 throw new InvalidOperationException("NavigationService not initialized. Call Initialize first.");
             }
 
-            Navigate(typeof(StockApp.Views.NewsArticleView), articleId);
+            this.Navigate(typeof(StockApp.Views.NewsArticleView), articleId);
         }
     }
 }
