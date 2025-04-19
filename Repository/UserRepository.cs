@@ -9,7 +9,11 @@
 
     public class UserRepository
     {
-        // Create a new user
+        /// <summary>
+        /// Creates a new user in the database.
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         public async Task CreateUserAsync(User user)
         {
             using var connection = DatabaseHelper.GetConnection();
@@ -26,7 +30,12 @@
             await command.ExecuteNonQueryAsync();
         }
 
-        // Read a user by CNP
+        /// <summary>
+        /// Retrieves a user by their CNP.
+        /// </summary>
+        /// <param name="cnp"></param>
+        /// <returns></returns>
+        /// <exception cref="KeyNotFoundException"></exception>
         public async Task<User> GetUserByCnpAsync(string cnp)
         {
             using var connection = DatabaseHelper.GetConnection();
@@ -52,7 +61,11 @@
             throw new KeyNotFoundException($"No user found with CNP: {cnp}");
         }
 
-        // Update a user
+        /// <summary>
+        /// Updates an existing user in the database.
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         public async Task UpdateUserAsync(User user)
         {
             using var connection = DatabaseHelper.GetConnection();
@@ -69,7 +82,11 @@
             await command.ExecuteNonQueryAsync();
         }
 
-        // Delete a user
+        /// <summary>
+        /// Deletes a user from the database by their CNP.
+        /// </summary>
+        /// <param name="cnp"></param>
+        /// <returns></returns>
         public async Task DeleteUserAsync(string cnp)
         {
             using var connection = DatabaseHelper.GetConnection();
@@ -80,7 +97,11 @@
             await command.ExecuteNonQueryAsync();
         }
 
-        // Get all users
+        /// <summary>
+        /// Retrieves all users from the database.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public async Task<List<User>> GetAllUsersAsync()
         {
             var users = new List<User>();
