@@ -8,6 +8,9 @@
     using StockApp.Models;
     using StockApp.Repositories;
 
+    /// <summary>
+    /// Provides business logic for managing news and user-submitted articles.
+    /// </summary>
     public class NewsService : INewsService
     {
         private readonly AppState appState;
@@ -19,39 +22,57 @@
         private readonly INewsRepository repository;
         private IBaseStocksRepository stocksRepository;
 
-        public NewsService() : this(new NewsRepository(), new BaseStocksRepository()) { }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NewsService"/> class
+        /// with default repository implementations.
+        /// </summary>
+        public NewsService() : this(new NewsRepository(), new BaseStocksRepository())
+        {
+        }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NewsService"/> class
+        /// using the specified repositories.
+        /// </summary>
+        /// <param name="repository">The news repository.</param>
+        /// <param name="stocksRepository">The base stocks repository.</param>
         public NewsService(INewsRepository repository, IBaseStocksRepository stocksRepository)
         {
             this.repository = repository;
-            this.stocksRepository = stocksRepository;
+            this.stocksRepository = stocksRepository; // FIXME: stocksRepository is never used in this class.
             this.appState = AppState.Instance;
 
             if (!isInitialized)
             {
+                // Load initial user-submitted articles into memory
                 var initialUserArticles = this.repository.GetAllUserArticles() ?? new List<UserArticle>();
                 userArticles.AddRange(initialUserArticles);
                 isInitialized = true;
             }
-
         }
 
+        /// <summary>
+        /// Retrieves and caches all news articles.
+        /// </summary>
+        /// <returns>A list of <see cref="NewsArticle"/> instances.</returns>
+        /// <exception cref="NewsPersistenceException">Thrown if retrieval fails.</exception>
         public async Task<List<NewsArticle>> GetNewsArticlesAsync()
         {
             try
             {
+                // Fetch articles in a background thread
                 var articles = await Task.Run(() => this.repository.GetAllNewsArticles());
-                
-                // Update the cached articles
+
+                // Refresh cache
                 this.cachedArticles.Clear();
                 this.cachedArticles.AddRange(articles);
-                
-                // Load related stocks for each article
+
+                // Inline: For each article, populate its related stocks
                 foreach (var article in articles)
                 {
                     article.RelatedStocks = this.repository.GetRelatedStocksForArticle(article.ArticleId);
                 }
-                
+
                 return articles;
             }
             catch (NewsPersistenceException ex)
@@ -61,6 +82,14 @@
             }
         }
 
+        /// <summary>
+        /// Retrieves a news article by ID, checking preview cache first.
+        /// </summary>
+        /// <param name="articleId">The ID of the article to fetch.</param>
+        /// <returns>The requested <see cref="NewsArticle"/>.</returns>
+        /// <exception cref="ArgumentNullException">If <paramref name="articleId"/> is null or empty.</exception>
+        /// <exception cref="KeyNotFoundException">If no article matches the ID.</exception>
+        /// <exception cref="NewsPersistenceException">If retrieval fails.</exception>
         public async Task<NewsArticle> GetNewsArticleByIdAsync(string articleId)
         {
             if (string.IsNullOrWhiteSpace(articleId))
@@ -68,13 +97,13 @@
                 throw new ArgumentNullException(nameof(articleId));
             }
 
-            // First check if this is a preview article using the correct lookup ID
+            // Return from preview cache if available
             if (previewArticles.TryGetValue(articleId, out var previewArticle))
             {
                 return previewArticle;
             }
 
-            await Task.Delay(200);
+            await Task.Delay(200); // TODO: Replace artificial delay with real async call
 
             try
             {
@@ -87,6 +116,13 @@
             }
         }
 
+        /// <summary>
+        /// Marks the specified article as read.
+        /// </summary>
+        /// <param name="articleId">The ID of the article to mark.</param>
+        /// <returns>True if successful.</returns>
+        /// <exception cref="ArgumentNullException">If <paramref name="articleId"/> is null or empty.</exception>
+        /// <exception cref="NewsPersistenceException">If marking fails.</exception>
         public async Task<bool> MarkArticleAsReadAsync(string articleId)
         {
             if (string.IsNullOrWhiteSpace(articleId))
@@ -94,7 +130,7 @@
                 throw new ArgumentNullException(nameof(articleId));
             }
 
-            await Task.Delay(100);
+            await Task.Delay(100); // TODO: Remove hardcoded delay
 
             try
             {
@@ -107,15 +143,21 @@
             }
         }
 
+        /// <summary>
+        /// Creates a new news article.
+        /// </summary>
+        /// <param name="article">The article to create.</param>
+        /// <returns>True if creation succeeded.</returns>
+        /// <exception cref="UnauthorizedAccessException">If no user is logged in.</exception>
+        /// <exception cref="NewsPersistenceException">If creation fails.</exception>
         public async Task<bool> CreateArticleAsync(NewsArticle article)
         {
-            // ensure user is logged in
             if (this.appState.CurrentUser == null)
             {
                 throw new UnauthorizedAccessException("User must be logged in to create an article");
             }
 
-            await Task.Delay(300);
+            await Task.Delay(300); // TODO: Remove artificial delay
 
             try
             {
@@ -128,25 +170,35 @@
             }
         }
 
+        /// <summary>
+        /// Retrieves user-submitted articles, optionally filtering by status and topic.
+        /// </summary>
+        /// <param name="status">The status to filter by (or null for all).</param>
+        /// <param name="topic">The topic to filter by (or null for all).</param>
+        /// <returns>A list of <see cref="UserArticle"/> instances.</returns>
+        /// <exception cref="UnauthorizedAccessException">If current user is not an admin.</exception>
+        /// <exception cref="NewsPersistenceException">If loading fails.</exception>
         public async Task<List<UserArticle>> GetUserArticlesAsync(string status = null, string topic = null)
         {
-            // ensure the user is admin
             if (this.appState.CurrentUser == null || !this.appState.CurrentUser.IsModerator)
             {
                 throw new UnauthorizedAccessException("User must be an admin to access user articles");
             }
 
-            await Task.Delay(300);
+            await Task.Delay(300); // TODO: Remove artificial delay
 
             try
             {
+                // Reload from repository
                 userArticles = await Task.Run(() => this.repository.GetAllUserArticles());
 
+                // Inline: apply status filter
                 if (!string.IsNullOrEmpty(status) && status != "All")
                 {
                     userArticles = userArticles.Where(a => a.Status == status).ToList();
                 }
 
+                // Inline: apply topic filter
                 if (!string.IsNullOrEmpty(topic) && topic != "All")
                 {
                     userArticles = userArticles.Where(a => a.Topic == topic).ToList();
@@ -160,9 +212,16 @@
             }
         }
 
+        /// <summary>
+        /// Approves a pending user article.
+        /// </summary>
+        /// <param name="articleId">The ID of the article to approve.</param>
+        /// <returns>True if approval succeeded.</returns>
+        /// <exception cref="UnauthorizedAccessException">If current user is not an admin.</exception>
+        /// <exception cref="ArgumentNullException">If <paramref name="articleId"/> is null or empty.</exception>
+        /// <exception cref="NewsPersistenceException">If approval fails.</exception>
         public async Task<bool> ApproveUserArticleAsync(string articleId)
         {
-            // ensure the user is admin
             if (this.appState.CurrentUser == null || !this.appState.CurrentUser.IsModerator)
             {
                 throw new UnauthorizedAccessException("User must be an admin to approve articles");
@@ -173,12 +232,12 @@
                 throw new ArgumentNullException(nameof(articleId));
             }
 
-            await Task.Delay(300);
+            await Task.Delay(300); // TODO: Remove artificial delay
 
             try
             {
                 await Task.Run(() => this.repository.ApproveUserArticle(articleId));
-                this.cachedArticles.Clear();
+                this.cachedArticles.Clear(); // Invalidate cache after approval
                 return true;
             }
             catch (NewsPersistenceException ex)
@@ -187,9 +246,16 @@
             }
         }
 
+        /// <summary>
+        /// Rejects a pending user article.
+        /// </summary>
+        /// <param name="articleId">The ID of the article to reject.</param>
+        /// <returns>True if rejection succeeded.</returns>
+        /// <exception cref="UnauthorizedAccessException">If current user is not an admin.</exception>
+        /// <exception cref="ArgumentNullException">If <paramref name="articleId"/> is null or empty.</exception>
+        /// <exception cref="NewsPersistenceException">If rejection fails.</exception>
         public async Task<bool> RejectUserArticleAsync(string articleId)
         {
-            // ensure the user is admin
             if (this.appState.CurrentUser == null || !this.appState.CurrentUser.IsModerator)
             {
                 throw new UnauthorizedAccessException("User must be an admin to reject articles");
@@ -200,12 +266,12 @@
                 throw new ArgumentNullException(nameof(articleId));
             }
 
-            await Task.Delay(300);
+            await Task.Delay(300); // TODO: Remove artificial delay
 
             try
             {
                 await Task.Run(() => this.repository.RejectUserArticle(articleId));
-                this.cachedArticles.Clear();
+                this.cachedArticles.Clear(); // Invalidate cache after rejection
                 return true;
             }
             catch (NewsPersistenceException ex)
@@ -214,9 +280,16 @@
             }
         }
 
+        /// <summary>
+        /// Deletes both a user-submitted article and its corresponding news article.
+        /// </summary>
+        /// <param name="articleId">The ID of the article to delete.</param>
+        /// <returns>True if deletion succeeded.</returns>
+        /// <exception cref="UnauthorizedAccessException">If current user is not an admin.</exception>
+        /// <exception cref="ArgumentNullException">If <paramref name="articleId"/> is null or empty.</exception>
+        /// <exception cref="NewsPersistenceException">If deletion fails.</exception>
         public async Task<bool> DeleteUserArticleAsync(string articleId)
         {
-            // ensure the user is admin
             if (this.appState.CurrentUser == null || !this.appState.CurrentUser.IsModerator)
             {
                 throw new UnauthorizedAccessException("User must be an admin to delete articles");
@@ -227,13 +300,14 @@
                 throw new ArgumentNullException(nameof(articleId));
             }
 
-            await Task.Delay(300);
+            await Task.Delay(300); // TODO: Remove artificial delay
 
             try
             {
+                // Remove user article and its published counterpart
                 await Task.Run(() => this.repository.DeleteUserArticle(articleId));
                 await Task.Run(() => this.repository.DeleteNewsArticle(articleId));
-                this.cachedArticles.Clear();
+                this.cachedArticles.Clear(); // Invalidate cache after deletion
                 return true;
             }
             catch (NewsPersistenceException ex)
@@ -242,25 +316,31 @@
             }
         }
 
+        /// <summary>
+        /// Submits a user article for review.
+        /// </summary>
+        /// <param name="article">The user article to submit.</param>
+        /// <returns>True if submission succeeded.</returns>
+        /// <exception cref="UnauthorizedAccessException">If no user is logged in.</exception>
+        /// <exception cref="NewsPersistenceException">If submission fails.</exception>
         public async Task<bool> SubmitUserArticleAsync(UserArticle article)
         {
-            // ensure user is logged in
             if (this.appState.CurrentUser == null)
             {
                 throw new UnauthorizedAccessException("User must be logged in to submit an article");
             }
 
-            // set author and submission date
+            // Inline: set author and metadata
             article.Author = this.appState.CurrentUser;
             article.SubmissionDate = DateTime.Now;
             article.Status = "Pending";
 
-            await Task.Delay(300);
+            await Task.Delay(300); // TODO: Remove artificial delay
 
             try
             {
                 await Task.Run(() => this.repository.AddUserArticle(article));
-                this.cachedArticles.Clear();
+                this.cachedArticles.Clear(); // Invalidate cache after submission
                 return true;
             }
             catch (NewsPersistenceException ex)
@@ -269,18 +349,30 @@
             }
         }
 
+        /// <summary>
+        /// Gets the currently logged-in user from application state.
+        /// </summary>
+        /// <returns>The current <see cref="User"/>.</returns>
+        /// <exception cref="InvalidOperationException">If no user is logged in.</exception>
         public async Task<User> GetCurrentUserAsync()
         {
-            // checks if user is already in app state
             if (this.appState.CurrentUser != null)
             {
                 return this.appState.CurrentUser;
             }
 
-            await Task.Delay(200);
+            await Task.Delay(200); // TODO: Remove artificial delay
             throw new InvalidOperationException("No user is currently logged in");
         }
 
+        /// <summary>
+        /// Authenticates a user by username and password.
+        /// </summary>
+        /// <param name="username">The username to authenticate.</param>
+        /// <param name="password">The password to verify.</param>
+        /// <returns>The authenticated <see cref="User"/>.</returns>
+        /// <exception cref="ArgumentNullException">If <paramref name="username"/> or <paramref name="password"/> is null or empty.</exception>
+        /// <exception cref="UnauthorizedAccessException">If credentials are invalid.</exception>
         public async Task<User> LoginAsync(string username, string password)
         {
             if (string.IsNullOrWhiteSpace(username))
@@ -293,19 +385,18 @@
                 throw new ArgumentNullException(nameof(password));
             }
 
-            await Task.Delay(300);
+            await Task.Delay(300); // TODO: Replace with real authentication call
 
             if (username == "admin" && password == "admin")
             {
                 string adminCnp = "6666666666666";
-
                 try
                 {
                     this.repository.EnsureUserExists(
                         adminCnp,
                         "admin",
                         "Administrator Account",
-                        true, // isAdmin
+                        true,  // isAdmin
                         false, // isHidden
                         "img.jpg"
                     );
@@ -341,25 +432,37 @@
             throw new UnauthorizedAccessException("Invalid username or password");
         }
 
+        /// <summary>
+        /// Logs out the current user and clears preview caches.
+        /// </summary>
         public void Logout()
         {
-            // this supposed to be DIFFERENT BUT AINT NO WAY IT COULD BE CHANGED WITH THE CURRENT CODEBASE
+            // TODO: Refine logout logic to persist session state if needed
             this.appState.CurrentUser = null;
-            // clear preview articles
             previewArticles.Clear();
             previewUserArticles.Clear();
         }
 
+        /// <summary>
+        /// Stores a preview of a news article and its corresponding user article.
+        /// </summary>
+        /// <param name="article">The news article preview.</param>
+        /// <param name="userArticle">The user article preview.</param>
+        /// <remarks>
+        /// Strips any "preview:" prefix from <c>ArticleId</c> before storage.
+        /// </remarks>
+        /// <exception cref="NewsPersistenceException">If persisting related stocks fails.</exception>
         public void StorePreviewArticle(NewsArticle article, UserArticle userArticle)
         {
+            // Inline: normalize ID by removing "preview:" prefix if present
             string articleId = article.ArticleId.StartsWith("preview:") ? article.ArticleId[8..] : article.ArticleId;
             article.ArticleId = articleId;
 
+            // Inline: copy related stocks list if provided
             article.RelatedStocks = userArticle.RelatedStocks != null
                 ? new List<string>(userArticle.RelatedStocks)
                 : new List<string>();
 
-            // Store the article and user article in the preview caches
             previewArticles[articleId] = article;
             previewUserArticles[articleId] = userArticle;
 
@@ -377,7 +480,11 @@
             }
         }
 
-
+        /// <summary>
+        /// Retrieves a user article for preview by its ID.
+        /// </summary>
+        /// <param name="articleId">The ID of the preview article.</param>
+        /// <returns>The <see cref="UserArticle"/> if found; otherwise null.</returns>
         public UserArticle GetUserArticleForPreview(string articleId)
         {
             if (previewUserArticles.TryGetValue(articleId, out var previewArticle))
@@ -385,15 +492,22 @@
                 return previewArticle;
             }
 
-            // if not in preview cache, check the regular user articles
+            // Inline: fallback to main list
             return userArticles.FirstOrDefault(a => a.ArticleId == articleId);
         }
 
+        /// <summary>
+        /// Gets related stock symbols for the specified article.
+        /// </summary>
+        /// <param name="articleId">The ID of the article.</param>
+        /// <returns>A list of related stock symbols.</returns>
+        /// <exception cref="NewsPersistenceException">If retrieval fails.</exception>
         public List<string> GetRelatedStocksForArticle(string articleId)
         {
+            // Inline: normalize ID
             string actualId = articleId.StartsWith("preview:") ? articleId[8..] : articleId;
 
-            // Check preview dictionary first
+            // Return preview stocks if available
             if (previewUserArticles.TryGetValue(actualId, out var previewUserArticle) &&
                 previewUserArticle.RelatedStocks != null &&
                 previewUserArticle.RelatedStocks.Any())
@@ -404,7 +518,7 @@
             try
             {
                 var stocks = this.repository.GetRelatedStocksForArticle(actualId);
-                System.Diagnostics.Debug.WriteLine($"GetRelatedStocksForArticle: Found {stocks.Count} stocks in repository");
+                System.Diagnostics.Debug.WriteLine($"GetRelatedStocksForArticle: Found {stocks.Count} stocks");
                 return stocks;
             }
             catch (NewsPersistenceException ex)
@@ -414,7 +528,10 @@
             }
         }
 
-
+        /// <summary>
+        /// Updates the internal cache of news articles.
+        /// </summary>
+        /// <param name="articles">The new list of articles to cache.</param>
         public void UpdateCachedArticles(List<NewsArticle> articles)
         {
             this.cachedArticles.Clear();
@@ -424,10 +541,15 @@
             }
         }
 
+        /// <summary>
+        /// Gets the current cache of news articles, or fetches from repository if empty.
+        /// </summary>
+        /// <returns>A list of <see cref="NewsArticle"/>.</returns>
         public List<NewsArticle> GetCachedArticles()
         {
-            return this.cachedArticles.Count > 0 ? this.cachedArticles : this.repository.GetAllNewsArticles();
+            return this.cachedArticles.Count > 0
+                ? this.cachedArticles
+                : this.repository.GetAllNewsArticles();
         }
     }
 }
-
