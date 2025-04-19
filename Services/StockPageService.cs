@@ -143,7 +143,7 @@
 
         public User GetStockAuthor()
         {
-            string authorCNP = this.stockRepo.GetStock(this.selectedStockName).AuthorCNP;
+            string authorCNP = this.stockRepo.GetStock(this.selectedStockName).AuthorCnp;
             return this.userRepo.GetUserByCnpAsync(authorCNP).Result;
         }
     }

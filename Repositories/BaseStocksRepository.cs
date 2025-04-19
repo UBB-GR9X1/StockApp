@@ -74,7 +74,7 @@ namespace StockApp.Repositories
                 {
                     cmd.Parameters.AddWithValue("@StockName", stock.Name);
                     cmd.Parameters.AddWithValue("@StockSymbol", stock.Symbol);
-                    cmd.Parameters.AddWithValue("@AuthorCNP", stock.AuthorCNP);
+                    cmd.Parameters.AddWithValue("@AuthorCNP", stock.AuthorCnp);
                 }, transaction);
 
                 string insertValue = "INSERT INTO STOCK_VALUE (STOCK_NAME, PRICE) VALUES (@StockName, @Price)";
