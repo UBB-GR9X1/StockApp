@@ -37,6 +37,7 @@ namespace StockApp.Repositories
             try
             {
                 using var command = new SqlCommand(query, this.dbConnection, transaction);
+
                 // Inline: apply parameters before execution
                 parameterize?.Invoke(command);
                 command.ExecuteNonQuery();
@@ -61,6 +62,7 @@ namespace StockApp.Repositories
             try
             {
                 using var command = new SqlCommand(query, this.dbConnection, transaction);
+
                 // Inline: apply parameters before execution
                 parameterize?.Invoke(command);
                 return (T)Convert.ChangeType(command.ExecuteScalar(), typeof(T));
@@ -116,6 +118,7 @@ namespace StockApp.Repositories
                 }, transaction);
 
                 transaction.Commit();
+
                 // Inline: update in-memory collection after commit
                 this.stocks.Add(stock);
             }

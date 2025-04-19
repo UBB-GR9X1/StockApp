@@ -40,6 +40,7 @@
             this.Content = content;
             this.Source = source;
             this.PublishedDate = publishedDate;
+
             // Copy the incoming sequence to a List for mutability and indexing
             this.RelatedStocks = relatedStocks.ToList();
             this.Status = status;

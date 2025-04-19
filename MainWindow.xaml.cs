@@ -59,6 +59,7 @@ namespace StockApp
             // Alerts
             //rootFrame.Navigate(typeof(Alerts.AlertWindow), null);
         }
+
         //private void CheckAndHandleAlerts()
         //{
         //    var alertRepository = new AlertRepository();

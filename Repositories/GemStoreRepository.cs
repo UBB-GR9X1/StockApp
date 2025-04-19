@@ -56,6 +56,7 @@
             {
                 cmd.Parameters.AddWithValue("@CNP", userCnp);
             });
+
             // FIXME: consider throwing an exception if the user is not found
             return result != null ? Convert.ToInt32(result) : 0;
         }
@@ -89,6 +90,7 @@
             {
                 cmd.Parameters.AddWithValue("@CNP", userCnp);
             });
+
             // TODO: consider caching the result to avoid constant database hits
             var count = result != null ? Convert.ToInt32(result) : 0;
             return count == 0;

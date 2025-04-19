@@ -38,6 +38,7 @@
         /// Gets the brush color to represent the price change: green for positive, red for negative or zero.
         /// </summary>
         public SolidColorBrush ChangeColor
+
             // Use green when the change starts with '+', otherwise red
             => this.Change.StartsWith('+')
                 ? new SolidColorBrush(Colors.Green)
@@ -47,6 +48,7 @@
         /// Gets the star symbol to display: a filled star if favorite, or an outline otherwise.
         /// </summary>
         public string FavoriteStar
+
             // Return filled star when favorite, outline star when not
             => this.IsFavorite ? "★" : "☆";
     }

@@ -43,6 +43,7 @@
         private void ExecuteSql(string query, Action<SqlCommand> parameterize)
         {
             using var command = new SqlCommand(query, this.dbConnection);
+
             // Inline: apply parameters via provided lambda
             parameterize?.Invoke(command);
             command.ExecuteNonQuery();
@@ -71,6 +72,7 @@
         {
             const string query = "SELECT * FROM ALERTS";
             this.Alerts.Clear();
+
             // Inline: map each row to an Alert instance
             this.Alerts.AddRange(
                 this.ExecuteReader(query, reader => new Alert

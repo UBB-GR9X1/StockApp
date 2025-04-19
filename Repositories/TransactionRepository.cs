@@ -120,6 +120,7 @@
             using (SqlCommand command = new(insertQuery, connection))
             {
                 command.Parameters.AddWithValue("@stockName", transaction.StockName);
+
                 // True if BUY, false if SELL
                 command.Parameters.AddWithValue(
                     "@type",

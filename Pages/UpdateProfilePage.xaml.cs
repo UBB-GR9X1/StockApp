@@ -32,6 +32,7 @@ namespace StockApp.Pages
         private async void GetAdminPassword(object sender, RoutedEventArgs e)
         {
             string userTryPass = this.PasswordTry.Text;
+
             //TODO: holy shit this code is unholy do actual auth checking
             bool isAdmin = false;
             this.viewModelUpdate.UpdateAdminMode(isAdmin);

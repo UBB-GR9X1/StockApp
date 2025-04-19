@@ -102,6 +102,7 @@
         /// <summary>
         /// Loads the user gem balance asynchronously.
         /// </summary>
+
         // FIXME: Change async void to async Task for better error handling
         public async void LoadUserData()
         {
@@ -281,6 +282,7 @@
             while (true)
             {
                 await Task.Delay(TimeSpan.FromSeconds(60));
+
                 // Inline: filter out expired deals
                 this.AvailableDeals = new ObservableCollection<GemDeal>(this.AvailableDeals.Where(deal => deal.IsAvailable));
                 this.SortDeals();

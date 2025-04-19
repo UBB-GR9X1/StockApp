@@ -80,6 +80,7 @@
         public List<int> GetStockHistory()
         {
             List<int> res = this.stockRepo.GetStockHistory(this.selectedStockName);
+
             // res.Reverse();
             return res;
         }

@@ -43,6 +43,7 @@
         /// Gets the total value of the transaction (Amount multiplied by PricePerStock).
         /// </summary>
         public int TotalValue
+
             // Calculate the total value of this transaction
             => this.Amount * this.PricePerStock;
 

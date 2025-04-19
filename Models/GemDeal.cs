@@ -50,6 +50,7 @@
         /// Gets the UTC time when this deal expires, or <see cref="DateTime.MaxValue"/> if it never expires.
         /// </summary>
         public DateTime ExpirationTime
+
             // If special and has a duration, calculate expiration; else never expires
             => this.IsSpecial && this.DurationMinutes.HasValue
                    ? DateTime.UtcNow.AddMinutes(this.DurationMinutes.Value)
@@ -59,6 +60,7 @@
         /// Gets a value indicating whether this deal is still available.
         /// </summary>
         public bool IsAvailable
+
             // Available if not special, no duration set, or the current time is before expiration
             => !this.IsSpecial
                || this.DurationMinutes is null
@@ -68,6 +70,7 @@
         /// Gets the price formatted with two decimals and the euro symbol.
         /// </summary>
         public string FormattedPrice
+
             // Format price as "0.00€"
             => $"{this.Price:0.00}€";
 
@@ -75,6 +78,7 @@
         /// Gets the expiration time formatted as "HH:mm:ss", or an empty string if it never expires.
         /// </summary>
         public string ExpirationTimeFormatted
+
             // Return empty when expiration is infinite, otherwise format the time
             => this.ExpirationTime == DateTime.MaxValue
                    ? string.Empty
@@ -87,6 +91,7 @@
         /// The name of the property that changed. Automatically provided when called without arguments.
         /// </param>
         protected void OnPropertyChanged([CallerMemberName] string? prop = null)
+
             // Notify subscribers that a property value has changed
             => this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
     }

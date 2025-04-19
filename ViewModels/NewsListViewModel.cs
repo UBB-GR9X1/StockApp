@@ -20,6 +20,7 @@
 
         // properties
         private ObservableCollection<NewsArticle> articles = new();
+
         /// <summary>
         /// Gets or sets the collection of news articles.
         /// </summary>
@@ -30,6 +31,7 @@
         }
 
         private bool isLoading;
+
         /// <summary>
         /// Gets or sets a value indicating whether data is currently loading.
         /// </summary>
@@ -40,6 +42,7 @@
         }
 
         private bool isRefreshing;
+
         /// <summary>
         /// Gets or sets a value indicating whether a refresh operation is in progress.
         /// </summary>
@@ -50,6 +53,7 @@
         }
 
         private bool isEmptyState;
+
         /// <summary>
         /// Gets or sets a value indicating whether the UI should show the empty state.
         /// </summary>
@@ -60,6 +64,7 @@
         }
 
         private string searchQuery = string.Empty;
+
         /// <summary>
         /// Gets or sets the query text used to filter articles.
         /// </summary>
@@ -76,6 +81,7 @@
         }
 
         private ObservableCollection<string> categories = new();
+
         /// <summary>
         /// Gets or sets the list of available article categories.
         /// </summary>
@@ -86,6 +92,7 @@
         }
 
         private string selectedCategory;
+
         /// <summary>
         /// Gets or sets the currently selected category for filtering.
         /// </summary>
@@ -102,6 +109,7 @@
         }
 
         private NewsArticle selectedArticle;
+
         /// <summary>
         /// Gets or sets the currently selected news article.
         /// Selecting an article will navigate to its detail view.
@@ -115,9 +123,11 @@
                 {
                     // Store the article ID before clearing the selection
                     var articleId = value.ArticleId;
+
                     // Clear selection first to prevent UI issues
                     this.selectedArticle = null;
                     this.OnPropertyChanged(nameof(this.SelectedArticle));
+
                     // Then navigate
                     this.NavigateToArticleDetail(articleId);
                 }
@@ -126,6 +136,7 @@
 
         // user and auth properties
         private User currentUser;
+
         /// <summary>
         /// Gets or sets the current authenticated user.
         /// </summary>
@@ -153,32 +164,39 @@
         public bool IsLoggedIn => this.CurrentUser != null;
 
         // commands
+
         /// <summary>
         /// Gets the command to refresh the list of articles.
         /// </summary>
         public ICommand RefreshCommand { get; }
+
         /// <summary>
         /// Gets the command to navigate to the article creation view.
         /// </summary>
         public ICommand CreateArticleCommand { get; }
+
         /// <summary>
         /// Gets the command to navigate to the admin panel.
         /// </summary>
         public ICommand AdminPanelCommand { get; }
+
         /// <summary>
         /// Gets the command to show the login dialog.
         /// </summary>
         public ICommand LoginCommand { get; }
+
         /// <summary>
         /// Gets the command to log out the current user.
         /// </summary>
         public ICommand LogoutCommand { get; }
+
         /// <summary>
         /// Gets the command to clear the current search query.
         /// </summary>
         public ICommand ClearSearchCommand { get; }
 
         // constructors
+
         /// <summary>
         /// Initializes a new instance of the <see cref="NewsListViewModel"/> class with specified services.
         /// </summary>
@@ -218,6 +236,7 @@
         }
 
         // methods
+
         /// <summary>
         /// Initializes the view model by loading the current user and articles.
         /// </summary>
@@ -399,6 +418,7 @@
                 };
 
                 var panel = new StackPanel { Spacing = 10 };
+
                 // Inline: Build login dialog UI elements
                 var usernameBox = new TextBox
                 {

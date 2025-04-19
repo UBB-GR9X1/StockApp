@@ -284,6 +284,7 @@
                 IsRead = false,
                 IsWatchlistRelated = false,
                 Category = article.Topic,
+
                 // FIXME: '?? []' is invalid C# syntax; provide a default collection instead, e.g. new List<string>()
                 RelatedStocks = article.RelatedStocks ?? [],
             };

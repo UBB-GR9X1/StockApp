@@ -44,6 +44,7 @@ namespace StockApp.Pages
 
             this.viewModel = new ProfilePageViewModel();
             this.DataContext = this.viewModel;
+
             //TODO:fix this naming jesus
             this.DoStuff();
         }

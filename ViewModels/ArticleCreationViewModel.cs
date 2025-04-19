@@ -26,6 +26,7 @@
         private readonly IBaseStocksRepository stocksRepository;
 
         private string title;
+
         /// <summary>
         /// Gets or sets the article title.
         /// </summary>
@@ -36,6 +37,7 @@
         }
 
         private string summary;
+
         /// <summary>
         /// Gets or sets the article summary.
         /// </summary>
@@ -46,6 +48,7 @@
         }
 
         private string content;
+
         /// <summary>
         /// Gets or sets the full article content.
         /// </summary>
@@ -56,6 +59,7 @@
         }
 
         private ObservableCollection<string> topics = new();
+
         /// <summary>
         /// Gets or sets the list of available topics for the article.
         /// </summary>
@@ -66,6 +70,7 @@
         }
 
         private string selectedTopic;
+
         /// <summary>
         /// Gets or sets the currently selected topic.
         /// </summary>
@@ -76,6 +81,7 @@
         }
 
         private string relatedStocksText;
+
         /// <summary>
         /// Gets or sets the comma‑separated string of related stock symbols.
         /// </summary>
@@ -86,6 +92,7 @@
         }
 
         private bool isLoading;
+
         /// <summary>
         /// Gets or sets a value indicating whether an operation is in progress.
         /// </summary>
@@ -96,6 +103,7 @@
         }
 
         private bool hasError;
+
         /// <summary>
         /// Gets or sets a value indicating whether the view is in an error state.
         /// </summary>
@@ -106,6 +114,7 @@
         }
 
         private string errorMessage;
+
         /// <summary>
         /// Gets or sets the current error message; also updates <see cref="HasError"/>.
         /// </summary>

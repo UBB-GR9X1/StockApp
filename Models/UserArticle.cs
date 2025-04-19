@@ -45,6 +45,7 @@
             this.SubmissionDate = submissionDate;
             this.Status = status;
             this.Topic = topic;
+
             // FIXME: "[.. relatedStocks]" is invalid syntax; should convert to a List<string> (e.g., relatedStocks.ToList())
             this.RelatedStocks = relatedStocks.ToList();
         }

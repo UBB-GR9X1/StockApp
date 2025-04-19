@@ -122,6 +122,7 @@
             set
             {
                 this.isGuestUser = value;
+
                 // Inline comment: toggle button visibilities based on guest status
                 this.GuestButtonVisibility = this.isGuestUser ? Visibility.Visible : Visibility.Collapsed;
                 this.ProfileButtonVisibility = this.isGuestUser ? Visibility.Collapsed : Visibility.Visible;
@@ -166,6 +167,7 @@
             {
                 this.searchQuery = value;
                 this.OnPropertyChanged();
+
                 // Inline comment: re-apply filter whenever the query changes
                 this.ApplyFilter();
             }
@@ -181,6 +183,7 @@
             {
                 this.selectedSortOption = value;
                 this.OnPropertyChanged();
+
                 // Inline comment: re-apply sort whenever the option changes
                 this.ApplySort();
             }
@@ -198,6 +201,7 @@
         {
             // FIXME: '[.. this.service.GetAllStocks()]' is invalid syntax; should construct a new ObservableCollection from the result
             this.FilteredAllStocks = [.. this.service.GetAllStocks()];
+
             // FIXME: '[.. this.service.GetFavoriteStocks()]' is invalid syntax; should construct a new ObservableCollection from the result
             this.FilteredFavoriteStocks = [.. this.service.GetFavoriteStocks()];
         }

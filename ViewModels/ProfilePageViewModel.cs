@@ -15,6 +15,7 @@
         private readonly IProfileService profileService;
 
         private BitmapImage imageSource;
+
         /// <summary>
         /// Gets or sets the profile image source.
         /// </summary>

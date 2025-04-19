@@ -127,6 +127,7 @@
                     GeometryStroke = new SolidColorPaint(SKColor.Parse("#4169E1"), 5),
                 },
             };
+
             // TODO: handle case where stockHistory is empty to prevent exceptions
         }
 

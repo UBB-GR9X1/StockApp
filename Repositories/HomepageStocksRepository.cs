@@ -31,6 +31,7 @@ namespace StockApp.Repositories
                 {
                     throw new ArgumentNullException(nameof(this.UserCnp), "CNP cannot be null or empty.");
                 }
+
                 // Inline: load stocks whenever UserCNP is assigned
                 this.LoadStocks();
             }
@@ -54,6 +55,7 @@ namespace StockApp.Repositories
         public List<int> GetStockHistory(string stockName)
         {
             const string query = "SELECT PRICE FROM STOCK_VALUE WHERE STOCK_NAME = @name ORDER BY STOCK_VALUE_ID";
+
             // Inline: execute reader mapping PRICE column to int
             return this.ExecuteReader(query,
                 command => command.Parameters.AddWithValue("@name", stockName),
@@ -130,6 +132,7 @@ namespace StockApp.Repositories
                     var stockHistory = allStockHistories.TryGetValue(stockName, out var history) ? history : new List<int>();
                     var currentPrice = stockHistory.LastOrDefault();
                     var previousPrice = stockHistory.Count > 1 ? stockHistory[^2] : 0;
+
                     // Inline: calculate percent change or default to 0%
                     var changePercentage = previousPrice > 0
                         ? $"{((currentPrice - previousPrice) * 100) / previousPrice:+0;-0}%"
