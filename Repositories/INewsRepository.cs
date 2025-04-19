@@ -30,7 +30,7 @@ namespace StockApp.Repositories
 
         List<NewsArticle> GetNewsArticlesByStock(string stockName);
 
-        List<string> GetRelatedStocksForArticle(string articleId);
+        static abstract List<string> GetRelatedStocksForArticle(string articleId);
 
         UserArticle GetUserArticleById(string articleId);
 

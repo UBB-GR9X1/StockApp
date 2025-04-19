@@ -1,5 +1,6 @@
 ﻿namespace StockApp.Models
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -8,12 +9,6 @@
     /// </summary>
     public class NewsArticle
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="NewsArticle"/> class.
-        /// </summary>
-        public NewsArticle()
-        {
-        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NewsArticle"/> class with specified details.
@@ -32,7 +27,7 @@
             string summary,
             string content,
             string source,
-            string publishedDate,
+            DateTime publishedDate,
             IEnumerable<string> relatedStocks,
             Status status = Status.Pending)
         {
@@ -76,7 +71,7 @@
         /// <summary>
         /// Gets or sets the publication date of the article.
         /// </summary>
-        public string PublishedDate { get; set; }
+        public DateTime PublishedDate { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the article has been read.

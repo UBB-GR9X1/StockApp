@@ -70,7 +70,7 @@
                 // Inline: For each article, populate its related stocks
                 foreach (var article in articles)
                 {
-                    article.RelatedStocks = this.repository.GetRelatedStocksForArticle(article.ArticleId);
+                    article.RelatedStocks = NewsRepository.GetRelatedStocksForArticle(article.ArticleId);
                 }
 
                 return articles;
@@ -514,7 +514,7 @@
 
             try
             {
-                var stocks = this.repository.GetRelatedStocksForArticle(actualId);
+                var stocks = NewsRepository.GetRelatedStocksForArticle(actualId);
                 System.Diagnostics.Debug.WriteLine($"GetRelatedStocksForArticle: Found {stocks.Count} stocks");
                 return stocks;
             }

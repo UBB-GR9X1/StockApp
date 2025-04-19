@@ -367,7 +367,7 @@
             // Inline: Sort watchlist items first, then by date (newest first)
             filteredArticles = [.. filteredArticles
                 .OrderByDescending(a => a.IsWatchlistRelated)
-                .ThenByDescending(a => DateTime.TryParse(a.PublishedDate, out var date) ? date : DateTime.MinValue)];
+                .ThenByDescending(a => a.PublishedDate)];
 
 
             this.dispatcherQueue.TryEnqueue(() =>

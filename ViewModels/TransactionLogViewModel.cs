@@ -194,7 +194,7 @@
 
             // Set up commands
             this.SearchCommand = new Commands.Command(this.Search);
-            this.ExportCommand = new Commands.Command(async () => await this.Export());
+            this.ExportCommand = new Commands.Command(async () => this.Export());
 
             this.LoadTransactions();
         }
@@ -218,8 +218,7 @@
         /// <summary>
         /// Exports the transactions to a file in the selected format.
         /// </summary>
-        /// <returns>A task representing the asynchronous export operation.</returns>
-        private async Task Export()
+        private void Export()
         {
             string format = this.selectedExportFormat.ToString();
             string fileName = "transactions";

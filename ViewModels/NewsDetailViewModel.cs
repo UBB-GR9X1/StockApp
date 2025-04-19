@@ -195,12 +195,16 @@ namespace StockApp.ViewModels
                         else
                         {
                             // FIXME: Provide fallback Article for missing preview
-                            this.Article = new NewsArticle
-                            {
-                                Title = "Article Not Found",
-                                Summary = "The requested preview article could not be found.",
-                                Content = "This preview is unavailable.",
-                            };
+                            // Update the fallback NewsArticle instantiation to include all required parameters
+                            this.Article = new NewsArticle(
+                                articleId: "N/A",
+                                title: "Article Not Found",
+                                summary: "The requested article could not be found.",
+                                content: "This article may have been removed.",
+                                source: "Unknown",
+                                publishedDate: DateTime.MinValue,
+                                relatedStocks: [],
+                                status: Status.Pending);
                             this.HasRelatedStocks = false;
                         }
 
@@ -234,12 +238,15 @@ namespace StockApp.ViewModels
                     else
                     {
                         // Provide fallback for missing article
-                        this.Article = new NewsArticle
-                        {
-                            Title = "Article Not Found",
-                            Summary = "The requested article could not be found.",
-                            Content = "This article may have been removed.",
-                        };
+                        this.Article = new NewsArticle(
+                                articleId: "N/A",
+                                title: "Article Not Found",
+                                summary: "The requested article could not be found.",
+                                content: "This article may have been removed.",
+                                source: "Unknown",
+                                publishedDate: DateTime.MinValue,
+                                relatedStocks: [],
+                                status: Status.Pending);
                         this.HasRelatedStocks = false;
                     }
 
@@ -250,17 +257,7 @@ namespace StockApp.ViewModels
             {
                 // Inline: log unexpected errors during load
                 System.Diagnostics.Debug.WriteLine($"Error loading article: {ex.Message}");
-                this.dispatcherQueue.TryEnqueue(() =>
-                {
-                    this.Article = new NewsArticle
-                    {
-                        Title = "Error Loading Article",
-                        Summary = "There was an error loading the article.",
-                        Content = $"Error details: {ex.Message}\nPlease try again later.",
-                    };
-                    this.HasRelatedStocks = false;
-                    this.IsLoading = false;
-                });
+                throw;
             }
         }
 

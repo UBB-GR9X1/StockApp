@@ -275,21 +275,15 @@
             }
 
             // Prepare a preview NewsArticle from the user-submitted article
-            var previewArticle = new NewsArticle
-            {
-                ArticleId = article.ArticleId,
-                Title = article.Title,
-                Summary = article.Summary ?? string.Empty,
-                Content = article.Content,
-                Source = $"User: {article.Author}",
-                PublishedDate = article.SubmissionDate.ToString("MMMM dd, yyyy"),
-                IsRead = false,
-                IsWatchlistRelated = false,
-                Category = article.Topic,
-
-                // FIXME: '?? []' is invalid C# syntax; provide a default collection instead, e.g. new List<string>()
-                RelatedStocks = article.RelatedStocks ?? [],
-            };
+            var previewArticle = new NewsArticle(
+                articleId: article.ArticleId,
+                title: article.Title,
+                summary: article.Summary,
+                content: article.Content,
+                source: $"User: {article.Author}",
+                publishedDate: article.SubmissionDate,
+                relatedStocks: article.RelatedStocks,
+                status: Enum.TryParse<Status>(article.Status, out var status) ? status : Status.Pending);
 
             // Store the preview for later retrieval
             this.newsService.StorePreviewArticle(previewArticle, article);

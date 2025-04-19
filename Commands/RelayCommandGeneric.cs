@@ -2,6 +2,7 @@
 {
     using System;
     using System.Windows.Input;
+    using ABI.System;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="RelayCommandGeneric{T}"/> class.
@@ -31,7 +32,7 @@
                 return false;
             }
 
-            return this.canExecute == null || this.canExecute((T)parameter);
+            return this.canExecute == null || this.canExecute((T)(parameter ?? throw new ArgumentNullException($"Tried to cast {nameof(parameter)} to {nameof(T)}")));
         }
 
         /// <summary>

@@ -10,13 +10,6 @@
     public class UserArticle
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="UserArticle"/> class.
-        /// </summary>
-        public UserArticle()
-        {
-        }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="UserArticle"/> class with specified details.
         /// </summary>
         /// <param name="articleId">Unique identifier of the article.</param>

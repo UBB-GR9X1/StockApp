@@ -161,18 +161,17 @@
 
                 while (reader.Read())
                 {
-                    var article = new NewsArticle
+                    var article = new NewsArticle(
+                        articleId: reader["ARTICLE_ID"].ToString() ?? throw new Exception("Article ID is null"),
+                        title: reader["TITLE"].ToString() ?? throw new Exception("Title is null"),
+                        summary: reader["SUMMARY"].ToString() ?? string.Empty,
+                        content: reader["CONTENT"].ToString() ?? throw new Exception("Content is null"),
+                        source: reader["SOURCE"].ToString() ?? throw new Exception("Source is null"),
+                        publishedDate: DateTime.Parse(reader["PUBLISH_DATE"].ToString() ?? throw new Exception("Published date is null")),
+                        relatedStocks: GetRelatedStocksForArticle(reader["ARTICLE_ID"].ToString() ?? throw new Exception("Source is null")))
                     {
-                        ArticleId = reader.GetString(0),
-                        Title = reader.GetString(1),
-                        Summary = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
-                        Content = reader.GetString(3),
-                        Source = reader.IsDBNull(4) ? string.Empty : reader.GetString(4),
-                        PublishedDate = reader.GetString(5),
                         IsRead = reader.GetBoolean(6),
                         IsWatchlistRelated = reader.GetBoolean(7),
-                        Category = reader.GetString(8),
-                        RelatedStocks = [],
                     };
 
                     this.newsArticles.Add(article);
@@ -197,7 +196,7 @@
         /// </summary>
         /// <param name="articleId">The ID of the article.</param>
         /// <returns>A list of related stock names.</returns>
-        public List<string> GetRelatedStocksForArticle(string articleId)
+        public static List<string> GetRelatedStocksForArticle(string articleId)
         {
             var relatedStocks = new List<string>();
 
@@ -213,37 +212,6 @@
                     while (reader.Read())
                     {
                         relatedStocks.Add(reader.GetString(0));
-                    }
-                }
-
-                if (relatedStocks.Count == 0)
-                {
-                    var mockArticle = this.newsArticles.FirstOrDefault(a => a.ArticleId == articleId);
-                    if (mockArticle?.RelatedStocks?.Count > 0)
-                    {
-                        relatedStocks.AddRange(mockArticle.RelatedStocks);
-                        try
-                        {
-                            this.AddRelatedStocksForArticle(articleId, relatedStocks, connection);
-                        }
-                        catch (SqlException ex)
-                        {
-                            throw new NewsPersistenceException("Failed to add related stocks from mock article.", ex);
-                        }
-                    }
-
-                    var userArticle = this.userArticles.FirstOrDefault(a => a.ArticleId == articleId);
-                    if (userArticle?.RelatedStocks?.Count > 0)
-                    {
-                        relatedStocks.AddRange(userArticle.RelatedStocks.Where(s => !relatedStocks.Contains(s)));
-                        try
-                        {
-                            this.AddRelatedStocksForArticle(articleId, relatedStocks, connection);
-                        }
-                        catch (SqlException ex)
-                        {
-                            throw new NewsPersistenceException("Failed to add related stocks from user article.", ex);
-                        }
                     }
                 }
             }
@@ -603,18 +571,17 @@
                     using var reader = command.ExecuteReader();
                     if (reader.Read())
                     {
-                        article = new NewsArticle
+                        article = new NewsArticle(
+                        articleId: reader["ARTICLE_ID"].ToString() ?? throw new Exception("Article ID is null"),
+                        title: reader["TITLE"].ToString() ?? throw new Exception("Title is null"),
+                        summary: reader["SUMMARY"].ToString() ?? string.Empty,
+                        content: reader["CONTENT"].ToString() ?? throw new Exception("Content is null"),
+                        source: reader["SOURCE"].ToString() ?? throw new Exception("Source is null"),
+                        publishedDate: DateTime.Parse(reader["PUBLISH_DATE"].ToString() ?? throw new Exception("Published date is null")),
+                        relatedStocks: GetRelatedStocksForArticle(reader["ARTICLE_ID"].ToString() ?? throw new Exception("Source is null")))
                         {
-                            ArticleId = reader.GetString(0),
-                            Title = reader.GetString(1),
-                            Summary = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
-                            Content = reader.GetString(3),
-                            Source = reader.IsDBNull(4) ? string.Empty : reader.GetString(4),
-                            PublishedDate = reader.GetString(5),
                             IsRead = reader.GetBoolean(6),
                             IsWatchlistRelated = reader.GetBoolean(7),
-                            Category = reader.GetString(8),
-                            RelatedStocks = [],
                         };
 
                         // Add to memory cache
@@ -631,7 +598,7 @@
                 if (article.RelatedStocks == null || !article.RelatedStocks.Any())
                 {
                     System.Diagnostics.Debug.WriteLine($"GetNewsArticleById: Loading related stocks for article");
-                    article.RelatedStocks = this.GetRelatedStocksForArticle(articleId);
+                    article.RelatedStocks = GetRelatedStocksForArticle(articleId);
                 }
 
                 return article;
@@ -720,18 +687,16 @@
                                 GemBalance = Convert.ToInt32(reader["GEM_BALANCE"]),
                             };
 
-                            var article = new UserArticle
-                            {
-                                ArticleId = reader["ARTICLE_ID"].ToString(),
-                                Title = reader["TITLE"].ToString(),
-                                Summary = reader["SUMMARY"].ToString(),
-                                Content = reader["CONTENT"].ToString(),
-                                Author = author,
-                                SubmissionDate = reader["SUBMISSION_DATE"] is DateTime dateTime ? dateTime : DateTime.Now,
-                                Status = reader["STATUS"].ToString(),
-                                Topic = reader["TOPIC"].ToString(),
-                                RelatedStocks = this.GetRelatedStocksForArticle(reader["ARTICLE_ID"].ToString()),
-                            };
+                            UserArticle article = new(
+                               reader["ARTICLE_ID"].ToString() ?? throw new Exception("Source is null"),
+                               reader["TITLE"].ToString() ?? throw new Exception("Source is null"),
+                               reader["SUMMARY"].ToString() ?? string.Empty,
+                               reader["CONTENT"].ToString() ?? throw new Exception("Source is null"),
+                               author,
+                               reader["SUBMISSION_DATE"] is DateTime dateTime ? dateTime : DateTime.Now,
+                               reader["STATUS"].ToString() ?? throw new Exception("Source is null"),
+                               reader["TOPIC"].ToString() ?? throw new Exception("Source is null"),
+                               GetRelatedStocksForArticle(reader["ARTICLE_ID"].ToString() ?? throw new Exception("Content is null")));
 
                             this.userArticles.Add(article);
                         }
@@ -766,12 +731,22 @@
 
                     try
                     {
-                        using (var command = new SqlCommand(@"
-                    INSERT INTO USER_ARTICLE 
-                    (ARTICLE_ID, TITLE, SUMMARY, CONTENT, AUTHOR_CNP, SUBMISSION_DATE, STATUS, TOPIC) 
-                    VALUES 
-                    (@ArticleId, @Title, @Summary, @Content, @AuthorCNP, @SubmissionDate, @Status, @Topic)",
-                            connection, transaction))
+                        this.EnsureUserExists(
+                            userArticle.Author.CNP,
+                            userArticle.Author.Username,
+                            userArticle.Author.Description,
+                            userArticle.Author.IsModerator,
+                            userArticle.Author.IsHidden,
+                            userArticle.Author.Image,
+                            userArticle.Author.GemBalance);
+
+                        using (var command = new SqlCommand(
+                            @"INSERT INTO USER_ARTICLE 
+                            (ARTICLE_ID, TITLE, SUMMARY, CONTENT, AUTHOR_CNP, SUBMISSION_DATE, STATUS, TOPIC) 
+                            VALUES 
+                            (@ArticleId, @Title, @Summary, @Content, @AuthorCNP, @SubmissionDate, @Status, @Topic)",
+                            connection,
+                            transaction))
                         {
                             command.CommandTimeout = 30;
                             command.Parameters.AddWithValue("@ArticleId", userArticle.ArticleId);
@@ -785,12 +760,13 @@
                             command.ExecuteNonQuery();
                         }
 
-                        using (var command = new SqlCommand(@"
-                    INSERT INTO NEWS_ARTICLE 
-                    (ARTICLE_ID, TITLE, SUMMARY, CONTENT, SOURCE, PUBLISH_DATE, IS_READ, IS_WATCHLIST_RELATED, CATEGORY) 
-                    VALUES 
-                    (@ArticleId, @Title, @Summary, @Content, @Source, @PublishedDate, @IsRead, @IsWatchlistRelated, @Category)",
-                            connection, transaction))
+                        using (var command = new SqlCommand(
+                            @"INSERT INTO NEWS_ARTICLE 
+                            (ARTICLE_ID, TITLE, SUMMARY, CONTENT, SOURCE, PUBLISH_DATE, IS_READ, IS_WATCHLIST_RELATED, CATEGORY) 
+                            VALUES 
+                            (@ArticleId, @Title, @Summary, @Content, @Source, @PublishedDate, @IsRead, @IsWatchlistRelated, @Category)",
+                            connection,
+                            transaction))
                         {
                             command.CommandTimeout = 30;
                             command.Parameters.AddWithValue("@ArticleId", userArticle.ArticleId);
@@ -989,19 +965,20 @@
                 this.UpdateUserArticle(article);
 
                 // Create a news article from the approved user article
-                var newsArticle = new NewsArticle
-                {
-                    ArticleId = article.ArticleId,
-                    Title = article.Title,
-                    Summary = article.Summary ?? string.Empty,
-                    Content = article.Content,
-                    Source = $"User: {article.Author}",
-                    PublishedDate = article.SubmissionDate.ToString("MMMM dd, yyyy"),
-                    IsRead = false,
-                    IsWatchlistRelated = false,
-                    Category = article.Topic,
-                    RelatedStocks = article.RelatedStocks,
-                };
+                NewsArticle newsArticle = new(
+                    articleId: article.ArticleId,
+                    title: article.Title,
+                    summary: article.Summary,
+                    content: article.Content,
+                    source: $"User: {article.Author}",
+                    publishedDate: article.SubmissionDate,
+                    relatedStocks: article.RelatedStocks)
+                    {
+                        IsRead = false,
+                        IsWatchlistRelated = false,
+                        Category = article.Topic,
+                    };
+
 
                 // Check if the news article already exists
                 var existingNewsArticle = this.GetNewsArticleById(article.ArticleId);
@@ -1152,18 +1129,23 @@
         /// <returns>A <see cref="NewsArticle"/> object.</returns>
         private static NewsArticle MapNewsArticle(SqlDataReader reader)
         {
-            return new NewsArticle
+            Status articleStatus = Enum.TryParse<StockApp.Models.Status>(reader["STATUS"]?.ToString(), out var parsedStatus)
+                           ? parsedStatus
+                           : throw new Exception("Invalid Status value");
+            string articleId = reader["ARTICLE_ID"]?.ToString() ?? throw new Exception("Article ID is null");
+            return new NewsArticle(
+                articleId: articleId,
+                title: reader["TITLE"]?.ToString() ?? throw new Exception("Title is null"),
+                summary: reader["SUMMARY"]?.ToString() ?? string.Empty,
+                content: reader["CONTENT"]?.ToString() ?? throw new Exception("Content is null"),
+                source: reader["SOURCE"]?.ToString() ?? string.Empty,
+                publishedDate: DateTime.TryParse(reader["PUBLISH_DATE"]?.ToString(), out var date) ? date : throw new Exception("Published date is null"),
+                status: articleStatus,
+                relatedStocks: GetRelatedStocksForArticle(articleId))
             {
-                ArticleId = reader.GetString(0),
-                Title = reader.GetString(1),
-                Summary = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
-                Content = reader.GetString(3),
-                Source = reader.IsDBNull(4) ? string.Empty : reader.GetString(4),
-                PublishedDate = reader.GetString(5),
-                IsRead = reader.GetBoolean(6),
-                IsWatchlistRelated = reader.GetBoolean(7),
-                Category = reader.GetString(8),
-                RelatedStocks = [], // Load related stocks separately
+                IsRead = reader["IS_READ"] != DBNull.Value && (bool)reader["IS_READ"],
+                IsWatchlistRelated = reader["IS_WATCHLIST_RELATED"] != DBNull.Value && (bool)reader["IS_WATCHLIST_RELATED"],
+                Category = reader["CATEGORY"]?.ToString() ?? string.Empty,
             };
         }
 
@@ -1183,18 +1165,16 @@
                 IsHidden = reader["IS_HIDDEN"] != DBNull.Value && (bool)reader["IS_HIDDEN"],
                 Image = reader["PROFILE_PICTURE"]?.ToString() ?? string.Empty,
             };
-            return new UserArticle
-            {
-                ArticleId = reader["ARTICLE_ID"]?.ToString() ?? throw new Exception("Article ID is null"),
-                Title = reader["TITLE"]?.ToString() ?? throw new Exception("Title is null"),
-                Summary = reader["SUMMARY"]?.ToString() ?? string.Empty,
-                Content = reader["CONTENT"]?.ToString() ?? throw new Exception("Content is null"),
-                Author = author,
-                SubmissionDate = DateTime.TryParse(reader["SUBMISSION_DATE"]?.ToString(), out var date) ? date : throw new Exception("Submission date is null"),
-                Status = reader["STATUS"]?.ToString() ?? throw new Exception("Status is null"),
-                Topic = reader["TOPIC"] != DBNull.Value ? (string)reader["TOPIC"] : string.Empty,
-                RelatedStocks = [], // Load related stocks separately
-            };
+            return new(
+                reader["ARTICLE_ID"].ToString() ?? throw new Exception("Source is null"),
+                reader["TITLE"].ToString() ?? throw new Exception("Source is null"),
+                reader["SUMMARY"].ToString() ?? string.Empty,
+                reader["CONTENT"].ToString() ?? throw new Exception("Source is null"),
+                author,
+                reader["SUBMISSION_DATE"] is DateTime dateTime ? dateTime : DateTime.Now,
+                reader["STATUS"].ToString() ?? throw new Exception("Source is null"),
+                reader["TOPIC"].ToString() ?? throw new Exception("Source is null"),
+                GetRelatedStocksForArticle(reader["ARTICLE_ID"].ToString() ?? throw new Exception("Content is null")));
         }
 
         /// <summary>

@@ -239,33 +239,31 @@
                 var previewId = Guid.NewGuid().ToString();
 
                 // Build the NewsArticle for display
-                var article = new NewsArticle
+                NewsArticle article = new(
+                    previewId,
+                    this.Title,
+                    this.Summary ?? string.Empty,
+                    this.Content,
+                    $"User: {this.appState.CurrentUser?.CNP ?? "Anonymous"}",
+                    DateTime.Now,
+                    this.ParseRelatedStocks(),
+                    Status.Pending)
                 {
-                    ArticleId = previewId,
-                    Title = this.Title,
-                    Summary = this.Summary ?? string.Empty,
-                    Content = this.Content,
-                    Source = $"User: {this.appState.CurrentUser?.CNP ?? "Anonymous"}",
-                    PublishedDate = DateTime.Now.ToString("MMMM dd, yyyy"),
                     IsRead = false,
                     IsWatchlistRelated = false,
-                    Category = this.SelectedTopic,
-                    RelatedStocks = this.ParseRelatedStocks(),
                 };
 
                 // Build a temporary UserArticle for preview context
-                var userArticle = new UserArticle
-                {
-                    ArticleId = previewId,
-                    Title = this.Title,
-                    Summary = this.Summary ?? string.Empty,
-                    Content = this.Content,
-                    Author = this.appState.CurrentUser ?? throw new InvalidOperationException("User not found"),
-                    SubmissionDate = DateTime.Now,
-                    Status = "Preview",
-                    Topic = this.SelectedTopic,
-                    RelatedStocks = this.ParseRelatedStocks(),
-                };
+                UserArticle userArticle = new(
+                   previewId,
+                   this.Title,
+                   this.Summary ?? string.Empty,
+                   this.Content,
+                   this.appState.CurrentUser ?? throw new InvalidOperationException("User not found"),
+                   DateTime.Now,
+                   "Preview",
+                   this.SelectedTopic,
+                   this.ParseRelatedStocks());
 
                 // Store preview in the service
                 this.newsService.StorePreviewArticle(article, userArticle);
@@ -310,18 +308,16 @@
                 }
 
                 // Build the UserArticle to submit
-                var article = new UserArticle
-                {
-                    ArticleId = Guid.NewGuid().ToString(),
-                    Title = this.Title,
-                    Summary = this.Summary,
-                    Content = this.Content,
-                    Author = this.appState.CurrentUser ?? throw new InvalidOperationException("User not found"),
-                    SubmissionDate = DateTime.Now,
-                    Status = "Pending",
-                    Topic = this.SelectedTopic,
-                    RelatedStocks = relatedStocks,
-                };
+                UserArticle article = new(
+                    Guid.NewGuid().ToString(),
+                    this.Title,
+                    this.Summary ?? string.Empty,
+                    this.Content,
+                    this.appState.CurrentUser ?? throw new InvalidOperationException("User not found"),
+                    DateTime.Now,
+                    "Preview",
+                    this.SelectedTopic,
+                    this.ParseRelatedStocks());
 
                 bool success = await this.newsService.SubmitUserArticleAsync(article);
 
@@ -478,18 +474,18 @@
 
         private NewsArticle CreateArticle()
         {
-            return new NewsArticle
+            return new NewsArticle(
+                articleId: Guid.NewGuid().ToString(),
+                title: this.Title,
+                summary: this.Summary,
+                content: this.Content,
+                source: $"User: {this.appState.CurrentUser?.CNP ?? "Anonymous"}",
+                publishedDate: DateTime.Now,
+                relatedStocks: this.ParseRelatedStocks(),
+                status: Status.Pending)
             {
-                ArticleId = Guid.NewGuid().ToString(),
-                Title = this.Title,
-                Summary = this.Summary,
-                Content = this.Content,
-                Source = $"User: {this.appState.CurrentUser?.CNP ?? "Anonymous"}",
-                PublishedDate = DateTime.Now.ToString("MMMM dd, yyyy"),
                 IsRead = false,
                 IsWatchlistRelated = false,
-                Category = this.SelectedTopic,
-                RelatedStocks = this.ParseRelatedStocks(),
             };
         }
 
