@@ -18,20 +18,20 @@
 
     class StockPageViewModel : INotifyPropertyChanged
     {
-        private string _stockName;
-        private string _stockSymbol;
-        private readonly IStockPageService stockPageService;
-        private bool _isFavorite = false;
-        private string _favoriteButtonColor = "#ffff5c";
-        private bool _isGuest = false;
-        private string _guestVisibility = "Visible";
-        private int _userGems = 0;
-        private string _userGemsText = "0 ❇️ Gems";
+        private string StockName;
+        private string StockSymbol;
+        private readonly IStockPageService StockPageService;
+        private bool IsFavorite = false;
+        private string FavoriteButtonColor = "#ffff5c";
+        private bool IsGuest = false;
+        private string GuestVisibility = "Visible";
+        private int UserGems = 0;
+        private string UserGemsText = "0 ❇️ Gems";
 
-        private ITextBlock _priceLabel;
-        private ITextBlock _increaseLabel;
-        private ITextBlock _ownedStocks;
-        private IChart _stockChart;
+        private ITextBlock PriceLabel;
+        private ITextBlock IncreaseLabel;
+        private ITextBlock OwnedStocks;
+        private IChart StockChart;
 
 
         public StockPageViewModel(
@@ -42,18 +42,18 @@
             ITextBlock ownedStocks,
             IChart stockChart)
         {
-            this.stockPageService = service ?? throw new ArgumentNullException(nameof(service));
-            this._priceLabel = priceLabel ?? throw new ArgumentNullException(nameof(priceLabel));
-            this._increaseLabel = increaseLabel ?? throw new ArgumentNullException(nameof(increaseLabel));
-            this._ownedStocks = ownedStocks ?? throw new ArgumentNullException(nameof(ownedStocks));
-            this._stockChart = stockChart ?? throw new ArgumentNullException(nameof(stockChart));
+            this.StockPageService = service ?? throw new ArgumentNullException(nameof(service));
+            this.PriceLabel = priceLabel ?? throw new ArgumentNullException(nameof(priceLabel));
+            this.IncreaseLabel = increaseLabel ?? throw new ArgumentNullException(nameof(increaseLabel));
+            this.OwnedStocks = ownedStocks ?? throw new ArgumentNullException(nameof(ownedStocks));
+            this.StockChart = stockChart ?? throw new ArgumentNullException(nameof(stockChart));
 
-            this.stockPageService.SelectStock(selectedStock);
-            this.IsGuest = this.stockPageService.IsGuest();
-            this.StockName = this.stockPageService.GetStockName();
-            this.StockSymbol = this.stockPageService.GetStockSymbol();
+            this.StockPageService.SelectStock(selectedStock);
+            this.IsGuest = this.StockPageService.IsGuest();
+            this.StockName = this.StockPageService.GetStockName();
+            this.StockSymbol = this.StockPageService.GetStockSymbol();
             this.UpdateStockValue();
-            this.IsFavorite = this.stockPageService.GetFavorite();
+            this.IsFavorite = this.StockPageService.GetFavorite();
         }
 
         public StockPageViewModel(
@@ -73,28 +73,28 @@
 
         public void UpdateStockValue()
         {
-            if (!this.stockPageService.IsGuest())
+            if (!this.StockPageService.IsGuest())
             {
-                this.UserGems = this.stockPageService.GetUserBalance();
-                this._ownedStocks.Text = "Owned: " + this.stockPageService.GetOwnedStocks().ToString();
+                this.UserGems = this.StockPageService.GetUserBalance();
+                this.OwnedStocks.Text = "Owned: " + this.StockPageService.GetOwnedStocks().ToString();
             }
-            List<int> stockHistory = this.stockPageService.GetStockHistory();
-            this._priceLabel.Text = stockHistory.Last().ToString() + " ❇️ Gems";
+            List<int> stockHistory = this.StockPageService.GetStockHistory();
+            this.PriceLabel.Text = stockHistory.Last().ToString() + " ❇️ Gems";
             if (stockHistory.Count > 1)
             {
                 int increasePerc = (stockHistory.Last() - stockHistory[stockHistory.Count - 2]) * 100 / stockHistory[stockHistory.Count - 2];
-                this._increaseLabel.Text = increasePerc + "%";
+                this.IncreaseLabel.Text = increasePerc + "%";
                 if (increasePerc > 0)
                 {
-                    this._increaseLabel.Foreground = new SolidColorBrush(Colors.Green);
+                    this.IncreaseLabel.Foreground = new SolidColorBrush(Colors.Green);
                 }
                 else
                 {
-                    this._increaseLabel.Foreground = new SolidColorBrush(Colors.IndianRed);
+                    this.IncreaseLabel.Foreground = new SolidColorBrush(Colors.IndianRed);
                 }
             }
-            this._stockChart.UpdateLayout();
-            this._stockChart.Series = new ISeries[]
+            this.StockChart.UpdateLayout();
+            this.StockChart.Series = new ISeries[]
             {
                 new LineSeries<int>
                 {
@@ -111,15 +111,15 @@
         {
             get
             {
-                return this._isFavorite;
+                return this.IsFavorite;
             }
 
             set
             {
-                if (this._isFavorite == value) return;
-                this._isFavorite = value;
-                this.stockPageService.ToggleFavorite(this._isFavorite);
-                if (this._isFavorite)
+                if (this.IsFavorite == value) return;
+                this.IsFavorite = value;
+                this.StockPageService.ToggleFavorite(this.IsFavorite);
+                if (this.IsFavorite)
                 {
                     this.FavoriteButtonColor = "#ff0000"; // Red color for favorite
                 }
@@ -135,12 +135,12 @@
         {
             get
             {
-                return this._favoriteButtonColor;
+                return this.FavoriteButtonColor;
             }
 
             set
             {
-                this._favoriteButtonColor = value;
+                this.FavoriteButtonColor = value;
                 this.OnPropertyChanged(nameof(this.FavoriteButtonColor));
             }
         }
@@ -149,14 +149,14 @@
         {
             get
             {
-                return this._stockName;
+                return this.StockName;
             }
 
             set
             {
-                if (this._stockName != value)
+                if (this.StockName != value)
                 {
-                    this._stockName = value;
+                    this.StockName = value;
                     this.OnPropertyChanged(nameof(this.StockName));
                 }
             }
@@ -166,14 +166,14 @@
         {
             get
             {
-                return this._stockSymbol;
+                return this.StockSymbol;
             }
 
             set
             {
-                if (this._stockSymbol != value)
+                if (this.StockSymbol != value)
                 {
-                    this._stockSymbol = value;
+                    this.StockSymbol = value;
                     this.OnPropertyChanged(nameof(this.StockSymbol));
                 }
             }
@@ -195,13 +195,13 @@
         {
             get
             {
-                return this._isGuest;
+                return this.IsGuest;
             }
 
             set
             {
-                this._isGuest = value;
-                this.GuestVisibility = this._isGuest ? "Collapsed" : "Visible";
+                this.IsGuest = value;
+                this.GuestVisibility = this.IsGuest ? "Collapsed" : "Visible";
                 this.OnPropertyChanged(nameof(this.IsGuest));
             }
         }
@@ -210,12 +210,12 @@
         {
             get
             {
-                return this._guestVisibility;
+                return this.GuestVisibility;
             }
 
             set
             {
-                this._guestVisibility = value;
+                this.GuestVisibility = value;
                 this.OnPropertyChanged(nameof(this.GuestVisibility));
             }
         }
@@ -224,13 +224,13 @@
         {
             get
             {
-                return this._userGems;
+                return this.UserGems;
             }
 
             set
             {
-                this._userGems = value;
-                this.UserGemsText = $"{this._userGems} ❇️ Gems";
+                this.UserGems = value;
+                this.UserGemsText = $"{this.UserGems} ❇️ Gems";
                 this.OnPropertyChanged(nameof(this.UserGems));
             }
         }
@@ -239,33 +239,33 @@
         {
             get
             {
-                return this._userGemsText;
+                return this.UserGemsText;
             }
 
             set
             {
-                this._userGemsText = value;
+                this.UserGemsText = value;
                 this.OnPropertyChanged(nameof(this.UserGemsText));
             }
         }
 
         public bool BuyStock(int quantity)
         {
-            bool res = this.stockPageService.BuyStock(quantity);
+            bool res = this.StockPageService.BuyStock(quantity);
             this.UpdateStockValue();
             return res;
         }
 
         public bool SellStock(int quantity)
         {
-            bool res = this.stockPageService.SellStock(quantity);
+            bool res = this.StockPageService.SellStock(quantity);
             this.UpdateStockValue();
             return res;
         }
 
         public User GetStockAuthor()
         {
-            return this.stockPageService.GetStockAuthor();
+            return this.StockPageService.GetStockAuthor();
         }
     }
 }
