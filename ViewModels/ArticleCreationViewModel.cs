@@ -238,7 +238,7 @@
                     IsRead = false,
                     IsWatchlistRelated = false,
                     Category = this.SelectedTopic,
-                    RelatedStocks = this.ParseRelatedStocks()
+                    RelatedStocks = this.ParseRelatedStocks(),
                 };
 
                 // Build a temporary UserArticle for preview context
@@ -252,7 +252,7 @@
                     SubmissionDate = DateTime.Now,
                     Status = "Preview",
                     Topic = this.SelectedTopic,
-                    RelatedStocks = this.ParseRelatedStocks()
+                    RelatedStocks = this.ParseRelatedStocks(),
                 };
 
                 // Store preview in the service
@@ -306,7 +306,7 @@
                     SubmissionDate = DateTime.Now,
                     Status = "Pending",
                     Topic = this.SelectedTopic,
-                    RelatedStocks = relatedStocks
+                    RelatedStocks = relatedStocks,
                 };
 
                 bool success = await this.newsService.SubmitUserArticleAsync(article);
@@ -321,7 +321,7 @@
                             Title = "Success",
                             Content = "Your article has been submitted for review.",
                             CloseButtonText = "OK",
-                            XamlRoot = App.CurrentWindow.Content.XamlRoot
+                            XamlRoot = App.CurrentWindow.Content.XamlRoot,
                         };
 
                         await dialog.ShowAsync();
@@ -432,7 +432,7 @@
                     PrimaryButtonText = "Continue Anyway",
                     CloseButtonText = "Cancel",
                     DefaultButton = ContentDialogButton.Primary,
-                    XamlRoot = App.CurrentWindow.Content.XamlRoot
+                    XamlRoot = App.CurrentWindow.Content.XamlRoot,
                 };
 
                 var result = await dialog.ShowAsync();
@@ -468,7 +468,7 @@
                 IsRead = false,
                 IsWatchlistRelated = false,
                 Category = this.SelectedTopic,
-                RelatedStocks = this.ParseRelatedStocks()
+                RelatedStocks = this.ParseRelatedStocks(),
             };
         }
 
@@ -485,7 +485,7 @@
                     Title = "Error",
                     Content = message,
                     CloseButtonText = "OK",
-                    XamlRoot = App.CurrentWindow.Content.XamlRoot
+                    XamlRoot = App.CurrentWindow.Content.XamlRoot,
                 };
                 await dialog.ShowAsync();
             }

@@ -117,7 +117,7 @@ namespace StockApp.Pages
                 Content = message,
                 CloseButtonText = "OK",
                 DefaultButton = ContentDialogButton.Close,
-                XamlRoot = this.XamlRoot
+                XamlRoot = this.XamlRoot,
             };
         }
     }

@@ -125,7 +125,7 @@
                     Fill = null,
                     Stroke = new SolidColorPaint(SKColor.Parse("#4169E1"), 5), // FIXME: make stroke color configurable
                     GeometryStroke = new SolidColorPaint(SKColor.Parse("#4169E1"), 5),
-                }
+                },
             };
             // TODO: handle case where stockHistory is empty to prevent exceptions
         }

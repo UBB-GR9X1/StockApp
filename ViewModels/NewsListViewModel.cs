@@ -393,7 +393,7 @@
                     Title = "Login",
                     XamlRoot = App.CurrentWindow.Content.XamlRoot,
                     CloseButtonText = "Cancel",
-                    PrimaryButtonText = "Login"
+                    PrimaryButtonText = "Login",
                 };
 
                 var panel = new StackPanel { Spacing = 10 };
@@ -401,13 +401,13 @@
                 var usernameBox = new TextBox
                 {
                     PlaceholderText = "Username",
-                    Header = "Username"
+                    Header = "Username",
                 };
 
                 var passwordBox = new PasswordBox
                 {
                     PlaceholderText = "Password",
-                    Header = "Password"
+                    Header = "Password",
                 };
 
                 panel.Children.Add(usernameBox);
@@ -457,7 +457,7 @@
                         Title = "Success",
                         Content = $"Welcome, {user.Username}!",
                         CloseButtonText = "OK",
-                        XamlRoot = App.CurrentWindow.Content.XamlRoot
+                        XamlRoot = App.CurrentWindow.Content.XamlRoot,
                     };
 
                     await dialog.ShowAsync();
@@ -507,7 +507,7 @@
                     Title = "Error",
                     Content = message,
                     CloseButtonText = "OK",
-                    XamlRoot = App.CurrentWindow.Content.XamlRoot
+                    XamlRoot = App.CurrentWindow.Content.XamlRoot,
                 };
 
                 await dialog.ShowAsync();

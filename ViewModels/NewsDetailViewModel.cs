@@ -197,7 +197,7 @@ namespace StockApp.ViewModels
                             {
                                 Title = "Article Not Found",
                                 Summary = "The requested preview article could not be found.",
-                                Content = "This preview is unavailable."
+                                Content = "This preview is unavailable.",
                             };
                             this.HasRelatedStocks = false;
                         }
@@ -236,7 +236,7 @@ namespace StockApp.ViewModels
                         {
                             Title = "Article Not Found",
                             Summary = "The requested article could not be found.",
-                            Content = "This article may have been removed."
+                            Content = "This article may have been removed.",
                         };
                         this.HasRelatedStocks = false;
                     }
@@ -254,7 +254,7 @@ namespace StockApp.ViewModels
                     {
                         Title = "Error Loading Article",
                         Summary = "There was an error loading the article.",
-                        Content = $"Error details: {ex.Message}\nPlease try again later."
+                        Content = $"Error details: {ex.Message}\nPlease try again later.",
                     };
                     this.HasRelatedStocks = false;
                     this.IsLoading = false;
@@ -286,7 +286,7 @@ namespace StockApp.ViewModels
                         Title = "Success",
                         Content = "Article has been approved.",
                         CloseButtonText = "OK",
-                        XamlRoot = App.CurrentWindow.Content.XamlRoot
+                        XamlRoot = App.CurrentWindow.Content.XamlRoot,
                     };
 
                     await dialog.ShowAsync();
@@ -301,7 +301,7 @@ namespace StockApp.ViewModels
                     Title = "Error",
                     Content = "Failed to approve article. Please try again.",
                     CloseButtonText = "OK",
-                    XamlRoot = App.CurrentWindow.Content.XamlRoot
+                    XamlRoot = App.CurrentWindow.Content.XamlRoot,
                 };
                 await dialog.ShowAsync();
             }
@@ -335,7 +335,7 @@ namespace StockApp.ViewModels
                         Title = "Success",
                         Content = "Article has been rejected.",
                         CloseButtonText = "OK",
-                        XamlRoot = App.CurrentWindow.Content.XamlRoot
+                        XamlRoot = App.CurrentWindow.Content.XamlRoot,
                     };
                     await dialog.ShowAsync();
                     NavigationService.Instance.GoBack();
@@ -348,7 +348,7 @@ namespace StockApp.ViewModels
                     Title = "Error",
                     Content = "Failed to reject article. Please try again.",
                     CloseButtonText = "OK",
-                    XamlRoot = App.CurrentWindow.Content.XamlRoot
+                    XamlRoot = App.CurrentWindow.Content.XamlRoot,
                 };
                 await dialog.ShowAsync();
             }
@@ -374,7 +374,7 @@ namespace StockApp.ViewModels
                     Content = "Are you sure you want to delete this article?",
                     PrimaryButtonText = "Delete",
                     CloseButtonText = "Cancel",
-                    XamlRoot = App.CurrentWindow.Content.XamlRoot
+                    XamlRoot = App.CurrentWindow.Content.XamlRoot,
                 };
 
                 var result = await confirmDialog.ShowAsync();
@@ -390,7 +390,7 @@ namespace StockApp.ViewModels
                             Title = "Success",
                             Content = "Article has been deleted.",
                             CloseButtonText = "OK",
-                            XamlRoot = App.CurrentWindow.Content.XamlRoot
+                            XamlRoot = App.CurrentWindow.Content.XamlRoot,
                         };
                         await dialog.ShowAsync();
                         NavigationService.Instance.GoBack();
@@ -404,7 +404,7 @@ namespace StockApp.ViewModels
                     Title = "Error",
                     Content = "Failed to delete article. Please try again.",
                     CloseButtonText = "OK",
-                    XamlRoot = App.CurrentWindow.Content.XamlRoot
+                    XamlRoot = App.CurrentWindow.Content.XamlRoot,
                 };
                 await dialog.ShowAsync();
             }

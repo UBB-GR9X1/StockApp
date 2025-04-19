@@ -997,7 +997,7 @@
                     IsRead = false,
                     IsWatchlistRelated = false,
                     Category = article.Topic,
-                    RelatedStocks = article.RelatedStocks
+                    RelatedStocks = article.RelatedStocks,
                 };
 
                 // Check if the news article already exists

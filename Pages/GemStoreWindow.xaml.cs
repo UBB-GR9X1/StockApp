@@ -33,7 +33,7 @@ namespace StockApp.Pages
                 ComboBox bankAccountDropdown = new ComboBox
                 {
                     ItemsSource = this.viewModel.GetUserBankAccounts(),
-                    SelectedIndex = 0
+                    SelectedIndex = 0,
                 };
 
                 StackPanel dialogContent = new StackPanel();
@@ -46,7 +46,7 @@ namespace StockApp.Pages
                     Content = dialogContent,
                     PrimaryButtonText = "Buy",
                     CloseButtonText = "Cancel",
-                    XamlRoot = this.rootGrid.XamlRoot
+                    XamlRoot = this.rootGrid.XamlRoot,
                 };
 
                 ContentDialogResult result = await confirmDialog.ShowAsync();
@@ -75,7 +75,7 @@ namespace StockApp.Pages
                 Title = "Error",
                 Content = message,
                 CloseButtonText = "OK",
-                XamlRoot = this.rootGrid.XamlRoot
+                XamlRoot = this.rootGrid.XamlRoot,
             };
             await errorDialog.ShowAsync();
         }
@@ -87,7 +87,7 @@ namespace StockApp.Pages
                 Title = "Success",
                 Content = message,
                 CloseButtonText = "OK",
-                XamlRoot = this.rootGrid.XamlRoot
+                XamlRoot = this.rootGrid.XamlRoot,
             };
             await successDialog.ShowAsync();
         }
@@ -115,7 +115,7 @@ namespace StockApp.Pages
             ComboBox bankAccountDropdown = new ComboBox
             {
                 ItemsSource = this.viewModel.GetUserBankAccounts(),
-                SelectedIndex = 0
+                SelectedIndex = 0,
             };
 
             StackPanel dialogContent = new StackPanel();
@@ -128,7 +128,7 @@ namespace StockApp.Pages
                 Content = dialogContent,
                 PrimaryButtonText = "Sell",
                 CloseButtonText = "Cancel",
-                XamlRoot = this.rootGrid.XamlRoot
+                XamlRoot = this.rootGrid.XamlRoot,
             };
 
             ContentDialogResult result = await sellDialog.ShowAsync();

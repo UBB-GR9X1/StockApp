@@ -324,7 +324,7 @@
                 MinTotalValue = string.IsNullOrEmpty(this.minTotalValue) ? null : Convert.ToInt32(this.minTotalValue),
                 MaxTotalValue = string.IsNullOrEmpty(this.maxTotalValue) ? null : Convert.ToInt32(this.maxTotalValue),
                 StartDate = startDate,
-                EndDate = endDate
+                EndDate = endDate,
             };
 
             filterCriteria.Validate(); // Inline: ensure criteria consistency

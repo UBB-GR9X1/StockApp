@@ -218,7 +218,7 @@
                 new GemDeal("BAD DEAL!!!!", 1000, 45.0),
                 new GemDeal("MEGA BAD DEAL!!!!", 500, 40.0),
                 new GemDeal("BAD DEAL!!!!", 1, 35.0),
-                new GemDeal("🔥 SPECIAL DEAL", 2, 2.0, true, 1)
+                new GemDeal("🔥 SPECIAL DEAL", 2, 2.0, true, 1),
             };
             this.SortDeals();
         }
@@ -234,7 +234,7 @@
                 new GemDeal("🔥 Flash Sale!", 5000, 100.0, true, 60),
                 new GemDeal("🔥 Mega Discount!", 4000, 80.0, true, 30),
                 new GemDeal("🔥 Special Offer!", 3000, 60.0, true, 5),
-                new GemDeal("🔥 Exclusive Deal!", 2000, 40.0, true, 1)
+                new GemDeal("🔥 Exclusive Deal!", 2000, 40.0, true, 1),
             };
         }
 

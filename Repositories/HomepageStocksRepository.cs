@@ -98,7 +98,7 @@ namespace StockApp.Repositories
             var historyResults = this.ExecuteReader(historyQuery, null, reader => new
             {
                 StockName = reader["STOCK_NAME"].ToString(),
-                Price = Convert.ToInt32(reader["PRICE"])
+                Price = Convert.ToInt32(reader["PRICE"]),
             });
 
             foreach (var group in historyResults.GroupBy(h => h.StockName))
@@ -139,7 +139,7 @@ namespace StockApp.Repositories
                         Name = stockName,
                         Price = currentPrice,
                         Change = changePercentage,
-                        IsFavorite = isFavorite
+                        IsFavorite = isFavorite,
                     };
                 });
         }
@@ -183,7 +183,7 @@ namespace StockApp.Repositories
                 "storm", "shadow", "blaze", "nova", "ember", "frost", "zephyr", "luna", "onyx", "raven",
                 "viper", "echo", "skye", "falcon", "titan", "phoenix", "cobra", "ghost", "venom", "dusk",
                 "wraith", "flare", "night", "rogue", "drift", "glitch", "shade", "pulse", "crimson",
-                "hazard", "orbit", "quake", "rune", "saber", "thorn", "vortex", "zodiac", "howl", "jett"
+                "hazard", "orbit", "quake", "rune", "saber", "thorn", "vortex", "zodiac", "howl", "jett",
             };
 
             var random = new Random();
