@@ -771,7 +771,7 @@
                             command.Parameters.AddWithValue("@Title", userArticle.Title);
                             command.Parameters.AddWithValue("@Summary", userArticle.Summary ?? "");
                             command.Parameters.AddWithValue("@Content", userArticle.Content);
-                            command.Parameters.AddWithValue("@AuthorCNP", userArticle.Author);
+                            command.Parameters.AddWithValue("@AuthorCNP", userArticle.Author.CNP);
                             command.Parameters.AddWithValue("@SubmissionDate", userArticle.SubmissionDate.ToString("yyyy-MM-dd HH:mm:ss"));
                             command.Parameters.AddWithValue("@Status", userArticle.Status);
                             command.Parameters.AddWithValue("@Topic", userArticle.Topic);
