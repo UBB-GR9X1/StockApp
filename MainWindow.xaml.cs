@@ -30,8 +30,8 @@ namespace StockApp
 
             // rootFrame.Navigate(typeof(CreateStockPage.MainPage), null);
 
-            rootFrame.Navigate(typeof(HomepageView), null);
-            NavigationService.Initialize(new FrameAdapter(rootFrame));
+            RootFrame.Navigate(typeof(HomepageView), null);
+            NavigationService.Initialize(new FrameAdapter(RootFrame));
 
             // string stockName = "Tesla";
 
@@ -75,12 +75,12 @@ namespace StockApp
         //}
         private void DisplayTriggeredAlerts(List<TriggeredAlert> triggeredAlerts)
         {
-            rootFrame.Navigate(typeof(AlertsView), triggeredAlerts);
+            RootFrame.Navigate(typeof(AlertsView), triggeredAlerts);
         }
 
-        void OnNavigationFailed(object sender, NavigationFailedEventArgs e)
+        void OnNavigationFailed(object sender, NavigationFailedEventArgs navigationFailedEventArgs)
         {
-            throw new Exception("Failed to load Page: " + e.SourcePageType.FullName);
+            throw new Exception("Failed to load Page: " + navigationFailedEventArgs.SourcePageType.FullName);
         }
     }
 }
