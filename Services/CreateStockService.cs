@@ -12,17 +12,34 @@
         private readonly BaseStocksRepository stocksRepository;
         private readonly Random random = new();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CreateStockService"/> class.
+        /// </summary>
+        /// <param name="stocksRepository"></param>
         public CreateStockService(BaseStocksRepository? stocksRepository = null)
         {
             this.stocksRepository = stocksRepository ?? new BaseStocksRepository();
         }
 
+        /// <summary>
+        /// Checks if the user is a guest.
+        /// </summary>
+        /// <returns></returns>
         public bool CheckIfUserIsGuest()
         {
             HomepageStocksRepository homepageStocksRepository = new();
             return homepageStocksRepository.IsGuestUser(homepageStocksRepository.GetUserCnp());
         }
 
+        /// <summary>
+        /// Adds a new stock to the repository.
+        /// </summary>
+        /// <param name="stockName"></param>
+        /// <param name="stockSymbol"></param>
+        /// <param name="authorCNP"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="StockPersistenceException"></exception>
         public string AddStock(string stockName, string stockSymbol, string authorCNP)
         {
             if (string.IsNullOrWhiteSpace(stockName) ||

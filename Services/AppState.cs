@@ -7,8 +7,14 @@
     {
         private static readonly Lazy<AppState> InstanceValue = new(() => new AppState());
 
+        /// <summary>
+        /// Singleton instance of the AppState class.
+        /// </summary>
         public static AppState Instance => InstanceValue.Value;
 
+        /// <summary>
+        /// Gets or sets the current user of the application.
+        /// </summary>
         public User CurrentUser
         {
             get => _currentUser;
