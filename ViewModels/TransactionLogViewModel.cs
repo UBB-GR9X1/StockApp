@@ -16,17 +16,17 @@
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        private readonly ITransactionLogService service;
+        private readonly ITransactionLogService Service;
 
-        private string _stockNameFilter;
-        private string _selectedTransactionType;
-        private string _selectedSortBy;
-        private string _selectedSortOrder;
-        private string _selectedExportFormat;
-        private string _minTotalValue;
-        private string _maxTotalValue;
-        private DateTime? _startDate;
-        private DateTime? _endDate;
+        private string StockNameFilter;
+        private string SelectedTransactionType;
+        private string SelectedSortBy;
+        private string SelectedSortOrder;
+        private string SelectedExportFormat;
+        private string MinTotalValue;
+        private string MaxTotalValue;
+        private DateTime? StartDate;
+        private DateTime? EndDate;
 
         public event Action<string, string> ShowMessageBoxRequested;
 
@@ -34,16 +34,16 @@
 
         public string StockNameFilter
         {
-            get => _stockNameFilter;
-            set { _stockNameFilter = value; OnPropertyChanged(nameof(StockNameFilter)); }
+            get => StockNameFilter;
+            set { StockNameFilter = value; OnPropertyChanged(nameof(StockNameFilter)); }
         }
 
         public string SelectedTransactionType
         {
-            get => _selectedTransactionType;
+            get => SelectedTransactionType;
             set
             {
-                _selectedTransactionType = value;
+                SelectedTransactionType = value;
                 OnPropertyChanged(nameof(SelectedTransactionType));
                 LoadTransactions(); // Reload transactions when the selected type changes
             }
@@ -51,10 +51,10 @@
 
         public string SelectedSortBy
         {
-            get => _selectedSortBy;
+            get => SelectedSortBy;
             set
             {
-                _selectedSortBy = value;
+                SelectedSortBy = value;
                 OnPropertyChanged(nameof(SelectedSortBy));
                 LoadTransactions(); // Reload transactions when the sorting criteria change
             }
@@ -62,10 +62,10 @@
 
         public string SelectedSortOrder
         {
-            get => _selectedSortOrder;
+            get => SelectedSortOrder;
             set
             {
-                _selectedSortOrder = value;
+                SelectedSortOrder = value;
                 OnPropertyChanged(nameof(SelectedSortOrder));
                 LoadTransactions(); // Reload transactions when the sort order changes
             }
@@ -73,22 +73,22 @@
 
         public string SelectedExportFormat
         {
-            get => _selectedExportFormat;
+            get => SelectedExportFormat;
             set
             {
-                _selectedExportFormat = value;
+                SelectedExportFormat = value;
                 OnPropertyChanged(nameof(SelectedExportFormat));
             }
         }
 
         public string MinTotalValue
         {
-            get => _minTotalValue;
+            get => MinTotalValue;
             set
             {
                 if (ValidateNumericValue(value))
                 {
-                    _minTotalValue = value;
+                    MinTotalValue = value;
                     OnPropertyChanged(nameof(MinTotalValue));
                     LoadTransactions();
                 }
@@ -101,12 +101,12 @@
 
         public string MaxTotalValue
         {
-            get => _maxTotalValue;
+            get => MaxTotalValue;
             set
             {
                 if (ValidateNumericValue(value))
                 {
-                    _maxTotalValue = value;
+                    MaxTotalValue = value;
                     OnPropertyChanged(nameof(MaxTotalValue));
                     LoadTransactions();
                 }
@@ -119,14 +119,14 @@
 
         public DateTime? StartDate
         {
-            get => _startDate;
-            set { _startDate = value; OnPropertyChanged(nameof(StartDate)); LoadTransactions(); }
+            get => StartDate;
+            set { StartDate = value; OnPropertyChanged(nameof(StartDate)); LoadTransactions(); }
         }
 
         public DateTime? EndDate
         {
-            get => _endDate;
-            set { _endDate = value; OnPropertyChanged(nameof(EndDate)); LoadTransactions(); }
+            get => EndDate;
+            set { EndDate = value; OnPropertyChanged(nameof(EndDate)); LoadTransactions(); }
         }
 
         public ICommand SearchCommand { get; }
@@ -134,7 +134,7 @@
 
         public TransactionLogViewModel(ITransactionLogService service)
         {
-            this.service = service ?? throw new ArgumentNullException(nameof(service));
+            this.Service = service ?? throw new ArgumentNullException(nameof(service));
 
             // Initialize ComboBoxItems for options if they are null
             SelectedTransactionType = "ALL";
@@ -168,7 +168,7 @@
             string fullPath = Path.Combine(documentsPath, $"{fileName}.{format.ToLower()}");
 
             // Export the transactions
-            service.ExportTransactions(Transactions.ToList(), fullPath, format);
+            Service.ExportTransactions(Transactions.ToList(), fullPath, format);
 
             // ShowMessageBox("Export Successful", $"File saved successfully to: {documentsPath}");
         }
@@ -207,7 +207,7 @@
 
         public void LoadTransactions()
         {
-            if (service == null)
+            if (Service == null)
                 throw new InvalidOperationException("Transaction service is not initialized");
 
             // Add null checks here for all ComboBoxItem properties to prevent null reference
@@ -246,7 +246,7 @@
 
             filterCriteria.Validate();
 
-            var transactions = service.GetFilteredTransactions(filterCriteria)
+            var transactions = Service.GetFilteredTransactions(filterCriteria)
                 ?? throw new InvalidOperationException("Transaction service returned null");
 
             foreach (var transaction in transactions)
@@ -259,7 +259,7 @@
 
         private void SortTransactions(string sortBy, bool isAscending)
         {
-            var sortedTransactions = service.SortTransactions(Transactions.ToList(), sortBy, isAscending);
+            var sortedTransactions = Service.SortTransactions(Transactions.ToList(), sortBy, isAscending);
 
             Transactions.Clear();
             foreach (var transaction in sortedTransactions)
