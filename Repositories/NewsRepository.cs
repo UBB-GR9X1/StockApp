@@ -37,7 +37,7 @@
                 try
                 {
                     System.Diagnostics.Debug.WriteLine("Initializing NewsRepository...");
-                    
+
                     // Check if database exists and has data
                     bool hasData = CheckIfDataExists();
                     System.Diagnostics.Debug.WriteLine($"Database has data: {hasData}");
@@ -488,7 +488,7 @@
                 }
             }
         }
-        
+
         public void UpdateNewsArticle(NewsArticle newsArticle)
         {
             lock (LockObject)
@@ -591,12 +591,12 @@
                 if (article == null)
                 {
                     System.Diagnostics.Debug.WriteLine($"GetNewsArticleById: Article not found in memory, checking database");
-                    
+
                     // Try to load the article directly from the database
                     using var connection = DatabaseHelper.GetConnection();
                     using var command = new SqlCommand("SELECT * FROM NEWS_ARTICLE WHERE ARTICLE_ID = @ArticleId", connection);
                     command.Parameters.AddWithValue("@ArticleId", articleId);
-                    
+
                     using var reader = command.ExecuteReader();
                     if (reader.Read())
                     {
@@ -613,7 +613,7 @@
                             Category = reader.GetString(8),
                             RelatedStocks = [],
                         };
-                        
+
                         // Add to memory cache
                         this.newsArticles.Add(article);
                         System.Diagnostics.Debug.WriteLine($"GetNewsArticleById: Article loaded from database and added to memory cache");

@@ -41,7 +41,7 @@
         /// Validates the filter criteria, throwing if any range or value is invalid.
         /// </summary>
         /// <exception cref="ArgumentException">
-        /// Thrown if <see cref="Type"/> is not "BUY" or "SELL", 
+        /// Thrown if <see cref="Type"/> is not "BUY" or "SELL",
         /// or if <see cref="MinTotalValue"/> exceeds <see cref="MaxTotalValue"/>,
         /// or if <see cref="StartDate"/> is after <see cref="EndDate"/>.
         /// </exception>

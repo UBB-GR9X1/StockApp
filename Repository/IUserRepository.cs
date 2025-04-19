@@ -43,4 +43,4 @@ namespace StockApp.Repository
         /// <returns>A list of all users.</returns>
         Task<List<User>> GetAllUsersAsync();
     }
-} 
+}

@@ -120,7 +120,7 @@
                     this.FilteredFavoriteStocks = new ObservableCollection<HomepageStock>(
                         this.FilteredFavoriteStocks.OrderBy(stock =>
                         {
-                            // Remove '+' and '%' characters and parse to decimal  
+                            // Remove '+' and '%' characters and parse to decimal
                             string cleanValue = stock.Change.Replace("+", "").Replace("%", "");
                             decimal.TryParse(cleanValue, out var change);
                             return change;
