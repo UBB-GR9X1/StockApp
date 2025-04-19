@@ -10,8 +10,8 @@
 
     public class AlertViewModel
     {
-        private readonly IAlertService AlertService;
-        private readonly IDialogService DialogService;
+        private readonly IAlertService alertService;
+        private readonly IDialogService dialogService;
 
         public ObservableCollection<Alert> Alerts { get; } = [];
 
@@ -25,8 +25,8 @@
 
         public AlertViewModel(IAlertService alertService, IDialogService dialogService)
         {
-            this.AlertService = alertService ?? throw new ArgumentNullException(nameof(alertService));
-            this.DialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
+            this.alertService = alertService ?? throw new ArgumentNullException(nameof(alertService));
+            this.dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
 
             // Initialize commands exactly as before
             this.CreateAlertCommand = new RelayCommand(async _ => await this.CreateAlert());
@@ -55,13 +55,13 @@
         {
             try
             {
-                Alert NewAlert = this.AlertService.CreateAlert("Tesla", "New Alert", 100, 0, true);
-                this.Alerts.Add(NewAlert);
-                await this.DialogService.ShowMessageAsync("Success", "Alert created successfully!");
+                Alert newAlert = this.alertService.CreateAlert("Tesla", "New Alert", 100, 0, true);
+                this.Alerts.Add(newAlert);
+                await this.dialogService.ShowMessageAsync("Success", "Alert created successfully!");
             }
             catch (Exception exception)
             {
-                await this.DialogService.ShowMessageAsync("Error", exception.Message);
+                await this.dialogService.ShowMessageAsync("Error", exception.Message);
             }
         }
 
@@ -72,7 +72,7 @@
                 foreach (Alert alert in this.Alerts)
                 {
                     ValidateAlert(alert);
-                    this.AlertService.UpdateAlert(
+                    this.alertService.UpdateAlert(
                         alert.AlertId,
                         alert.StockName,
                         alert.Name,
@@ -82,11 +82,11 @@
                     );
                 }
 
-                await this.DialogService.ShowMessageAsync("Success", "All alerts saved successfully!");
+                await this.dialogService.ShowMessageAsync("Success", "All alerts saved successfully!");
             }
             catch (Exception exception)
             {
-                await this.DialogService.ShowMessageAsync("Error", exception.Message);
+                await this.dialogService.ShowMessageAsync("Error", exception.Message);
             }
         }
 
@@ -94,20 +94,20 @@
         {
             if (parameter is Alert alertToDelete)
             {
-                this.AlertService.RemoveAlert(alertToDelete.AlertId);
+                this.alertService.RemoveAlert(alertToDelete.AlertId);
                 this.Alerts.Remove(alertToDelete);
-                await this.DialogService.ShowMessageAsync("Success", "Alert deleted successfully!");
+                await this.dialogService.ShowMessageAsync("Success", "Alert deleted successfully!");
             }
             else
             {
-                await this.DialogService.ShowMessageAsync("Error", "Please select an alert to delete.");
+                await this.dialogService.ShowMessageAsync("Error", "Please select an alert to delete.");
             }
         }
 
         private void LoadAlerts()
         {
             this.Alerts.Clear();
-            foreach (Alert alert in this.AlertService.GetAllAlerts())
+            foreach (Alert alert in this.alertService.GetAllAlerts())
             {
                 this.Alerts.Add(alert);
             }

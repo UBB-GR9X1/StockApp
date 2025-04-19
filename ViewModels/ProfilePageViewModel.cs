@@ -11,14 +11,14 @@
     {
         private readonly IProfileService profileService;
 
-        private BitmapImage _imageSource;
+        private BitmapImage imageSource;
         public BitmapImage ImageSource
         {
-            get => _imageSource;
+            get => this.imageSource;
             set
             {
-                _imageSource = value;
-                OnPropertyChanged(nameof(ImageSource));
+                this.imageSource = value;
+                this.OnPropertyChanged(nameof(this.ImageSource));
             }
         }
 
@@ -31,17 +31,17 @@
         public ProfilePageViewModel()
             : this(new ProfileService())
         {
-            LoadProfileImage();
+            this.LoadProfileImage();
         }
 
         internal void LoadProfileImage()
         {
-            string imageUrl = profileService.GetImage();
+            string imageUrl = this.profileService.GetImage();
             if (!string.IsNullOrEmpty(imageUrl))
             {
                 try
                 {
-                    ImageSource = new BitmapImage(new Uri(imageUrl));
+                    this.ImageSource = new BitmapImage(new Uri(imageUrl));
                 }
                 catch (Exception ex)
                 {
@@ -50,24 +50,23 @@
             }
         }
 
-
         public string GetLoggedInUserCnp()
         {
-            return profileService.GetLoggedInUserCnp();
+            return this.profileService.GetLoggedInUserCnp();
         }
 
-        public string GetUsername() => profileService.GetUsername();
-        public string GetDescription() => profileService.GetDescription();
-        public bool IsHidden() => profileService.IsHidden();
-        public bool IsAdmin() => profileService.IsAdmin();
-        public List<Stock> GetUserStocks() => profileService.GetUserStocks();
+        public string GetUsername() => this.profileService.GetUsername();
+        public string GetDescription() => this.profileService.GetDescription();
+        public bool IsHidden() => this.profileService.IsHidden();
+        public bool IsAdmin() => this.profileService.IsAdmin();
+        public List<Stock> GetUserStocks() => this.profileService.GetUserStocks();
         public void UpdateAdminMode(bool newIsAdmin)
         {
-            profileService.UpdateIsAdmin(newIsAdmin);
+            this.profileService.UpdateIsAdmin(newIsAdmin);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string propertyName) =>
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

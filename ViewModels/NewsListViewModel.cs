@@ -14,108 +14,108 @@
 
     public class NewsListViewModel : ViewModelBase
     {
-        private readonly INewsService _newsService;
-        private readonly IDispatcher _dispatcherQueue;
-        private readonly IAppState _appState;
+        private readonly INewsService newsService;
+        private readonly IDispatcher dispatcherQueue;
+        private readonly IAppState appState;
 
         // properties
-        private ObservableCollection<NewsArticle> _articles = new();
+        private ObservableCollection<NewsArticle> articles = new();
         public ObservableCollection<NewsArticle> Articles
         {
-            get => _articles;
-            set => SetProperty(ref _articles, value);
+            get => this.articles;
+            set => this.SetProperty(ref this.articles, value);
         }
 
-        private bool _isLoading;
+        private bool isLoading;
         public bool IsLoading
         {
-            get => _isLoading;
-            set => SetProperty(ref _isLoading, value);
+            get => this.isLoading;
+            set => this.SetProperty(ref this.isLoading, value);
         }
 
-        private bool _isRefreshing;
+        private bool isRefreshing;
         public bool IsRefreshing
         {
-            get => _isRefreshing;
-            set => SetProperty(ref _isRefreshing, value);
+            get => this.isRefreshing;
+            set => this.SetProperty(ref this.isRefreshing, value);
         }
 
-        private bool _isEmptyState;
+        private bool isEmptyState;
         public bool IsEmptyState
         {
-            get => _isEmptyState;
-            set => SetProperty(ref _isEmptyState, value);
+            get => this.isEmptyState;
+            set => this.SetProperty(ref this.isEmptyState, value);
         }
 
-        private string _searchQuery = string.Empty;
+        private string searchQuery = string.Empty;
         public string SearchQuery
         {
-            get => _searchQuery;
+            get => this.searchQuery;
             set
             {
-                if (SetProperty(ref _searchQuery, value))
+                if (this.SetProperty(ref this.searchQuery, value))
                 {
-                    FilterArticles();
+                    this.FilterArticles();
                 }
             }
         }
 
-        private ObservableCollection<string> _categories = new();
+        private ObservableCollection<string> categories = new();
         public ObservableCollection<string> Categories
         {
-            get => _categories;
-            set => SetProperty(ref _categories, value);
+            get => this.categories;
+            set => this.SetProperty(ref this.categories, value);
         }
 
-        private string _selectedCategory;
+        private string selectedCategory;
         public string SelectedCategory
         {
-            get => _selectedCategory;
+            get => this.selectedCategory;
             set
             {
-                if (SetProperty(ref _selectedCategory, value))
+                if (this.SetProperty(ref this.selectedCategory, value))
                 {
-                    FilterArticles();
+                    this.FilterArticles();
                 }
             }
         }
 
-        private NewsArticle _selectedArticle;
+        private NewsArticle selectedArticle;
         public NewsArticle SelectedArticle
         {
-            get => _selectedArticle;
+            get => this.selectedArticle;
             set
             {
-                if (SetProperty(ref _selectedArticle, value) && value != null)
+                if (this.SetProperty(ref this.selectedArticle, value) && value != null)
                 {
                     // Store the article ID before clearing the selection
                     var articleId = value.ArticleId;
                     // Clear selection first to prevent UI issues
-                    _selectedArticle = null;
-                    OnPropertyChanged(nameof(SelectedArticle));
+                    this.selectedArticle = null;
+                    this.OnPropertyChanged(nameof(this.SelectedArticle));
                     // Then navigate
-                    NavigateToArticleDetail(articleId);
+                    this.NavigateToArticleDetail(articleId);
                 }
             }
         }
 
         // user and auth properties
-        private User _currentUser;
+        private User currentUser;
         public User CurrentUser
         {
-            get => _currentUser;
+            get => this.currentUser;
             set
             {
-                if (SetProperty(ref _currentUser, value))
+                if (this.SetProperty(ref this.currentUser, value))
                 {
-                    OnPropertyChanged(nameof(IsAdmin));
-                    OnPropertyChanged(nameof(IsLoggedIn));
+                    this.OnPropertyChanged(nameof(this.IsAdmin));
+                    this.OnPropertyChanged(nameof(this.IsLoggedIn));
                 }
             }
         }
 
-        public bool IsAdmin => CurrentUser?.IsModerator ?? false;
-        public bool IsLoggedIn => CurrentUser != null;
+        public bool IsAdmin => this.CurrentUser?.IsModerator ?? false;
+        public bool IsLoggedIn => this.CurrentUser != null;
 
         // commands
         public ICommand RefreshCommand { get; }
@@ -131,24 +131,24 @@
         IDispatcher dispatcherQueue,
         IAppState appState)
         {
-            _newsService = newsService ?? throw new ArgumentNullException(nameof(newsService));
-            _dispatcherQueue = dispatcherQueue ?? throw new ArgumentNullException(nameof(dispatcherQueue));
-            _appState = appState ?? throw new ArgumentNullException(nameof(appState));
+            this.newsService = newsService ?? throw new ArgumentNullException(nameof(newsService));
+            this.dispatcherQueue = dispatcherQueue ?? throw new ArgumentNullException(nameof(dispatcherQueue));
+            this.appState = appState ?? throw new ArgumentNullException(nameof(appState));
 
-            RefreshCommand = new StockNewsRelayCommand(async () => await RefreshArticlesAsync());
-            CreateArticleCommand = new StockNewsRelayCommand(() => NavigateToCreateArticle());
-            AdminPanelCommand = new StockNewsRelayCommand(() => NavigateToAdminPanel());
-            LoginCommand = new StockNewsRelayCommand(async () => await ShowLoginDialogAsync());
-            LogoutCommand = new StockNewsRelayCommand(() => LogoutUser());
-            ClearSearchCommand = new StockNewsRelayCommand(() => SearchQuery = string.Empty);
+            this.RefreshCommand = new StockNewsRelayCommand(async () => await this.RefreshArticlesAsync());
+            this.CreateArticleCommand = new StockNewsRelayCommand(() => this.NavigateToCreateArticle());
+            this.AdminPanelCommand = new StockNewsRelayCommand(() => this.NavigateToAdminPanel());
+            this.LoginCommand = new StockNewsRelayCommand(async () => await this.ShowLoginDialogAsync());
+            this.LogoutCommand = new StockNewsRelayCommand(() => this.LogoutUser());
+            this.ClearSearchCommand = new StockNewsRelayCommand(() => this.SearchQuery = string.Empty);
 
-            Categories.Add("All");
-            Categories.Add("Stock News");
-            Categories.Add("Company News");
-            Categories.Add("Market Analysis");
-            Categories.Add("Economic News");
-            Categories.Add("Functionality News");
-            _selectedCategory = "All";
+            this.Categories.Add("All");
+            this.Categories.Add("Stock News");
+            this.Categories.Add("Company News");
+            this.Categories.Add("Market Analysis");
+            this.Categories.Add("Economic News");
+            this.Categories.Add("Functionality News");
+            this.selectedCategory = "All";
         }
 
         public NewsListViewModel()
@@ -161,25 +161,25 @@
         // methods
         public async void Initialize()
         {
-            IsLoading = true;
-            IsEmptyState = false;
+            this.IsLoading = true;
+            this.IsEmptyState = false;
 
             try
             {
                 // get current user
-                await GetCurrentUserAsync();
+                await this.GetCurrentUserAsync();
 
                 // load articles
-                await RefreshArticlesAsync();
+                await this.RefreshArticlesAsync();
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error initializing NewsListViewModel: {ex.Message}");
-                IsEmptyState = true;
+                this.IsEmptyState = true;
             }
             finally
             {
-                IsLoading = false;
+                this.IsLoading = false;
             }
         }
 
@@ -187,75 +187,75 @@
         {
             try
             {
-                var user = await _newsService.GetCurrentUserAsync();
-                _dispatcherQueue.TryEnqueue(() =>
+                var user = await this.newsService.GetCurrentUserAsync();
+                this.dispatcherQueue.TryEnqueue(() =>
                 {
-                    CurrentUser = user;
-                    _appState.CurrentUser = (User)user;
+                    this.CurrentUser = user;
+                    this.appState.CurrentUser = (User)user;
                 });
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error getting current user: {ex.Message}");
-                _dispatcherQueue.TryEnqueue(() =>
+                this.dispatcherQueue.TryEnqueue(() =>
                 {
-                    CurrentUser = null;
-                    _appState.CurrentUser = null;
+                    this.CurrentUser = null;
+                    this.appState.CurrentUser = null;
                 });
             }
         }
 
         private async Task RefreshArticlesAsync()
         {
-            if (IsRefreshing)
+            if (this.IsRefreshing)
                 return;
 
-            IsRefreshing = true;
-            IsEmptyState = false;
+            this.IsRefreshing = true;
+            this.IsEmptyState = false;
 
             try
             {
-                var articles = await _newsService.GetNewsArticlesAsync();
+                var articles = await this.newsService.GetNewsArticlesAsync();
 
-                _dispatcherQueue.TryEnqueue(() =>
+                this.dispatcherQueue.TryEnqueue(() =>
                 {
                     // store the full list of articles for filtering
-                    _newsService.UpdateCachedArticles(articles);
+                    this.newsService.UpdateCachedArticles(articles);
 
                     // apply filters to the new data
-                    FilterArticles();
+                    this.FilterArticles();
                 });
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error refreshing articles: {ex.Message}");
-                _dispatcherQueue.TryEnqueue(() =>
+                this.dispatcherQueue.TryEnqueue(() =>
                 {
-                    IsEmptyState = true;
+                    this.IsEmptyState = true;
                 });
             }
             finally
             {
-                IsRefreshing = false;
+                this.IsRefreshing = false;
             }
         }
 
         private void FilterArticles()
         {
-            if (Articles == null)
+            if (this.Articles == null)
             {
-                IsEmptyState = true;
+                this.IsEmptyState = true;
                 return;
             }
 
             // get all articles from the original source
-            var allArticles = _newsService.GetCachedArticles();
+            var allArticles = this.newsService.GetCachedArticles();
             if (allArticles == null || !allArticles.Any())
             {
-                _dispatcherQueue.TryEnqueue(() =>
+                this.dispatcherQueue.TryEnqueue(() =>
                 {
-                    Articles.Clear();
-                    IsEmptyState = true;
+                    this.Articles.Clear();
+                    this.IsEmptyState = true;
                 });
                 return;
             }
@@ -263,15 +263,15 @@
             var filteredArticles = allArticles.ToList();
 
             // filter by category
-            if (!string.IsNullOrEmpty(SelectedCategory) && SelectedCategory != "All")
+            if (!string.IsNullOrEmpty(this.SelectedCategory) && this.SelectedCategory != "All")
             {
-                filteredArticles = filteredArticles.Where(a => a.Category == SelectedCategory).ToList();
+                filteredArticles = filteredArticles.Where(a => a.Category == this.SelectedCategory).ToList();
             }
 
             // filter by search query
-            if (!string.IsNullOrEmpty(SearchQuery))
+            if (!string.IsNullOrEmpty(this.SearchQuery))
             {
-                var query = SearchQuery.ToLower();
+                var query = this.SearchQuery.ToLower();
                 filteredArticles = filteredArticles.Where(a =>
                     a.Title.ToLower().Contains(query) ||
                     a.Summary.ToLower().Contains(query) ||
@@ -287,15 +287,15 @@
                 .ToList();
 
 
-            _dispatcherQueue.TryEnqueue(() =>
+            this.dispatcherQueue.TryEnqueue(() =>
             {
-                Articles.Clear();
+                this.Articles.Clear();
                 foreach (var article in filteredArticles)
                 {
-                    Articles.Add(article);
+                    this.Articles.Add(article);
                 }
 
-                IsEmptyState = !Articles.Any();
+                this.IsEmptyState = !this.Articles.Any();
             });
         }
 
@@ -361,17 +361,17 @@
 
                     if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
                     {
-                        await ShowErrorDialogAsync("Please enter both username and password.");
+                        await this.ShowErrorDialogAsync("Please enter both username and password.");
                         return;
                     }
 
-                    await LoginUserAsync(username, password);
+                    await this.LoginUserAsync(username, password);
                 }
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error showing login dialog: {ex.Message}");
-                await ShowErrorDialogAsync("An error occurred while trying to show the login dialog.");
+                await this.ShowErrorDialogAsync("An error occurred while trying to show the login dialog.");
             }
         }
 
@@ -379,14 +379,14 @@
         {
             try
             {
-                IsLoading = true;
+                this.IsLoading = true;
 
-                var user = await _newsService.LoginAsync(username, password);
+                var user = await this.newsService.LoginAsync(username, password);
 
                 if (user != null)
                 {
-                    CurrentUser = user;
-                    _appState.CurrentUser = (User)user;
+                    this.CurrentUser = user;
+                    this.appState.CurrentUser = (User)user;
 
                     // success message
                     var dialog = new ContentDialog
@@ -400,21 +400,21 @@
                     await dialog.ShowAsync();
 
                     // refresh articles to show user-specific content
-                    await RefreshArticlesAsync();
+                    await this.RefreshArticlesAsync();
                 }
                 else
                 {
-                    await ShowErrorDialogAsync("Invalid username or password.");
+                    await this.ShowErrorDialogAsync("Invalid username or password.");
                 }
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error logging in: {ex.Message}");
-                await ShowErrorDialogAsync("An error occurred while trying to log in.");
+                await this.ShowErrorDialogAsync("An error occurred while trying to log in.");
             }
             finally
             {
-                IsLoading = false;
+                this.IsLoading = false;
             }
         }
 
@@ -422,12 +422,12 @@
         {
             try
             {
-                _newsService.Logout();
-                CurrentUser = null;
-                _appState.CurrentUser = null;
+                this.newsService.Logout();
+                this.CurrentUser = null;
+                this.appState.CurrentUser = null;
 
                 // refresh articles to show non-user-specific content
-                RefreshArticlesAsync();
+                this.RefreshArticlesAsync();
             }
             catch (Exception ex)
             {

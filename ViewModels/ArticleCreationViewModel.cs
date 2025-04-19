@@ -17,75 +17,75 @@
 
     public class ArticleCreationViewModel : ViewModelBase
     {
-        private readonly INewsService _newsService;
-        private readonly IDispatcher _dispatcherQueue;
-        private readonly IAppState _appState;
-        private readonly IBaseStocksRepository _stocksRepository;
+        private readonly INewsService newsService;
+        private readonly IDispatcher dispatcherQueue;
+        private readonly IAppState appState;
+        private readonly IBaseStocksRepository stocksRepository;
 
         // properties
-        private string _title;
+        private string title;
         public string Title
         {
-            get => _title;
-            set => SetProperty(ref _title, value);
+            get => title;
+            set => SetProperty(ref title, value);
         }
 
-        private string _summary;
+        private string summary;
         public string Summary
         {
-            get => _summary;
-            set => SetProperty(ref _summary, value);
+            get => summary;
+            set => SetProperty(ref summary, value);
         }
 
-        private string _content;
+        private string content;
         public string Content
         {
-            get => _content;
-            set => SetProperty(ref _content, value);
+            get => content;
+            set => SetProperty(ref content, value);
         }
 
-        private ObservableCollection<string> _topics = new();
+        private ObservableCollection<string> topics = new();
         public ObservableCollection<string> Topics
         {
-            get => _topics;
-            set => SetProperty(ref _topics, value);
+            get => topics;
+            set => SetProperty(ref topics, value);
         }
 
-        private string _selectedTopic;
+        private string selectedTopic;
         public string SelectedTopic
         {
-            get => _selectedTopic;
-            set => SetProperty(ref _selectedTopic, value);
+            get => selectedTopic;
+            set => SetProperty(ref selectedTopic, value);
         }
 
-        private string _relatedStocksText;
+        private string relatedStocksText;
         public string RelatedStocksText
         {
-            get => _relatedStocksText;
-            set => SetProperty(ref _relatedStocksText, value);
+            get => relatedStocksText;
+            set => SetProperty(ref relatedStocksText, value);
         }
 
-        private bool _isLoading;
+        private bool isLoading;
         public bool IsLoading
         {
-            get => _isLoading;
-            set => SetProperty(ref _isLoading, value);
+            get => isLoading;
+            set => SetProperty(ref isLoading, value);
         }
 
-        private bool _hasError;
+        private bool hasError;
         public bool HasError
         {
-            get => _hasError;
-            set => SetProperty(ref _hasError, value);
+            get => hasError;
+            set => SetProperty(ref hasError, value);
         }
 
-        private string _errorMessage;
+        private string errorMessage;
         public string ErrorMessage
         {
-            get => _errorMessage;
+            get => errorMessage;
             set
             {
-                SetProperty(ref _errorMessage, value);
+                SetProperty(ref errorMessage, value);
                 HasError = !string.IsNullOrEmpty(value);
             }
         }
@@ -103,10 +103,10 @@
             IAppState appState,
             IBaseStocksRepository stocksRepo)
         {
-            _newsService = newsService;
-            _dispatcherQueue = dispatcher;
-            _appState = appState;
-            _stocksRepository = stocksRepo;
+            this.newsService = newsService;
+            this.dispatcherQueue = dispatcher;
+            this.appState = appState;
+            this.stocksRepository = stocksRepo;
 
             // init commands
             BackCommand = new StockNewsRelayCommand(() => NavigationService.Instance.GoBack());
@@ -122,7 +122,7 @@
             Topics.Add("Functionality News");
 
             // set default values
-            _selectedTopic = "Stock News";
+            selectedTopic = "Stock News";
         }
 
         public ArticleCreationViewModel()
@@ -136,7 +136,7 @@
         public void Initialize()
         {
             // check if user is logged in
-            if (_appState.CurrentUser == null)
+            if (appState.CurrentUser == null)
             {
                 // error and navigate back
                 ShowErrorDialog("You must be logged in to create an article.");
@@ -174,7 +174,7 @@
                     Title = Title,
                     Summary = Summary ?? "",
                     Content = Content,
-                    Source = $"User: {_appState.CurrentUser?.CNP ?? "Anonymous"}",
+                    Source = $"User: {appState.CurrentUser?.CNP ?? "Anonymous"}",
                     PublishedDate = DateTime.Now.ToString("MMMM dd, yyyy"),
                     IsRead = false,
                     IsWatchlistRelated = false,
@@ -189,7 +189,7 @@
                     Title = Title,
                     Summary = Summary ?? "",
                     Content = Content,
-                    Author = _appState.CurrentUser ?? throw new InvalidOperationException("User not found"),
+                    Author = appState.CurrentUser ?? throw new InvalidOperationException("User not found"),
                     SubmissionDate = DateTime.Now,
                     Status = "Preview",
                     Topic = SelectedTopic,
@@ -197,7 +197,7 @@
                 };
 
                 // store preview in service
-                _newsService.StorePreviewArticle(article, userArticle);
+                newsService.StorePreviewArticle(article, userArticle);
 
                 // nav to preview
                 NavigationService.Instance.Navigate(typeof(NewsArticleView), $"preview:{previewId}");
@@ -240,18 +240,18 @@
                     Title = Title,
                     Summary = Summary,
                     Content = Content,
-                    Author = _appState.CurrentUser ?? throw new InvalidOperationException("User not found"),
+                    Author = appState.CurrentUser ?? throw new InvalidOperationException("User not found"),
                     SubmissionDate = DateTime.Now,
                     Status = "Pending",
                     Topic = SelectedTopic,
                     RelatedStocks = relatedStocks
                 };
 
-                bool success = await _newsService.SubmitUserArticleAsync(article);
+                bool success = await newsService.SubmitUserArticleAsync(article);
 
                 if (success)
                 {
-                    _dispatcherQueue.TryEnqueue(async () =>
+                    dispatcherQueue.TryEnqueue(async () =>
                     {
                         var dialog = new ContentDialog
                         {
@@ -324,7 +324,7 @@
             if (enteredStocks.Count == 0)
                 return true;
 
-            var allStocks = _stocksRepository.GetAllStocks()
+            var allStocks = stocksRepository.GetAllStocks()
                 ?? throw new InvalidOperationException("Stocks repository returned null");
 
             // check if all entered stocks exist (by name or symbol)
@@ -402,7 +402,7 @@
                 Title = Title,
                 Summary = Summary,
                 Content = Content,
-                Source = $"User: {_appState.CurrentUser?.CNP ?? "Anonymous"}",
+                Source = $"User: {appState.CurrentUser?.CNP ?? "Anonymous"}",
                 PublishedDate = DateTime.Now.ToString("MMMM dd, yyyy"),
                 IsRead = false,
                 IsWatchlistRelated = false,

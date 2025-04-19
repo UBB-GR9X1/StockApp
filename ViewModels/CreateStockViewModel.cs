@@ -13,21 +13,21 @@ namespace StockApp.ViewModels
 
     internal class CreateStockViewModel : INotifyPropertyChanged
     {
-        private string StockNameValue;
-        private string StockSymbolValue;
-        private string AuthorCnpValue;
-        private string MessageValue;
-        private bool SuppressValidationValue = false;
-        private readonly ICreateStockService StockService;
-        private bool IsAdminValue;
-        private bool IsInputValidValue;
+        private string stockName;
+        private string stockSymbol;
+        private string authorCnp;
+        private string message;
+        private bool suppressValidation;
+        private readonly ICreateStockService stockService;
+        private bool isAdmin;
+        private bool isInputValid;
 
         public event PropertyChangedEventHandler? PropertyChanged;
         public ICommand CreateStockCommand { get; }
 
         public CreateStockViewModel(ICreateStockService stockService)
         {
-            this.StockService = stockService ?? throw new ArgumentNullException(nameof(stockService));
+            this.stockService = stockService ?? throw new ArgumentNullException(nameof(stockService));
             this.CreateStockCommand = new RelayCommand(this.CreateStock, this.CanCreateStock);
             this.IsAdmin = this.CheckIfUserIsAdmin();
         }
@@ -39,12 +39,12 @@ namespace StockApp.ViewModels
 
         public bool IsAdmin
         {
-            get => this.IsAdminValue;
+            get => this.isAdmin;
             set
             {
-                if (this.IsAdminValue != value)
+                if (this.isAdmin != value)
                 {
-                    this.IsAdminValue = value;
+                    this.isAdmin = value;
                     this.OnPropertyChanged();
                 }
             }
@@ -52,12 +52,12 @@ namespace StockApp.ViewModels
 
         public string StockName
         {
-            get => this.StockNameValue;
+            get => this.stockName;
             set
             {
-                if (this.StockNameValue != value)
+                if (this.stockName != value)
                 {
-                    this.StockNameValue = value;
+                    this.stockName = value;
                     this.ValidateInputs();
                     this.OnPropertyChanged();
                 }
@@ -66,12 +66,12 @@ namespace StockApp.ViewModels
 
         public string StockSymbol
         {
-            get => this.StockSymbolValue;
+            get => this.stockSymbol;
             set
             {
-                if (this.StockSymbolValue != value)
+                if (this.stockSymbol != value)
                 {
-                    this.StockSymbolValue = value;
+                    this.stockSymbol = value;
                     this.ValidateInputs();
                     this.OnPropertyChanged();
                 }
@@ -80,12 +80,12 @@ namespace StockApp.ViewModels
 
         public string AuthorCnp
         {
-            get => this.AuthorCnpValue;
+            get => this.authorCnp;
             set
             {
-                if (this.AuthorCnpValue != value)
+                if (this.authorCnp != value)
                 {
-                    this.AuthorCnpValue = value;
+                    this.authorCnp = value;
                     this.ValidateInputs();
                     this.OnPropertyChanged();
                 }
@@ -94,12 +94,12 @@ namespace StockApp.ViewModels
 
         public string Message
         {
-            get => this.MessageValue;
+            get => this.message;
             set
             {
-                if (this.MessageValue != value)
+                if (this.message != value)
                 {
-                    this.MessageValue = value;
+                    this.message = value;
                     this.OnPropertyChanged();
                 }
             }
@@ -107,19 +107,19 @@ namespace StockApp.ViewModels
 
         public bool IsInputValid
         {
-            get => this.IsInputValidValue;
+            get => this.isInputValid;
             private set
             {
-                if (this.IsInputValidValue != value)
+                if (this.isInputValid != value)
                 {
-                    this.IsInputValidValue = value;
+                    this.isInputValid = value;
                 }
             }
         }
 
         private void ValidateInputs()
         {
-            if (this.SuppressValidationValue) return;
+            if (this.suppressValidation) return;
 
             this.Message = string.Empty;
             this.IsInputValid = true;
@@ -164,15 +164,15 @@ namespace StockApp.ViewModels
         {
             if (!this.CanCreateStock(null)) return;
 
-            this.Message = this.StockService.AddStock(this.StockName, this.StockSymbol, this.AuthorCnp);
+            this.Message = this.stockService.AddStock(this.StockName, this.StockSymbol, this.AuthorCnp);
 
             if (this.Message == "Stock added successfully with initial value!")
             {
-                this.SuppressValidationValue = true;
+                this.suppressValidation = true;
                 this.StockName = "";
                 this.StockSymbol = "";
                 this.AuthorCnp = "";
-                this.SuppressValidationValue = false;
+                this.suppressValidation = false;
             }
         }
 
@@ -180,14 +180,14 @@ namespace StockApp.ViewModels
         {
             // This method should check if the user is an admin.
             // For now, let's assume the user is an admin.
-            if (this.StockService.CheckIfUserIsGuest())
+            if (this.stockService.CheckIfUserIsGuest())
                 this.Message = "You are a guest user and cannot create stocks!";
-            return !this.StockService.CheckIfUserIsGuest();
+            return !this.stockService.CheckIfUserIsGuest();
         }
 
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

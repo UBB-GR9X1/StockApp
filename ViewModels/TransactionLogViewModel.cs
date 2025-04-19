@@ -16,17 +16,17 @@
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        private readonly ITransactionLogService Service;
+        private readonly ITransactionLogService service;
 
-        private string StockNameFilter;
-        private string SelectedTransactionType;
-        private string SelectedSortBy;
-        private string SelectedSortOrder;
-        private string SelectedExportFormat;
-        private string MinTotalValue;
-        private string MaxTotalValue;
-        private DateTime? StartDate;
-        private DateTime? EndDate;
+        private string stockNameFilter;
+        private string selectedTransactionType;
+        private string selectedSortBy;
+        private string selectedSortOrder;
+        private string selectedExportFormat;
+        private string minTotalValue;
+        private string maxTotalValue;
+        private DateTime? startDate;
+        private DateTime? endDate;
 
         public event Action<string, string> ShowMessageBoxRequested;
 
@@ -34,99 +34,99 @@
 
         public string StockNameFilter
         {
-            get => StockNameFilter;
-            set { StockNameFilter = value; OnPropertyChanged(nameof(StockNameFilter)); }
+            get => this.stockNameFilter;
+            set { this.stockNameFilter = value; this.OnPropertyChanged(nameof(this.StockNameFilter)); }
         }
 
         public string SelectedTransactionType
         {
-            get => SelectedTransactionType;
+            get => this.selectedTransactionType;
             set
             {
-                SelectedTransactionType = value;
-                OnPropertyChanged(nameof(SelectedTransactionType));
-                LoadTransactions(); // Reload transactions when the selected type changes
+                this.selectedTransactionType = value;
+                this.OnPropertyChanged(nameof(this.SelectedTransactionType));
+                this.LoadTransactions(); // Reload transactions when the selected type changes
             }
         }
 
         public string SelectedSortBy
         {
-            get => SelectedSortBy;
+            get => this.selectedSortBy;
             set
             {
-                SelectedSortBy = value;
-                OnPropertyChanged(nameof(SelectedSortBy));
-                LoadTransactions(); // Reload transactions when the sorting criteria change
+                this.selectedSortBy = value;
+                this.OnPropertyChanged(nameof(this.SelectedSortBy));
+                this.LoadTransactions(); // Reload transactions when the sorting criteria change
             }
         }
 
         public string SelectedSortOrder
         {
-            get => SelectedSortOrder;
+            get => this.selectedSortOrder;
             set
             {
-                SelectedSortOrder = value;
-                OnPropertyChanged(nameof(SelectedSortOrder));
-                LoadTransactions(); // Reload transactions when the sort order changes
+                this.selectedSortOrder = value;
+                this.OnPropertyChanged(nameof(this.SelectedSortOrder));
+                this.LoadTransactions(); // Reload transactions when the sort order changes
             }
         }
 
         public string SelectedExportFormat
         {
-            get => SelectedExportFormat;
+            get => this.selectedExportFormat;
             set
             {
-                SelectedExportFormat = value;
-                OnPropertyChanged(nameof(SelectedExportFormat));
+                this.selectedExportFormat = value;
+                this.OnPropertyChanged(nameof(this.SelectedExportFormat));
             }
         }
 
         public string MinTotalValue
         {
-            get => MinTotalValue;
+            get => this.minTotalValue;
             set
             {
-                if (ValidateNumericValue(value))
+                if (this.ValidateNumericValue(value))
                 {
-                    MinTotalValue = value;
-                    OnPropertyChanged(nameof(MinTotalValue));
-                    LoadTransactions();
+                    this.minTotalValue = value;
+                    this.OnPropertyChanged(nameof(this.MinTotalValue));
+                    this.LoadTransactions();
                 }
                 else
                 {
-                    ShowMessageBox("Invalid Input", "Min Total Value must be a valid number.");
+                    this.ShowMessageBox("Invalid Input", "Min Total Value must be a valid number.");
                 }
             }
         }
 
         public string MaxTotalValue
         {
-            get => MaxTotalValue;
+            get => this.maxTotalValue;
             set
             {
-                if (ValidateNumericValue(value))
+                if (this.ValidateNumericValue(value))
                 {
-                    MaxTotalValue = value;
-                    OnPropertyChanged(nameof(MaxTotalValue));
-                    LoadTransactions();
+                    this.maxTotalValue = value;
+                    this.OnPropertyChanged(nameof(this.MaxTotalValue));
+                    this.LoadTransactions();
                 }
                 else
                 {
-                    ShowMessageBox("Invalid Input", "Max Total Value must be a valid number.");
+                    this.ShowMessageBox("Invalid Input", "Max Total Value must be a valid number.");
                 }
             }
         }
 
         public DateTime? StartDate
         {
-            get => StartDate;
-            set { StartDate = value; OnPropertyChanged(nameof(StartDate)); LoadTransactions(); }
+            get => this.startDate;
+            set { this.startDate = value; this.OnPropertyChanged(nameof(this.StartDate)); this.LoadTransactions(); }
         }
 
         public DateTime? EndDate
         {
-            get => EndDate;
-            set { EndDate = value; OnPropertyChanged(nameof(EndDate)); LoadTransactions(); }
+            get => this.endDate;
+            set { this.endDate = value; this.OnPropertyChanged(nameof(this.EndDate)); this.LoadTransactions(); }
         }
 
         public ICommand SearchCommand { get; }
@@ -134,19 +134,19 @@
 
         public TransactionLogViewModel(ITransactionLogService service)
         {
-            this.Service = service ?? throw new ArgumentNullException(nameof(service));
+            this.service = service ?? throw new ArgumentNullException(nameof(service));
 
             // Initialize ComboBoxItems for options if they are null
-            SelectedTransactionType = "ALL";
-            SelectedSortBy = "Date";
-            SelectedSortOrder = "ASC";
-            SelectedExportFormat = "CSV";
+            this.selectedTransactionType = "ALL";
+            this.selectedSortBy = "Date";
+            this.selectedSortOrder = "ASC";
+            this.selectedExportFormat = "CSV";
 
             // Set up commands
-            SearchCommand = new Commands.Command(Search);
-            ExportCommand = new Commands.Command(async () => await Export());
+            this.SearchCommand = new Commands.Command(this.Search);
+            this.ExportCommand = new Commands.Command(async () => await this.Export());
 
-            LoadTransactions();
+            this.LoadTransactions();
         }
 
         public TransactionLogViewModel()
@@ -155,12 +155,12 @@
 
         private void Search()
         {
-            LoadTransactions();
+            this.LoadTransactions();
         }
 
         private async Task Export()
         {
-            string format = SelectedExportFormat.ToString();
+            string format = this.selectedExportFormat.ToString();
             string fileName = "transactions";
 
             // Save the file to the user's Documents folder
@@ -168,7 +168,7 @@
             string fullPath = Path.Combine(documentsPath, $"{fileName}.{format.ToLower()}");
 
             // Export the transactions
-            Service.ExportTransactions(Transactions.ToList(), fullPath, format);
+            this.service.ExportTransactions(this.Transactions.ToList(), fullPath, format);
 
             // ShowMessageBox("Export Successful", $"File saved successfully to: {documentsPath}");
         }
@@ -176,7 +176,7 @@
         // Show the message box for feedback
         public void ShowMessageBox(string title, string content)
         {
-            ShowMessageBoxRequested?.Invoke(title, content);
+            this.ShowMessageBoxRequested?.Invoke(title, content);
         }
 
         // Validation for numeric values (MinTotalValue & MaxTotalValue)
@@ -207,70 +207,70 @@
 
         public void LoadTransactions()
         {
-            if (Service == null)
+            if (this.service == null)
                 throw new InvalidOperationException("Transaction service is not initialized");
 
             // Add null checks here for all ComboBoxItem properties to prevent null reference
-            string transactionType = SelectedTransactionType?.ToString() ?? "ALL";
-            string sortBy = SelectedSortBy?.ToString() ?? "Date";
-            string sortOrder = SelectedSortOrder?.ToString() ?? "ASC";
+            string transactionType = this.selectedTransactionType?.ToString() ?? "ALL";
+            string sortBy = this.selectedSortBy?.ToString() ?? "Date";
+            string sortOrder = this.selectedSortOrder?.ToString() ?? "ASC";
 
             // Validate MinTotalValue < MaxTotalValue
-            if (!ValidateTotalValues(MinTotalValue, MaxTotalValue))
+            if (!this.ValidateTotalValues(this.minTotalValue, this.maxTotalValue))
             {
-                ShowMessageBox("Invalid Total Values", "Min Total Value must be less than Max Total Value.");
+                this.ShowMessageBox("Invalid Total Values", "Min Total Value must be less than Max Total Value.");
                 return;
             }
 
             // Validate StartDate < EndDate
-            if (!ValidateDateRange(StartDate, EndDate))
+            if (!this.ValidateDateRange(this.startDate, this.endDate))
             {
-                ShowMessageBox("Invalid Date Range", "Start Date must be earlier than End Date.");
+                this.ShowMessageBox("Invalid Date Range", "Start Date must be earlier than End Date.");
                 return;
             }
 
-            DateTime startDate = StartDate ?? DateTime.Now.AddYears(-10);
-            DateTime endDate = EndDate ?? DateTime.Now;
+            DateTime startDate = this.startDate ?? DateTime.Now.AddYears(-10);
+            DateTime endDate = this.endDate ?? DateTime.Now;
 
-            Transactions.Clear();
+            this.Transactions.Clear();
 
             var filterCriteria = new TransactionFilterCriteria
             {
-                StockName = StockNameFilter,
+                StockName = this.stockNameFilter,
                 Type = transactionType == "ALL" ? null : transactionType,
-                MinTotalValue = string.IsNullOrEmpty(MinTotalValue) ? null : Convert.ToInt32(MinTotalValue),
-                MaxTotalValue = string.IsNullOrEmpty(MaxTotalValue) ? null : Convert.ToInt32(MaxTotalValue),
+                MinTotalValue = string.IsNullOrEmpty(this.minTotalValue) ? null : Convert.ToInt32(this.minTotalValue),
+                MaxTotalValue = string.IsNullOrEmpty(this.maxTotalValue) ? null : Convert.ToInt32(this.maxTotalValue),
                 StartDate = startDate,
                 EndDate = endDate
             };
 
             filterCriteria.Validate();
 
-            var transactions = Service.GetFilteredTransactions(filterCriteria)
+            var transactions = this.service.GetFilteredTransactions(filterCriteria)
                 ?? throw new InvalidOperationException("Transaction service returned null");
 
             foreach (var transaction in transactions)
             {
-                Transactions.Add(transaction);
+                this.Transactions.Add(transaction);
             }
 
-            SortTransactions(sortBy, sortOrder == "ASC");
+            this.SortTransactions(sortBy, sortOrder == "ASC");
         }
 
         private void SortTransactions(string sortBy, bool isAscending)
         {
-            var sortedTransactions = Service.SortTransactions(Transactions.ToList(), sortBy, isAscending);
+            var sortedTransactions = this.service.SortTransactions(this.Transactions.ToList(), sortBy, isAscending);
 
-            Transactions.Clear();
+            this.Transactions.Clear();
             foreach (var transaction in sortedTransactions)
             {
-                Transactions.Add(transaction);
+                this.Transactions.Add(transaction);
             }
         }
 
         private void OnPropertyChanged(string propertyName)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }
