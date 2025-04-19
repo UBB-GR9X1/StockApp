@@ -1,5 +1,8 @@
 ﻿namespace StockApp.Models
 {
+    /// <summary>
+    /// Defines the possible review statuses for a news article.
+    /// </summary>
     public enum Status
     {
         Pending = 0,
