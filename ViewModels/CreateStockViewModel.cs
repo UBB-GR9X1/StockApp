@@ -13,23 +13,23 @@ namespace StockApp.ViewModels
 
     internal class CreateStockViewModel : INotifyPropertyChanged
     {
-        private string _stockName;
-        private string _stockSymbol;
-        private string _authorCnp;
-        private string _message;
-        private bool _suppressValidation = false;
-        private readonly ICreateStockService _stockService;
-        private bool _isAdmin;
-        private bool _isInputValid;
+        private string stockName;
+        private string stockSymbol;
+        private string authorCnp;
+        private string message;
+        private bool suppressValidation;
+        private readonly ICreateStockService stockService;
+        private bool isAdmin;
+        private bool isInputValid;
 
         public event PropertyChangedEventHandler? PropertyChanged;
         public ICommand CreateStockCommand { get; }
 
         public CreateStockViewModel(ICreateStockService stockService)
         {
-            _stockService = stockService ?? throw new ArgumentNullException(nameof(stockService));
-            CreateStockCommand = new RelayCommand(CreateStock, CanCreateStock);
-            IsAdmin = CheckIfUserIsAdmin();
+            this.stockService = stockService ?? throw new ArgumentNullException(nameof(stockService));
+            this.CreateStockCommand = new RelayCommand(this.CreateStock, this.CanCreateStock);
+            this.IsAdmin = this.CheckIfUserIsAdmin();
         }
 
         public CreateStockViewModel()
@@ -39,140 +39,140 @@ namespace StockApp.ViewModels
 
         public bool IsAdmin
         {
-            get => _isAdmin;
+            get => this.isAdmin;
             set
             {
-                if (_isAdmin != value)
+                if (this.isAdmin != value)
                 {
-                    _isAdmin = value;
-                    OnPropertyChanged();
+                    this.isAdmin = value;
+                    this.OnPropertyChanged();
                 }
             }
         }
 
         public string StockName
         {
-            get => _stockName;
+            get => this.stockName;
             set
             {
-                if (_stockName != value)
+                if (this.stockName != value)
                 {
-                    _stockName = value;
-                    ValidateInputs();
-                    OnPropertyChanged();
+                    this.stockName = value;
+                    this.ValidateInputs();
+                    this.OnPropertyChanged();
                 }
             }
         }
 
         public string StockSymbol
         {
-            get => _stockSymbol;
+            get => this.stockSymbol;
             set
             {
-                if (_stockSymbol != value)
+                if (this.stockSymbol != value)
                 {
-                    _stockSymbol = value;
-                    ValidateInputs();
-                    OnPropertyChanged();
+                    this.stockSymbol = value;
+                    this.ValidateInputs();
+                    this.OnPropertyChanged();
                 }
             }
         }
 
         public string AuthorCnp
         {
-            get => _authorCnp;
+            get => this.authorCnp;
             set
             {
-                if (_authorCnp != value)
+                if (this.authorCnp != value)
                 {
-                    _authorCnp = value;
-                    ValidateInputs();
-                    OnPropertyChanged();
+                    this.authorCnp = value;
+                    this.ValidateInputs();
+                    this.OnPropertyChanged();
                 }
             }
         }
 
         public string Message
         {
-            get => _message;
+            get => this.message;
             set
             {
-                if (_message != value)
+                if (this.message != value)
                 {
-                    _message = value;
-                    OnPropertyChanged();
+                    this.message = value;
+                    this.OnPropertyChanged();
                 }
             }
         }
 
         public bool IsInputValid
         {
-            get => _isInputValid;
+            get => this.isInputValid;
             private set
             {
-                if (_isInputValid != value)
+                if (this.isInputValid != value)
                 {
-                    _isInputValid = value;
+                    this.isInputValid = value;
                 }
             }
         }
 
         private void ValidateInputs()
         {
-            if (_suppressValidation) return;
+            if (this.suppressValidation) return;
 
-            Message = string.Empty;
-            IsInputValid = true;
+            this.Message = string.Empty;
+            this.IsInputValid = true;
 
-            if (string.IsNullOrWhiteSpace(StockName))
+            if (string.IsNullOrWhiteSpace(this.StockName))
             {
-                Message = "Stock Name is required!";
-                IsInputValid = false;
+                this.Message = "Stock Name is required!";
+                this.IsInputValid = false;
             }
-            else if (!Regex.IsMatch(StockName, @"^[A-Za-z ]{1,20}$"))
+            else if (!Regex.IsMatch(this.StockName, @"^[A-Za-z ]{1,20}$"))
             {
-                Message = "Stock Name must be max 20 characters and contain only letters & spaces!";
-                IsInputValid = false;
-            }
-
-            if (string.IsNullOrWhiteSpace(StockSymbol))
-            {
-                Message = "Stock Symbol is required!";
-                IsInputValid = false;
-            }
-            else if (!Regex.IsMatch(StockSymbol, @"^[A-Za-z0-9]{1,5}$"))
-            {
-                Message = "Stock Symbol must be alphanumeric and max 5 characters!";
-                IsInputValid = false;
+                this.Message = "Stock Name must be max 20 characters and contain only letters & spaces!";
+                this.IsInputValid = false;
             }
 
-            if (string.IsNullOrWhiteSpace(AuthorCnp))
+            if (string.IsNullOrWhiteSpace(this.StockSymbol))
             {
-                Message = "Author CNP is required!";
-                IsInputValid = false;
+                this.Message = "Stock Symbol is required!";
+                this.IsInputValid = false;
             }
-            else if (!Regex.IsMatch(AuthorCnp, @"^\d{13}$"))
+            else if (!Regex.IsMatch(this.StockSymbol, @"^[A-Za-z0-9]{1,5}$"))
             {
-                Message = "Author CNP must be exactly 13 digits!";
-                IsInputValid = false;
+                this.Message = "Stock Symbol must be alphanumeric and max 5 characters!";
+                this.IsInputValid = false;
+            }
+
+            if (string.IsNullOrWhiteSpace(this.AuthorCnp))
+            {
+                this.Message = "Author CNP is required!";
+                this.IsInputValid = false;
+            }
+            else if (!Regex.IsMatch(this.AuthorCnp, @"^\d{13}$"))
+            {
+                this.Message = "Author CNP must be exactly 13 digits!";
+                this.IsInputValid = false;
             }
         }
 
-        private bool CanCreateStock(object obj) => IsAdmin && IsInputValid;
+        private bool CanCreateStock(object obj) => this.IsAdmin && this.IsInputValid;
 
         private void CreateStock(object obj)
         {
-            if (!CanCreateStock(null)) return;
+            if (!this.CanCreateStock(null)) return;
 
-            Message = _stockService.AddStock(StockName, StockSymbol, AuthorCnp);
+            this.Message = this.stockService.AddStock(this.StockName, this.StockSymbol, this.AuthorCnp);
 
-            if (Message == "Stock added successfully with initial value!")
+            if (this.Message == "Stock added successfully with initial value!")
             {
-                _suppressValidation = true;
-                StockName = "";
-                StockSymbol = "";
-                AuthorCnp = "";
-                _suppressValidation = false;
+                this.suppressValidation = true;
+                this.StockName = "";
+                this.StockSymbol = "";
+                this.AuthorCnp = "";
+                this.suppressValidation = false;
             }
         }
 
@@ -180,14 +180,14 @@ namespace StockApp.ViewModels
         {
             // This method should check if the user is an admin.
             // For now, let's assume the user is an admin.
-            if (_stockService.CheckIfUserIsGuest())
-                Message = "You are a guest user and cannot create stocks!";
-            return !_stockService.CheckIfUserIsGuest();
+            if (this.stockService.CheckIfUserIsGuest())
+                this.Message = "You are a guest user and cannot create stocks!";
+            return !this.stockService.CheckIfUserIsGuest();
         }
 
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

@@ -78,9 +78,9 @@ namespace StockApp
             rootFrame.Navigate(typeof(AlertsView), triggeredAlerts);
         }
 
-        void OnNavigationFailed(object sender, NavigationFailedEventArgs e)
+        void OnNavigationFailed(object sender, NavigationFailedEventArgs navigationFailedEventArgs)
         {
-            throw new Exception("Failed to load Page: " + e.SourcePageType.FullName);
+            throw new Exception("Failed to load Page: " + navigationFailedEventArgs.SourcePageType.FullName);
         }
     }
 }

@@ -11,7 +11,7 @@
     public class NewsRepository : INewsRepository
     {
         private static readonly object LockObject = new();
-        private static bool isInitialized = false;
+        private static bool IsInitialized = false;
 
         private readonly DatabaseHelper databaseHelper = DatabaseHelper.Instance;
         private readonly List<NewsArticle> newsArticles = [];
@@ -28,7 +28,7 @@
         {
             lock (LockObject)
             {
-                if (isInitialized)
+                if (IsInitialized)
                 {
                     System.Diagnostics.Debug.WriteLine("NewsRepository already initialized");
                     return;
@@ -50,7 +50,7 @@
                     this.LoadUserArticles();
                     System.Diagnostics.Debug.WriteLine($"Loaded {this.userArticles.Count} user articles");
 
-                    isInitialized = true;
+                    IsInitialized = true;
                     System.Diagnostics.Debug.WriteLine("NewsRepository initialization completed successfully");
                 }
                 catch (SqlException ex)
@@ -115,18 +115,18 @@
             try
             {
                 using var connection = DatabaseHelper.GetConnection();
-                string checkQuery = "IF NOT EXISTS (SELECT 1 FROM [USER] WHERE CNP = @CNP) " +
+                string checkQuery = "IF NOT EXISTS (SELECT 1 FROM [USER] WHERE CNP = @cnp) " +
                                     "INSERT INTO [USER] (CNP, NAME, DESCRIPTION, IS_HIDDEN, IS_ADMIN, PROFILE_PICTURE, GEM_BALANCE) " +
-                                    "VALUES (@CNP, @Name, @Description, @IsHidden, @IsAdmin, @ProfilePicture, @GemBalance)";
+                                    "VALUES (@cnp, @name, @description, @isHidden, @isAdmin, @profilePicture, @gemBalance)";
 
                 using SqlCommand command = new(checkQuery, connection);
-                command.Parameters.AddWithValue("@CNP", cnp);
-                command.Parameters.AddWithValue("@Name", name);
-                command.Parameters.AddWithValue("@Description", description);
-                command.Parameters.AddWithValue("@IsHidden", isHidden ? 1 : 0);
-                command.Parameters.AddWithValue("@IsAdmin", isAdmin ? 1 : 0);
-                command.Parameters.AddWithValue("@ProfilePicture", profilePicture);
-                command.Parameters.AddWithValue("@GemBalance", gemBalance);
+                command.Parameters.AddWithValue("@cnp", cnp);
+                command.Parameters.AddWithValue("@name", name);
+                command.Parameters.AddWithValue("@description", description);
+                command.Parameters.AddWithValue("@isHidden", isHidden ? 1 : 0);
+                command.Parameters.AddWithValue("@isAdmin", isAdmin ? 1 : 0);
+                command.Parameters.AddWithValue("@profilePicture", profilePicture);
+                command.Parameters.AddWithValue("@gemBalance", gemBalance);
 
                 command.ExecuteNonQuery();
             }
@@ -203,10 +203,10 @@
             try
             {
                 using var connection = DatabaseHelper.GetConnection();
-                using (SqlCommand command = new ("SELECT STOCK_NAME FROM RELATED_STOCKS WHERE ARTICLE_ID = @ArticleId", connection))
+                using (SqlCommand command = new ("SELECT STOCK_NAME FROM RELATED_STOCKS WHERE ARTICLE_ID = @articleId", connection))
                 {
                     command.CommandTimeout = 30;
-                    command.Parameters.AddWithValue("@ArticleId", articleId);
+                    command.Parameters.AddWithValue("@articleId", articleId);
 
                     using var reader = command.ExecuteReader();
                     while (reader.Read())
@@ -248,11 +248,15 @@
             }
             catch (SqlException ex)
             {
-                throw new NewsPersistenceException("SQL error while retrieving related stocks.", ex);
+                throw new NewsPersistenceException("SQL error while getting related stocks.", ex);
             }
             catch (InvalidOperationException ex)
             {
-                throw new NewsPersistenceException("Invalid operation while retrieving related stocks.", ex);
+                throw new NewsPersistenceException("Invalid operation while getting related stocks.", ex);
+            }
+            catch (FormatException ex)
+            {
+                throw new NewsPersistenceException("Format error while getting related stocks.", ex);
             }
 
             return relatedStocks;

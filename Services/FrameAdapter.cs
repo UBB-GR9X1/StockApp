@@ -1,19 +1,21 @@
-﻿using System;
-using Microsoft.UI.Xaml.Controls;
-using StockApp.Services;
-
-public class FrameAdapter : INavigationFrame
+﻿namespace StockApp.Services
 {
-    private readonly Frame _frame;
+    using System;
+    using Microsoft.UI.Xaml.Controls;
 
-    public FrameAdapter(Frame frame)
+    public class FrameAdapter : INavigationFrame
     {
-        _frame = frame;
+        private readonly Frame frame;
+
+        public FrameAdapter(Frame frame)
+        {
+            this.frame = frame;
+        }
+
+        public bool Navigate(Type pageType, object parameter) => this.frame.Navigate(pageType, parameter);
+
+        public void GoBack() => this.frame.GoBack();
+
+        public bool CanGoBack => this.frame.CanGoBack;
     }
-
-    public bool Navigate(Type pageType, object parameter) => _frame.Navigate(pageType, parameter);
-
-    public void GoBack() => _frame.GoBack();
-
-    public bool CanGoBack => _frame.CanGoBack;
 }

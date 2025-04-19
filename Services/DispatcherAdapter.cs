@@ -4,11 +4,11 @@
 
     public class DispatcherAdapter : IDispatcher
     {
-        private readonly DispatcherQueue _dq;
+        private readonly DispatcherQueue dispatcherQueue;
 
-        public DispatcherAdapter() => _dq = DispatcherQueue.GetForCurrentThread();
+        public DispatcherAdapter() => this.dispatcherQueue = DispatcherQueue.GetForCurrentThread();
 
         public bool TryEnqueue(DispatcherQueueHandler handler)
-            => _dq.TryEnqueue(handler);
+            => this.dispatcherQueue.TryEnqueue(handler);
     }
 }

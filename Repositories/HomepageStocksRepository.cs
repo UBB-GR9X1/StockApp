@@ -13,17 +13,17 @@ namespace StockApp.Repositories
 
     internal class HomepageStocksRepository : IHomepageStocksRepository
     {
-        private string _UserCNP;
+        private string userCnp;
 
-        private string UserCNP
+        private string UserCnp
         {
-            get => _UserCNP;
+            get => this.userCnp;
             set
             {
-                _UserCNP = value;
-                if (string.IsNullOrEmpty(_UserCNP))
+                this.userCnp = value;
+                if (string.IsNullOrEmpty(this.userCnp))
                 {
-                    throw new ArgumentNullException(nameof(UserCNP), "CNP cannot be null or empty.");
+                    throw new ArgumentNullException(nameof(UserCnp), "CNP cannot be null or empty.");
                 }
                 this.LoadStocks();
             }
@@ -84,7 +84,7 @@ namespace StockApp.Repositories
 
             return this.ExecuteReader(
                 stocksQuery,
-                command => command.Parameters.AddWithValue("@UserCNP", this.UserCNP),
+                command => command.Parameters.AddWithValue("@UserCNP", this.UserCnp),
                 reader =>
                 {
                     var stockName = reader["STOCK_NAME"]?.ToString();
@@ -114,7 +114,7 @@ namespace StockApp.Repositories
             const string query = "INSERT INTO FAVORITE_STOCK (USER_CNP, STOCK_NAME, IS_FAVORITE) VALUES (@UserCNP, @Name, 1)";
             this.ExecuteSql(query, command =>
             {
-                command.Parameters.AddWithValue("@UserCNP", this.UserCNP);
+                command.Parameters.AddWithValue("@UserCNP", this.UserCnp);
                 command.Parameters.AddWithValue("@Name", stock.Name);
             });
         }
@@ -124,7 +124,7 @@ namespace StockApp.Repositories
             const string query = "DELETE FROM FAVORITE_STOCK WHERE USER_CNP = @UserCNP AND STOCK_NAME = @Name";
             this.ExecuteSql(query, command =>
             {
-                command.Parameters.AddWithValue("@UserCNP", this.UserCNP);
+                command.Parameters.AddWithValue("@UserCNP", this.UserCnp);
                 command.Parameters.AddWithValue("@Name", stock.Name);
             });
         }
@@ -150,7 +150,7 @@ namespace StockApp.Repositories
 
             this.ExecuteSql(query, command =>
             {
-                command.Parameters.AddWithValue("@CNP", this.UserCNP);
+                command.Parameters.AddWithValue("@CNP", this.UserCnp);
                 command.Parameters.AddWithValue("@Name", randomUsername);
                 command.Parameters.AddWithValue("@Description", "Default User Description");
                 command.Parameters.AddWithValue("@IsHidden", false);

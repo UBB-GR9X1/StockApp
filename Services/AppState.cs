@@ -5,17 +5,17 @@
 
     public class AppState : IAppState
     {
-        private static readonly Lazy<AppState> InstanceValue = new(() => new AppState());
+        private static readonly Lazy<AppState> instanceValue = new(() => new AppState());
 
-        public static AppState Instance => InstanceValue.Value;
+        public static AppState Instance => instanceValue.Value;
 
         public User CurrentUser
         {
-            get => _currentUser;
-            set => _currentUser = value ?? throw new ArgumentNullException(nameof(value));
+            get => this.currentUser;
+            set => this.currentUser = value ?? throw new ArgumentNullException(nameof(value));
         }
 
-        private User _currentUser;
+        private User currentUser;
 
         private AppState()
         {

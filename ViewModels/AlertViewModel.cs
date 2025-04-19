@@ -59,9 +59,9 @@
                 this.Alerts.Add(newAlert);
                 await this.dialogService.ShowMessageAsync("Success", "Alert created successfully!");
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                await this.dialogService.ShowMessageAsync("Error", ex.Message);
+                await this.dialogService.ShowMessageAsync("Error", exception.Message);
             }
         }
 
@@ -84,18 +84,18 @@
 
                 await this.dialogService.ShowMessageAsync("Success", "All alerts saved successfully!");
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                await this.dialogService.ShowMessageAsync("Error", ex.Message);
+                await this.dialogService.ShowMessageAsync("Error", exception.Message);
             }
         }
 
         private async Task DeleteAlert(object parameter)
         {
-            if (parameter is Alert alert)
+            if (parameter is Alert alertToDelete)
             {
-                this.alertService.RemoveAlert(alert.AlertId);
-                this.Alerts.Remove(alert);
+                this.alertService.RemoveAlert(alertToDelete.AlertId);
+                this.Alerts.Remove(alertToDelete);
                 await this.dialogService.ShowMessageAsync("Success", "Alert deleted successfully!");
             }
             else

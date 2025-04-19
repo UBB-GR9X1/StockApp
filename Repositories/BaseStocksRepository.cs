@@ -58,10 +58,10 @@ namespace StockApp.Repositories
 
             try
             {
-                string checkQuery = "SELECT COUNT(*) FROM STOCK WHERE STOCK_NAME = @StockName";
+                string checkQuery = "SELECT COUNT(*) FROM STOCK WHERE STOCK_NAME = @stockName";
                 int count = this.ExecuteScalar<int>(checkQuery, cmd =>
                 {
-                    cmd.Parameters.AddWithValue("@StockName", stock.Name);
+                    cmd.Parameters.AddWithValue("@stockName", stock.Name);
                 }, transaction);
 
                 if (count > 0)
@@ -69,19 +69,19 @@ namespace StockApp.Repositories
                     throw new DuplicateStockException(stock.Name);
                 }
 
-                string insertStock = "INSERT INTO STOCK (STOCK_NAME, STOCK_SYMBOL, AUTHOR_CNP) VALUES (@StockName, @StockSymbol, @AuthorCNP)";
+                string insertStock = "INSERT INTO STOCK (STOCK_NAME, STOCK_SYMBOL, AUTHOR_CNP) VALUES (@stockName, @stockSymbol, @authorCnp)";
                 this.ExecuteSql(insertStock, cmd =>
                 {
-                    cmd.Parameters.AddWithValue("@StockName", stock.Name);
-                    cmd.Parameters.AddWithValue("@StockSymbol", stock.Symbol);
-                    cmd.Parameters.AddWithValue("@AuthorCNP", stock.AuthorCNP);
+                    cmd.Parameters.AddWithValue("@stockName", stock.Name);
+                    cmd.Parameters.AddWithValue("@stockSymbol", stock.Symbol);
+                    cmd.Parameters.AddWithValue("@authorCnp", stock.AuthorCNP);
                 }, transaction);
 
-                string insertValue = "INSERT INTO STOCK_VALUE (STOCK_NAME, PRICE) VALUES (@StockName, @Price)";
+                string insertValue = "INSERT INTO STOCK_VALUE (STOCK_NAME, PRICE) VALUES (@stockName, @price)";
                 this.ExecuteSql(insertValue, cmd =>
                 {
-                    cmd.Parameters.AddWithValue("@StockName", stock.Name);
-                    cmd.Parameters.AddWithValue("@Price", initialPrice);
+                    cmd.Parameters.AddWithValue("@stockName", stock.Name);
+                    cmd.Parameters.AddWithValue("@price", initialPrice);
                 }, transaction);
 
                 transaction.Commit();

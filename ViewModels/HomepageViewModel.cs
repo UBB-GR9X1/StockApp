@@ -30,7 +30,7 @@
         {
             this.service = service ?? throw new ArgumentNullException(nameof(service));
 
-            this.IsGuestUser = this.service.IsGuestUser();
+            this.isGuestUser = this.service.IsGuestUser();
             this.LoadStocks();
 
             // Initialize Commands
@@ -55,6 +55,7 @@
         public ICommand SearchCommand { get; }
 
         public ICommand SortCommand { get; }
+
         public ObservableCollection<HomepageStock> FilteredAllStocks
         {
             get => this.filteredAllStocks;
@@ -142,13 +143,13 @@
 
         public void ApplyFilter()
         {
-            this.service.FilterStocks(this.SearchQuery);
+            this.service.FilterStocks(this.searchQuery);
             this.LoadStocks();
         }
 
         public void ApplySort()
         {
-            this.service.SortStocks(this.SelectedSortOption);
+            this.service.SortStocks(this.selectedSortOption);
             this.LoadStocks();
         }
 
@@ -209,7 +210,5 @@
         {
             this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-
-
     }
 }
