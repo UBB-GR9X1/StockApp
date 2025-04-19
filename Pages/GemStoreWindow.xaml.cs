@@ -10,6 +10,9 @@ namespace StockApp.Pages
     {
         private StoreViewModel viewModel;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GemStoreWindow"/> class.
+        /// </summary>
         public GemStoreWindow()
         {
             this.InitializeComponent();
