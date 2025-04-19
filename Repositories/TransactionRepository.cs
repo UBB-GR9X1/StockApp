@@ -58,9 +58,7 @@
                         amount,
                         pricePerStock,
                         date,
-                        author
-                    )
-                );
+                        author));
             }
         }
 
@@ -72,14 +70,13 @@
         public List<TransactionLogTransaction> GetByFilterCriteria(TransactionFilterCriteria criteria)
         {
             // Use LINQ to apply all filter predicates in one query
-            return this.Transactions.Where(transaction =>
+            return [.. this.Transactions.Where(transaction =>
                 (string.IsNullOrEmpty(criteria.StockName) || transaction.StockName.Equals(criteria.StockName)) &&
                 (string.IsNullOrEmpty(criteria.Type) || transaction.Type.Equals(criteria.Type)) &&
                 (!criteria.MinTotalValue.HasValue || transaction.TotalValue >= criteria.MinTotalValue) &&
                 (!criteria.MaxTotalValue.HasValue || transaction.TotalValue <= criteria.MaxTotalValue) &&
                 (!criteria.StartDate.HasValue || transaction.Date >= criteria.StartDate) &&
-                (!criteria.EndDate.HasValue || transaction.Date <= criteria.EndDate)
-            ).ToList();
+                (!criteria.EndDate.HasValue || transaction.Date <= criteria.EndDate))];
         }
 
         /// <summary>
@@ -111,8 +108,7 @@
                 {
                     // Throw if stock not found
                     throw new TransactionRepositoryException(
-                        $"Stock with name '{transaction.StockName}' does not exist."
-                    );
+                        $"Stock with name '{transaction.StockName}' does not exist.");
                 }
             }
 
@@ -124,8 +120,7 @@
                 // True if BUY, false if SELL
                 command.Parameters.AddWithValue(
                     "@type",
-                    transaction.Type.Equals("BUY", StringComparison.CurrentCultureIgnoreCase)
-                );
+                    transaction.Type.Equals("BUY", StringComparison.CurrentCultureIgnoreCase));
                 command.Parameters.AddWithValue("@quantity", transaction.Amount);
                 command.Parameters.AddWithValue("@price", transaction.PricePerStock);
                 command.Parameters.AddWithValue("@date", transaction.Date);

@@ -35,8 +35,8 @@ namespace StockApp.ViewModels.Tests
         [TestMethod]
         public void LoadArticle_PreviewMode_UserFound_SetsState()
         {
-            var userArt = new UserArticle { Status = "Pending", RelatedStocks = new List<string> { "AAPL" } };
-            var newsArt = new NewsArticle { RelatedStocks = new List<string> { "AAPL" } };
+            var userArt = new UserArticle { Status = "Pending", RelatedStocks = ["AAPL"] };
+            var newsArt = new NewsArticle { RelatedStocks = ["AAPL"] };
 
             _svcMock.Setup(s => s.GetUserArticleForPreview("123")).Returns(userArt);
             _svcMock.Setup(s => s.GetNewsArticleByIdAsync("preview:123"))
@@ -68,7 +68,7 @@ namespace StockApp.ViewModels.Tests
         [TestMethod]
         public void LoadArticle_RegularMode_Found_MarksRead()
         {
-            var newsArt = new NewsArticle { RelatedStocks = new List<string>() };
+            var newsArt = new NewsArticle { RelatedStocks = [] };
             _svcMock.Setup(s => s.GetNewsArticleByIdAsync("42"))
                     .ReturnsAsync(newsArt);
             _svcMock.Setup(s => s.MarkArticleAsReadAsync("42"))

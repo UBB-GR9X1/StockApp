@@ -9,7 +9,7 @@
     /// <param name="execute"> The action to execute when the command is invoked.</param>
     /// <param name="canExecute"> The function that determines whether the command can execute.</param>
     /// <exception cref="ArgumentNullException"> Thrown when <paramref name="execute"/> is null.</exception>
-    public partial class Command(Action execute, Func<bool>? canExecute = null) : ICommand
+    public partial class Command(Action execute, Func<bool>? canExecute = null): ICommand
     {
         private readonly Action execute = execute ?? throw new ArgumentNullException(nameof(execute));
         private readonly Func<bool>? canExecute = canExecute;

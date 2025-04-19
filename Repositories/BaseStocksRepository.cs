@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("StockApp.Repository.Tests")]
+
 namespace StockApp.Repositories
 {
     using System;
@@ -91,10 +92,13 @@ namespace StockApp.Repositories
             {
                 // Inline: check for duplicate stock name before insertion
                 const string checkQuery = "SELECT COUNT(*) FROM STOCK WHERE STOCK_NAME = @StockName";
-                int count = this.ExecuteScalar<int>(checkQuery, cmd =>
-                {
-                    cmd.Parameters.AddWithValue("@stockName", stock.Name);
-                }, transaction);
+                int count = this.ExecuteScalar<int>(
+                    checkQuery,
+                    cmd =>
+                    {
+                        cmd.Parameters.AddWithValue("@stockName", stock.Name);
+                    },
+                    transaction);
 
                 if (count > 0)
                 {
@@ -103,19 +107,25 @@ namespace StockApp.Repositories
                 }
 
                 string insertStock = "INSERT INTO STOCK (STOCK_NAME, STOCK_SYMBOL, AUTHOR_CNP) VALUES (@stockName, @stockSymbol, @authorCnp)";
-                this.ExecuteSql(insertStock, cmd =>
-                {
-                    cmd.Parameters.AddWithValue("@stockName", stock.Name);
-                    cmd.Parameters.AddWithValue("@stockSymbol", stock.Symbol);
-                    cmd.Parameters.AddWithValue("@authorCnp", stock.AuthorCNP);
-                }, transaction);
+                this.ExecuteSql(
+                    insertStock,
+                    cmd =>
+                    {
+                        cmd.Parameters.AddWithValue("@stockName", stock.Name);
+                        cmd.Parameters.AddWithValue("@stockSymbol", stock.Symbol);
+                        cmd.Parameters.AddWithValue("@authorCnp", stock.AuthorCNP);
+                    },
+                    transaction);
 
                 string insertValue = "INSERT INTO STOCK_VALUE (STOCK_NAME, PRICE) VALUES (@stockName, @price)";
-                this.ExecuteSql(insertValue, cmd =>
-                {
-                    cmd.Parameters.AddWithValue("@stockName", stock.Name);
-                    cmd.Parameters.AddWithValue("@price", initialPrice);
-                }, transaction);
+                this.ExecuteSql(
+                    insertValue,
+                    cmd =>
+                    {
+                        cmd.Parameters.AddWithValue("@stockName", stock.Name);
+                        cmd.Parameters.AddWithValue("@price", initialPrice);
+                    },
+                    transaction);
 
                 transaction.Commit();
 
@@ -154,8 +164,7 @@ namespace StockApp.Repositories
                     var stock = new BaseStock(
                         reader["STOCK_NAME"]?.ToString() ?? string.Empty,
                         reader["STOCK_SYMBOL"]?.ToString() ?? string.Empty,
-                        reader["AUTHOR_CNP"]?.ToString() ?? string.Empty
-                    );
+                        reader["AUTHOR_CNP"]?.ToString() ?? string.Empty);
                     this.stocks.Add(stock);
                 }
             }

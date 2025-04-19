@@ -6,6 +6,7 @@
     public interface ITransactionRepository
     {
         List<TransactionLogTransaction> Transactions { get; }
+
         List<TransactionLogTransaction> GetByFilterCriteria(TransactionFilterCriteria criteria);
 
         void AddTransaction(TransactionLogTransaction transaction);

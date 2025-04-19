@@ -12,17 +12,12 @@
     /// <summary>
     /// Repository class for managing user data in the database.
     /// </summary>
-    public class UserRepository : IUserRepository
+    public class UserRepository(string? cnp = null) : IUserRepository
     {
-        public string CurrentUserCNP { get; private set; }
-
-        public UserRepository(string? cnp = null)
-        {
-            this.CurrentUserCNP = !string.IsNullOrWhiteSpace(cnp)
+        public string CurrentUserCNP { get; private set; } = !string.IsNullOrWhiteSpace(cnp)
                 ? cnp
                 : App.Configuration["DefaultUserCNP"]
                     ?? throw new InvalidOperationException("DefaultUserCNP is not set in appsettings.json");
-        }
 
         /// <summary>
         /// Creates a new user in the database.

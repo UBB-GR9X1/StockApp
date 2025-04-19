@@ -70,7 +70,7 @@ namespace StockApp.ViewModels.Tests
         {
             _newsServiceMock
                 .Setup(s => s.GetUserArticlesAsync(null, null))
-                .ReturnsAsync(new List<UserArticle>());
+                .ReturnsAsync([]);
 
             await InvokeAsync("RefreshArticlesAsync");
 
@@ -96,7 +96,7 @@ namespace StockApp.ViewModels.Tests
             var called = false;
             _newsServiceMock
                 .Setup(s => s.GetUserArticlesAsync("Pending", null))
-                .ReturnsAsync(new List<UserArticle>())
+                .ReturnsAsync([])
                 .Callback(() => called = true);
 
             _vm.SelectedStatus = "Pending";
@@ -110,7 +110,7 @@ namespace StockApp.ViewModels.Tests
             var called = false;
             _newsServiceMock
                 .Setup(s => s.GetUserArticlesAsync(null, "Economy"))
-                .ReturnsAsync(new List<UserArticle>())
+                .ReturnsAsync([])
                 .Callback(() => called = true);
 
             _vm.SelectedTopic = "Economy";

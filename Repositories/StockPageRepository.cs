@@ -11,13 +11,12 @@
     /// </summary>
     public class StockPageRepository : IStockPageRepository
     {
-        private readonly string userCnp;
         private readonly SqlConnection connection;
 
         /// <summary>
         /// Gets the user associated with the stock page, or <c>null</c> if guest.
         /// </summary>
-        public User? User { get; private set; }
+        public User User { get; private set; }
 
         /// <summary>
         /// Gets a value indicating whether the current user is a guest.
@@ -42,7 +41,7 @@
         {
             using var command = new SqlCommand("UPDATE [USER] SET GEM_BALANCE = @gems WHERE CNP = @cnp", this.connection);
             command.Parameters.AddWithValue("@gems", newGemBalance);
-            command.Parameters.AddWithValue("@cnp", this.userCnp);
+            command.Parameters.AddWithValue("@cnp", this.User?.CNP);
             command.ExecuteNonQuery();
 
             // Inline: reflect change in in-memory User object
@@ -70,7 +69,7 @@
                 END";
 
             using var command = new SqlCommand(query, this.connection);
-            command.Parameters.AddWithValue("@cnp", this.userCnp);
+            command.Parameters.AddWithValue("@cnp", this.User?.CNP);
             command.Parameters.AddWithValue("@name", stockName);
             command.Parameters.AddWithValue("@quantity", quantity);
             command.ExecuteNonQuery();
@@ -106,7 +105,7 @@
 
             using var command = new SqlCommand(query, this.connection);
             command.Parameters.AddWithValue("@name", stockName);
-            command.Parameters.AddWithValue("@cnp", this.userCnp);
+            command.Parameters.AddWithValue("@cnp", this.User?.CNP);
 
             using var reader = command.ExecuteReader();
             if (reader.Read())
@@ -140,6 +139,7 @@
             {
                 stockValues.Add(Convert.ToInt32(reader["PRICE"]));
             }
+
             return stockValues;
         }
 
@@ -151,7 +151,7 @@
         public int GetOwnedStocks(string stockName)
         {
             using var command = new SqlCommand("SELECT QUANTITY FROM USER_STOCK WHERE USER_CNP = @cnp AND STOCK_NAME = @name", this.connection);
-            command.Parameters.AddWithValue("@cnp", this.userCnp);
+            command.Parameters.AddWithValue("@cnp", this.User?.CNP);
             command.Parameters.AddWithValue("@name", stockName);
 
             using var reader = command.ExecuteReader();
@@ -166,7 +166,7 @@
         public bool GetFavorite(string stockName)
         {
             using var command = new SqlCommand("SELECT 1 FROM FAVORITE_STOCK WHERE USER_CNP = @cnp AND STOCK_NAME = @name", this.connection);
-            command.Parameters.AddWithValue("@cnp", this.userCnp);
+            command.Parameters.AddWithValue("@cnp", this.User?.CNP);
             command.Parameters.AddWithValue("@name", stockName);
 
             using var reader = command.ExecuteReader();
@@ -183,14 +183,14 @@
             if (state)
             {
                 using var command = new SqlCommand("INSERT INTO FAVORITE_STOCK (USER_CNP, STOCK_NAME) VALUES (@cnp, @name)", this.connection);
-                command.Parameters.AddWithValue("@cnp", this.userCnp);
+                command.Parameters.AddWithValue("@cnp", this.User?.CNP);
                 command.Parameters.AddWithValue("@name", stockName);
                 command.ExecuteNonQuery();
             }
             else
             {
                 using var command = new SqlCommand("DELETE FROM FAVORITE_STOCK WHERE USER_CNP = @cnp AND STOCK_NAME = @name", this.connection);
-                command.Parameters.AddWithValue("@cnp", this.userCnp);
+                command.Parameters.AddWithValue("@cnp", this.User?.CNP);
                 command.Parameters.AddWithValue("@name", stockName);
                 command.ExecuteNonQuery();
             }
@@ -202,7 +202,7 @@
         private void InitializeUser()
         {
             using var command = new SqlCommand("SELECT * FROM [USER] WHERE CNP = @cnp", this.connection);
-            command.Parameters.AddWithValue("@cnp", this.userCnp);
+            command.Parameters.AddWithValue("@cnp", this.User?.CNP);
 
             using var reader = command.ExecuteReader();
             if (reader.Read())

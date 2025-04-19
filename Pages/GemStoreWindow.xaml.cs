@@ -8,7 +8,7 @@ namespace StockApp.Pages
 
     public sealed partial class GemStoreWindow : Page
     {
-        private StoreViewModel viewModel;
+        private readonly StoreViewModel viewModel;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GemStoreWindow"/> class.
@@ -32,7 +32,7 @@ namespace StockApp.Pages
             {
                 ComboBox bankAccountDropdown = new ComboBox
                 {
-                    ItemsSource = this.viewModel.GetUserBankAccounts(),
+                    ItemsSource = StoreViewModel.GetUserBankAccounts(),
                     SelectedIndex = 0,
                 };
 
@@ -114,7 +114,7 @@ namespace StockApp.Pages
 
             ComboBox bankAccountDropdown = new ComboBox
             {
-                ItemsSource = this.viewModel.GetUserBankAccounts(),
+                ItemsSource = StoreViewModel.GetUserBankAccounts(),
                 SelectedIndex = 0,
             };
 

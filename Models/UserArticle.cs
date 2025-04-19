@@ -12,7 +12,9 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="UserArticle"/> class.
         /// </summary>
-        public UserArticle() { }
+        public UserArticle()
+        {
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UserArticle"/> class with specified details.
@@ -47,7 +49,7 @@
             this.Topic = topic;
 
             // FIXME: "[.. relatedStocks]" is invalid syntax; should convert to a List<string> (e.g., relatedStocks.ToList())
-            this.RelatedStocks = relatedStocks.ToList();
+            this.RelatedStocks = [.. relatedStocks];
         }
 
         /// <summary>

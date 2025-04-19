@@ -58,7 +58,7 @@
             set => this.SetProperty(ref this.content, value);
         }
 
-        private ObservableCollection<string> topics = new();
+        private ObservableCollection<string> topics = [];
 
         /// <summary>
         /// Gets or sets the list of available topics for the article.
@@ -192,7 +192,8 @@
               new DispatcherAdapter(),
               AppState.Instance,
               new BaseStocksRepository())
-        { }
+        {
+        }
 
         /// <summary>
         /// Performs initial setup, including checking user authentication and clearing the form.
@@ -202,7 +203,7 @@
             // Ensure user is logged in before allowing article creation
             if (this.appState.CurrentUser == null)
             {
-                this.ShowErrorDialog("You must be logged in to create an article.");
+                ShowErrorDialog("You must be logged in to create an article.");
                 NavigationService.Instance.GoBack();
                 return;
             }
@@ -344,12 +345,12 @@
                 }
                 else
                 {
-                    this.ShowErrorDialog("Failed to submit article. Please try again later.");
+                    ShowErrorDialog("Failed to submit article. Please try again later.");
                 }
             }
             catch (Exception ex)
             {
-                this.ShowErrorDialog($"An error occurred: {ex.Message}");
+                ShowErrorDialog($"An error occurred: {ex.Message}");
             }
             finally
             {
@@ -466,14 +467,13 @@
             // Split the comma-separated input into a cleaned list
             if (string.IsNullOrWhiteSpace(this.RelatedStocksText))
             {
-                return new List<string>();
+                return [];
             }
 
-            return this.RelatedStocksText
+            return [.. this.RelatedStocksText
                 .Split(',')
                 .Select(s => s.Trim())
-                .Where(s => !string.IsNullOrWhiteSpace(s))
-                .ToList();
+                .Where(s => !string.IsNullOrWhiteSpace(s))];
         }
 
         private NewsArticle CreateArticle()
@@ -497,7 +497,7 @@
         /// Displays an error message dialog with the specified text.
         /// </summary>
         /// <param name="message">The error message to display.</param>
-        private async void ShowErrorDialog(string message)
+        private static async void ShowErrorDialog(string message)
         {
             try
             {

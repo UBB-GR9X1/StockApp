@@ -64,7 +64,7 @@
                 throw new GuestUserOperationException("Guests cannot buy gems.");
             }
 
-            bool transactionSuccess = await this.ProcessBankTransaction(selectedAccountId, -deal.Price);
+            bool transactionSuccess = await ProcessBankTransaction(selectedAccountId, -deal.Price);
             if (!transactionSuccess)
             {
                 throw new GemTransactionFailedException("Transaction failed. Please check your bank account balance.");
@@ -100,7 +100,7 @@
             }
 
             double moneyEarned = gemAmount / 100.0;
-            bool transactionSuccess = await this.ProcessBankTransaction(selectedAccountId, moneyEarned);
+            bool transactionSuccess = await ProcessBankTransaction(selectedAccountId, moneyEarned);
             if (!transactionSuccess)
             {
                 throw new GemTransactionFailedException("Transaction failed. Unable to deposit funds.");
@@ -110,7 +110,7 @@
             return $"Successfully sold {gemAmount} gems for {moneyEarned}€";
         }
 
-        private async Task<bool> ProcessBankTransaction(string accountId, double amount)
+        private static async Task<bool> ProcessBankTransaction(string accountId, double amount)
         {
             return true;
         }

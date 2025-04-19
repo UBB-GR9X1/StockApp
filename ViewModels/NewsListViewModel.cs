@@ -19,7 +19,7 @@
         private readonly IAppState appState;
 
         // properties
-        private ObservableCollection<NewsArticle> articles = new();
+        private ObservableCollection<NewsArticle> articles = [];
 
         private bool isLoading;
 
@@ -29,7 +29,7 @@
 
         private string searchQuery = string.Empty;
 
-        private ObservableCollection<string> categories = new();
+        private ObservableCollection<string> categories = [];
 
         private string selectedCategory;
 
@@ -132,7 +132,7 @@
                     this.OnPropertyChanged(nameof(this.SelectedArticle));
 
                     // Then navigate
-                    this.NavigateToArticleDetail(articleId);
+                    NavigateToArticleDetail(articleId);
                 }
             }
         }
@@ -210,8 +210,8 @@
             this.appState = appState ?? throw new ArgumentNullException(nameof(appState));
 
             this.RefreshCommand = new StockNewsRelayCommand(async () => await this.RefreshArticlesAsync());
-            this.CreateArticleCommand = new StockNewsRelayCommand(() => this.NavigateToCreateArticle());
-            this.AdminPanelCommand = new StockNewsRelayCommand(() => this.NavigateToAdminPanel());
+            this.CreateArticleCommand = new StockNewsRelayCommand(() => NavigateToCreateArticle());
+            this.AdminPanelCommand = new StockNewsRelayCommand(() => NavigateToAdminPanel());
             this.LoginCommand = new StockNewsRelayCommand(async () => await this.ShowLoginDialogAsync());
             this.LogoutCommand = new StockNewsRelayCommand(() => this.LogoutUser());
             this.ClearSearchCommand = new StockNewsRelayCommand(() => this.SearchQuery = string.Empty);
@@ -350,26 +350,24 @@
             // filter by category
             if (!string.IsNullOrEmpty(this.SelectedCategory) && this.SelectedCategory != "All")
             {
-                filteredArticles = filteredArticles.Where(a => a.Category == this.SelectedCategory).ToList();
+                filteredArticles = [.. filteredArticles.Where(a => a.Category == this.SelectedCategory)];
             }
 
             // filter by search query
             if (!string.IsNullOrEmpty(this.SearchQuery))
             {
                 var query = this.SearchQuery.ToLower();
-                filteredArticles = filteredArticles.Where(a =>
-                    a.Title.ToLower().Contains(query) ||
-                    a.Summary.ToLower().Contains(query) ||
-                    a.Content.ToLower().Contains(query) ||
-                    (a.RelatedStocks != null && a.RelatedStocks.Any(s => s.ToLower().Contains(query)))
-                ).ToList();
+                filteredArticles = [.. filteredArticles.Where(a =>
+                    a.Title.Contains(query, StringComparison.CurrentCultureIgnoreCase) ||
+                    a.Summary.Contains(query, StringComparison.CurrentCultureIgnoreCase) ||
+                    a.Content.Contains(query, StringComparison.CurrentCultureIgnoreCase) ||
+                    (a.RelatedStocks != null && a.RelatedStocks.Any(s => s.Contains(query, StringComparison.CurrentCultureIgnoreCase))))];
             }
 
             // Inline: Sort watchlist items first, then by date (newest first)
-            filteredArticles = filteredArticles
+            filteredArticles = [.. filteredArticles
                 .OrderByDescending(a => a.IsWatchlistRelated)
-                .ThenByDescending(a => DateTime.TryParse(a.PublishedDate, out var date) ? date : DateTime.MinValue)
-                .ToList();
+                .ThenByDescending(a => DateTime.TryParse(a.PublishedDate, out var date) ? date : DateTime.MinValue)];
 
 
             this.dispatcherQueue.TryEnqueue(() =>
@@ -384,7 +382,7 @@
             });
         }
 
-        private void NavigateToArticleDetail(string articleId)
+        private static void NavigateToArticleDetail(string articleId)
         {
             if (string.IsNullOrWhiteSpace(articleId))
             {
@@ -396,12 +394,12 @@
             NavigationService.Instance.NavigateToArticleDetail(articleId);
         }
 
-        private void NavigateToCreateArticle()
+        private static void NavigateToCreateArticle()
         {
             NavigationService.Instance.Navigate(typeof(ArticleCreationView));
         }
 
-        private void NavigateToAdminPanel()
+        private static void NavigateToAdminPanel()
         {
             NavigationService.Instance.Navigate(typeof(AdminNewsControlView));
         }
@@ -447,7 +445,7 @@
 
                     if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
                     {
-                        await this.ShowErrorDialogAsync("Please enter both username and password.");
+                        await ShowErrorDialogAsync("Please enter both username and password.");
                         return;
                     }
 
@@ -457,7 +455,7 @@
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error showing login dialog: {ex.Message}");
-                await this.ShowErrorDialogAsync("An error occurred while trying to show the login dialog.");
+                await ShowErrorDialogAsync("An error occurred while trying to show the login dialog.");
             }
         }
 
@@ -490,13 +488,13 @@
                 }
                 else
                 {
-                    await this.ShowErrorDialogAsync("Invalid username or password.");
+                    await ShowErrorDialogAsync("Invalid username or password.");
                 }
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error logging in: {ex.Message}");
-                await this.ShowErrorDialogAsync("An error occurred while trying to log in.");
+                await ShowErrorDialogAsync("An error occurred while trying to log in.");
             }
             finally
             {
@@ -521,7 +519,7 @@
             }
         }
 
-        private async Task ShowErrorDialogAsync(string message)
+        private static async Task ShowErrorDialogAsync(string message)
         {
             try
             {

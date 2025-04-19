@@ -144,7 +144,9 @@ namespace StockApp.ViewModels
         /// Initializes a new instance of the <see cref="NewsDetailViewModel"/> class with default implementations.
         /// </summary>
         public NewsDetailViewModel()
-          : this(new NewsService(), new DispatcherAdapter()) { }
+          : this(new NewsService(), new DispatcherAdapter())
+        {
+        }
 
         /// <summary>
         /// Loads the article with the given identifier, handling both preview and regular modes.

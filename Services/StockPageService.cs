@@ -8,9 +8,9 @@
 
     public class StockPageService : IStockPageService
     {
-        private StockPageRepository stockRepo;
+        private readonly StockPageRepository stockRepo;
         private string selectedStockName;
-        private UserRepository userRepo;
+        private readonly UserRepository userRepo;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StockPageService"/> class.

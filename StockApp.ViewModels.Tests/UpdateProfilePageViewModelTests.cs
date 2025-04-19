@@ -26,11 +26,11 @@ namespace StockApp.ViewModels.Tests
             _serviceMock.Setup(s => s.IsHidden()).Returns(true);
             _serviceMock.Setup(s => s.IsAdmin()).Returns(false);
 
-            _stockList = new List<Stock>
-            {
+            _stockList =
+            [
                 new Stock("AAPL","AAPL","Apple",0,0),
                 new Stock("MSFT","MSFT","Microsoft",0,0)
-            };
+            ];
             _serviceMock.Setup(s => s.GetUserStocks()).Returns(_stockList);
 
             _serviceMock

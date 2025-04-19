@@ -7,18 +7,13 @@
     /// <summary>
     /// Adapter for <see cref="TextBlock"/> to abstract UI element interactions.
     /// </summary>
-    public class TextBlockAdapter : ITextBlock
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="TextBlockAdapter"/> class.
+    /// </remarks>
+    /// <param name="inner">The underlying <see cref="TextBlock"/> control to wrap.</param>
+    public class TextBlockAdapter(TextBlock inner) : ITextBlock
     {
-        private readonly TextBlock _inner;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TextBlockAdapter"/> class.
-        /// </summary>
-        /// <param name="inner">The underlying <see cref="TextBlock"/> control to wrap.</param>
-        public TextBlockAdapter(TextBlock inner)
-        {
-            this._inner = inner ?? throw new ArgumentNullException(nameof(inner));
-        }
+        private readonly TextBlock _inner = inner ?? throw new ArgumentNullException(nameof(inner));
 
         /// <summary>
         /// Gets or sets the text content of the underlying <see cref="TextBlock"/>.

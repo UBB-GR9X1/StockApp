@@ -8,18 +8,13 @@
     /// <summary>
     /// ViewModel for updating user profile details including username, image, description, and visibility.
     /// </summary>
-    internal class UpdateProfilePageViewModel
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="UpdateProfilePageViewModel"/> class with a specified service.
+    /// </remarks>
+    /// <param name="service">Service used to retrieve and update profile information.</param>
+    internal class UpdateProfilePageViewModel(IProfileService service)
     {
-        private readonly IProfileService profileService;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="UpdateProfilePageViewModel"/> class with a specified service.
-        /// </summary>
-        /// <param name="service">Service used to retrieve and update profile information.</param>
-        public UpdateProfilePageViewModel(IProfileService service)
-        {
-            this.profileService = service ?? throw new ArgumentNullException(nameof(service));
-        }
+        private readonly IProfileService profileService = service ?? throw new ArgumentNullException(nameof(service));
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UpdateProfilePageViewModel"/> class with the default profile service.

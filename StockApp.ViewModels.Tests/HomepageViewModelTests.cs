@@ -17,11 +17,11 @@ namespace StockApp.ViewModels.Tests
         private Mock<IHomepageService> _serviceMock;
         private HomepageViewModel _vm;
 
-        private readonly List<HomepageStock> _allStocks = new List<HomepageStock>
-        {
+        private readonly List<HomepageStock> _allStocks =
+        [
             new HomepageStock { Symbol = "AAPL", IsFavorite = false },
             new HomepageStock { Symbol = "GOOG", IsFavorite = true  },
-        };
+        ];
 
         [TestInitialize]
         public void SetUp()
@@ -149,8 +149,8 @@ namespace StockApp.ViewModels.Tests
         [ExpectedException(typeof(ArgumentException))]
         public void NavigateToPage_Invalid_Throws()
         {
-            _vm.NavigateToPage(123);
-            _vm.NavigateToPage("UnknownPage");
+            HomepageViewModel.NavigateToPage(123);
+            HomepageViewModel.NavigateToPage("UnknownPage");
         }
     }
 }

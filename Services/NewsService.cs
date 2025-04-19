@@ -14,13 +14,13 @@
     public class NewsService : INewsService
     {
         private readonly AppState appState;
-        private static readonly Dictionary<string, NewsArticle> previewArticles = new();
-        private static readonly Dictionary<string, UserArticle> previewUserArticles = new();
-        private readonly List<NewsArticle> cachedArticles = new();
-        private static List<UserArticle> userArticles = new();
+        private static readonly Dictionary<string, NewsArticle> previewArticles = [];
+        private static readonly Dictionary<string, UserArticle> previewUserArticles = [];
+        private readonly List<NewsArticle> cachedArticles = [];
+        private static List<UserArticle> userArticles = [];
         private static bool isInitialized = false;
         private readonly INewsRepository repository;
-        private IBaseStocksRepository stocksRepository;
+        private readonly IBaseStocksRepository stocksRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NewsService"/> class
@@ -45,7 +45,7 @@
             if (!isInitialized)
             {
                 // Load initial user-submitted articles into memory
-                var initialUserArticles = this.repository.GetAllUserArticles() ?? new List<UserArticle>();
+                var initialUserArticles = this.repository.GetAllUserArticles() ?? [];
                 userArticles.AddRange(initialUserArticles);
                 isInitialized = true;
             }
@@ -195,13 +195,13 @@
                 // Inline: apply status filter
                 if (!string.IsNullOrEmpty(status) && status != "All")
                 {
-                    userArticles = userArticles.Where(a => a.Status == status).ToList();
+                    userArticles = [.. userArticles.Where(a => a.Status == status)];
                 }
 
                 // Inline: apply topic filter
                 if (!string.IsNullOrEmpty(topic) && topic != "All")
                 {
-                    userArticles = userArticles.Where(a => a.Topic == topic).ToList();
+                    userArticles = [.. userArticles.Where(a => a.Topic == topic)];
                 }
 
                 return userArticles;
@@ -398,8 +398,7 @@
                         "Administrator Account",
                         true,  // isAdmin
                         false, // isHidden
-                        "img.jpg"
-                    );
+                        "img.jpg");
                 }
                 catch (NewsPersistenceException ex)
                 {
@@ -413,8 +412,7 @@
                     true,
                     "img.jpg",
                     false,
-                    0
-                );
+                    0);
             }
             else if (username == "user" && password == "user")
             {
@@ -425,8 +423,7 @@
                     false,
                     "imagine",
                     false,
-                    1000
-                );
+                    1000);
             }
 
             throw new UnauthorizedAccessException("Invalid username or password");
@@ -460,8 +457,8 @@
 
             // Inline: copy related stocks list if provided
             article.RelatedStocks = userArticle.RelatedStocks != null
-                ? new List<string>(userArticle.RelatedStocks)
-                : new List<string>();
+                ? [.. userArticle.RelatedStocks]
+                : [];
 
             previewArticles[articleId] = article;
             previewUserArticles[articleId] = userArticle;

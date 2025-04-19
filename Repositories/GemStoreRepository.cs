@@ -46,7 +46,7 @@
         /// <summary>
         /// Retrieves the current gem balance for the specified user.
         /// </summary>
-        /// <param name="cnp">User identifier (CNP).</param>
+        /// <param name="userCnp">User identifier (CNP).</param>
         /// <returns>User's gem balance as an integer.</returns>
         public int GetUserGemBalance(string userCnp)
         {
@@ -64,7 +64,7 @@
         /// <summary>
         /// Updates the gem balance for a given user.
         /// </summary>
-        /// <param name="cnp">User identifier (CNP).</param>
+        /// <param name="userCnp">User identifier (CNP).</param>
         /// <param name="newBalance">New gem balance to set.</param>
         public void UpdateUserGemBalance(string userCnp, int newBalance)
         {
@@ -80,7 +80,7 @@
         /// <summary>
         /// Determines if the specified user is considered a guest (no record in the database).
         /// </summary>
-        /// <param name="cnp">User identifier (CNP).</param>
+        /// <param name="userCnp">User identifier (CNP).</param>
         /// <returns><c>true</c> if no user record exists; otherwise, <c>false</c>.</returns>
         public bool IsGuest(string userCnp)
         {

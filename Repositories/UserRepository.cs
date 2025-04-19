@@ -8,20 +8,15 @@
     using StockApp.Database;
     using StockApp.Models;
 
-    public class UserRepository : IUserRepository
+    public class UserRepository(string? cnp = null) : IUserRepository
     {
         /// <summary>
         /// Gets or sets the CNP (unique identifier) of the current user.
         /// </summary>
-        public string CurrentUserCNP { get; set; }
-
-        public UserRepository(string? cnp = null)
-        {
-            this.CurrentUserCNP = !string.IsNullOrWhiteSpace(cnp)
+        public string CurrentUserCNP { get; set; } = !string.IsNullOrWhiteSpace(cnp)
                 ? cnp
                 : App.Configuration["DefaultUserCNP"]
                     ?? throw new InvalidOperationException("DefaultUserCNP is not set in appsettings.json");
-        }
 
         /// <summary>
         /// Creates a new user in the database.

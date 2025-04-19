@@ -5,10 +5,14 @@
     public class DatabaseInitializationException : Exception
     {
         public DatabaseInitializationException(string message)
-            : base(message) { }
+            : base(message)
+        {
+        }
 
         public DatabaseInitializationException(string message, Exception innerException)
-            : base(message, innerException) { }
+            : base(message, innerException)
+        {
+        }
     }
 
     public class SqlScriptMissingException : Exception

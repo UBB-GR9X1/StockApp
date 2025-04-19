@@ -39,7 +39,7 @@ namespace StockApp.ViewModels.Tests
             _stocksRepoMock = new Mock<IBaseStocksRepository>();
             _stocksRepoMock
                 .Setup(r => r.GetAllStocks())
-                .Returns(new List<BaseStock>());
+                .Returns([]);
 
             _vm = new ArticleCreationViewModel(
                 _newsServiceMock.Object,

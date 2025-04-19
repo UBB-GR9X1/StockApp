@@ -55,7 +55,7 @@ namespace StockApp.Repository.Tests
 
         private class FakeTransactionRepository : ITransactionRepository
         {
-            public List<TransactionLogTransaction> Transactions { get; private set; } = new();
+            public List<TransactionLogTransaction> Transactions { get; private set; } = [];
 
             public void AddTransaction(TransactionLogTransaction transaction)
             {

@@ -77,7 +77,7 @@ namespace StockApp.Service.Tests
         [ExpectedException(typeof(InvalidSortTypeException))]
         public void SortTransactions_InvalidKey_Throws()
         {
-            _service.SortTransactions(new List<TransactionLogTransaction>(), "NotAKey", true);
+            _service.SortTransactions([], "NotAKey", true);
         }
 
         [TestMethod]
@@ -91,14 +91,14 @@ namespace StockApp.Service.Tests
         [ExpectedException(typeof(ArgumentException))]
         public void ExportTransactions_EmptyPath_Throws()
         {
-            _service.ExportTransactions(new List<TransactionLogTransaction>(), "", "csv");
+            _service.ExportTransactions([], "", "csv");
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void ExportTransactions_EmptyFormat_Throws()
         {
-            _service.ExportTransactions(new List<TransactionLogTransaction>(), "p.csv", "");
+            _service.ExportTransactions([], "p.csv", "");
         }
 
         [TestMethod]
@@ -106,9 +106,9 @@ namespace StockApp.Service.Tests
         public void ExportTransactions_UnsupportedFormat_Throws()
         {
             _service.ExportTransactions(
-                new List<TransactionLogTransaction> {
+                [
                     new("SYM","Foo","BUY",1,10,DateTime.Now,"u")
-                },
+                ],
                 "p.abc",
                 "abc");
         }

@@ -10,9 +10,13 @@
     /// <summary>
     /// View model for the profile page, managing the user's profile image and information.
     /// </summary>
-    public class ProfilePageViewModel : INotifyPropertyChanged
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="ProfilePageViewModel"/> class with the specified profile service.
+    /// </remarks>
+    /// <param name="profileService">Service used to retrieve profile data.</param>
+    public class ProfilePageViewModel(IProfileService profileService) : INotifyPropertyChanged
     {
-        private readonly IProfileService profileService;
+        private readonly IProfileService profileService = profileService ?? throw new ArgumentNullException(nameof(profileService));
 
         private BitmapImage imageSource;
 
@@ -27,15 +31,6 @@
                 this.imageSource = value;
                 this.OnPropertyChanged(nameof(this.ImageSource));
             }
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ProfilePageViewModel"/> class with the specified profile service.
-        /// </summary>
-        /// <param name="profileService">Service used to retrieve profile data.</param>
-        public ProfilePageViewModel(IProfileService profileService)
-        {
-            this.profileService = profileService ?? throw new ArgumentNullException(nameof(profileService));
         }
 
         /// <summary>

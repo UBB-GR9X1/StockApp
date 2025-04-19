@@ -43,7 +43,7 @@ namespace StockApp.Repository.Tests
                 IsRead = false,
                 IsWatchlistRelated = false,
                 Category = "Test",
-                RelatedStocks = new List<string> { "AAPL" }
+                RelatedStocks = ["AAPL"]
             };
 
             // Manually add article to internal list (simulate successful DB write)
@@ -79,7 +79,7 @@ namespace StockApp.Repository.Tests
         [TestMethod]
         public void GetNewsArticleById_ReturnsCorrectArticle()
         {
-            var article = new NewsArticle { ArticleId = "A1", Title = "Read Me", RelatedStocks = new List<string> { "TSLA" } };
+            var article = new NewsArticle { ArticleId = "A1", Title = "Read Me", RelatedStocks = ["TSLA"] };
 
             typeof(NewsRepository)
                 .GetField("newsArticles", BindingFlags.NonPublic | BindingFlags.Instance)

@@ -83,8 +83,7 @@
                     LowerBound = reader.GetInt32(3),
                     UpperBound = reader.GetInt32(4),
                     ToggleOnOff = reader.GetBoolean(5),
-                })
-            );
+                }));
         }
 
         /// <summary>

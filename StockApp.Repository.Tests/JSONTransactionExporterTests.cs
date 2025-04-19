@@ -31,7 +31,7 @@ namespace StockApp.Repository.Tests
         [TestMethod]
         public void Export_EmptyList_ProducesEmptyJsonArray()
         {
-            _exporter.Export(new List<TransactionLogTransaction>(), _tempFile);
+            _exporter.Export([], _tempFile);
             var json = File.ReadAllText(_tempFile);
             using var doc = JsonDocument.Parse(json);
             Assert.AreEqual(JsonValueKind.Array, doc.RootElement.ValueKind);
@@ -52,7 +52,7 @@ namespace StockApp.Repository.Tests
                 "Alice"
             );
 
-            _exporter.Export(new List<TransactionLogTransaction> { tx }, _tempFile);
+            _exporter.Export([tx], _tempFile);
             var json = File.ReadAllText(_tempFile);
             using var doc = JsonDocument.Parse(json);
             var arr = doc.RootElement;

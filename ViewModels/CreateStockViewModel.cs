@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("StockApp.ViewModels.Tests")]
+
 namespace StockApp.ViewModels
 {
     using System;

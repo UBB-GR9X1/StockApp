@@ -6,22 +6,16 @@
     /// <summary>
     /// Represents a command that can be bound to UI elements and executed with optional conditions.
     /// </summary>
-    public partial class RelayCommand : ICommand
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="RelayCommand"/> class.
+    /// </remarks>
+    /// <param name="execute">The action to execute when the command is invoked.</param>
+    /// <param name="canExecute">The predicate to determine if the command can execute. If null, the command can always execute.</param>
+    /// <exception cref="ArgumentNullException">Thrown when the execute parameter is null.</exception>
+    public partial class RelayCommand(Action<object> execute, Predicate<object>? canExecute = null) : ICommand
     {
-        private readonly Action<object> execute;
-        private readonly Predicate<object>? canExecute;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RelayCommand"/> class.
-        /// </summary>
-        /// <param name="execute">The action to execute when the command is invoked.</param>
-        /// <param name="canExecute">The predicate to determine if the command can execute. If null, the command can always execute.</param>
-        /// <exception cref="ArgumentNullException">Thrown when the execute parameter is null.</exception>
-        public RelayCommand(Action<object> execute, Predicate<object>? canExecute = null)
-        {
-            this.execute = execute ?? throw new ArgumentNullException(nameof(execute));
-            this.canExecute = canExecute;
-        }
+        private readonly Action<object> execute = execute ?? throw new ArgumentNullException(nameof(execute));
+        private readonly Predicate<object>? canExecute = canExecute;
 
         /// <summary>
         /// Raises the <see cref="CanExecuteChanged"/> event to indicate that the command's ability to execute has changed.

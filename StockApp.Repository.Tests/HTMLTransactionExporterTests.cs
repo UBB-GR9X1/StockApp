@@ -30,7 +30,7 @@
         [TestMethod]
         public void Export_EmptyList_ProducesTableWithHeaderOnly()
         {
-            _exporter.Export(new List<TransactionLogTransaction>(), _tempFile);
+            _exporter.Export([], _tempFile);
 
             var html = File.ReadAllText(_tempFile);
 
@@ -66,7 +66,7 @@
                 author: "Bob"
             );
 
-            _exporter.Export(new List<TransactionLogTransaction> { tx }, _tempFile);
+            _exporter.Export([tx], _tempFile);
 
             var html = File.ReadAllText(_tempFile);
 

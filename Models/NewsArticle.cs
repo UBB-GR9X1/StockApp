@@ -11,7 +11,9 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="NewsArticle"/> class.
         /// </summary>
-        public NewsArticle() { }
+        public NewsArticle()
+        {
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NewsArticle"/> class with specified details.
@@ -42,7 +44,7 @@
             this.PublishedDate = publishedDate;
 
             // Copy the incoming sequence to a List for mutability and indexing
-            this.RelatedStocks = relatedStocks.ToList();
+            this.RelatedStocks = [.. relatedStocks];
             this.Status = status;
         }
 

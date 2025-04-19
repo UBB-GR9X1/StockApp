@@ -18,6 +18,7 @@ namespace StockApp.Pages
     public sealed partial class StockPage : Page
     {
         private StockPageViewModel? _viewModel;
+
         ICommand command { get; }
 
         /// <summary>

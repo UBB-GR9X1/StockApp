@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("StockApp.Service.Tests")]
+
 namespace StockApp.Repositories
 {
     using System;
@@ -57,7 +58,7 @@ namespace StockApp.Repositories
             const string query = "SELECT PRICE FROM STOCK_VALUE WHERE STOCK_NAME = @name ORDER BY STOCK_VALUE_ID";
 
             // Inline: execute reader mapping PRICE column to int
-            return this.ExecuteReader(query,
+            return ExecuteReader(query,
                 command => command.Parameters.AddWithValue("@name", stockName),
                 reader => Convert.ToInt32(reader["PRICE"]));
         }
@@ -75,7 +76,7 @@ namespace StockApp.Repositories
             }
 
             const string query = "SELECT COUNT(*) FROM [USER] WHERE CNP = @UserCNP";
-            int count = this.ExecuteScalar<int>(query,
+            int count = ExecuteScalar<int>(query,
                 command => command.Parameters.AddWithValue("@UserCNP", userCNP));
             return count == 0;
         }
@@ -99,7 +100,7 @@ namespace StockApp.Repositories
             const string historyQuery = "SELECT STOCK_NAME, PRICE FROM STOCK_VALUE ORDER BY STOCK_NAME, STOCK_VALUE_ID";
             var allStockHistories = new Dictionary<string, List<int>>();
 
-            var historyResults = this.ExecuteReader(historyQuery, null, reader => new
+            var historyResults = ExecuteReader(historyQuery, null, reader => new
             {
                 StockName = reader["STOCK_NAME"].ToString(),
                 Price = Convert.ToInt32(reader["PRICE"]),
@@ -107,7 +108,7 @@ namespace StockApp.Repositories
 
             foreach (var group in historyResults.GroupBy(h => h.StockName))
             {
-                allStockHistories[group.Key] = group.Select(g => g.Price).ToList();
+                allStockHistories[group.Key] = [.. group.Select(g => g.Price)];
             }
 
             // Inline: query stock info and favorites
@@ -120,7 +121,7 @@ namespace StockApp.Repositories
                 LEFT JOIN FAVORITE_STOCK f ON s.STOCK_NAME = f.STOCK_NAME AND f.USER_CNP = @UserCNP
                 GROUP BY s.STOCK_NAME, s.STOCK_SYMBOL";
 
-            return this.ExecuteReader(
+            return ExecuteReader(
                 stocksQuery,
                 command => command.Parameters.AddWithValue("@UserCNP", this.UserCnp),
                 reader =>
@@ -129,7 +130,7 @@ namespace StockApp.Repositories
                     var stockSymbol = reader["STOCK_SYMBOL"]?.ToString();
                     var isFavorite = Convert.ToInt32(reader["IS_FAVORITE"]) == 1;
 
-                    var stockHistory = allStockHistories.TryGetValue(stockName, out var history) ? history : new List<int>();
+                    var stockHistory = allStockHistories.TryGetValue(stockName, out var history) ? history : [];
                     var currentPrice = stockHistory.LastOrDefault();
                     var previousPrice = stockHistory.Count > 1 ? stockHistory[^2] : 0;
 
@@ -156,7 +157,7 @@ namespace StockApp.Repositories
         public void AddToFavorites(HomepageStock stock)
         {
             const string query = "INSERT INTO FAVORITE_STOCK (USER_CNP, STOCK_NAME, IS_FAVORITE) VALUES (@UserCNP, @Name, 1)";
-            this.ExecuteSql(query, command =>
+            ExecuteSql(query, command =>
             {
                 command.Parameters.AddWithValue("@UserCNP", this.UserCnp);
                 command.Parameters.AddWithValue("@Name", stock.Name);
@@ -170,7 +171,7 @@ namespace StockApp.Repositories
         public void RemoveFromFavorites(HomepageStock stock)
         {
             const string query = "DELETE FROM FAVORITE_STOCK WHERE USER_CNP = @UserCNP AND STOCK_NAME = @Name";
-            this.ExecuteSql(query, command =>
+            ExecuteSql(query, command =>
             {
                 command.Parameters.AddWithValue("@UserCNP", this.UserCnp);
                 command.Parameters.AddWithValue("@Name", stock.Name);
@@ -200,7 +201,7 @@ namespace StockApp.Repositories
                 VALUES 
                 (@CNP, @Name, @Description, @IsHidden, @IsAdmin, @ProfilePicture, @GemBalance)";
 
-            this.ExecuteSql(query, command =>
+            ExecuteSql(query, command =>
             {
                 command.Parameters.AddWithValue("@CNP", this.UserCnp);
                 command.Parameters.AddWithValue("@Name", randomUsername);
@@ -213,7 +214,7 @@ namespace StockApp.Repositories
         }
 
         // Shared helper: execute a non-query SQL command
-        private void ExecuteSql(string query, Action<SqlCommand> parameterize)
+        private static void ExecuteSql(string query, Action<SqlCommand> parameterize)
         {
             using var command = new SqlCommand(query, DatabaseHelper.GetConnection());
             parameterize?.Invoke(command);
@@ -221,7 +222,7 @@ namespace StockApp.Repositories
         }
 
         // Shared helper: execute a scalar query and return typed result
-        private T ExecuteScalar<T>(string query, Action<SqlCommand> parameterize)
+        private static T ExecuteScalar<T>(string query, Action<SqlCommand> parameterize)
         {
             using var command = new SqlCommand(query, DatabaseHelper.GetConnection());
             parameterize?.Invoke(command);
@@ -229,7 +230,7 @@ namespace StockApp.Repositories
         }
 
         // Shared helper: execute reader and map each row
-        private List<T> ExecuteReader<T>(string query, Action<SqlCommand> parameterize, Func<SqlDataReader, T> map)
+        private static List<T> ExecuteReader<T>(string query, Action<SqlCommand> parameterize, Func<SqlDataReader, T> map)
         {
             using SqlCommand command = new(query, DatabaseHelper.GetConnection());
             parameterize?.Invoke(command);

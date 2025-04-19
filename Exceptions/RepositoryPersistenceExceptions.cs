@@ -2,45 +2,31 @@
 {
     using System;
 
-    public class RepositoryPersistenceException : Exception
+    public class RepositoryPersistenceException(string message, Exception? innerException = null) : Exception(message, innerException)
     {
-        public RepositoryPersistenceException(string message, Exception? innerException = null)
-            : base(message, innerException) { }
     }
 
-    public class UserRepositoryException : RepositoryPersistenceException
+    public class UserRepositoryException(string message, Exception? innerException = null) : RepositoryPersistenceException(message, innerException)
     {
-        public UserRepositoryException(string message, Exception? innerException = null)
-            : base(message, innerException) { }
     }
 
-    public class StockRepositoryException : RepositoryPersistenceException
+    public class StockRepositoryException(string message, Exception? innerException = null) : RepositoryPersistenceException(message, innerException)
     {
-        public StockRepositoryException(string message, Exception? innerException = null)
-            : base(message, innerException) { }
     }
 
-    public class TransactionRepositoryException : RepositoryPersistenceException
+    public class TransactionRepositoryException(string message, Exception? innerException = null) : RepositoryPersistenceException(message, innerException)
     {
-        public TransactionRepositoryException(string message, Exception? innerException = null)
-            : base(message, innerException) { }
     }
 
-    public class NewsRepositoryException : RepositoryPersistenceException
+    public class NewsRepositoryException(string message, Exception? innerException = null) : RepositoryPersistenceException(message, innerException)
     {
-        public NewsRepositoryException(string message, Exception? innerException = null)
-            : base(message, innerException) { }
     }
 
-    public class AlertRepositoryException : RepositoryPersistenceException
+    public class AlertRepositoryException(string message, Exception? innerException = null) : RepositoryPersistenceException(message, innerException)
     {
-        public AlertRepositoryException(string message, Exception? innerException = null)
-            : base(message, innerException) { }
     }
 
-    public class ProfilePersistenceException : Exception
+    public class ProfilePersistenceException(string message, Exception? innerException = null) : Exception(message, innerException)
     {
-        public ProfilePersistenceException(string message, Exception? innerException = null)
-            : base(message, innerException) { }
     }
 }

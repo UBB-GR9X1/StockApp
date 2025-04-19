@@ -49,7 +49,9 @@
         /// Initializes a new instance of <see cref="AdminNewsViewModel"/> using default implementations.
         /// </summary>
         public AdminNewsViewModel()
-            : this(new NewsService(), new DispatcherAdapter()) { }
+            : this(new NewsService(), new DispatcherAdapter())
+        {
+        }
 
         /// <summary>
         /// Sets up commands and default filter values.

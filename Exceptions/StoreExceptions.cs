@@ -2,18 +2,15 @@
 {
     using System;
 
-    public class GuestUserOperationException : Exception
+    public class GuestUserOperationException(string message) : Exception(message)
     {
-        public GuestUserOperationException(string message) : base(message) { }
     }
 
-    public class GemTransactionFailedException : Exception
+    public class GemTransactionFailedException(string message) : Exception(message)
     {
-        public GemTransactionFailedException(string message) : base(message) { }
     }
 
-    public class InsufficientGemsException : Exception
+    public class InsufficientGemsException(string message) : Exception(message)
     {
-        public InsufficientGemsException(string message) : base(message) { }
     }
 }

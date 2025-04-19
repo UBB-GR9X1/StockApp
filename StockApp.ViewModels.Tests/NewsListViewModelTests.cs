@@ -20,11 +20,11 @@ namespace StockApp.ViewModels.Tests
         private Mock<IAppState> _appStateMock;
         private NewsListViewModel _vm;
 
-        private readonly List<NewsArticle> _sampleArticles = new List<NewsArticle>
-        {
+        private readonly List<NewsArticle> _sampleArticles =
+        [
             new NewsArticle { ArticleId = "1", Category = "Stock News", PublishedDate = "2025-01-01", IsWatchlistRelated = false, Title = "A", Summary = "", Content = "" },
             new NewsArticle { ArticleId = "2", Category = "Company News", PublishedDate = "2025-02-01", IsWatchlistRelated = true,  Title = "B", Summary = "", Content = "" }
-        };
+        ];
 
         [TestInitialize]
         public void Setup()

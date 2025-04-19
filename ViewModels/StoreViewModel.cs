@@ -17,12 +17,12 @@
     {
         private readonly IStoreService storeService;
 
-        private bool testMode = false; // Set to true for testing without the database
+        private readonly bool testMode = false; // Set to true for testing without the database
 
         private int userGems;
         private string currentUserCnp;
-        private ObservableCollection<GemDeal> availableDeals = new ObservableCollection<GemDeal>();
-        private List<GemDeal> possibleDeals = new List<GemDeal>();
+        private ObservableCollection<GemDeal> availableDeals = [];
+        private List<GemDeal> possibleDeals = [];
 
         /// <summary>
         /// Occurs when a property value changes.
@@ -44,7 +44,8 @@
         /// </summary>
         public StoreViewModel()
             : this(new StoreService())
-        { }
+        {
+        }
 
         /// <summary>
         /// Initializes user data and gem deals.
@@ -164,6 +165,7 @@
                 this.OnPropertyChanged(nameof(this.UserGems));
                 this.OnPropertyChanged(nameof(this.AvailableDeals));
             }
+
             return result;
         }
 
@@ -204,6 +206,7 @@
                 this.UserGems -= amount;
                 this.OnPropertyChanged(nameof(this.UserGems));
             }
+
             return result;
         }
 
@@ -211,10 +214,10 @@
         /// Gets a list of the user's linked bank accounts.
         /// </summary>
         /// <returns>A list of bank account names.</returns>
-        public List<string> GetUserBankAccounts()
+        public static List<string> GetUserBankAccounts()
         {
             // TODO: Replace with real data source
-            return new List<string> { "Account 1", "Account 2", "Account 3" };
+            return ["Account 1", "Account 2", "Account 3"];
         }
 
         /// <summary>
@@ -222,8 +225,8 @@
         /// </summary>
         private void LoadGemDeals()
         {
-            this.AvailableDeals = new ObservableCollection<GemDeal>
-            {
+            this.AvailableDeals =
+            [
                 new GemDeal("LEGENDARY DEAL!!!!", 4999, 100.0),
                 new GemDeal("MYTHIC DEAL!!!!", 3999, 90.0),
                 new GemDeal("INSANE DEAL!!!!", 3499, 85.0),
@@ -236,7 +239,7 @@
                 new GemDeal("MEGA BAD DEAL!!!!", 500, 40.0),
                 new GemDeal("BAD DEAL!!!!", 1, 35.0),
                 new GemDeal("🔥 SPECIAL DEAL", 2, 2.0, true, 1),
-            };
+            ];
             this.SortDeals();
         }
 
@@ -245,14 +248,14 @@
         /// </summary>
         private void LoadPossibleDeals()
         {
-            this.possibleDeals = new List<GemDeal>
-            {
+            this.possibleDeals =
+            [
                 new GemDeal("🔥 Limited Deal!", 6000, 120.0, true, 1),
                 new GemDeal("🔥 Flash Sale!", 5000, 100.0, true, 60),
                 new GemDeal("🔥 Mega Discount!", 4000, 80.0, true, 30),
                 new GemDeal("🔥 Special Offer!", 3000, 60.0, true, 5),
                 new GemDeal("🔥 Exclusive Deal!", 2000, 40.0, true, 1),
-            };
+            ];
         }
 
         /// <summary>
@@ -284,7 +287,7 @@
                 await Task.Delay(TimeSpan.FromSeconds(60));
 
                 // Inline: filter out expired deals
-                this.AvailableDeals = new ObservableCollection<GemDeal>(this.AvailableDeals.Where(deal => deal.IsAvailable));
+                this.AvailableDeals = [.. this.AvailableDeals.Where(deal => deal.IsAvailable)];
                 this.SortDeals();
                 this.OnPropertyChanged(nameof(this.AvailableDeals));
             }
@@ -296,7 +299,7 @@
         private void SortDeals()
         {
             var sortedDeals = this.AvailableDeals.OrderBy(deal => deal.ExpirationTime).ToList();
-            this.AvailableDeals = new ObservableCollection<GemDeal>(sortedDeals);
+            this.AvailableDeals = [.. sortedDeals];
             this.OnPropertyChanged(nameof(this.AvailableDeals));
         }
 

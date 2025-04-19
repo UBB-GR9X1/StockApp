@@ -34,7 +34,7 @@ namespace StockApp.ViewModels.Tests
             _svc.Setup(s => s.GetFavorite()).Returns(false);
             _svc.Setup(s => s.GetUserBalance()).Returns(10);
             _svc.Setup(s => s.GetOwnedStocks()).Returns(2);
-            _svc.Setup(s => s.GetStockHistory()).Returns(new List<int> { 5 });
+            _svc.Setup(s => s.GetStockHistory()).Returns([5]);
             _svc.Setup(s => s.ToggleFavorite(It.IsAny<bool>()));
             _svc.Setup(s => s.BuyStock(It.IsAny<int>())).Returns(true);
             _svc.Setup(s => s.SellStock(It.IsAny<int>())).Returns(false);

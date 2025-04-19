@@ -24,6 +24,7 @@
         {
             this.Initialize();
         }
+
         private void Initialize()
         {
             lock (LockObject)
@@ -383,6 +384,7 @@
                 {
                     try { transaction.Rollback(); } catch { }
                 }
+
                 throw new NewsPersistenceException("SQL error occurred while adding related stocks.", ex);
             }
             catch (InvalidOperationException ex)
@@ -391,6 +393,7 @@
                 {
                     try { transaction.Rollback(); } catch { }
                 }
+
                 throw new NewsPersistenceException("Invalid operation while adding related stocks.", ex);
             }
             finally
@@ -668,12 +671,12 @@
 
         public List<NewsArticle> GetNewsArticlesByStock(string stockName)
         {
-            return this.newsArticles.Where(a => a.RelatedStocks.Contains(stockName)).ToList();
+            return [.. this.newsArticles.Where(a => a.RelatedStocks.Contains(stockName))];
         }
 
         public List<NewsArticle> GetNewsArticlesByCategory(string category)
         {
-            return this.newsArticles.Where(a => a.Category == category).ToList();
+            return [.. this.newsArticles.Where(a => a.Category == category)];
         }
 
         /// <summary>
@@ -1050,7 +1053,7 @@
         /// <returns>True if the article exists, otherwise false.</returns>
         private bool ArticleExists(string articleId, string tableName)
         {
-            return this.ExecuteScalar<int>(
+            return ExecuteScalar<int>(
                 $"SELECT COUNT(*) FROM {tableName} WHERE ARTICLE_ID = @ArticleId",
                 new Dictionary<string, object> { { "@ArticleId", articleId } }) > 0;
         }
@@ -1064,7 +1067,7 @@
         /// <param name="mapParameters">The function to map article properties to SQL parameters.</param>
         private void AddArticle<T>(T article, string tableName, Action<SqlCommand, T> mapParameters)
         {
-            this.ExecuteNonQuery(
+            ExecuteNonQuery(
                 $"INSERT INTO {tableName} VALUES ({GetColumnPlaceholders(tableName)})",
                 command => mapParameters(command, article));
         }
@@ -1078,7 +1081,7 @@
         /// <param name="mapParameters">The function to map article properties to SQL parameters.</param>
         private void UpdateArticle<T>(T article, string tableName, Action<SqlCommand, T> mapParameters)
         {
-            this.ExecuteNonQuery(
+            ExecuteNonQuery(
                 $"UPDATE {tableName} SET {GetUpdatePlaceholders(tableName)} WHERE ARTICLE_ID = @ArticleId",
                 command => mapParameters(command, article));
         }
@@ -1090,7 +1093,7 @@
         /// <param name="tableName">The name of the table.</param>
         private void DeleteArticle(string articleId, string tableName)
         {
-            this.ExecuteNonQuery(
+            ExecuteNonQuery(
                 $"DELETE FROM {tableName} WHERE ARTICLE_ID = @ArticleId",
                 new Dictionary<string, object> { { "@ArticleId", articleId } });
         }
@@ -1104,7 +1107,7 @@
         /// <returns>A list of articles.</returns>
         private List<T> LoadArticles<T>(string query, Func<SqlDataReader, T> map)
         {
-            return this.ExecuteReader(query, [], map);
+            return ExecuteReader(query, [], map);
         }
 
         /// <summary>
@@ -1221,7 +1224,7 @@
         /// </summary>
         /// <param name="query">The SQL query to execute.</param>
         /// <param name="parameters">The parameters for the query.</param>
-        private void ExecuteNonQuery(string query, Dictionary<string, object> parameters = null)
+        private static void ExecuteNonQuery(string query, Dictionary<string, object> parameters = null)
         {
             using var connection = DatabaseHelper.GetConnection();
             using var command = new SqlCommand(query, connection);
@@ -1241,7 +1244,7 @@
         /// </summary>
         /// <param name="query">The SQL query to execute.</param>
         /// <param name="configureCommand">The action to configure the SQL command.</param>
-        private void ExecuteNonQuery(string query, Action<SqlCommand> configureCommand)
+        private static void ExecuteNonQuery(string query, Action<SqlCommand> configureCommand)
         {
             using var connection = DatabaseHelper.GetConnection();
             using var command = new SqlCommand(query, connection);
@@ -1256,7 +1259,7 @@
         /// <param name="query">The SQL query to execute.</param>
         /// <param name="parameters">The parameters for the query.</param>
         /// <returns>The result of the query.</returns>
-        private T ExecuteScalar<T>(string query, Dictionary<string, object> parameters)
+        private static T ExecuteScalar<T>(string query, Dictionary<string, object> parameters)
         {
             using var connection = DatabaseHelper.GetConnection();
             using var command = new SqlCommand(query, connection);
@@ -1276,7 +1279,7 @@
         /// <param name="parameters">The parameters for the query.</param>
         /// <param name="map">The function to map SQL data to objects.</param>
         /// <returns>A list of results.</returns>
-        private List<T> ExecuteReader<T>(string query, Dictionary<string, object> parameters, Func<SqlDataReader, T> map)
+        private static List<T> ExecuteReader<T>(string query, Dictionary<string, object> parameters, Func<SqlDataReader, T> map)
         {
             var results = new List<T>();
             using var connection = DatabaseHelper.GetConnection();
@@ -1298,7 +1301,7 @@
             return results;
         }
 
-        internal void AddRelatedStocksForArticle(string articleId, List<string> relatedStocks, object value)
+        internal static void AddRelatedStocksForArticle(string articleId, List<string> relatedStocks, object value)
         {
             using var connection = DatabaseHelper.GetConnection();
             using var command = new SqlCommand("INSERT INTO RELATED_STOCKS (ARTICLE_ID, STOCK_NAME) VALUES (@ArticleId, @StockName)", connection);

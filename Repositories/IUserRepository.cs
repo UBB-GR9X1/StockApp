@@ -9,9 +9,13 @@ namespace StockApp.Repositories
         string CurrentUserCNP { get; set; }
 
         Task CreateUserAsync(User user);
+
         Task DeleteUserAsync(string cnp);
+
         Task<List<User>> GetAllUsersAsync();
+
         Task<User> GetUserByCnpAsync(string cnp);
+
         Task UpdateUserAsync(User user);
     }
 }

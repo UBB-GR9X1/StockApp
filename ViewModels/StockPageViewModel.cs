@@ -31,10 +31,10 @@
         private int userGems = 0;
         private string userGemsText = "0 ❇️ Gems";
 
-        private ITextBlock priceLabel;
-        private ITextBlock increaseLabel;
-        private ITextBlock ownedStocks;
-        private IChart stockChart;
+        private readonly ITextBlock priceLabel;
+        private readonly ITextBlock increaseLabel;
+        private readonly ITextBlock ownedStocks;
+        private readonly IChart stockChart;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StockPageViewModel"/> class with dependencies.
@@ -101,11 +101,12 @@
                 this.userGems = this.stockPageService.GetUserBalance();
                 this.ownedStocks.Text = "Owned: " + this.stockPageService.GetOwnedStocks().ToString();
             }
+
             List<int> stockHistory = this.stockPageService.GetStockHistory();
             this.priceLabel.Text = stockHistory.Last().ToString() + " ❇️ Gems";
             if (stockHistory.Count > 1)
             {
-                int increasePerc = (stockHistory.Last() - stockHistory[stockHistory.Count - 2]) * 100 / stockHistory[stockHistory.Count - 2];
+                int increasePerc = (stockHistory.Last() - stockHistory[^2]) * 100 / stockHistory[^2];
                 this.increaseLabel.Text = increasePerc + "%";
                 if (increasePerc > 0)
                 {
@@ -116,6 +117,7 @@
                     this.increaseLabel.Foreground = new SolidColorBrush(Colors.IndianRed);
                 }
             }
+
             this.stockChart.UpdateLayout();
             this.stockChart.Series = new ISeries[]
             {
@@ -154,6 +156,7 @@
                 {
                     this.favoriteButtonColor = "#ffff5c"; // Default color
                 }
+
                 this.OnPropertyChanged(nameof(this.IsFavorite));
             }
         }

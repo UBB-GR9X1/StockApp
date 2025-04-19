@@ -43,13 +43,15 @@
             // Initialize Commands
             this.FavoriteCommand = new RelayCommand(obj => this.ToggleFavorite(obj as HomepageStock));
             this.CreateProfileCommand = new RelayCommand(_ => this.CreateUserProfile());
-            this.NavigateCommand = new RelayCommand(param => this.NavigateToPage(param));
+            this.NavigateCommand = new RelayCommand(param => NavigateToPage(param));
             this.SearchCommand = new RelayCommand(_ => this.ApplyFilter());
             this.SortCommand = new RelayCommand(_ => this.ApplySort());
         }
 
         public HomepageViewModel()
-          : this(new HomepageService()) { }
+          : this(new HomepageService())
+        {
+        }
 
         /// <summary>
         /// Occurs when a property value changes.
@@ -263,7 +265,7 @@
         /// </summary>
         /// <param name="parameter">The page name or parameter to navigate to.</param>
         /// <exception cref="ArgumentException">Thrown if the page name is unrecognized.</exception>
-        public void NavigateToPage(object parameter)
+        public static void NavigateToPage(object parameter)
         {
             if (parameter is string pageName)
             {

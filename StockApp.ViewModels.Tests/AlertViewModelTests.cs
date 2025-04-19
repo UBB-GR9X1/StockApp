@@ -26,7 +26,7 @@ namespace StockApp.ViewModels.Tests
 
             _alertServiceMock
                 .Setup(s => s.GetAllAlerts())
-                .Returns(new List<Alert>());
+                .Returns([]);
 
             _vm = new AlertViewModel(
                 _alertServiceMock.Object,

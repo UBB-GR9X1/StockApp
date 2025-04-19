@@ -10,20 +10,14 @@
     /// <summary>
     /// Repository for managing user profiles and related operations.
     /// </summary>
-    public class ProfileRepository : IProfileRepository
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="ProfileRepository"/> class.
+    /// </remarks>
+    /// <param name="authorCnp">The CNP of the user whose profile is being managed.</param>
+    public class ProfileRepository(string authorCnp) : IProfileRepository
     {
         private readonly SqlConnection dbConnection = DatabaseHelper.GetConnection();
-        private readonly string loggedInUserCnp;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ProfileRepository"/> class.
-        /// </summary>
-        /// <param name="authorCnp">The CNP of the user whose profile is being managed.</param>
-        public ProfileRepository(string authorCnp)
-        {
-            // Assign the working user CNP
-            this.loggedInUserCnp = authorCnp;
-        }
+        private readonly string loggedInUserCnp = authorCnp;
 
         /// <summary>
         /// Gets the current user's profile.
@@ -51,8 +45,7 @@
                         isModerator: false,
                         image: reader["PROFILE_PICTURE"]?.ToString(),
                         isHidden: reader["IS_HIDDEN"] != DBNull.Value && (bool)reader["IS_HIDDEN"],
-                        gem_balance: reader["GEM_BALANCE"] != DBNull.Value ? (int)reader["GEM_BALANCE"] : 0
-                    );
+                        gem_balance: reader["GEM_BALANCE"] != DBNull.Value ? (int)reader["GEM_BALANCE"] : 0);
                 }
 
                 throw new ProfilePersistenceException("User not found.");
@@ -140,8 +133,7 @@
                     command.Parameters.AddWithValue("@NewDescription", newDescription);
                     command.Parameters.AddWithValue("@NewIsHidden", newHidden ? 1 : 0);
                     command.Parameters.AddWithValue("@CNP", this.loggedInUserCnp);
-                }
-            );
+                });
         }
 
         /// <summary>
@@ -182,7 +174,7 @@
                 command.Parameters.AddWithValue("@UserCNP", this.loggedInUserCnp);
 
                 using var reader = command.ExecuteReader();
-                List<Stock> stocks = new();
+                List<Stock> stocks = [];
 
                 while (reader.Read())
                 {
@@ -191,8 +183,7 @@
                         name: reader["STOCK_NAME"]?.ToString() ?? throw new ProfilePersistenceException("Stock name missing."),
                         quantity: reader["QUANTITY"] != DBNull.Value ? (int)reader["QUANTITY"] : throw new ProfilePersistenceException("Stock quantity missing."),
                         price: reader["PRICE"] != DBNull.Value ? (int)reader["PRICE"] : throw new ProfilePersistenceException("Stock price missing."),
-                        authorCNP: this.loggedInUserCnp
-                    ));
+                        authorCNP: this.loggedInUserCnp));
                 }
 
                 return stocks;

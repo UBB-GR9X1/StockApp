@@ -30,7 +30,7 @@ namespace StockApp.Repository.Tests
         [TestMethod]
         public void Export_EmptyList_WritesOnlyHeader()
         {
-            _exporter.Export(new List<TransactionLogTransaction>(), _tempFile);
+            _exporter.Export([], _tempFile);
 
             var lines = File.ReadAllLines(_tempFile);
             Assert.AreEqual(1, lines.Length, "Should only have header when no transactions supplied.");
@@ -53,7 +53,7 @@ namespace StockApp.Repository.Tests
                 author: "Alice"
             );
 
-            _exporter.Export(new List<TransactionLogTransaction> { tx }, _tempFile);
+            _exporter.Export([tx], _tempFile);
 
             var lines = File.ReadAllLines(_tempFile);
             Assert.AreEqual(2, lines.Length, "Should have header plus one data row.");

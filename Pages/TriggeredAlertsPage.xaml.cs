@@ -15,17 +15,17 @@ namespace StockApp.Pages
         {
             this.InitializeComponent();
             this._alertRepository = new AlertRepository();
-            this.LoadAlerts();
+            LoadAlerts();
         }
 
-        private void LoadAlerts()
+        private static void LoadAlerts()
         {
             //AlertListView.ItemsSource = _alertRepository.GetTriggeredAlerts();
         }
 
         private void RefreshClick(object sender, RoutedEventArgs e)
         {
-            this.LoadAlerts();
+            LoadAlerts();
         }
     }
 }

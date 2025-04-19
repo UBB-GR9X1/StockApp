@@ -42,7 +42,7 @@
         /// <summary>
         /// Gets the collection of transactions displayed in the log.
         /// </summary>
-        public ObservableCollection<TransactionLogTransaction> Transactions { get; set; } = new ObservableCollection<TransactionLogTransaction>();
+        public ObservableCollection<TransactionLogTransaction> Transactions { get; set; } = [];
 
         /// <summary>
         /// Gets or sets the filter text for the stock name.
@@ -116,7 +116,7 @@
             get => this.minTotalValue;
             set
             {
-                if (this.ValidateNumericValue(value))
+                if (ValidateNumericValue(value))
                 {
                     this.minTotalValue = value;
                     this.OnPropertyChanged(nameof(this.MinTotalValue));
@@ -137,7 +137,7 @@
             get => this.maxTotalValue;
             set
             {
-                if (this.ValidateNumericValue(value))
+                if (ValidateNumericValue(value))
                 {
                     this.maxTotalValue = value;
                     this.OnPropertyChanged(nameof(this.MaxTotalValue));
@@ -204,7 +204,8 @@
         /// </summary>
         public TransactionLogViewModel()
             : this(new TransactionLogService(new TransactionRepository()))
-        { }
+        {
+        }
 
         /// <summary>
         /// Reloads the transaction list based on current filters and sorting.
@@ -228,7 +229,7 @@
             string fullPath = Path.Combine(documentsPath, $"{fileName}.{format.ToLower()}");
 
             // Export the transactions
-            this.service.ExportTransactions(this.Transactions.ToList(), fullPath, format);
+            this.service.ExportTransactions([.. this.Transactions], fullPath, format);
 
             // TODO: notify user of successful export
             // ShowMessageBox("Export Successful", $"File saved: {fullPath}");
@@ -249,7 +250,7 @@
         /// </summary>
         /// <param name="value">Input string to validate.</param>
         /// <returns><c>true</c> if valid; otherwise, <c>false</c>.</returns>
-        private bool ValidateNumericValue(string value)
+        private static bool ValidateNumericValue(string value)
         {
             // FIXME: consider allowing decimal values for filters
             return int.TryParse(value, out _);
@@ -261,12 +262,13 @@
         /// <param name="minTotalValue">Minimum total value.</param>
         /// <param name="maxTotalValue">Maximum total value.</param>
         /// <returns><c>true</c> if valid or not applicable; otherwise, <c>false</c>.</returns>
-        private bool ValidateTotalValues(string minTotalValue, string maxTotalValue)
+        private static bool ValidateTotalValues(string minTotalValue, string maxTotalValue)
         {
             if (int.TryParse(minTotalValue, out int min) && int.TryParse(maxTotalValue, out int max))
             {
                 return min < max;
             }
+
             return true;
         }
 
@@ -276,12 +278,13 @@
         /// <param name="startDate">Start date value.</param>
         /// <param name="endDate">End date value.</param>
         /// <returns><c>true</c> if valid or not applicable; otherwise, <c>false</c>.</returns>
-        private bool ValidateDateRange(DateTime? startDate, DateTime? endDate)
+        private static bool ValidateDateRange(DateTime? startDate, DateTime? endDate)
         {
             if (startDate.HasValue && endDate.HasValue)
             {
                 return startDate.Value < endDate.Value;
             }
+
             return true;
         }
 
@@ -301,14 +304,14 @@
             string sortOrder = this.selectedSortOrder?.ToString() ?? "ASC";
 
             // Validate MinTotalValue < MaxTotalValue
-            if (!this.ValidateTotalValues(this.minTotalValue, this.maxTotalValue))
+            if (!ValidateTotalValues(this.minTotalValue, this.maxTotalValue))
             {
                 this.ShowMessageBox("Invalid Total Values", "Min Total Value must be less than Max Total Value.");
                 return;
             }
 
             // Validate StartDate < EndDate
-            if (!this.ValidateDateRange(this.startDate, this.endDate))
+            if (!ValidateDateRange(this.startDate, this.endDate))
             {
                 this.ShowMessageBox("Invalid Date Range", "Start Date must be earlier than End Date.");
                 return;
@@ -349,7 +352,7 @@
         /// <param name="isAscending">Whether to sort ascending (<c>true</c>) or descending (<c>false</c>).</param>
         private void SortTransactions(string sortBy, bool isAscending)
         {
-            var sortedTransactions = this.service.SortTransactions(this.Transactions.ToList(), sortBy, isAscending);
+            var sortedTransactions = this.service.SortTransactions([.. this.Transactions], sortBy, isAscending);
 
             this.Transactions.Clear();
             foreach (var transaction in sortedTransactions)

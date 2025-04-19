@@ -70,7 +70,7 @@ namespace StockApp.Repository.Tests
 
     internal class InMemoryUserRepository : IUserRepository
     {
-        private readonly Dictionary<string, User> _users = new();
+        private readonly Dictionary<string, User> _users = [];
 
         public string CurrentUserCNP { get; set; } = "1234567890124";
 

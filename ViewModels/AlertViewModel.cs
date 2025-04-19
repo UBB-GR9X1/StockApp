@@ -19,7 +19,7 @@
         /// <summary>
         /// Gets the collection of alerts displayed in the UI.
         /// </summary>
-        public ObservableCollection<Alert> Alerts { get; } = new ObservableCollection<Alert>();
+        public ObservableCollection<Alert> Alerts { get; } = [];
 
         /// <summary>
         /// Gets the command to create a new alert.
@@ -116,8 +116,7 @@
                         alert.Name,
                         alert.UpperBound,
                         alert.LowerBound,
-                        alert.ToggleOnOff
-                    );
+                        alert.ToggleOnOff);
                 }
 
                 await this.dialogService.ShowMessageAsync("Success", "All alerts saved successfully!");

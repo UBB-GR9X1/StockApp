@@ -8,19 +8,14 @@
     using StockApp.Repositories;
     using StockApp.Repositories.Exporters;
 
-    public class TransactionLogService : ITransactionLogService
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TransactionLogService"/> class.
+    /// </summary>
+    /// <param name="transactionRepository"></param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public class TransactionLogService(ITransactionRepository transactionRepository) : ITransactionLogService
     {
-        private readonly ITransactionRepository transactionRepository;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TransactionLogService"/> class.
-        /// </summary>
-        /// <param name="transactionRepository"></param>
-        /// <exception cref="ArgumentNullException"></exception>
-        public TransactionLogService(ITransactionRepository transactionRepository)
-        {
-            this.transactionRepository = transactionRepository ?? throw new ArgumentNullException(nameof(transactionRepository));
-        }
+        private readonly ITransactionRepository transactionRepository = transactionRepository ?? throw new ArgumentNullException(nameof(transactionRepository));
 
         /// <summary>
         /// Retrieves all transactions for the current user.
@@ -46,16 +41,16 @@
             return sortType switch
             {
                 "Date" => ascending
-                    ? transactions.OrderBy(t => t.Date).ToList()
-                    : transactions.OrderByDescending(t => t.Date).ToList(),
+                    ? [.. transactions.OrderBy(t => t.Date)]
+                    : [.. transactions.OrderByDescending(t => t.Date)],
 
                 "Stock Name" => ascending
-                    ? transactions.OrderBy(t => t.StockName).ToList()
-                    : transactions.OrderByDescending(t => t.StockName).ToList(),
+                    ? [.. transactions.OrderBy(t => t.StockName)]
+                    : [.. transactions.OrderByDescending(t => t.StockName)],
 
                 "Total Value" => ascending
-                    ? transactions.OrderBy(t => t.TotalValue).ToList()
-                    : transactions.OrderByDescending(t => t.TotalValue).ToList(),
+                    ? [.. transactions.OrderBy(t => t.TotalValue)]
+                    : [.. transactions.OrderByDescending(t => t.TotalValue)],
 
                 _ => throw new InvalidSortTypeException(sortType),
             };

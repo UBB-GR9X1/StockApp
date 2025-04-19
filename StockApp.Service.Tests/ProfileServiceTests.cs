@@ -24,11 +24,11 @@ namespace StockApp.Service.Tests
 
             _profileRepoMock.Setup(r => r.CurrentUser()).Returns(testUser);
 
-            _profileRepoMock.Setup(r => r.UserStocks()).Returns(new List<Stock>
-            {
+            _profileRepoMock.Setup(r => r.UserStocks()).Returns(
+            [
                 new Stock("Apple", "AAPL", "123", 150, 10),
                 new Stock("Tesla", "TSLA", "123", 200, 5)
-            });
+            ]);
 
             _service = new ProfileService(_userRepoMock.Object, _profileRepoMock.Object);
         }

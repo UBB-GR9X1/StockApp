@@ -6,8 +6,8 @@
 
     public class ProfileService : IProfileService
     {
-        private IProfileRepository profileRepo;
-        private IUserRepository userRepo;
+        private readonly IProfileRepository profileRepo;
+        private readonly IUserRepository userRepo;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProfileService"/> class.

@@ -7,19 +7,14 @@
     using StockApp.Models;
     using StockApp.Repositories;
 
-    internal class CreateStockService : ICreateStockService
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CreateStockService"/> class.
+    /// </summary>
+    /// <param name="stocksRepository"></param>
+    internal class CreateStockService(BaseStocksRepository? stocksRepository = null) : ICreateStockService
     {
-        private readonly BaseStocksRepository stocksRepository;
+        private readonly BaseStocksRepository stocksRepository = stocksRepository ?? new BaseStocksRepository();
         private readonly Random random = new();
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CreateStockService"/> class.
-        /// </summary>
-        /// <param name="stocksRepository"></param>
-        public CreateStockService(BaseStocksRepository? stocksRepository = null)
-        {
-            this.stocksRepository = stocksRepository ?? new BaseStocksRepository();
-        }
 
         /// <summary>
         /// Checks if the user is a guest.

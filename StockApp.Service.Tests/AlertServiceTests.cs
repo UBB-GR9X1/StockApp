@@ -55,10 +55,10 @@ namespace StockApp.Service.Tests
 
     internal class InMemoryAlertService : IAlertService
     {
-        private readonly List<Alert> _alerts = new();
+        private readonly List<Alert> _alerts = [];
         private int _nextId = 1;
 
-        public List<Alert> GetAllAlerts() => new(_alerts);
+        public List<Alert> GetAllAlerts() => [.. _alerts];
 
         public List<Alert> GetAllAlertsOn() => _alerts.FindAll(a => a.ToggleOnOff);
 

@@ -97,10 +97,10 @@ namespace StockApp.ViewModels.Tests
             _serviceMock
                 .Setup(s => s.GetFilteredTransactions(It.IsAny<TransactionFilterCriteria>()))
                 .Callback(() => called = true)
-                .Returns(new List<TransactionLogTransaction>());
+                .Returns([]);
             _serviceMock
                 .Setup(s => s.SortTransactions(It.IsAny<List<TransactionLogTransaction>>(), It.IsAny<string>(), It.IsAny<bool>()))
-                .Returns(new List<TransactionLogTransaction>());
+                .Returns([]);
 
             _vm.SearchCommand.Execute(null);
 

@@ -11,14 +11,14 @@ namespace StockApp.Views
     public sealed partial class NewsArticleView : Page
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="NewsArticleView"/> class.
+        /// Gets a new instance of the <see cref="NewsArticleView"/> class.
         /// </summary>
         public NewsDetailViewModel ViewModel { get; } = new();
 
         /// <summary>
         /// The ID of the selected article.
         /// </summary>
-        private string selectedArticleId;
+        private readonly string selectedArticleId;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NewsArticleView"/> class.

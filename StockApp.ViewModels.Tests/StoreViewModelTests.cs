@@ -80,7 +80,7 @@ namespace StockApp.ViewModels.Tests
         [TestMethod]
         public void GetUserBankAccounts_ReturnsStaticList()
         {
-            var list = _vm.GetUserBankAccounts();
+            var list = StoreViewModel.GetUserBankAccounts();
             CollectionAssert.AreEqual(
                 new[] { "Account 1", "Account 2", "Account 3" },
                 list);
