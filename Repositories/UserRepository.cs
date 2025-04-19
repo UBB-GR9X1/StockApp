@@ -9,31 +9,36 @@
 
     public class UserRepository : IUserRepository
     {
-        public string CurrentUserCNP { get; set; } = "1234567890124";
+        private string currentUserCnp = "1234567890124";
+        public string CurrentUserCNP 
+        { 
+            get => this.currentUserCnp;
+            set => this.currentUserCnp = value;
+        }
 
         // Create a new user
         public async Task CreateUserAsync(User user)
         {
             using var connection = DatabaseHelper.GetConnection();
-            var command = new SqlCommand("INSERT INTO [USER] (CNP, NAME, DESCRIPTION, IS_HIDDEN, IS_ADMIN, PROFILE_PICTURE, GEM_BALANCE) VALUES (@CNP, @Name, @Description, @IsHidden, @IsAdmin, @ProfilePicture, @GemBalance)", connection);
-            command.Parameters.AddWithValue("@CNP", user.CNP);
-            command.Parameters.AddWithValue("@Name", user.Username);
-            command.Parameters.AddWithValue("@Description", user.Description ?? (object)DBNull.Value);
-            command.Parameters.AddWithValue("@IsHidden", user.IsHidden);
-            command.Parameters.AddWithValue("@IsAdmin", user.IsModerator);
-            command.Parameters.AddWithValue("@ProfilePicture", user.Image ?? (object)DBNull.Value);
-            command.Parameters.AddWithValue("@GemBalance", user.GemBalance);
+            var command = new SqlCommand("INSERT INTO [USER] (CNP, NAME, DESCRIPTION, IS_HIDDEN, IS_ADMIN, PROFILE_PICTURE, GEM_BALANCE) VALUES (@cnp, @name, @description, @isHidden, @isAdmin, @profilePicture, @gemBalance)", connection);
+            command.Parameters.AddWithValue("@cnp", user.CNP);
+            command.Parameters.AddWithValue("@name", user.Username);
+            command.Parameters.AddWithValue("@description", user.Description ?? (object)DBNull.Value);
+            command.Parameters.AddWithValue("@isHidden", user.IsHidden);
+            command.Parameters.AddWithValue("@isAdmin", user.IsModerator);
+            command.Parameters.AddWithValue("@profilePicture", user.Image ?? (object)DBNull.Value);
+            command.Parameters.AddWithValue("@gemBalance", user.GemBalance);
 
             await connection.OpenAsync();
             await command.ExecuteNonQueryAsync();
         }
 
         // Read a user by CNP
-        public async Task<User> GetUserByCnpAsync(string cnp)
+        public async Task<User> GetUserByCnpAsync(string userCnp)
         {
             using var connection = DatabaseHelper.GetConnection();
-            var command = new SqlCommand("SELECT * FROM [USER] WHERE CNP = @CNP", connection);
-            command.Parameters.AddWithValue("@CNP", cnp);
+            var command = new SqlCommand("SELECT * FROM [USER] WHERE CNP = @cnp", connection);
+            command.Parameters.AddWithValue("@cnp", userCnp);
 
             await connection.OpenAsync();
             using var reader = await command.ExecuteReaderAsync();
@@ -51,32 +56,32 @@
                 };
             }
 
-            throw new KeyNotFoundException($"User with CNP '{cnp}' not found.");
+            throw new KeyNotFoundException($"User with CNP '{userCnp}' not found.");
         }
 
         // Update a user
         public async Task UpdateUserAsync(User user)
         {
             using var connection = DatabaseHelper.GetConnection();
-            var command = new SqlCommand("UPDATE [USER] SET NAME = @Name, DESCRIPTION = @Description, IS_HIDDEN = @IsHidden, IS_ADMIN = @IsAdmin, PROFILE_PICTURE = @ProfilePicture, GEM_BALANCE = @GemBalance WHERE CNP = @CNP", connection);
-            command.Parameters.AddWithValue("@CNP", user.CNP);
-            command.Parameters.AddWithValue("@Name", user.Username);
-            command.Parameters.AddWithValue("@Description", user.Description ?? (object)DBNull.Value);
-            command.Parameters.AddWithValue("@IsHidden", user.IsHidden);
-            command.Parameters.AddWithValue("@IsAdmin", user.IsModerator);
-            command.Parameters.AddWithValue("@ProfilePicture", user.Image ?? (object)DBNull.Value);
-            command.Parameters.AddWithValue("@GemBalance", user.GemBalance);
+            var command = new SqlCommand("UPDATE [USER] SET NAME = @name, DESCRIPTION = @description, IS_HIDDEN = @isHidden, IS_ADMIN = @isAdmin, PROFILE_PICTURE = @profilePicture, GEM_BALANCE = @gemBalance WHERE CNP = @cnp", connection);
+            command.Parameters.AddWithValue("@cnp", user.CNP);
+            command.Parameters.AddWithValue("@name", user.Username);
+            command.Parameters.AddWithValue("@description", user.Description ?? (object)DBNull.Value);
+            command.Parameters.AddWithValue("@isHidden", user.IsHidden);
+            command.Parameters.AddWithValue("@isAdmin", user.IsModerator);
+            command.Parameters.AddWithValue("@profilePicture", user.Image ?? (object)DBNull.Value);
+            command.Parameters.AddWithValue("@gemBalance", user.GemBalance);
 
             await connection.OpenAsync();
             await command.ExecuteNonQueryAsync();
         }
 
         // Delete a user
-        public async Task DeleteUserAsync(string cnp)
+        public async Task DeleteUserAsync(string userCnp)
         {
             using var connection = DatabaseHelper.GetConnection();
-            var command = new SqlCommand("DELETE FROM [USER] WHERE CNP = @CNP", connection);
-            command.Parameters.AddWithValue("@CNP", cnp);
+            var command = new SqlCommand("DELETE FROM [USER] WHERE CNP = @cnp", connection);
+            command.Parameters.AddWithValue("@cnp", userCnp);
 
             await connection.OpenAsync();
             await command.ExecuteNonQueryAsync();

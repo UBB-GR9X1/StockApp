@@ -13,16 +13,16 @@
     public class ProfileRepository : IProfileRepository
     {
         private readonly SqlConnection dbConnection = DatabaseHelper.GetConnection();
-        private readonly string loggedInUserCNP;
+        private readonly string loggedInUserCnp;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProfileRepository"/> class.
         /// </summary>
-        /// <param name="authorCNP">The CNP of the user whose profile is being managed.</param>
-        public ProfileRepository(string authorCNP)
+        /// <param name="authorCnp">The CNP of the user whose profile is being managed.</param>
+        public ProfileRepository(string authorCnp)
         {
             // Assign the working user CNP
-            this.loggedInUserCNP = authorCNP;
+            this.loggedInUserCnp = authorCnp;
         }
 
         /// <summary>
@@ -39,7 +39,7 @@
             try
             {
                 using SqlCommand command = new(query, this.dbConnection);
-                command.Parameters.AddWithValue("@CNP", this.loggedInUserCNP);
+                command.Parameters.AddWithValue("@CNP", this.loggedInUserCnp);
 
                 using SqlDataReader reader = command.ExecuteReader();
                 if (reader.Read())
@@ -63,8 +63,6 @@
             }
         }
 
-
-
         /// <summary>
         /// Generates a random username from a predefined list.
         /// </summary>
@@ -86,9 +84,9 @@
         /// <summary>
         /// Gets the profile of a user by their CNP.
         /// </summary>
-        /// <param name="authorCNP">The CNP of the user whose profile is being retrieved.</param>
+        /// <param name="authorCnp">The CNP of the user whose profile is being retrieved.</param>
         /// <returns>A <see cref="User"/> object representing the user.</returns>
-        public User GetUserProfile(string authorCNP)
+        public User GetUserProfile(string authorCnp)
         {
             const string query = @"
         SELECT CNP, NAME, PROFILE_PICTURE, DESCRIPTION, IS_HIDDEN
@@ -99,7 +97,7 @@
             {
                 return this.ExecuteScalar<User>(query, command =>
                 {
-                    command.Parameters.AddWithValue("@CNP", authorCNP);
+                    command.Parameters.AddWithValue("@CNP", authorCnp);
                 }) ?? throw new ProfilePersistenceException("User not found.");
             }
             catch (SqlException ex)
@@ -107,7 +105,6 @@
                 throw new ProfilePersistenceException("SQL error while retrieving user profile.", ex);
             }
         }
-
 
         /// <summary>
         /// Updates the admin status of the current user.
@@ -118,7 +115,7 @@
             this.ExecuteNonQuery("UPDATE [USER] SET IS_ADMIN = @IsAdmin WHERE CNP = @CNP", command =>
             {
                 command.Parameters.AddWithValue("@IsAdmin", isAdmin ? 1 : 0);
-                command.Parameters.AddWithValue("@CNP", this.loggedInUserCNP);
+                command.Parameters.AddWithValue("@CNP", this.loggedInUserCnp);
             });
         }
 
@@ -142,7 +139,7 @@
                     command.Parameters.AddWithValue("@NewProfilePicture", newImage);
                     command.Parameters.AddWithValue("@NewDescription", newDescription);
                     command.Parameters.AddWithValue("@NewIsHidden", newHidden ? 1 : 0);
-                    command.Parameters.AddWithValue("@CNP", this.loggedInUserCNP);
+                    command.Parameters.AddWithValue("@CNP", this.loggedInUserCnp);
                 }
             );
         }
@@ -182,7 +179,7 @@
             try
             {
                 using var command = new SqlCommand(query, this.dbConnection);
-                command.Parameters.AddWithValue("@UserCNP", this.loggedInUserCNP);
+                command.Parameters.AddWithValue("@UserCNP", this.loggedInUserCnp);
 
                 using var reader = command.ExecuteReader();
                 List<Stock> stocks = new();
@@ -194,7 +191,7 @@
                         name: reader["STOCK_NAME"]?.ToString() ?? throw new ProfilePersistenceException("Stock name missing."),
                         quantity: reader["QUANTITY"] != DBNull.Value ? (int)reader["QUANTITY"] : throw new ProfilePersistenceException("Stock quantity missing."),
                         price: reader["PRICE"] != DBNull.Value ? (int)reader["PRICE"] : throw new ProfilePersistenceException("Stock price missing."),
-                        authorCNP: this.loggedInUserCNP
+                        authorCNP: this.loggedInUserCnp
                     ));
                 }
 
@@ -205,7 +202,6 @@
                 throw new ProfilePersistenceException("SQL error while fetching user stocks.", ex);
             }
         }
-
 
         /// <summary>
         /// Executes a SQL query and returns a scalar value.
@@ -232,7 +228,6 @@
             }
         }
 
-
         /// <summary>
         /// Executes a non-query SQL command.
         /// </summary>
@@ -248,9 +243,8 @@
             }
             catch (SqlException ex)
             {
-                throw new ProfilePersistenceException("SQL error in non-query execution.", ex);
+                throw new ProfilePersistenceException("SQL error in non-query command.", ex);
             }
         }
-
     }
 }

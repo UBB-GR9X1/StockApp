@@ -15,46 +15,46 @@
 
         internal GemStoreRepository(IDbExecutor executor)
         {
-            dbConnection = executor ?? throw new ArgumentNullException(nameof(executor));
+            this.dbConnection = executor ?? throw new ArgumentNullException(nameof(executor));
         }
 
         public string GetCnp()
         {
             string cnpQuery = "SELECT CNP FROM HARDCODED_CNPS";
-            var result = dbConnection.ExecuteScalar(cnpQuery, cmd => { });
+            var result = this.dbConnection.ExecuteScalar(cnpQuery, cmd => { });
             return result?.ToString() ?? string.Empty;
         }
 
-        public int GetUserGemBalance(string cnp)
+        public int GetUserGemBalance(string userCnp)
         {
             string checkQuery = "SELECT GEM_BALANCE FROM [USER] WHERE CNP = @CNP";
 
-            var result = dbConnection.ExecuteScalar(checkQuery, cmd =>
+            var result = this.dbConnection.ExecuteScalar(checkQuery, cmd =>
             {
-                cmd.Parameters.AddWithValue("@CNP", cnp);
+                cmd.Parameters.AddWithValue("@CNP", userCnp);
             });
 
             return result != null ? Convert.ToInt32(result) : 0;
         }
 
-        public void UpdateUserGemBalance(string cnp, int newBalance)
+        public void UpdateUserGemBalance(string userCnp, int newBalance)
         {
             string updateQuery = "UPDATE [USER] SET GEM_BALANCE = @NewBalance WHERE CNP = @CNP";
 
-            dbConnection.ExecuteNonQuery(updateQuery, cmd =>
+            this.dbConnection.ExecuteNonQuery(updateQuery, cmd =>
             {
                 cmd.Parameters.AddWithValue("@NewBalance", newBalance);
-                cmd.Parameters.AddWithValue("@CNP", cnp);
+                cmd.Parameters.AddWithValue("@CNP", userCnp);
             });
         }
 
-        public bool IsGuest(string cnp)
+        public bool IsGuest(string userCnp)
         {
             string checkQuery = "SELECT COUNT(*) FROM [USER] WHERE CNP = @CNP";
 
-            var result = dbConnection.ExecuteScalar(checkQuery, cmd =>
+            var result = this.dbConnection.ExecuteScalar(checkQuery, cmd =>
             {
-                cmd.Parameters.AddWithValue("@CNP", cnp);
+                cmd.Parameters.AddWithValue("@CNP", userCnp);
             });
             var count = result != null ? Convert.ToInt32(result) : 0;
             return count == 0;
