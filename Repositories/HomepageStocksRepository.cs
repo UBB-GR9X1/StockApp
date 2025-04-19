@@ -1,4 +1,7 @@
-﻿namespace StockApp.Repositories
+﻿using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("StockApp.Service.Tests")]
+namespace StockApp.Repositories
 {
     using System;
     using System.Collections.Generic;

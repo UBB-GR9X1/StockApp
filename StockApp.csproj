@@ -15,6 +15,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="StockApp.ViewModels.Tests\**\*.cs" />
+	<Compile Remove="StockApp.Repository.Tests\**\*.cs" />
+	<Compile Remove="StockApp.Service.Tests\**\*.cs" />
+	  
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Homepage\**" />

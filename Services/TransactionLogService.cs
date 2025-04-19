@@ -10,9 +10,9 @@
 
     public class TransactionLogService : ITransactionLogService
     {
-        private readonly TransactionRepository transactionRepository;
+        private readonly ITransactionRepository transactionRepository;
 
-        public TransactionLogService(TransactionRepository transactionRepository)
+        public TransactionLogService(ITransactionRepository transactionRepository)
         {
             this.transactionRepository = transactionRepository ?? throw new ArgumentNullException(nameof(transactionRepository));
         }

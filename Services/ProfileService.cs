@@ -6,13 +6,19 @@
 
     public class ProfileService : IProfileService
     {
-        private ProfileRepository profileRepo;
-        private UserRepository userRepo;
+        private IProfileRepository profileRepo;
+        private IUserRepository userRepo;
 
         public ProfileService()
         {
-            this.userRepo = new();
+            this.userRepo = new UserRepository();
             this.profileRepo = new ProfileRepository(this.userRepo.CurrentUserCNP);
+        }
+
+        public ProfileService(IUserRepository userRepo, IProfileRepository profileRepo)
+        {
+            this.userRepo = userRepo;
+            this.profileRepo = profileRepo;
         }
 
         public string GetImage() => this.profileRepo.CurrentUser().Image;

@@ -9,14 +9,14 @@
 
         public static NavigationService Instance => instance.Value;
 
-        private static Frame RootFrame;
+        private static INavigationFrame RootFrame;
 
         // Private constructor to enforce singleton pattern
         private NavigationService()
         {
         }
 
-        public static void Initialize(Frame frame)
+        public static void Initialize(INavigationFrame frame)
         {
             RootFrame = frame ?? throw new ArgumentNullException(nameof(frame));
         }

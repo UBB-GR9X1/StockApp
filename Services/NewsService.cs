@@ -16,19 +16,24 @@
         private readonly List<NewsArticle> cachedArticles = new();
         private static List<UserArticle> userArticles = new();
         private static bool isInitialized = false;
-        private NewsRepository repository = new NewsRepository();
-        private BaseStocksRepository stocksRepository;
+        private readonly INewsRepository repository;
+        private IBaseStocksRepository stocksRepository;
 
-        public NewsService()
+        public NewsService() : this(new NewsRepository(), new BaseStocksRepository()) { }
+
+        public NewsService(INewsRepository repository, IBaseStocksRepository stocksRepository)
         {
+            this.repository = repository;
+            this.stocksRepository = stocksRepository;
             this.appState = AppState.Instance;
-            this.stocksRepository = new BaseStocksRepository();
 
             if (!isInitialized)
             {
-                userArticles.AddRange(this.repository.GetAllUserArticles());
+                var initialUserArticles = this.repository.GetAllUserArticles() ?? new List<UserArticle>();
+                userArticles.AddRange(initialUserArticles);
                 isInitialized = true;
             }
+
         }
 
         public async Task<List<NewsArticle>> GetNewsArticlesAsync()
