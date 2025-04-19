@@ -16,21 +16,21 @@
 
     public class HomepageViewModel : INotifyPropertyChanged
     {
-        private readonly IHomepageService service;
+        private readonly IHomepageService Service;
 
-        private ObservableCollection<HomepageStock> filteredAllStocks = [];
-        private ObservableCollection<HomepageStock> filteredFavoriteStocks = [];
-        private string searchQuery = string.Empty;
-        private string selectedSortOption = string.Empty;
-        private bool isGuestUser;
-        private Visibility guestButtonVisibility = Visibility.Visible;
-        private Visibility profileButtonVisibility = Visibility.Collapsed;
+        private ObservableCollection<HomepageStock> FilteredAllStocks = [];
+        private ObservableCollection<HomepageStock> FilteredFavoriteStocks = [];
+        private string SearchQuery = string.Empty;
+        private string SelectedSortOption = string.Empty;
+        private bool IsGuestUser;
+        private Visibility GuestButtonVisibility = Visibility.Visible;
+        private Visibility ProfileButtonVisibility = Visibility.Collapsed;
 
         public HomepageViewModel(IHomepageService service)
         {
-            this.service = service ?? throw new ArgumentNullException(nameof(service));
+            this.Service = service ?? throw new ArgumentNullException(nameof(service));
 
-            this.IsGuestUser = this.service.IsGuestUser();
+            this.IsGuestUser = this.Service.IsGuestUser();
             this.LoadStocks();
 
             // Initialize Commands
@@ -57,34 +57,34 @@
         public ICommand SortCommand { get; }
         public ObservableCollection<HomepageStock> FilteredAllStocks
         {
-            get => this.filteredAllStocks;
+            get => this.FilteredAllStocks;
             private set
             {
-                this.filteredAllStocks = value;
+                this.FilteredAllStocks = value;
                 this.OnPropertyChanged();
             }
         }
 
         public ObservableCollection<HomepageStock> FilteredFavoriteStocks
         {
-            get => this.filteredFavoriteStocks;
+            get => this.FilteredFavoriteStocks;
             private set
             {
-                this.filteredFavoriteStocks = value;
+                this.FilteredFavoriteStocks = value;
                 this.OnPropertyChanged();
             }
         }
 
-        public string GetUserCNP => this.service.GetUserCNP();
+        public string GetUserCNP => this.Service.GetUserCNP();
 
         public bool IsGuestUser
         {
-            get => this.isGuestUser;
+            get => this.IsGuestUser;
             set
             {
-                this.isGuestUser = value;
-                this.GuestButtonVisibility = this.isGuestUser ? Visibility.Visible : Visibility.Collapsed;
-                this.ProfileButtonVisibility = this.isGuestUser ? Visibility.Collapsed : Visibility.Visible;
+                this.IsGuestUser = value;
+                this.GuestButtonVisibility = this.IsGuestUser ? Visibility.Visible : Visibility.Collapsed;
+                this.ProfileButtonVisibility = this.IsGuestUser ? Visibility.Collapsed : Visibility.Visible;
                 this.OnPropertyChanged();
                 this.OnPropertyChanged(nameof(this.CanModifyFavorites));
             }
@@ -92,30 +92,30 @@
 
         public Visibility GuestButtonVisibility
         {
-            get => this.guestButtonVisibility;
+            get => this.GuestButtonVisibility;
             set
             {
-                this.guestButtonVisibility = value;
+                this.GuestButtonVisibility = value;
                 this.OnPropertyChanged();
             }
         }
 
         public Visibility ProfileButtonVisibility
         {
-            get => this.profileButtonVisibility;
+            get => this.ProfileButtonVisibility;
             set
             {
-                this.profileButtonVisibility = value;
+                this.ProfileButtonVisibility = value;
                 this.OnPropertyChanged();
             }
         }
 
         public string SearchQuery
         {
-            get => this.searchQuery;
+            get => this.SearchQuery;
             set
             {
-                this.searchQuery = value;
+                this.SearchQuery = value;
                 this.OnPropertyChanged();
                 this.ApplyFilter();
             }
@@ -123,38 +123,38 @@
 
         public string SelectedSortOption
         {
-            get => this.selectedSortOption;
+            get => this.SelectedSortOption;
             set
             {
-                this.selectedSortOption = value;
+                this.SelectedSortOption = value;
                 this.OnPropertyChanged();
                 this.ApplySort();
             }
         }
 
-        public bool CanModifyFavorites => !this.isGuestUser;
+        public bool CanModifyFavorites => !this.IsGuestUser;
 
         private void LoadStocks()
         {
-            this.FilteredAllStocks = [.. this.service.GetAllStocks()];
-            this.FilteredFavoriteStocks = [.. this.service.GetFavoriteStocks()];
+            this.FilteredAllStocks = [.. this.Service.GetAllStocks()];
+            this.FilteredFavoriteStocks = [.. this.Service.GetFavoriteStocks()];
         }
 
         public void ApplyFilter()
         {
-            this.service.FilterStocks(this.SearchQuery);
+            this.Service.FilterStocks(this.SearchQuery);
             this.LoadStocks();
         }
 
         public void ApplySort()
         {
-            this.service.SortStocks(this.SelectedSortOption);
+            this.Service.SortStocks(this.SelectedSortOption);
             this.LoadStocks();
         }
 
         public void CreateUserProfile()
         {
-            this.service.CreateUserProfile();
+            this.Service.CreateUserProfile();
             this.IsGuestUser = false;
             this.LoadStocks();
         }
@@ -168,11 +168,11 @@
 
             if (stock.IsFavorite)
             {
-                this.service.RemoveFromFavorites(stock);
+                this.Service.RemoveFromFavorites(stock);
             }
             else
             {
-                this.service.AddToFavorites(stock);
+                this.Service.AddToFavorites(stock);
             }
 
             this.LoadStocks();
