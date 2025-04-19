@@ -21,6 +21,23 @@
         // properties
         private ObservableCollection<NewsArticle> articles = new();
 
+        private bool isLoading;
+
+        private bool isRefreshing;
+
+        private bool isEmptyState;
+
+        private string searchQuery = string.Empty;
+
+        private ObservableCollection<string> categories = new();
+
+        private string selectedCategory;
+
+        private NewsArticle? selectedArticle;
+
+        // user and auth properties
+        private User currentUser;
+
         /// <summary>
         /// Gets or sets the collection of news articles.
         /// </summary>
@@ -29,8 +46,6 @@
             get => this.articles;
             set => this.SetProperty(ref this.articles, value);
         }
-
-        private bool isLoading;
 
         /// <summary>
         /// Gets or sets a value indicating whether data is currently loading.
@@ -41,8 +56,6 @@
             set => this.SetProperty(ref this.isLoading, value);
         }
 
-        private bool isRefreshing;
-
         /// <summary>
         /// Gets or sets a value indicating whether a refresh operation is in progress.
         /// </summary>
@@ -52,8 +65,6 @@
             set => this.SetProperty(ref this.isRefreshing, value);
         }
 
-        private bool isEmptyState;
-
         /// <summary>
         /// Gets or sets a value indicating whether the UI should show the empty state.
         /// </summary>
@@ -62,8 +73,6 @@
             get => this.isEmptyState;
             set => this.SetProperty(ref this.isEmptyState, value);
         }
-
-        private string searchQuery = string.Empty;
 
         /// <summary>
         /// Gets or sets the query text used to filter articles.
@@ -80,8 +89,6 @@
             }
         }
 
-        private ObservableCollection<string> categories = new();
-
         /// <summary>
         /// Gets or sets the list of available article categories.
         /// </summary>
@@ -90,8 +97,6 @@
             get => this.categories;
             set => this.SetProperty(ref this.categories, value);
         }
-
-        private string selectedCategory;
 
         /// <summary>
         /// Gets or sets the currently selected category for filtering.
@@ -108,13 +113,11 @@
             }
         }
 
-        private NewsArticle selectedArticle;
-
         /// <summary>
         /// Gets or sets the currently selected news article.
         /// Selecting an article will navigate to its detail view.
         /// </summary>
-        public NewsArticle SelectedArticle
+        public NewsArticle? SelectedArticle
         {
             get => this.selectedArticle;
             set
@@ -133,9 +136,6 @@
                 }
             }
         }
-
-        // user and auth properties
-        private User currentUser;
 
         /// <summary>
         /// Gets or sets the current authenticated user.
@@ -223,6 +223,7 @@
             this.Categories.Add("Economic News");
             this.Categories.Add("Functionality News");
             this.selectedCategory = "All";
+
         }
 
         /// <summary>
