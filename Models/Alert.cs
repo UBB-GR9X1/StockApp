@@ -3,6 +3,9 @@
     using System.ComponentModel;
     using System.Runtime.CompilerServices;
 
+    /// <summary>
+    /// Represents a stock alert with upper and lower price bounds and an on/off toggle.
+    /// </summary>
     public class Alert : INotifyPropertyChanged
     {
         private int alertId;
@@ -12,8 +15,14 @@
         private decimal lowerBound;
         private bool toggleOnOff;
 
+        /// <summary>
+        /// Occurs when a property value changes.
+        /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
 
+        /// <summary>
+        /// Gets or sets the unique identifier for this alert.
+        /// </summary>
         public int AlertId
         {
             get => this.alertId;
@@ -27,6 +36,9 @@
             }
         }
 
+        /// <summary>
+        /// Gets or sets the stock symbol or name that this alert monitors.
+        /// </summary>
         public string StockName
         {
             get => this.stockName;
@@ -40,6 +52,9 @@
             }
         }
 
+        /// <summary>
+        /// Gets or sets the user-defined name for this alert.
+        /// </summary>
         public string Name
         {
             get => this.name;
@@ -53,6 +68,9 @@
             }
         }
 
+        /// <summary>
+        /// Gets or sets the upper price boundary for triggering the alert.
+        /// </summary>
         public decimal UpperBound
         {
             get => this.upperBound;
@@ -66,6 +84,9 @@
             }
         }
 
+        /// <summary>
+        /// Gets or sets the lower price boundary for triggering the alert.
+        /// </summary>
         public decimal LowerBound
         {
             get => this.lowerBound;
@@ -79,6 +100,9 @@
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether the alert is active.
+        /// </summary>
         public bool ToggleOnOff
         {
             get => this.toggleOnOff;
@@ -94,6 +118,7 @@
 
         private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
+            // Notify any listeners that the given property has changed.
             this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
