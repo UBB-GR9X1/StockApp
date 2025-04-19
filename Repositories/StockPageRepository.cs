@@ -31,7 +31,7 @@
         public StockPageRepository()
         {
             this.connection = DatabaseHelper.GetConnection();
-            InitializeUser();
+            this.InitializeUser();
         }
 
         /// <summary>

@@ -48,26 +48,26 @@
         public void Validate()
         {
             // Ensure that if a Type is specified, it's either "BUY" or "SELL"
-            if (!string.IsNullOrEmpty(Type)
-                && Type is not ("BUY" or "SELL"))
+            if (!string.IsNullOrEmpty(this.Type)
+                && this.Type is not ("BUY" or "SELL"))
             {
                 throw new ArgumentException(
                     "Type must be \"BUY\" or \"SELL\".");
             }
 
             // Ensure that the minimum total value does not exceed the maximum
-            if (MinTotalValue.HasValue
-                && MaxTotalValue.HasValue
-                && MinTotalValue > MaxTotalValue)
+            if (this.MinTotalValue.HasValue
+                && this.MaxTotalValue.HasValue
+                && this.MinTotalValue > this.MaxTotalValue)
             {
                 throw new ArgumentException(
                     "Min cannot exceed Max total value.");
             }
 
             // Ensure that the start date is not later than the end date
-            if (StartDate.HasValue
-                && EndDate.HasValue
-                && StartDate > EndDate)
+            if (this.StartDate.HasValue
+                && this.EndDate.HasValue
+                && this.StartDate > this.EndDate)
             {
                 throw new ArgumentException(
                     "StartDate cannot be after EndDate.");

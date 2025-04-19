@@ -18,30 +18,30 @@ namespace StockApp.Pages
         public NewsListPage()
         {
             this.InitializeComponent();
-            this.Loaded += OnLoaded;
+            this.Loaded += this.OnLoaded;
         }
 
         private void OnLoaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
-            ViewModel.Initialize();
+            this.ViewModel.Initialize();
         }
 
         private void RefreshContainerRefreshRequested(RefreshContainer sender, RefreshRequestedEventArgs args)
         {
-            ViewModel.RefreshCommand.Execute(null);
+            this.ViewModel.RefreshCommand.Execute(null);
         }
 
         private void EscapeKeyInvoked(KeyboardAccelerator sender, Microsoft.UI.Xaml.Input.KeyboardAcceleratorInvokedEventArgs args)
         {
-            ViewModel.ClearSearchCommand.Execute(null);
+            this.ViewModel.ClearSearchCommand.Execute(null);
             args.Handled = true;
         }
 
         private void CategoryFilterSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (ViewModel.SelectedCategory != null)
+            if (this.ViewModel.SelectedCategory != null)
             {
-                ViewModel.RefreshCommand.Execute(null);
+                this.ViewModel.RefreshCommand.Execute(null);
             }
         }
 

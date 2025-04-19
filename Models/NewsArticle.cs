@@ -34,15 +34,15 @@
             IEnumerable<string> relatedStocks,
             Status status = Status.Pending)
         {
-            ArticleId = articleId;
-            Title = title;
-            Summary = summary;
-            Content = content;
-            Source = source;
-            PublishedDate = publishedDate;
+            this.ArticleId = articleId;
+            this.Title = title;
+            this.Summary = summary;
+            this.Content = content;
+            this.Source = source;
+            this.PublishedDate = publishedDate;
             // Copy the incoming sequence to a List for mutability and indexing
-            RelatedStocks = relatedStocks.ToList();
-            Status = status;
+            this.RelatedStocks = relatedStocks.ToList();
+            this.Status = status;
         }
 
         /// <summary>

@@ -30,7 +30,7 @@
         public List<TransactionLogTransaction> GetFilteredTransactions(TransactionFilterCriteria criteria)
         {
             criteria.Validate();
-            return transactionRepository.GetByFilterCriteria(criteria);
+            return this.transactionRepository.GetByFilterCriteria(criteria);
         }
 
         /// <summary>

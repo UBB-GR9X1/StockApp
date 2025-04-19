@@ -661,7 +661,7 @@
         /// <returns>A list of all news articles.</returns>
         public List<NewsArticle> GetAllNewsArticles()
         {
-            LoadNewsArticles(); // Reload articles from database
+            this.LoadNewsArticles(); // Reload articles from database
             return [.. this.newsArticles];
         }
 

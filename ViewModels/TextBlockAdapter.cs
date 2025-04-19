@@ -17,7 +17,7 @@
         /// <param name="inner">The underlying <see cref="TextBlock"/> control to wrap.</param>
         public TextBlockAdapter(TextBlock inner)
         {
-            _inner = inner ?? throw new ArgumentNullException(nameof(inner));
+            this._inner = inner ?? throw new ArgumentNullException(nameof(inner));
         }
 
         /// <summary>
@@ -25,8 +25,8 @@
         /// </summary>
         public string Text
         {
-            get => _inner.Text;
-            set => _inner.Text = value;
+            get => this._inner.Text;
+            set => this._inner.Text = value;
         }
 
         /// <summary>
@@ -34,11 +34,11 @@
         /// </summary>
         public object Foreground
         {
-            get => _inner.Foreground;
+            get => this._inner.Foreground;
             set
             {
                 // Inline: cast and assign the brush to the TextBlock control
-                _inner.Foreground = (Brush)value;
+                this._inner.Foreground = (Brush)value;
             }
         }
     }

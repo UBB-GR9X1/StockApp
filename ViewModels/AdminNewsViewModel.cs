@@ -42,7 +42,7 @@
         {
             this.newsService = service ?? throw new ArgumentNullException(nameof(service));
             this.dispatcherQueue = dispatcherQueue ?? throw new ArgumentNullException(nameof(dispatcherQueue));
-            InitializeCommandsAndFilters();
+            this.InitializeCommandsAndFilters();
         }
 
         /// <summary>

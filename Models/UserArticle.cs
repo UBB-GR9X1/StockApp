@@ -37,16 +37,16 @@
             string topic,
             IEnumerable<string> relatedStocks)
         {
-            ArticleId = articleId;
-            Title = title;
-            Summary = summary;
-            Content = content;
-            Author = author;
-            SubmissionDate = submissionDate;
-            Status = status;
-            Topic = topic;
+            this.ArticleId = articleId;
+            this.Title = title;
+            this.Summary = summary;
+            this.Content = content;
+            this.Author = author;
+            this.SubmissionDate = submissionDate;
+            this.Status = status;
+            this.Topic = topic;
             // FIXME: "[.. relatedStocks]" is invalid syntax; should convert to a List<string> (e.g., relatedStocks.ToList())
-            RelatedStocks = relatedStocks.ToList();
+            this.RelatedStocks = relatedStocks.ToList();
         }
 
         /// <summary>

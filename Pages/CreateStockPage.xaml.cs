@@ -18,9 +18,9 @@ namespace StockApp.Pages
 
         private void GoBackClick(object sender, RoutedEventArgs e)
         {
-            if (Frame.CanGoBack)
+            if (this.Frame.CanGoBack)
             {
-                Frame.GoBack();
+                this.Frame.GoBack();
             }
             else
             {

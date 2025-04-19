@@ -39,7 +39,7 @@
         /// </summary>
         public SolidColorBrush ChangeColor
             // Use green when the change starts with '+', otherwise red
-            => Change.StartsWith('+')
+            => this.Change.StartsWith('+')
                 ? new SolidColorBrush(Colors.Green)
                 : new SolidColorBrush(Colors.Red);
 
@@ -48,6 +48,6 @@
         /// </summary>
         public string FavoriteStar
             // Return filled star when favorite, outline star when not
-            => IsFavorite ? "★" : "☆";
+            => this.IsFavorite ? "★" : "☆";
     }
 }

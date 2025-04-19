@@ -21,7 +21,7 @@
         /// </summary>
         public AlertRepository()
         {
-            LoadAlerts();
+            this.LoadAlerts();
         }
 
         /// <summary>
@@ -73,7 +73,7 @@
             this.Alerts.Clear();
             // Inline: map each row to an Alert instance
             this.Alerts.AddRange(
-                ExecuteReader(query, reader => new Alert
+                this.ExecuteReader(query, reader => new Alert
                 {
                     AlertId = reader.GetInt32(0),
                     StockName = reader.GetString(1),
@@ -119,7 +119,7 @@
             int alertId = -1;
 
             // Inline: execute insert and retrieve new ID
-            ExecuteSql(insertQuery, command =>
+            this.ExecuteSql(insertQuery, command =>
             {
                 command.Parameters.AddWithValue("@stockName", stockName);
                 command.Parameters.AddWithValue("@name", name);
@@ -166,7 +166,7 @@
 
             try
             {
-                ExecuteSql(updateQuery, command =>
+                this.ExecuteSql(updateQuery, command =>
                 {
                     command.Parameters.AddWithValue("@alertId", alertId);
                     command.Parameters.AddWithValue("@stockName", stockName);
@@ -201,7 +201,7 @@
         {
             string deleteQuery = "DELETE FROM ALERTS WHERE ALERT_ID = @alertId";
 
-            ExecuteSql(deleteQuery, command =>
+            this.ExecuteSql(deleteQuery, command =>
             {
                 command.Parameters.AddWithValue("@alertId", alertId);
             });
@@ -231,7 +231,7 @@
         /// <param name="currentPrice">Current price of the stock.</param>
         public void TriggerAlert(string stockName, decimal currentPrice)
         {
-            if (!IsAlertTriggered(stockName, currentPrice))
+            if (!this.IsAlertTriggered(stockName, currentPrice))
             {
                 return; // Inline: do nothing if not triggered
             }

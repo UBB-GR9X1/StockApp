@@ -52,7 +52,7 @@ namespace StockApp.Views
             if (e.Parameter is not string articleId)
                 throw new ArgumentException("Navigation parameter is not a valid article ID", nameof(e));
 
-            ViewModel.LoadArticle(articleId);
+            this.ViewModel.LoadArticle(articleId);
         }
     }
 }

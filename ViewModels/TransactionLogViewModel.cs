@@ -124,7 +124,7 @@
                 }
                 else
                 {
-                    ShowMessageBox("Invalid Input", "Min Total Value must be a valid integer.");
+                    this.ShowMessageBox("Invalid Input", "Min Total Value must be a valid integer.");
                 }
             }
         }
@@ -145,7 +145,7 @@
                 }
                 else
                 {
-                    ShowMessageBox("Invalid Input", "Max Total Value must be a valid integer.");
+                    this.ShowMessageBox("Invalid Input", "Max Total Value must be a valid integer.");
                 }
             }
         }

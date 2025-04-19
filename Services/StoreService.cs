@@ -59,7 +59,7 @@
         /// <exception cref="GemTransactionFailedException"></exception>
         public async Task<string> BuyGems(string userCNP, GemDeal deal, string selectedAccountId)
         {
-            if (IsGuest(userCNP))
+            if (this.IsGuest(userCNP))
             {
                 throw new GuestUserOperationException("Guests cannot buy gems.");
             }
@@ -88,7 +88,7 @@
         /// <exception cref="GemTransactionFailedException"></exception>
         public async Task<string> SellGems(string cnp, int gemAmount, string selectedAccountId)
         {
-            if (IsGuest(cnp))
+            if (this.IsGuest(cnp))
             {
                 throw new GuestUserOperationException("Guests cannot sell gems.");
             }

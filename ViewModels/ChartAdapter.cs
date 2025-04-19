@@ -19,7 +19,7 @@
         public ChartAdapter(CartesianChart inner)
         {
             // Store the underlying chart for delegation
-            _inner = inner;
+            this._inner = inner;
         }
 
         /// <summary>
@@ -27,8 +27,8 @@
         /// </summary>
         public IEnumerable<ISeries> Series
         {
-            get => _inner.Series;
-            set => _inner.Series = value;
+            get => this._inner.Series;
+            set => this._inner.Series = value;
         }
 
         /// <summary>
@@ -37,7 +37,7 @@
         public void UpdateLayout()
         {
             // Delegate layout update to the underlying chart
-            _inner.UpdateLayout();
+            this._inner.UpdateLayout();
         }
     }
 }

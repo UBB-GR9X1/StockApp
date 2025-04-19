@@ -16,15 +16,15 @@ namespace StockApp.Pages
         public GemStoreWindow()
         {
             this.InitializeComponent();
-            viewModel = new StoreViewModel();
-            this.DataContext = viewModel;
+            this.viewModel = new StoreViewModel();
+            this.DataContext = this.viewModel;
         }
 
         private async void OnBuyClicked(object sender, RoutedEventArgs e)
         {
-            if (viewModel.IsGuest())
+            if (this.viewModel.IsGuest())
             {
-                ShowErrorDialog("Guests are not allowed to buy gems.");
+                this.ShowErrorDialog("Guests are not allowed to buy gems.");
                 return;
             }
 
@@ -32,7 +32,7 @@ namespace StockApp.Pages
             {
                 ComboBox bankAccountDropdown = new ComboBox
                 {
-                    ItemsSource = viewModel.GetUserBankAccounts(),
+                    ItemsSource = this.viewModel.GetUserBankAccounts(),
                     SelectedIndex = 0
                 };
 
@@ -46,7 +46,7 @@ namespace StockApp.Pages
                     Content = dialogContent,
                     PrimaryButtonText = "Buy",
                     CloseButtonText = "Cancel",
-                    XamlRoot = rootGrid.XamlRoot
+                    XamlRoot = this.rootGrid.XamlRoot
                 };
 
                 ContentDialogResult result = await confirmDialog.ShowAsync();
@@ -54,17 +54,17 @@ namespace StockApp.Pages
                 {
                     if (bankAccountDropdown.SelectedItem is not string selectedAccount)
                     {
-                        ShowErrorDialog("No bank account selected.");
+                        this.ShowErrorDialog("No bank account selected.");
                         return;
                     }
 
-                    string purchaseResult = await viewModel.BuyGemsAsync(selectedDeal, selectedAccount);
-                    ShowSuccessDialog(purchaseResult);
+                    string purchaseResult = await this.viewModel.BuyGemsAsync(selectedDeal, selectedAccount);
+                    this.ShowSuccessDialog(purchaseResult);
                 }
             }
             else
             {
-                ShowErrorDialog("Please select a deal before buying.");
+                this.ShowErrorDialog("Please select a deal before buying.");
             }
         }
 
@@ -75,7 +75,7 @@ namespace StockApp.Pages
                 Title = "Error",
                 Content = message,
                 CloseButtonText = "OK",
-                XamlRoot = rootGrid.XamlRoot
+                XamlRoot = this.rootGrid.XamlRoot
             };
             await errorDialog.ShowAsync();
         }
@@ -87,34 +87,34 @@ namespace StockApp.Pages
                 Title = "Success",
                 Content = message,
                 CloseButtonText = "OK",
-                XamlRoot = rootGrid.XamlRoot
+                XamlRoot = this.rootGrid.XamlRoot
             };
             await successDialog.ShowAsync();
         }
 
         private async void OnSellClicked(object sender, RoutedEventArgs e)
         {
-            if (viewModel.IsGuest())
+            if (this.viewModel.IsGuest())
             {
-                ShowErrorDialog("Guests are not allowed to sell gems.");
+                this.ShowErrorDialog("Guests are not allowed to sell gems.");
                 return;
             }
 
-            if (!int.TryParse(sellInput.Text, out int gemsToSell) || gemsToSell <= 0)
+            if (!int.TryParse(this.sellInput.Text, out int gemsToSell) || gemsToSell <= 0)
             {
-                ShowErrorDialog("Enter a valid number of Gems.");
+                this.ShowErrorDialog("Enter a valid number of Gems.");
                 return;
             }
 
-            if (gemsToSell > viewModel.UserGems)
+            if (gemsToSell > this.viewModel.UserGems)
             {
-                ShowErrorDialog("Not enough Gems to sell.");
+                this.ShowErrorDialog("Not enough Gems to sell.");
                 return;
             }
 
             ComboBox bankAccountDropdown = new ComboBox
             {
-                ItemsSource = viewModel.GetUserBankAccounts(),
+                ItemsSource = this.viewModel.GetUserBankAccounts(),
                 SelectedIndex = 0
             };
 
@@ -128,7 +128,7 @@ namespace StockApp.Pages
                 Content = dialogContent,
                 PrimaryButtonText = "Sell",
                 CloseButtonText = "Cancel",
-                XamlRoot = rootGrid.XamlRoot
+                XamlRoot = this.rootGrid.XamlRoot
             };
 
             ContentDialogResult result = await sellDialog.ShowAsync();
@@ -136,12 +136,12 @@ namespace StockApp.Pages
             {
                 if (bankAccountDropdown.SelectedItem is not string selectedAccount)
                 {
-                    ShowErrorDialog("No bank account selected.");
+                    this.ShowErrorDialog("No bank account selected.");
                     return;
                 }
 
-                string sellResult = await viewModel.SellGemsAsync(gemsToSell, selectedAccount);
-                ShowSuccessDialog(sellResult);
+                string sellResult = await this.viewModel.SellGemsAsync(gemsToSell, selectedAccount);
+                this.ShowSuccessDialog(sellResult);
             }
         }
 

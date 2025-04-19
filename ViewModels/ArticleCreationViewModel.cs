@@ -31,8 +31,8 @@
         /// </summary>
         public string Title
         {
-            get => title;
-            set => SetProperty(ref title, value);
+            get => this.title;
+            set => this.SetProperty(ref this.title, value);
         }
 
         private string summary;
@@ -41,8 +41,8 @@
         /// </summary>
         public string Summary
         {
-            get => summary;
-            set => SetProperty(ref summary, value);
+            get => this.summary;
+            set => this.SetProperty(ref this.summary, value);
         }
 
         private string content;
@@ -51,8 +51,8 @@
         /// </summary>
         public string Content
         {
-            get => content;
-            set => SetProperty(ref content, value);
+            get => this.content;
+            set => this.SetProperty(ref this.content, value);
         }
 
         private ObservableCollection<string> topics = new();
@@ -61,8 +61,8 @@
         /// </summary>
         public ObservableCollection<string> Topics
         {
-            get => topics;
-            set => SetProperty(ref topics, value);
+            get => this.topics;
+            set => this.SetProperty(ref this.topics, value);
         }
 
         private string selectedTopic;
@@ -71,8 +71,8 @@
         /// </summary>
         public string SelectedTopic
         {
-            get => selectedTopic;
-            set => SetProperty(ref selectedTopic, value);
+            get => this.selectedTopic;
+            set => this.SetProperty(ref this.selectedTopic, value);
         }
 
         private string relatedStocksText;
@@ -81,8 +81,8 @@
         /// </summary>
         public string RelatedStocksText
         {
-            get => relatedStocksText;
-            set => SetProperty(ref relatedStocksText, value);
+            get => this.relatedStocksText;
+            set => this.SetProperty(ref this.relatedStocksText, value);
         }
 
         private bool isLoading;
@@ -91,8 +91,8 @@
         /// </summary>
         public bool IsLoading
         {
-            get => isLoading;
-            set => SetProperty(ref isLoading, value);
+            get => this.isLoading;
+            set => this.SetProperty(ref this.isLoading, value);
         }
 
         private bool hasError;
@@ -101,8 +101,8 @@
         /// </summary>
         public bool HasError
         {
-            get => hasError;
-            set => SetProperty(ref hasError, value);
+            get => this.hasError;
+            set => this.SetProperty(ref this.hasError, value);
         }
 
         private string errorMessage;
@@ -111,11 +111,11 @@
         /// </summary>
         public string ErrorMessage
         {
-            get => errorMessage;
+            get => this.errorMessage;
             set
             {
-                SetProperty(ref errorMessage, value);
-                HasError = !string.IsNullOrEmpty(value);
+                this.SetProperty(ref this.errorMessage, value);
+                this.HasError = !string.IsNullOrEmpty(value);
             }
         }
 
@@ -159,9 +159,9 @@
 
             // Initialize commands
             this.BackCommand = new StockNewsRelayCommand(() => NavigationService.Instance.GoBack());
-            this.ClearCommand = new StockNewsRelayCommand(() => ClearForm());
-            this.PreviewCommand = new StockNewsRelayCommand(async () => await PreviewArticleAsync());
-            this.SubmitCommand = new StockNewsRelayCommand(async () => await SubmitArticleAsync());
+            this.ClearCommand = new StockNewsRelayCommand(() => this.ClearForm());
+            this.PreviewCommand = new StockNewsRelayCommand(async () => await this.PreviewArticleAsync());
+            this.SubmitCommand = new StockNewsRelayCommand(async () => await this.SubmitArticleAsync());
 
             // Initialize topic list
             this.Topics.Add("Stock News");
@@ -191,14 +191,14 @@
         public void Initialize()
         {
             // Ensure user is logged in before allowing article creation
-            if (appState.CurrentUser == null)
+            if (this.appState.CurrentUser == null)
             {
-                ShowErrorDialog("You must be logged in to create an article.");
+                this.ShowErrorDialog("You must be logged in to create an article.");
                 NavigationService.Instance.GoBack();
                 return;
             }
 
-            ClearForm();
+            this.ClearForm();
         }
 
         /// <summary>
@@ -206,22 +206,22 @@
         /// </summary>
         private void ClearForm()
         {
-            Title = string.Empty;
-            Summary = string.Empty;
-            Content = string.Empty;
-            SelectedTopic = "Stock News";
-            RelatedStocksText = string.Empty;
-            ErrorMessage = string.Empty;
+            this.Title = string.Empty;
+            this.Summary = string.Empty;
+            this.Content = string.Empty;
+            this.SelectedTopic = "Stock News";
+            this.RelatedStocksText = string.Empty;
+            this.ErrorMessage = string.Empty;
         }
 
         private async Task PreviewArticleAsync()
         {
-            if (!ValidateForm())
+            if (!this.ValidateForm())
                 return;
 
             try
             {
-                IsLoading = true;
+                this.IsLoading = true;
 
                 // Create a unique ID for this preview
                 var previewId = Guid.NewGuid().ToString();
@@ -230,33 +230,33 @@
                 var article = new NewsArticle
                 {
                     ArticleId = previewId,
-                    Title = Title,
-                    Summary = Summary ?? string.Empty,
-                    Content = Content,
-                    Source = $"User: {appState.CurrentUser?.CNP ?? "Anonymous"}",
+                    Title = this.Title,
+                    Summary = this.Summary ?? string.Empty,
+                    Content = this.Content,
+                    Source = $"User: {this.appState.CurrentUser?.CNP ?? "Anonymous"}",
                     PublishedDate = DateTime.Now.ToString("MMMM dd, yyyy"),
                     IsRead = false,
                     IsWatchlistRelated = false,
-                    Category = SelectedTopic,
-                    RelatedStocks = ParseRelatedStocks()
+                    Category = this.SelectedTopic,
+                    RelatedStocks = this.ParseRelatedStocks()
                 };
 
                 // Build a temporary UserArticle for preview context
                 var userArticle = new UserArticle
                 {
                     ArticleId = previewId,
-                    Title = Title,
-                    Summary = Summary ?? string.Empty,
-                    Content = Content,
-                    Author = appState.CurrentUser ?? throw new InvalidOperationException("User not found"),
+                    Title = this.Title,
+                    Summary = this.Summary ?? string.Empty,
+                    Content = this.Content,
+                    Author = this.appState.CurrentUser ?? throw new InvalidOperationException("User not found"),
                     SubmissionDate = DateTime.Now,
                     Status = "Preview",
-                    Topic = SelectedTopic,
-                    RelatedStocks = ParseRelatedStocks()
+                    Topic = this.SelectedTopic,
+                    RelatedStocks = this.ParseRelatedStocks()
                 };
 
                 // Store preview in the service
-                newsService.StorePreviewArticle(article, userArticle);
+                this.newsService.StorePreviewArticle(article, userArticle);
 
                 // Navigate to the preview view
                 NavigationService.Instance.Navigate(
@@ -267,31 +267,31 @@
             {
                 // Log and display an error if preview fails
                 System.Diagnostics.Debug.WriteLine($"Error previewing article: {ex.Message}");
-                ErrorMessage = "An error occurred while trying to preview the article.";
+                this.ErrorMessage = "An error occurred while trying to preview the article.";
             }
             finally
             {
-                IsLoading = false;
+                this.IsLoading = false;
             }
         }
 
         private async Task SubmitArticleAsync()
         {
-            if (!ValidateForm())
+            if (!this.ValidateForm())
                 return;
 
-            IsLoading = true;
-            ErrorMessage = string.Empty;
+            this.IsLoading = true;
+            this.ErrorMessage = string.Empty;
 
             try
             {
                 // Parse and validate the related stocks list
-                List<string> relatedStocks = ParseRelatedStocks();
+                List<string> relatedStocks = this.ParseRelatedStocks();
 
-                bool continueSubmission = await ValidateStocksAsync(relatedStocks);
+                bool continueSubmission = await this.ValidateStocksAsync(relatedStocks);
                 if (!continueSubmission)
                 {
-                    IsLoading = false;
+                    this.IsLoading = false;
                     return;
                 }
 
@@ -299,22 +299,22 @@
                 var article = new UserArticle
                 {
                     ArticleId = Guid.NewGuid().ToString(),
-                    Title = Title,
-                    Summary = Summary,
-                    Content = Content,
-                    Author = appState.CurrentUser ?? throw new InvalidOperationException("User not found"),
+                    Title = this.Title,
+                    Summary = this.Summary,
+                    Content = this.Content,
+                    Author = this.appState.CurrentUser ?? throw new InvalidOperationException("User not found"),
                     SubmissionDate = DateTime.Now,
                     Status = "Pending",
-                    Topic = SelectedTopic,
+                    Topic = this.SelectedTopic,
                     RelatedStocks = relatedStocks
                 };
 
-                bool success = await newsService.SubmitUserArticleAsync(article);
+                bool success = await this.newsService.SubmitUserArticleAsync(article);
 
                 if (success)
                 {
                     // Show confirmation and clear form once done
-                    dispatcherQueue.TryEnqueue(async () =>
+                    this.dispatcherQueue.TryEnqueue(async () =>
                     {
                         var dialog = new ContentDialog
                         {
@@ -325,51 +325,51 @@
                         };
 
                         await dialog.ShowAsync();
-                        ClearForm();
+                        this.ClearForm();
                         NavigationService.Instance.GoBack();
                     });
                 }
                 else
                 {
-                    ShowErrorDialog("Failed to submit article. Please try again later.");
+                    this.ShowErrorDialog("Failed to submit article. Please try again later.");
                 }
             }
             catch (Exception ex)
             {
-                ShowErrorDialog($"An error occurred: {ex.Message}");
+                this.ShowErrorDialog($"An error occurred: {ex.Message}");
             }
             finally
             {
-                IsLoading = false;
+                this.IsLoading = false;
             }
         }
 
         private bool ValidateForm()
         {
-            ErrorMessage = string.Empty;
+            this.ErrorMessage = string.Empty;
 
             // Ensure required fields are populated
-            if (string.IsNullOrWhiteSpace(Title))
+            if (string.IsNullOrWhiteSpace(this.Title))
             {
-                ErrorMessage = "Title is required.";
+                this.ErrorMessage = "Title is required.";
                 return false;
             }
 
-            if (string.IsNullOrWhiteSpace(Summary))
+            if (string.IsNullOrWhiteSpace(this.Summary))
             {
-                ErrorMessage = "Summary is required.";
+                this.ErrorMessage = "Summary is required.";
                 return false;
             }
 
-            if (string.IsNullOrWhiteSpace(Content))
+            if (string.IsNullOrWhiteSpace(this.Content))
             {
-                ErrorMessage = "Content is required.";
+                this.ErrorMessage = "Content is required.";
                 return false;
             }
 
-            if (string.IsNullOrWhiteSpace(SelectedTopic))
+            if (string.IsNullOrWhiteSpace(this.SelectedTopic))
             {
-                ErrorMessage = "Topic is required.";
+                this.ErrorMessage = "Topic is required.";
                 return false;
             }
 
@@ -384,7 +384,7 @@
             if (enteredStocks.Count == 0)
                 return true;
 
-            var allStocks = stocksRepository.GetAllStocks()
+            var allStocks = this.stocksRepository.GetAllStocks()
                 ?? throw new InvalidOperationException("Stocks repository returned null");
 
             var invalidStocks = new List<string>();
@@ -445,10 +445,10 @@
         private List<string> ParseRelatedStocks()
         {
             // Split the comma-separated input into a cleaned list
-            if (string.IsNullOrWhiteSpace(RelatedStocksText))
+            if (string.IsNullOrWhiteSpace(this.RelatedStocksText))
                 return new List<string>();
 
-            return RelatedStocksText
+            return this.RelatedStocksText
                 .Split(',')
                 .Select(s => s.Trim())
                 .Where(s => !string.IsNullOrWhiteSpace(s))
@@ -460,15 +460,15 @@
             return new NewsArticle
             {
                 ArticleId = Guid.NewGuid().ToString(),
-                Title = Title,
-                Summary = Summary,
-                Content = Content,
-                Source = $"User: {appState.CurrentUser?.CNP ?? "Anonymous"}",
+                Title = this.Title,
+                Summary = this.Summary,
+                Content = this.Content,
+                Source = $"User: {this.appState.CurrentUser?.CNP ?? "Anonymous"}",
                 PublishedDate = DateTime.Now.ToString("MMMM dd, yyyy"),
                 IsRead = false,
                 IsWatchlistRelated = false,
-                Category = SelectedTopic,
-                RelatedStocks = ParseRelatedStocks()
+                Category = this.SelectedTopic,
+                RelatedStocks = this.ParseRelatedStocks()
             };
         }
 

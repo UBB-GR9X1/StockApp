@@ -36,7 +36,7 @@
         /// <summary>
         /// Gets the total value of the transaction (Amount multiplied by PricePerStock).
         /// </summary>
-        public int TotalValue => Amount * PricePerStock;
+        public int TotalValue => this.Amount * this.PricePerStock;
 
         /// <summary>
         /// Gets the date and time when the transaction took place.
@@ -91,13 +91,13 @@
             if (string.IsNullOrWhiteSpace(author))
                 throw new ArgumentException("Author required");
 
-            StockSymbol = stockSymbol;
-            StockName = stockName;
-            Type = type;
-            Amount = amount;
-            PricePerStock = pricePerStock;
-            Date = date;
-            Author = author;
+            this.StockSymbol = stockSymbol;
+            this.StockName = stockName;
+            this.Type = type;
+            this.Amount = amount;
+            this.PricePerStock = pricePerStock;
+            this.Date = date;
+            this.Author = author;
         }
     }
 }

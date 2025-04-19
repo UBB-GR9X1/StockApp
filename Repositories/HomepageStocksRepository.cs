@@ -29,7 +29,7 @@ namespace StockApp.Repositories
                 this.userCnp = value;
                 if (string.IsNullOrEmpty(this.userCnp))
                 {
-                    throw new ArgumentNullException(nameof(UserCnp), "CNP cannot be null or empty.");
+                    throw new ArgumentNullException(nameof(this.UserCnp), "CNP cannot be null or empty.");
                 }
                 // Inline: load stocks whenever UserCNP is assigned
                 this.LoadStocks();

@@ -20,27 +20,27 @@
         public TransactionLogPage()
         {
             this.InitializeComponent();
-            viewModel = new(new TransactionLogService(new TransactionRepository()));
+            this.viewModel = new(new TransactionLogService(new TransactionRepository()));
 
             // Set the DataContext for binding to the ViewModel
-            this.DataContext = viewModel;
+            this.DataContext = this.viewModel;
 
             // Event to show a message box (if requested by the ViewModel)
-            viewModel.ShowMessageBoxRequested += ShowMessageBoxRequested;
+            this.viewModel.ShowMessageBoxRequested += this.ShowMessageBoxRequested;
         }
 
         private void StartDateChanged(object sender, DatePickerValueChangedEventArgs e)
         {
             // Trigger the load operation when the start date changes
-            viewModel.StartDate = e.NewDate.Date;
-            viewModel.LoadTransactions();
+            this.viewModel.StartDate = e.NewDate.Date;
+            this.viewModel.LoadTransactions();
         }
 
         private void EndDateChanged(object sender, DatePickerValueChangedEventArgs e)
         {
             // Trigger the load operation when the end date changes
-            viewModel.EndDate = e.NewDate.Date;
-            viewModel.LoadTransactions();
+            this.viewModel.EndDate = e.NewDate.Date;
+            this.viewModel.LoadTransactions();
         }
 
         // Event handler to show a message box when requested by the ViewModel

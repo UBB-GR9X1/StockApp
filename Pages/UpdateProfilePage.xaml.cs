@@ -31,81 +31,81 @@ namespace StockApp.Pages
 
         private async void GetAdminPassword(object sender, RoutedEventArgs e)
         {
-            string userTryPass = PasswordTry.Text;
+            string userTryPass = this.PasswordTry.Text;
             //TODO: holy shit this code is unholy do actual auth checking
             bool isAdmin = false;
-            viewModelUpdate.UpdateAdminMode(isAdmin);
+            this.viewModelUpdate.UpdateAdminMode(isAdmin);
 
             string message = isAdmin ? "You are now ADMIN!" : "Incorrect Password!";
             string title = isAdmin ? "Success" : "Error";
-            ContentDialog dialog = CreateDialog(title, message);
+            ContentDialog dialog = this.CreateDialog(title, message);
             await dialog.ShowAsync();
         }
 
         private async void UpdateUserProfile(object sender, RoutedEventArgs e)
         {
-            if (viewModelUpdate == null)
+            if (this.viewModelUpdate == null)
             {
                 throw new InvalidOperationException("ViewModel is not initialized");
             }
 
-            bool DescriptionEmpty = MyDescriptionCheckBox?.IsChecked == true;
-            bool newHidden = MyCheckBox?.IsChecked == true;
-            string newUsername = UsernameInput?.Text ?? string.Empty;
-            string newImage = ImageInput?.Text ?? string.Empty;
-            string newDescription = DescriptionInput?.Text ?? string.Empty;
+            bool DescriptionEmpty = this.MyDescriptionCheckBox?.IsChecked == true;
+            bool newHidden = this.MyCheckBox?.IsChecked == true;
+            string newUsername = this.UsernameInput?.Text ?? string.Empty;
+            string newImage = this.ImageInput?.Text ?? string.Empty;
+            string newDescription = this.DescriptionInput?.Text ?? string.Empty;
 
             if (string.IsNullOrEmpty(newUsername) && string.IsNullOrEmpty(newImage) && string.IsNullOrEmpty(newDescription)
-                && (MyCheckBox?.IsChecked == false && viewModelUpdate.IsHidden() == false) && MyDescriptionCheckBox?.IsChecked == false)
+                && (this.MyCheckBox?.IsChecked == false && this.viewModelUpdate.IsHidden() == false) && this.MyDescriptionCheckBox?.IsChecked == false)
             {
-                await ShowErrorDialog("Please fill up at least one of the information fields");
+                await this.ShowErrorDialog("Please fill up at least one of the information fields");
                 return;
             }
 
             if ((newUsername.Length < 8 || newUsername.Length > 24) && newUsername.Length != 0)
             {
-                await ShowErrorDialog("Username must be 8-24 characters long.");
+                await this.ShowErrorDialog("Username must be 8-24 characters long.");
                 return;
             }
 
             if (newDescription.Length > 100)
             {
-                await ShowErrorDialog("The description should be max 100 characters long.");
+                await this.ShowErrorDialog("The description should be max 100 characters long.");
                 return;
             }
 
             if (string.IsNullOrEmpty(newUsername))
             {
-                newUsername = viewModelUpdate.GetUsername() ?? throw new InvalidOperationException("Username cannot be null");
+                newUsername = this.viewModelUpdate.GetUsername() ?? throw new InvalidOperationException("Username cannot be null");
             }
 
             if (!DescriptionEmpty)
             {
-                newDescription = viewModelUpdate.GetDescription() ?? string.Empty;
+                newDescription = this.viewModelUpdate.GetDescription() ?? string.Empty;
             }
 
             if (string.IsNullOrEmpty(newImage))
             {
-                newImage = viewModelUpdate.GetImage() ?? throw new InvalidOperationException("Image cannot be null");
+                newImage = this.viewModelUpdate.GetImage() ?? throw new InvalidOperationException("Image cannot be null");
             }
             else if (DescriptionEmpty)
             {
                 newDescription = string.Empty;
             }
 
-            viewModelUpdate.UpdateAll(newUsername, newImage, newDescription, newHidden);
-            await ShowSuccessDialog("Profile updated successfully!");
+            this.viewModelUpdate.UpdateAll(newUsername, newImage, newDescription, newHidden);
+            await this.ShowSuccessDialog("Profile updated successfully!");
         }
 
         private async Task ShowErrorDialog(string message)
         {
-            ContentDialog dialog = CreateDialog("Error", message);
+            ContentDialog dialog = this.CreateDialog("Error", message);
             await dialog.ShowAsync();
         }
 
         private async Task ShowSuccessDialog(string message)
         {
-            ContentDialog dialog = CreateDialog("Success", message);
+            ContentDialog dialog = this.CreateDialog("Success", message);
             await dialog.ShowAsync();
         }
 

@@ -28,7 +28,7 @@
         /// <param name="executor">Executor used to run SQL commands.</param>
         internal GemStoreRepository(IDbExecutor executor)
         {
-            dbConnection = executor ?? throw new ArgumentNullException(nameof(executor));
+            this.dbConnection = executor ?? throw new ArgumentNullException(nameof(executor));
 
             var userRepo = new UserRepository();
             this.cnp = userRepo.CurrentUserCNP;

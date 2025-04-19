@@ -18,13 +18,13 @@
         public SqlScriptMissingException(string path)
             : base($"SQL script file not found: {path}")
         {
-            ScriptPath = path;
+            this.ScriptPath = path;
         }
 
         public SqlScriptMissingException(string path, Exception innerException)
             : base($"SQL script file not found: {path}", innerException)
         {
-            ScriptPath = path;
+            this.ScriptPath = path;
         }
     }
 }

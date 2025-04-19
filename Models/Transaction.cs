@@ -44,7 +44,7 @@
         /// </summary>
         public int TotalValue
             // Calculate the total value of this transaction
-            => Amount * PricePerStock;
+            => this.Amount * this.PricePerStock;
 
         /// <summary>
         /// Gets or sets the date and time when this transaction took place.

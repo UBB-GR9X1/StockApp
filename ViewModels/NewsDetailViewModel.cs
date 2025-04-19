@@ -36,12 +36,12 @@ namespace StockApp.ViewModels
         /// </summary>
         public NewsArticle Article
         {
-            get => article;
+            get => this.article;
             set
             {
                 // Inline comment: log debug info whenever the article property is set
                 System.Diagnostics.Debug.WriteLine($"Setting Article: Title={value?.Title}, Content Length={value?.Content?.Length ?? 0}");
-                SetProperty(ref article, value);
+                this.SetProperty(ref this.article, value);
             }
         }
 
@@ -50,12 +50,12 @@ namespace StockApp.ViewModels
         /// </summary>
         public bool IsLoading
         {
-            get => isLoading;
+            get => this.isLoading;
             set
             {
                 // Inline comment: log loading state changes for diagnostics
                 System.Diagnostics.Debug.WriteLine($"Setting IsLoading: {value}");
-                SetProperty(ref isLoading, value);
+                this.SetProperty(ref this.isLoading, value);
             }
         }
 
@@ -64,8 +64,8 @@ namespace StockApp.ViewModels
         /// </summary>
         public bool HasRelatedStocks
         {
-            get => hasRelatedStocks;
-            set => SetProperty(ref hasRelatedStocks, value);
+            get => this.hasRelatedStocks;
+            set => this.SetProperty(ref this.hasRelatedStocks, value);
         }
 
         /// <summary>
@@ -73,8 +73,8 @@ namespace StockApp.ViewModels
         /// </summary>
         public bool IsAdminPreview
         {
-            get => isAdminPreview;
-            set => SetProperty(ref isAdminPreview, value);
+            get => this.isAdminPreview;
+            set => this.SetProperty(ref this.isAdminPreview, value);
         }
 
         /// <summary>
@@ -82,8 +82,8 @@ namespace StockApp.ViewModels
         /// </summary>
         public string ArticleStatus
         {
-            get => articleStatus;
-            set => SetProperty(ref articleStatus, value);
+            get => this.articleStatus;
+            set => this.SetProperty(ref this.articleStatus, value);
         }
 
         /// <summary>
@@ -91,8 +91,8 @@ namespace StockApp.ViewModels
         /// </summary>
         public bool CanApprove
         {
-            get => canApprove;
-            set => SetProperty(ref canApprove, value);
+            get => this.canApprove;
+            set => this.SetProperty(ref this.canApprove, value);
         }
 
         /// <summary>
@@ -100,8 +100,8 @@ namespace StockApp.ViewModels
         /// </summary>
         public bool CanReject
         {
-            get => canReject;
-            set => SetProperty(ref canReject, value);
+            get => this.canReject;
+            set => this.SetProperty(ref this.canReject, value);
         }
 
         /// <summary>
@@ -134,10 +134,10 @@ namespace StockApp.ViewModels
             this.newsService = newsService ?? throw new ArgumentNullException(nameof(newsService));
             this.dispatcherQueue = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
 
-            BackCommand = new StockNewsRelayCommand(() => NavigationService.Instance.GoBack());
-            ApproveCommand = new StockNewsRelayCommand(async () => await ApproveArticleAsync());
-            RejectCommand = new StockNewsRelayCommand(async () => await RejectArticleAsync());
-            DeleteCommand = new StockNewsRelayCommand(async () => await DeleteArticleAsync());
+            this.BackCommand = new StockNewsRelayCommand(() => NavigationService.Instance.GoBack());
+            this.ApproveCommand = new StockNewsRelayCommand(async () => await this.ApproveArticleAsync());
+            this.RejectCommand = new StockNewsRelayCommand(async () => await this.RejectArticleAsync());
+            this.DeleteCommand = new StockNewsRelayCommand(async () => await this.DeleteArticleAsync());
         }
 
         /// <summary>
@@ -159,7 +159,7 @@ namespace StockApp.ViewModels
                 throw new ArgumentNullException(nameof(articleId));
             }
 
-            IsLoading = true;
+            this.IsLoading = true;
 
             try
             {
@@ -168,60 +168,60 @@ namespace StockApp.ViewModels
                 // Determine if this is a preview mode request
                 if (articleId.StartsWith("preview:"))
                 {
-                    isPreviewMode = true;
-                    previewId = articleId.Substring(8); // Inline: strip "preview:" prefix
-                    currentArticleId = previewId;
-                    IsAdminPreview = true;
+                    this.isPreviewMode = true;
+                    this.previewId = articleId.Substring(8); // Inline: strip "preview:" prefix
+                    this.currentArticleId = this.previewId;
+                    this.IsAdminPreview = true;
 
-                    var userArticle = newsService.GetUserArticleForPreview(previewId);
+                    var userArticle = this.newsService.GetUserArticleForPreview(this.previewId);
                     if (userArticle != null)
                     {
-                        ArticleStatus = userArticle.Status;
-                        CanApprove = userArticle.Status != "Approved";
-                        CanReject = userArticle.Status != "Rejected";
+                        this.ArticleStatus = userArticle.Status;
+                        this.CanApprove = userArticle.Status != "Approved";
+                        this.CanReject = userArticle.Status != "Rejected";
                     }
 
-                    var article = await newsService.GetNewsArticleByIdAsync(articleId);
+                    var article = await this.newsService.GetNewsArticleByIdAsync(articleId);
 
-                    dispatcherQueue.TryEnqueue(() =>
+                    this.dispatcherQueue.TryEnqueue(() =>
                     {
                         if (article != null)
                         {
-                            Article = article;
-                            HasRelatedStocks = article.RelatedStocks?.Any() == true; // Inline: check for related stocks
+                            this.Article = article;
+                            this.HasRelatedStocks = article.RelatedStocks?.Any() == true; // Inline: check for related stocks
                         }
                         else
                         {
                             // FIXME: Provide fallback Article for missing preview
-                            Article = new NewsArticle
+                            this.Article = new NewsArticle
                             {
                                 Title = "Article Not Found",
                                 Summary = "The requested preview article could not be found.",
                                 Content = "This preview is unavailable."
                             };
-                            HasRelatedStocks = false;
+                            this.HasRelatedStocks = false;
                         }
 
-                        IsLoading = false;
+                        this.IsLoading = false;
                     });
                 }
                 else
                 {
-                    isPreviewMode = false;
-                    currentArticleId = articleId;
-                    IsAdminPreview = false;
+                    this.isPreviewMode = false;
+                    this.currentArticleId = articleId;
+                    this.IsAdminPreview = false;
 
-                    var regularArticle = await newsService.GetNewsArticleByIdAsync(articleId);
+                    var regularArticle = await this.newsService.GetNewsArticleByIdAsync(articleId);
 
                     if (regularArticle != null)
                     {
-                        Article = regularArticle;
-                        HasRelatedStocks = regularArticle.RelatedStocks?.Any() == true;
+                        this.Article = regularArticle;
+                        this.HasRelatedStocks = regularArticle.RelatedStocks?.Any() == true;
 
                         // Inline: mark article as read once loaded
                         try
                         {
-                            await newsService.MarkArticleAsReadAsync(articleId);
+                            await this.newsService.MarkArticleAsReadAsync(articleId);
                         }
                         catch (Exception ex)
                         {
@@ -232,32 +232,32 @@ namespace StockApp.ViewModels
                     else
                     {
                         // Provide fallback for missing article
-                        Article = new NewsArticle
+                        this.Article = new NewsArticle
                         {
                             Title = "Article Not Found",
                             Summary = "The requested article could not be found.",
                             Content = "This article may have been removed."
                         };
-                        HasRelatedStocks = false;
+                        this.HasRelatedStocks = false;
                     }
 
-                    IsLoading = false;
+                    this.IsLoading = false;
                 }
             }
             catch (Exception ex)
             {
                 // Inline: log unexpected errors during load
                 System.Diagnostics.Debug.WriteLine($"Error loading article: {ex.Message}");
-                dispatcherQueue.TryEnqueue(() =>
+                this.dispatcherQueue.TryEnqueue(() =>
                 {
-                    Article = new NewsArticle
+                    this.Article = new NewsArticle
                     {
                         Title = "Error Loading Article",
                         Summary = "There was an error loading the article.",
                         Content = $"Error details: {ex.Message}\nPlease try again later."
                     };
-                    HasRelatedStocks = false;
-                    IsLoading = false;
+                    this.HasRelatedStocks = false;
+                    this.IsLoading = false;
                 });
             }
         }
@@ -267,19 +267,19 @@ namespace StockApp.ViewModels
         /// </summary>
         private async Task ApproveArticleAsync()
         {
-            if (!isPreviewMode || string.IsNullOrEmpty(previewId))
+            if (!this.isPreviewMode || string.IsNullOrEmpty(this.previewId))
                 return;
 
-            IsLoading = true;
+            this.IsLoading = true;
 
             try
             {
-                var success = await newsService.ApproveUserArticleAsync(previewId);
+                var success = await this.newsService.ApproveUserArticleAsync(this.previewId);
                 if (success)
                 {
-                    ArticleStatus = "Approved";
-                    CanApprove = false;
-                    CanReject = true;
+                    this.ArticleStatus = "Approved";
+                    this.CanApprove = false;
+                    this.CanReject = true;
 
                     var dialog = new ContentDialog
                     {
@@ -307,7 +307,7 @@ namespace StockApp.ViewModels
             }
             finally
             {
-                IsLoading = false;
+                this.IsLoading = false;
             }
         }
 
@@ -316,19 +316,19 @@ namespace StockApp.ViewModels
         /// </summary>
         private async Task RejectArticleAsync()
         {
-            if (!isPreviewMode || string.IsNullOrEmpty(previewId))
+            if (!this.isPreviewMode || string.IsNullOrEmpty(this.previewId))
                 return;
 
-            IsLoading = true;
+            this.IsLoading = true;
 
             try
             {
-                var success = await newsService.RejectUserArticleAsync(previewId);
+                var success = await this.newsService.RejectUserArticleAsync(this.previewId);
                 if (success)
                 {
-                    ArticleStatus = "Rejected";
-                    CanApprove = true;
-                    CanReject = false;
+                    this.ArticleStatus = "Rejected";
+                    this.CanApprove = true;
+                    this.CanReject = false;
 
                     var dialog = new ContentDialog
                     {
@@ -354,7 +354,7 @@ namespace StockApp.ViewModels
             }
             finally
             {
-                IsLoading = false;
+                this.IsLoading = false;
             }
         }
 
@@ -363,7 +363,7 @@ namespace StockApp.ViewModels
         /// </summary>
         private async Task DeleteArticleAsync()
         {
-            if (!isPreviewMode || string.IsNullOrEmpty(previewId))
+            if (!this.isPreviewMode || string.IsNullOrEmpty(this.previewId))
                 return;
 
             try
@@ -380,9 +380,9 @@ namespace StockApp.ViewModels
                 var result = await confirmDialog.ShowAsync();
                 if (result == ContentDialogResult.Primary)
                 {
-                    IsLoading = true;
+                    this.IsLoading = true;
 
-                    var success = await newsService.DeleteUserArticleAsync(previewId);
+                    var success = await this.newsService.DeleteUserArticleAsync(this.previewId);
                     if (success)
                     {
                         var dialog = new ContentDialog
@@ -410,7 +410,7 @@ namespace StockApp.ViewModels
             }
             finally
             {
-                IsLoading = false;
+                this.IsLoading = false;
             }
         }
 
@@ -421,7 +421,7 @@ namespace StockApp.ViewModels
                 return false;
 
             storage = value;
-            OnPropertyChanged(propertyName);
+            this.OnPropertyChanged(propertyName);
             return true;
         }
     }

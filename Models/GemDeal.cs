@@ -51,8 +51,8 @@
         /// </summary>
         public DateTime ExpirationTime
             // If special and has a duration, calculate expiration; else never expires
-            => IsSpecial && DurationMinutes.HasValue
-                   ? DateTime.UtcNow.AddMinutes(DurationMinutes.Value)
+            => this.IsSpecial && this.DurationMinutes.HasValue
+                   ? DateTime.UtcNow.AddMinutes(this.DurationMinutes.Value)
                    : DateTime.MaxValue;
 
         /// <summary>
@@ -60,25 +60,25 @@
         /// </summary>
         public bool IsAvailable
             // Available if not special, no duration set, or the current time is before expiration
-            => !IsSpecial
-               || DurationMinutes is null
-               || DateTime.UtcNow <= ExpirationTime;
+            => !this.IsSpecial
+               || this.DurationMinutes is null
+               || DateTime.UtcNow <= this.ExpirationTime;
 
         /// <summary>
         /// Gets the price formatted with two decimals and the euro symbol.
         /// </summary>
         public string FormattedPrice
             // Format price as "0.00€"
-            => $"{Price:0.00}€";
+            => $"{this.Price:0.00}€";
 
         /// <summary>
         /// Gets the expiration time formatted as "HH:mm:ss", or an empty string if it never expires.
         /// </summary>
         public string ExpirationTimeFormatted
             // Return empty when expiration is infinite, otherwise format the time
-            => ExpirationTime == DateTime.MaxValue
+            => this.ExpirationTime == DateTime.MaxValue
                    ? string.Empty
-                   : ExpirationTime.ToString("HH:mm:ss");
+                   : this.ExpirationTime.ToString("HH:mm:ss");
 
         /// <summary>
         /// Raises the <see cref="PropertyChanged"/> event for the specified property.
@@ -88,6 +88,6 @@
         /// </param>
         protected void OnPropertyChanged([CallerMemberName] string? prop = null)
             // Notify subscribers that a property value has changed
-            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
+            => this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
     }
 }

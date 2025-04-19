@@ -14,8 +14,8 @@ namespace StockApp.Pages
         public TriggeredAlertsPage()
         {
             this.InitializeComponent();
-            _alertRepository = new AlertRepository();
-            LoadAlerts();
+            this._alertRepository = new AlertRepository();
+            this.LoadAlerts();
         }
 
         private void LoadAlerts()
@@ -25,7 +25,7 @@ namespace StockApp.Pages
 
         private void RefreshClick(object sender, RoutedEventArgs e)
         {
-            LoadAlerts();
+            this.LoadAlerts();
         }
     }
 }

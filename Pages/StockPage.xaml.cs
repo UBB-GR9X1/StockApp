@@ -26,7 +26,7 @@ namespace StockApp.Pages
         public StockPage()
         {
             this.InitializeComponent();
-            command = new StockNewsRelayCommand(() => AuthorButtonClick());
+            this.command = new StockNewsRelayCommand(() => this.AuthorButtonClick());
         }
 
         /// <summary>
@@ -45,12 +45,12 @@ namespace StockApp.Pages
         /// <exception cref="InvalidOperationException"></exception>
         public void AuthorButtonClick()
         {
-            if (_viewModel == null)
+            if (this._viewModel == null)
             {
                 throw new InvalidOperationException("ViewModel is not initialized");
             }
 
-            NavigationService.Instance.Navigate(typeof(ProfilePage), _viewModel.GetStockAuthor());
+            NavigationService.Instance.Navigate(typeof(ProfilePage), this._viewModel.GetStockAuthor());
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -60,8 +60,8 @@ namespace StockApp.Pages
             // Retrieve the stock name passed during navigation
             if (e.Parameter is Stock stockName)
             {
-                _viewModel = new StockPageViewModel(stockName, PriceLabel, IncreaseLabel, OwnedStocks, StockChart);
-                this.DataContext = _viewModel;
+                this._viewModel = new StockPageViewModel(stockName, this.PriceLabel, this.IncreaseLabel, this.OwnedStocks, this.StockChart);
+                this.DataContext = this._viewModel;
             }
             else
             {
@@ -76,7 +76,7 @@ namespace StockApp.Pages
         /// <param name="e"></param>
         public void FavoriteButtonClick(object sender, RoutedEventArgs e)
         {
-            _viewModel.ToggleFavorite();
+            this._viewModel.ToggleFavorite();
         }
 
         /// <summary>
@@ -96,13 +96,13 @@ namespace StockApp.Pages
         /// <param name="e"></param>
         public async void BuyButtonClick(object sender, RoutedEventArgs e)
         {
-            int quantity = (int)QuantityInput.Value;
-            bool success = _viewModel?.BuyStock(quantity) ?? false;
-            QuantityInput.Value = 1;
+            int quantity = (int)this.QuantityInput.Value;
+            bool success = this._viewModel?.BuyStock(quantity) ?? false;
+            this.QuantityInput.Value = 1;
 
             if (!success)
             {
-                await ShowDialogAsync("Not enough gems", "You don't have enough gems to buy this stock.");
+                await this.ShowDialogAsync("Not enough gems", "You don't have enough gems to buy this stock.");
             }
         }
 
@@ -113,13 +113,13 @@ namespace StockApp.Pages
         /// <param name="e"></param>
         public async void SellButtonClick(object sender, RoutedEventArgs e)
         {
-            int quantity = (int)QuantityInput.Value;
-            bool success = _viewModel?.SellStock(quantity) ?? false;
-            QuantityInput.Value = 1;
+            int quantity = (int)this.QuantityInput.Value;
+            bool success = this._viewModel?.SellStock(quantity) ?? false;
+            this.QuantityInput.Value = 1;
 
             if (!success)
             {
-                await ShowDialogAsync("Not enough stocks", "You don't have enough stocks to sell.");
+                await this.ShowDialogAsync("Not enough stocks", "You don't have enough stocks to sell.");
             }
         }
 

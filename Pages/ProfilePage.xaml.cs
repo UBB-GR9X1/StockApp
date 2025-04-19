@@ -21,63 +21,63 @@ namespace StockApp.Pages
         /// </summary>
         public ProfilePage()
         {
-            UpdateProfileButton = new StockNewsRelayCommand(() => GoToUpdatePage());
+            this.UpdateProfileButton = new StockNewsRelayCommand(() => this.GoToUpdatePage());
         }
 
         private void DoStuff()
         {
             this.InitializeComponent();
             this.ShowUserInformation();
-            StocksListView.ItemsSource = viewModel.GetUserStocks();
+            this.StocksListView.ItemsSource = this.viewModel.GetUserStocks();
 
-            if (viewModel.IsHidden())
+            if (this.viewModel.IsHidden())
             {
                 this.HideProfile();
             }
 
-            UserStocksShowUsername();
+            this.UserStocksShowUsername();
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
 
-            viewModel = new ProfilePageViewModel();
-            this.DataContext = viewModel;
+            this.viewModel = new ProfilePageViewModel();
+            this.DataContext = this.viewModel;
             //TODO:fix this naming jesus
-            DoStuff();
+            this.DoStuff();
         }
 
         private void ShowUserInformation()
         {
-            UsernameTextBlock.Text = viewModel.GetUsername();
-            ProfileDescription.Text = viewModel.GetDescription();
-            ProfileImage.Source = viewModel.ImageSource;
+            this.UsernameTextBlock.Text = this.viewModel.GetUsername();
+            this.ProfileDescription.Text = this.viewModel.GetDescription();
+            this.ProfileImage.Source = this.viewModel.ImageSource;
         }
 
         private void GoToUpdatePage()
         {
-            NavigationService.Instance.Navigate(typeof(UpdateProfilePage), viewModel.GetLoggedInUserCnp());
+            NavigationService.Instance.Navigate(typeof(UpdateProfilePage), this.viewModel.GetLoggedInUserCnp());
         }
 
         private void GetSelectedStock(object sender, RoutedEventArgs e)
         {
-            if (StocksListView.SelectedItem is string selectedStock)
+            if (this.StocksListView.SelectedItem is string selectedStock)
             {
-                StockName.Text = selectedStock;
+                this.StockName.Text = selectedStock;
             }
             else
             {
-                StockName.Text = "No stock selected";
+                this.StockName.Text = "No stock selected";
             }
         }
 
         private void HideProfile()
         {
-            StocksListView.Visibility = Visibility.Collapsed;
-            ProfileDescription.Visibility = Visibility.Collapsed;
-            ProfileImage.Visibility = Visibility.Collapsed;
-            EnterStockButton.Visibility = Visibility.Collapsed;
+            this.StocksListView.Visibility = Visibility.Collapsed;
+            this.ProfileDescription.Visibility = Visibility.Collapsed;
+            this.ProfileImage.Visibility = Visibility.Collapsed;
+            this.EnterStockButton.Visibility = Visibility.Collapsed;
         }
 
         /// <summary>
@@ -95,7 +95,7 @@ namespace StockApp.Pages
         /// </summary>
         public void UserStocksShowUsername()
         {
-            UsernameMyStocks.Text = viewModel.GetUsername() + "'s STOCKS: ";
+            this.UsernameMyStocks.Text = this.viewModel.GetUsername() + "'s STOCKS: ";
         }
 
         /// <summary>

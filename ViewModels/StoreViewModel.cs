@@ -139,8 +139,8 @@
                 this.UserGems += deal.GemAmount;
                 if (deal.IsSpecial)
                     this.AvailableDeals.Remove(deal);
-                OnPropertyChanged(nameof(this.UserGems));
-                OnPropertyChanged(nameof(this.AvailableDeals));
+                this.OnPropertyChanged(nameof(this.UserGems));
+                this.OnPropertyChanged(nameof(this.AvailableDeals));
                 return $"(TEST) Bought {deal.GemAmount} gems.";
             }
 
@@ -150,8 +150,8 @@
                 this.UserGems += deal.GemAmount;
                 if (deal.IsSpecial)
                     this.AvailableDeals.Remove(deal);
-                OnPropertyChanged(nameof(this.UserGems));
-                OnPropertyChanged(nameof(this.AvailableDeals));
+                this.OnPropertyChanged(nameof(this.UserGems));
+                this.OnPropertyChanged(nameof(this.AvailableDeals));
             }
             return result;
         }
@@ -177,7 +177,7 @@
             {
                 // Inline: simulate sell in test mode
                 this.UserGems -= amount;
-                OnPropertyChanged(nameof(this.UserGems));
+                this.OnPropertyChanged(nameof(this.UserGems));
                 return $"(TEST) Sold {amount} gems for {amount / 100.0}€.";
             }
 
@@ -185,7 +185,7 @@
             if (result.StartsWith("Successfully"))
             {
                 this.UserGems -= amount;
-                OnPropertyChanged(nameof(this.UserGems));
+                this.OnPropertyChanged(nameof(this.UserGems));
             }
             return result;
         }
@@ -220,7 +220,7 @@
                 new GemDeal("BAD DEAL!!!!", 1, 35.0),
                 new GemDeal("🔥 SPECIAL DEAL", 2, 2.0, true, 1)
             };
-            SortDeals();
+            this.SortDeals();
         }
 
         /// <summary>
@@ -244,7 +244,7 @@
         // FIXME: Consider adding cancellation token to stop the loop
         private async void GenerateRandomDeals()
         {
-            CheckAndRemoveExpiredDeals();
+            this.CheckAndRemoveExpiredDeals();
             var random = new Random();
             while (true)
             {
@@ -252,8 +252,8 @@
                 var randomDeal = this.possibleDeals[random.Next(this.possibleDeals.Count)];
                 var specialDeal = new GemDeal(randomDeal.Title, randomDeal.GemAmount, randomDeal.Price, true, randomDeal.DurationMinutes);
                 this.AvailableDeals.Add(specialDeal);
-                SortDeals();
-                OnPropertyChanged(nameof(this.AvailableDeals));
+                this.SortDeals();
+                this.OnPropertyChanged(nameof(this.AvailableDeals));
             }
         }
 
@@ -267,8 +267,8 @@
                 await Task.Delay(TimeSpan.FromSeconds(60));
                 // Inline: filter out expired deals
                 this.AvailableDeals = new ObservableCollection<GemDeal>(this.AvailableDeals.Where(deal => deal.IsAvailable));
-                SortDeals();
-                OnPropertyChanged(nameof(this.AvailableDeals));
+                this.SortDeals();
+                this.OnPropertyChanged(nameof(this.AvailableDeals));
             }
         }
 
@@ -279,7 +279,7 @@
         {
             var sortedDeals = this.AvailableDeals.OrderBy(deal => deal.ExpirationTime).ToList();
             this.AvailableDeals = new ObservableCollection<GemDeal>(sortedDeals);
-            OnPropertyChanged(nameof(this.AvailableDeals));
+            this.OnPropertyChanged(nameof(this.AvailableDeals));
         }
 
         /// <summary>

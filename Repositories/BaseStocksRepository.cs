@@ -23,7 +23,7 @@ namespace StockApp.Repositories
         /// </summary>
         public BaseStocksRepository()
         {
-            LoadStocks();
+            this.LoadStocks();
         }
 
         /// <summary>
