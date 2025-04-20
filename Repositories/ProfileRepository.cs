@@ -149,7 +149,7 @@
             WHERE USER_CNP = @UserCNP
         ),
         LatestStockValue AS (
-            SELECT sv1.STOCK_NAME, sv1.PRICE
+            SELECT DISTINCT sv1.STOCK_NAME, sv1.PRICE
             FROM STOCK_VALUE sv1
             WHERE sv1.STOCK_NAME IN (SELECT STOCK_NAME FROM UserStocks)
               AND sv1.PRICE = (
