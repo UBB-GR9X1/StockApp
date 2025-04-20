@@ -1,6 +1,7 @@
 ﻿namespace StockApp.Services
 {
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using StockApp.Models;
 
     public interface IStockPageService
@@ -11,7 +12,7 @@
 
         int GetOwnedStocks();
 
-        User GetStockAuthor();
+        Task<User> GetStockAuthor();
 
         List<int> GetStockHistory();
 

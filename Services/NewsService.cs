@@ -13,7 +13,7 @@
     /// </summary>
     public class NewsService : INewsService
     {
-        private readonly AppState appState;
+        private static readonly IUserRepository UserRepo = new UserRepository();
         private static readonly Dictionary<string, NewsArticle> previewArticles = [];
         private static readonly Dictionary<string, UserArticle> previewUserArticles = [];
         private readonly List<NewsArticle> cachedArticles = [];
@@ -40,7 +40,6 @@
         {
             this.repository = repository;
             this.stocksRepository = stocksRepository; // FIXME: stocksRepository is never used in this class.
-            this.appState = AppState.Instance;
 
             if (!isInitialized)
             {
@@ -152,7 +151,7 @@
         /// <exception cref="NewsPersistenceException">If creation fails.</exception>
         public async Task<bool> CreateArticleAsync(NewsArticle article)
         {
-            if (this.appState.CurrentUser == null)
+            if (UserRepo.CurrentUserCNP == null)
             {
                 throw new UnauthorizedAccessException("User must be logged in to create an article");
             }
@@ -180,12 +179,16 @@
         /// <exception cref="NewsPersistenceException">If loading fails.</exception>
         public async Task<List<UserArticle>> GetUserArticlesAsync(string status = null, string topic = null)
         {
-            if (this.appState.CurrentUser == null || !this.appState.CurrentUser.IsModerator)
+            if (UserRepo.CurrentUserCNP == null)
+            {
+                throw new UnauthorizedAccessException("User must be logged in to access user articles");
+            }
+
+            User user = await UserRepo.GetUserByCnpAsync(UserRepo.CurrentUserCNP);
+            if (user.IsModerator)
             {
                 throw new UnauthorizedAccessException("User must be an admin to access user articles");
             }
-
-            await Task.Delay(300); // TODO: Remove artificial delay
 
             try
             {
@@ -222,9 +225,15 @@
         /// <exception cref="NewsPersistenceException">If approval fails.</exception>
         public async Task<bool> ApproveUserArticleAsync(string articleId)
         {
-            if (this.appState.CurrentUser == null || !this.appState.CurrentUser.IsModerator)
+            if (UserRepo.CurrentUserCNP == null)
             {
-                throw new UnauthorizedAccessException("User must be an admin to approve articles");
+                throw new UnauthorizedAccessException("User must be logged in to access user articles");
+            }
+
+            User user = await UserRepo.GetUserByCnpAsync(UserRepo.CurrentUserCNP);
+            if (user.IsModerator)
+            {
+                throw new UnauthorizedAccessException("User must be an admin to access user articles");
             }
 
             if (string.IsNullOrWhiteSpace(articleId))
@@ -256,9 +265,15 @@
         /// <exception cref="NewsPersistenceException">If rejection fails.</exception>
         public async Task<bool> RejectUserArticleAsync(string articleId)
         {
-            if (this.appState.CurrentUser == null || !this.appState.CurrentUser.IsModerator)
+            if (UserRepo.CurrentUserCNP == null)
             {
-                throw new UnauthorizedAccessException("User must be an admin to reject articles");
+                throw new UnauthorizedAccessException("User must be logged in to access user articles");
+            }
+
+            User user = await UserRepo.GetUserByCnpAsync(UserRepo.CurrentUserCNP);
+            if (user.IsModerator)
+            {
+                throw new UnauthorizedAccessException("User must be an admin to access user articles");
             }
 
             if (string.IsNullOrWhiteSpace(articleId))
@@ -290,9 +305,15 @@
         /// <exception cref="NewsPersistenceException">If deletion fails.</exception>
         public async Task<bool> DeleteUserArticleAsync(string articleId)
         {
-            if (this.appState.CurrentUser == null || !this.appState.CurrentUser.IsModerator)
+            if (UserRepo.CurrentUserCNP == null)
             {
-                throw new UnauthorizedAccessException("User must be an admin to delete articles");
+                throw new UnauthorizedAccessException("User must be logged in to access user articles");
+            }
+
+            User user = await UserRepo.GetUserByCnpAsync(UserRepo.CurrentUserCNP);
+            if (user.IsModerator)
+            {
+                throw new UnauthorizedAccessException("User must be an admin to access user articles");
             }
 
             if (string.IsNullOrWhiteSpace(articleId))
@@ -325,13 +346,19 @@
         /// <exception cref="NewsPersistenceException">If submission fails.</exception>
         public async Task<bool> SubmitUserArticleAsync(UserArticle article)
         {
-            if (this.appState.CurrentUser == null)
+            if (UserRepo.CurrentUserCNP == null)
             {
-                throw new UnauthorizedAccessException("User must be logged in to submit an article");
+                throw new UnauthorizedAccessException("User must be logged in to access user articles");
+            }
+
+            User user = await UserRepo.GetUserByCnpAsync(UserRepo.CurrentUserCNP);
+            if (user.IsModerator)
+            {
+                throw new UnauthorizedAccessException("User must be an admin to access user articles");
             }
 
             // Inline: set author and metadata
-            article.Author = this.appState.CurrentUser;
+            article.Author = user;
             article.SubmissionDate = DateTime.Now;
             article.Status = "Pending";
 
@@ -356,12 +383,17 @@
         /// <exception cref="InvalidOperationException">If no user is logged in.</exception>
         public async Task<User> GetCurrentUserAsync()
         {
-            if (this.appState.CurrentUser != null)
+            if (UserRepo.CurrentUserCNP == null)
             {
-                return this.appState.CurrentUser;
+                throw new UnauthorizedAccessException("User must be logged in to access user articles");
             }
 
-            await Task.Delay(200); // TODO: Remove artificial delay
+            User user = await UserRepo.GetUserByCnpAsync(UserRepo.CurrentUserCNP);
+            if (user.IsModerator)
+            {
+                throw new UnauthorizedAccessException("User must be an admin to access user articles");
+            }
+
             throw new InvalidOperationException("No user is currently logged in");
         }
 
@@ -434,8 +466,6 @@
         /// </summary>
         public void Logout()
         {
-            // TODO: Refine logout logic to persist session state if needed
-            this.appState.CurrentUser = null;
             previewArticles.Clear();
             previewUserArticles.Clear();
         }

@@ -2,6 +2,8 @@
 {
     using System;
     using System.Collections.ObjectModel;
+    using System.ComponentModel;
+    using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using System.Windows.Input;
     using StockApp.Commands;
@@ -15,11 +17,43 @@
     {
         private readonly IAlertService alertService;
         private readonly IDialogService dialogService;
+        private string newAlertName = string.Empty;
+        private decimal? alertUpperBound;
+        private decimal? alertLowerBound;
+        private bool alertValid = false;
 
         /// <summary>
-        /// Gets the collection of alerts displayed in the UI.
+        /// Initializes a new instance of the <see cref="AlertViewModel"/> class with specified services.
         /// </summary>
-        public ObservableCollection<Alert> Alerts { get; } = [];
+        /// <param name="alertService">Service for CRUD operations on alerts.</param>
+        /// <param name="dialogService">Service for showing dialogs and messages to the user.</param>
+        public AlertViewModel(IAlertService alertService, IDialogService dialogService)
+        {
+            this.alertService = alertService ?? throw new ArgumentNullException(nameof(alertService));
+            this.dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
+
+            // Initialize commands
+            this.CreateAlertCommand = new RelayCommand(async _ => await this.CreateAlert(), this.IsAlertValid);
+            this.SaveAlertsCommand = new RelayCommand(async _ => await this.SaveAlerts());
+            this.DeleteAlertCommand = new RelayCommand(async p => await this.DeleteAlert(p));
+            this.CloseAppCommand = new RelayCommand(_ => NavigationService.Instance.GoBack());
+
+            // Load existing alerts into the collection
+            this.LoadAlerts();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AlertViewModel"/> class using default implementations.
+        /// </summary>
+        public AlertViewModel()
+            : this(new AlertService(), new DialogService())
+        {
+        }
+
+        /// <summary>
+        /// Event triggered when a property value changes.
+        /// </summary>
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         /// <summary>
         /// Gets the command to create a new alert.
@@ -42,44 +76,115 @@
         public ICommand CloseAppCommand { get; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AlertViewModel"/> class with specified services.
+        /// Gets the collection of alerts displayed in the UI.
         /// </summary>
-        /// <param name="alertService">Service for CRUD operations on alerts.</param>
-        /// <param name="dialogService">Service for showing dialogs and messages to the user.</param>
-        public AlertViewModel(IAlertService alertService, IDialogService dialogService)
-        {
-            this.alertService = alertService ?? throw new ArgumentNullException(nameof(alertService));
-            this.dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
-
-            // Initialize commands
-            this.CreateAlertCommand = new RelayCommand(async _ => await this.CreateAlert());
-            this.SaveAlertsCommand = new RelayCommand(async _ => await this.SaveAlerts());
-            this.DeleteAlertCommand = new RelayCommand(async p => await this.DeleteAlert(p));
-            this.CloseAppCommand = new RelayCommand(_ => Environment.Exit(0));
-
-            // Load existing alerts into the collection
-            this.LoadAlerts();
-        }
+        public ObservableCollection<Alert> Alerts { get; } = [];
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AlertViewModel"/> class using default implementations.
+        /// Gets or sets the selected stock for this viewmodel.
         /// </summary>
-        public AlertViewModel()
-            : this(new AlertService(), new DialogService())
-        {
-        }
+        public string SelectedStockName { get; set; } = string.Empty;
 
         /// <summary>
-        /// Validates that the alert’s lower bound does not exceed its upper bound.
+        /// Gets or sets the user-defined name for the new alert. Bound to a TextBox in the UI.
         /// </summary>
-        /// <param name="alert">The alert to validate.</param>
-        /// <exception cref="Exception">Thrown when the lower bound is greater than the upper bound.</exception>
-        private static void ValidateAlert(Alert alert)
+        public string NewAlertName
         {
-            if (alert.LowerBound > alert.UpperBound)
+            get => this.newAlertName;
+            set
             {
-                throw new Exception("Lower bound cannot be greater than upper bound.");
+                if (this.newAlertName != value)
+                {
+                    this.newAlertName = value;
+                    this.OnPropertyChanged();
+                }
+
+                this.AlertValid = this.IsAlertValid();
             }
+        }
+
+        /// <summary>
+        /// Gets or sets the upper price boundary for the new alert. Bound to a TextBox in the UI.
+        /// </summary>
+        public string NewAlertUpperBound
+        {
+            get => this.alertUpperBound.ToString() ?? "0";
+            set
+            {
+                if (this.alertUpperBound.ToString() != value)
+                {
+                    if (decimal.TryParse(value, out var parseResult))
+                    {
+                        this.alertUpperBound = parseResult;
+                        this.OnPropertyChanged();
+                    }
+                    else
+                    {
+                        this.alertUpperBound = null;
+                    }
+
+                    this.AlertValid = this.IsAlertValid();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the lower price boundary for the new alert. Bound to a TextBox in the UI.
+        /// </summary>
+        public string NewAlertLowerBound
+        {
+            get => this.alertLowerBound.ToString() ?? "0";
+            set
+            {
+                if (this.alertLowerBound.ToString() != value)
+                {
+                    if (decimal.TryParse(value, out var parseResult))
+                    {
+                        this.alertLowerBound = parseResult;
+                        this.OnPropertyChanged();
+                    }
+                    else
+                    {
+                        this.alertLowerBound = null;
+                    }
+
+                    this.AlertValid = this.IsAlertValid();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the alert to be inserted is valid.
+        /// </summary>
+        public bool AlertValid
+        {
+            get => this.alertValid;
+            set
+            {
+                if (this.alertValid != value)
+                {
+                    this.alertValid = value;
+                    this.OnPropertyChanged();
+                    (this.CreateAlertCommand as RelayCommand)?.RaiseCanExecuteChanged();
+                }
+            }
+        }
+
+        private bool IsAlertValid(object? obj = null)
+        {
+            return !string.IsNullOrWhiteSpace(this.NewAlertName) &&
+                   this.alertUpperBound != null &&
+                   this.alertLowerBound != null &&
+                   this.alertUpperBound > this.alertLowerBound;
+        }
+
+        /// <summary>
+        /// Notifies the UI of property changes.
+        /// </summary>
+        /// <param name="propertyName">The name of the property that changed.</param>
+        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        {
+            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         /// <summary>
@@ -89,8 +194,11 @@
         {
             try
             {
+                decimal upperBound = this.alertUpperBound ?? throw new ArgumentNullException(nameof(this.alertUpperBound));
+                decimal lowerBound = this.alertLowerBound ?? throw new ArgumentNullException(nameof(this.alertLowerBound));
+
                 // Create a new alert via the service and add it to the collection
-                Alert newAlert = this.alertService.CreateAlert("Tesla", "New Alert", 100, 0, true);
+                Alert newAlert = this.alertService.CreateAlert(this.SelectedStockName, this.NewAlertName, upperBound, lowerBound, true);
                 this.Alerts.Add(newAlert);
                 await this.dialogService.ShowMessageAsync("Success", "Alert created successfully!");
             }
@@ -109,7 +217,16 @@
             {
                 foreach (Alert alert in this.Alerts)
                 {
-                    ValidateAlert(alert);
+                    if (alert.LowerBound >= alert.UpperBound)
+                    {
+                        throw new ArgumentException("Lower bound must be less than upper bound.");
+                    }
+
+                    if (string.IsNullOrWhiteSpace(alert.Name))
+                    {
+                        throw new ArgumentException("Alert name cannot be empty.");
+                    }
+
                     this.alertService.UpdateAlert(
                         alert.AlertId,
                         alert.StockName,

@@ -73,12 +73,12 @@
         public void FilterStocks(string query)
         {
             this.FilteredAllStocks = new ObservableCollection<HomepageStock>([.. this.AllStocks
-                .Where(stock => stock.Name.Contains(query, System.StringComparison.CurrentCultureIgnoreCase) ||
-                                stock.Symbol.Contains(query, System.StringComparison.CurrentCultureIgnoreCase))]);
+                .Where(stock => stock.StockDetails.Name.Contains(query, System.StringComparison.CurrentCultureIgnoreCase) ||
+                                stock.StockDetails.Symbol.Contains(query, System.StringComparison.CurrentCultureIgnoreCase))]);
 
             this.FilteredFavoriteStocks = new ObservableCollection<HomepageStock>([.. this.FavoriteStocks
-                .Where(stock => stock.Name.Contains(query, System.StringComparison.CurrentCultureIgnoreCase) ||
-                                stock.Symbol.Contains(query, System.StringComparison.CurrentCultureIgnoreCase))]);
+                .Where(stock => stock.StockDetails.Name.Contains(query, System.StringComparison.CurrentCultureIgnoreCase) ||
+                                stock.StockDetails.Symbol.Contains(query, System.StringComparison.CurrentCultureIgnoreCase))]);
         }
 
         /// <summary>
@@ -96,14 +96,14 @@
             switch (sortOption)
             {
                 case "Sort by Name":
-                    this.FilteredAllStocks = new ObservableCollection<HomepageStock>([.. this.FilteredAllStocks.OrderBy(stock => stock.Name)]);
-                    this.FilteredFavoriteStocks = new ObservableCollection<HomepageStock>([.. this.FilteredFavoriteStocks.OrderBy(stock => stock.Name)]);
+                    this.FilteredAllStocks = new ObservableCollection<HomepageStock>([.. this.FilteredAllStocks.OrderBy(stock => stock.StockDetails.Name)]);
+                    this.FilteredFavoriteStocks = new ObservableCollection<HomepageStock>([.. this.FilteredFavoriteStocks.OrderBy(stock => stock.StockDetails.Name)]);
                     break;
                 case "Sort by Price":
                     this.FilteredAllStocks = new ObservableCollection<HomepageStock>(
-                        [.. this.FilteredAllStocks.OrderBy(stock => stock.Price)]);
+                        [.. this.FilteredAllStocks.OrderBy(stock => stock.StockDetails.Price)]);
                     this.FilteredFavoriteStocks = new ObservableCollection<HomepageStock>(
-                        [.. this.FilteredFavoriteStocks.OrderBy(stock => stock.Price)]);
+                        [.. this.FilteredFavoriteStocks.OrderBy(stock => stock.StockDetails.Price)]);
                     break;
                 case "Sort by Change":
                     this.FilteredAllStocks = new ObservableCollection<HomepageStock>(

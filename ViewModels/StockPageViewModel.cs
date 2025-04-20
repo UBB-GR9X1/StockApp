@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Linq;
+    using System.Threading.Tasks;
     using Catel.Services;
     using LiveChartsCore;
     using LiveChartsCore.SkiaSharpView;
@@ -301,9 +302,9 @@
         /// Gets the author (owner) of the stock.
         /// </summary>
         /// <returns>A <see cref="User"/> object representing the author.</returns>
-        public User GetStockAuthor()
+        public async Task<User> GetStockAuthor()
         {
-            return this.stockPageService.GetStockAuthor();
+            return await this.stockPageService.GetStockAuthor();
         }
 
         /// <summary>

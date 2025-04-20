@@ -39,7 +39,7 @@ namespace StockApp.Repository.Tests
                 Summary = "Unit Test",
                 Content = "Test content",
                 Source = "Mock Source",
-                PublishedDate = "2025-01-01",
+                PublishedDate = DateTime.Parse("2025-01-01"),
                 IsRead = false,
                 IsWatchlistRelated = false,
                 Category = "Test",

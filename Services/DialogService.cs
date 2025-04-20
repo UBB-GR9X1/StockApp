@@ -16,6 +16,7 @@
         {
             var dialog = new ContentDialog
             {
+                XamlRoot = App.MainWindow?.Content.XamlRoot,
                 Title = title,
                 Content = content,
                 CloseButtonText = "OK",

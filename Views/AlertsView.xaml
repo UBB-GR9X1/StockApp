@@ -1,3 +1,4 @@
+
 <Page
     x:Class="StockApp.Views.AlertsView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -9,14 +10,6 @@
     mc:Ignorable="d">
 
     <Grid Padding="10">
-        <!-- Background Gradient -->
-        <Grid.Background>
-            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                <GradientStop Color="LightSkyBlue" Offset="0.0"/>
-                <GradientStop Color="RoyalBlue" Offset="1.0"/>
-            </LinearGradientBrush>
-        </Grid.Background>
-
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -28,13 +21,34 @@
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
 
-        <!-- Column Headers -->
-        <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="0" Margin="5">
-            <TextBlock Text="Stock" Width="120" FontWeight="Bold" Margin="5"/>
-            <TextBlock Text="Alert Name" Width="150" FontWeight="Bold" Margin="5"/>
-            <TextBlock Text="Min" Width="80" FontWeight="Bold" Margin="5"/>
-            <TextBlock Text="Max" Width="80" FontWeight="Bold" Margin="5"/>
-            <TextBlock Text="Active" Width="80" FontWeight="Bold" Margin="5"/>
+        <StackPanel Orientation="Vertical" Grid.Row="1" Grid.Column="0" Margin="5">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="{Binding SelectedStockName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontWeight="Bold" Foreground="White"/>
+                <TextBox x:Name="NewAlertName" 
+                         Width="150" Margin="5" 
+                         PlaceholderText="New Alert Name"
+                         Text="{Binding NewAlertName, Mode=TwoWay}"/>
+                <TextBox x:Name="LowerBound"  
+                        Width="80" Margin="5"  
+                        PlaceholderText="Min"
+                        Text="{Binding NewAlertLowerBound, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBox x:Name="UpperBound"  
+                        Width="80" Margin="5"  
+                        PlaceholderText="Max"  
+                        Text="{Binding NewAlertUpperBound, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                <Button Content="Add New"
+                    Command="{Binding CreateAlertCommand, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                    Width="100"
+                    Margin="5"/>
+            </StackPanel>
+            <!-- Column Headers -->
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Stock" Width="120" FontWeight="Bold" Margin="5"/>
+                <TextBlock Text="Alert Name" Width="150" FontWeight="Bold" Margin="5"/>
+                <TextBlock Text="Min" Width="80" FontWeight="Bold" Margin="5"/>
+                <TextBlock Text="Max" Width="80" FontWeight="Bold" Margin="5"/>
+                <TextBlock Text="Active" Width="80" FontWeight="Bold" Margin="5"/>
+            </StackPanel>
         </StackPanel>
 
         <!-- ListView -->
@@ -55,9 +69,6 @@
 
         <!-- Buttons -->
         <StackPanel Grid.Row="0" Grid.Column="1" VerticalAlignment="Top" Margin="5">
-            <Button Content="Add New"
-                    Command="{Binding CreateAlertCommand}" 
-                    Width="100" Margin="5"/>
             <Button Content="Remove"
                     Command="{Binding DeleteAlertCommand}" 
                     CommandParameter="{Binding SelectedItem, ElementName=AlertsListView}" 

@@ -73,14 +73,14 @@
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="model:HomepageStock">
                         <StackPanel Orientation="Horizontal" Spacing="20">
-                            <TextBlock Text="{x:Bind Symbol}" FontSize="16" FontWeight="Bold" Width="100" />
-                            <TextBlock Text="{x:Bind Name}" Width="450" />
-                            <TextBlock Text="{x:Bind Price}" Width="200" />
+                            <TextBlock Text="{x:Bind StockDetails.Symbol}" FontSize="16" FontWeight="Bold" Width="100" />
+                            <TextBlock Text="{x:Bind StockDetails.Name}" Width="450" />
+                            <TextBlock Text="{x:Bind StockDetails.Price}" Width="200" />
                             <TextBlock Text="{x:Bind Change}" Foreground="{x:Bind ChangeColor}" Width="200" />
                             <Button Content="★"
                                     Width="100"
                                     Command="{Binding FavoriteCommand}"
-                                    CommandParameter="{Binding}"
+                                    CommandParameter="{x:Bind StockDetails}"
                                     IsEnabled="{Binding DataContext.CanModifyFavorites, ElementName=FavoritesList}" />
                         </StackPanel>
                     </DataTemplate>
@@ -96,14 +96,14 @@
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="model:HomepageStock">
                         <StackPanel Orientation="Horizontal" Spacing="20">
-                            <TextBlock Text="{x:Bind Symbol}" FontSize="16" FontWeight="Bold" Width="100" />
-                            <TextBlock Text="{x:Bind Name}" Width="450" />
-                            <TextBlock Text="{x:Bind Price}" Width="200" />
+                            <TextBlock Text="{x:Bind StockDetails.Symbol}" FontSize="16" FontWeight="Bold" Width="100" />
+                            <TextBlock Text="{x:Bind StockDetails.Name}" Width="450" />
+                            <TextBlock Text="{x:Bind StockDetails.Price}" Width="200" />
                             <TextBlock Text="{x:Bind Change}" Foreground="{x:Bind ChangeColor}" Width="200" />
                             <Button Content="{x:Bind FavoriteStar}"
                                     Width="100"
                                     Command="{Binding FavoriteCommand}"
-                                    CommandParameter="{Binding}"
+                                    CommandParameter="{x:Bind StockDetails}"
                                     IsEnabled="{Binding DataContext.CanModifyFavorites, ElementName=FavoritesList}" />
                         </StackPanel>
                     </DataTemplate>

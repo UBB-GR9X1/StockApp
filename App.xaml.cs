@@ -13,7 +13,7 @@ namespace StockApp
     /// </summary>
     public partial class App : Application
     {
-        private Window? mainWindow;
+        public static Window? MainWindow { get; private set; } = null!;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="App"/> class.
@@ -57,9 +57,9 @@ namespace StockApp
         /// <param name="launchActivatedEventArgs">Details about the launch request and process.</param>
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs launchActivatedEventArgs)
         {
-            this.mainWindow = new MainWindow();
-            CurrentWindow = this.mainWindow;
-            this.mainWindow.Activate();
+            MainWindow = new MainWindow();
+            CurrentWindow = MainWindow;
+            MainWindow.Activate();
         }
 
         // i found some stupid ass error for the debugger, got it twice and couldn't

@@ -10,19 +10,9 @@
     public class HomepageStock
     {
         /// <summary>
-        /// Gets or sets the trading symbol of the stock.
+        /// Gets or sets the stock symbol.
         /// </summary>
-        public string Symbol { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Gets or sets the display name of the stock.
-        /// </summary>
-        public string Name { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Gets or sets the current price of the stock.
-        /// </summary>
-        public int Price { get; set; }
+        required public Stock StockDetails { get; set; }
 
         /// <summary>
         /// Gets or sets the price change, prefixed with '+' or '-' as appropriate.

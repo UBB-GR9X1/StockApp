@@ -59,9 +59,9 @@ namespace StockApp.Pages
             base.OnNavigatedTo(e);
 
             // Retrieve the stock name passed during navigation
-            if (e.Parameter is Stock stockName)
+            if (e.Parameter is Stock selectedStock)
             {
-                this._viewModel = new StockPageViewModel(stockName, this.PriceLabel, this.IncreaseLabel, this.OwnedStocks, this.StockChart);
+                this._viewModel = new StockPageViewModel(selectedStock, this.PriceLabel, this.IncreaseLabel, this.OwnedStocks, this.StockChart);
                 this.DataContext = this._viewModel;
             }
             else
@@ -87,7 +87,7 @@ namespace StockApp.Pages
         /// <param name="e"></param>
         public void AlertsButtonClick(object sender, RoutedEventArgs e)
         {
-            NavigationService.Instance.Navigate(typeof(AlertsView));
+            NavigationService.Instance.Navigate(typeof(AlertsView), _viewModel.StockName);
         }
 
         /// <summary>

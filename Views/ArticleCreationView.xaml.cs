@@ -19,7 +19,7 @@ namespace StockApp.Views
         /// <summary>
         /// Gets the view model for the article creation view.
         /// </summary>
-        public ArticleCreationViewModel ViewModel { get; } = new ();
+        public ArticleCreationViewModel ViewModel { get; } = new();
 
         /// <summary>
         /// Handles the Loaded event of the ArticleCreationView control.

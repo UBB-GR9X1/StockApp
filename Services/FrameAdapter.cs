@@ -19,14 +19,14 @@
         /// <returns></returns>
         public bool Navigate(Type pageType, object parameter) => this.frame.Navigate(pageType, parameter);
 
-    /// <summary>
-    /// Navigates back in the frame's navigation history.
-    /// </summary>
-    public void GoBack() => this.frame.GoBack();
+        /// <summary>
+        /// Navigates back in the frame's navigation history.
+        /// </summary>
+        public void GoBack() => this.frame.GoBack();
 
-    /// <summary>
-    /// Checks if the frame can navigate back in its navigation history.
-    /// </summary>
-    public bool CanGoBack => this.frame.CanGoBack;
+        /// <summary>
+        /// Checks if the frame can navigate back in its navigation history.
+        /// </summary>
+        public bool CanGoBack => this.frame.CanGoBack;
     }
 }

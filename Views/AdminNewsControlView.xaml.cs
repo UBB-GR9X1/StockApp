@@ -19,7 +19,7 @@ namespace StockApp.Views
         /// <summary>
         /// Gets the view model for the AdminNewsControlView.
         /// </summary>
-        public AdminNewsViewModel ViewModel { get; } = new ();
+        public AdminNewsViewModel ViewModel { get; } = new();
 
         /// <summary>
         /// Handles the Loaded event of the AdminNewsControlView control.

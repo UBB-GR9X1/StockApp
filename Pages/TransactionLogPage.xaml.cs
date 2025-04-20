@@ -29,40 +29,41 @@
             this.viewModel.ShowMessageBoxRequested += this.ShowMessageBoxRequested;
         }
 
-        private void StartDateChanged(object sender, DatePickerValueChangedEventArgs e)
-        {
-            // Trigger the load operation when the start date changes
-            this.viewModel.StartDate = e.NewDate.Date;
-            this.viewModel.LoadTransactions();
-        }
-
-        private void EndDateChanged(object sender, DatePickerValueChangedEventArgs e)
-        {
-            // Trigger the load operation when the end date changes
-            this.viewModel.EndDate = e.NewDate.Date;
-            this.viewModel.LoadTransactions();
-        }
-
         // Event handler to show a message box when requested by the ViewModel
         private async void ShowMessageBoxRequested(string title, string content)
         {
             // Ensure we're using Window.Current after the window is fully loaded
-            if (Window.Current != null)
+            // Create and show the ContentDialog
+            var messageDialog = new ContentDialog
             {
-                // Create and show the ContentDialog
-                var messageDialog = new ContentDialog
-                {
-                    Title = title,
-                    Content = content,
-                    CloseButtonText = "OK",
-                    XamlRoot = Window.Current.Content.XamlRoot, // Set the correct XamlRoot
-                };
+                Title = title,
+                Content = content,
+                CloseButtonText = "OK",
+                XamlRoot = App.CurrentWindow.Content.XamlRoot, // Set the correct XamlRoot
+            };
 
-                await messageDialog.ShowAsync();
-            }
-            else
+            await messageDialog.ShowAsync();
+        }
+
+        public void OnEndDateChanged(object sender, DatePickerSelectedValueChangedEventArgs e)
+        {
+            if (this.DataContext is TransactionLogViewModel viewModel)
             {
-                throw new InvalidOperationException("Window.Current is null. Cannot show the message box.");
+                if (sender is DatePicker datePicker && datePicker.SelectedDate.HasValue)
+                {
+                    viewModel.EndDate = datePicker.SelectedDate.Value.DateTime;
+                }
+            }
+        }
+
+        public void OnStartDateChanged(object sender, DatePickerSelectedValueChangedEventArgs e)
+        {
+            if (this.DataContext is TransactionLogViewModel viewModel)
+            {
+                if (sender is DatePicker datePicker && datePicker.SelectedDate.HasValue)
+                {
+                    viewModel.StartDate = datePicker.SelectedDate.Value.DateTime;
+                }
             }
         }
 

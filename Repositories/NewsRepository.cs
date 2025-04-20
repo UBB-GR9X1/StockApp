@@ -154,7 +154,7 @@
             {
                 this.newsArticles.Clear();
                 using var connection = DatabaseHelper.GetConnection();
-                using SqlCommand command = new ("SELECT * FROM NEWS_ARTICLE", connection);
+                using SqlCommand command = new("SELECT * FROM NEWS_ARTICLE", connection);
 
                 command.CommandTimeout = 30;
                 using var reader = command.ExecuteReader();
@@ -203,7 +203,7 @@
             try
             {
                 using var connection = DatabaseHelper.GetConnection();
-                using (SqlCommand command = new ("SELECT STOCK_NAME FROM RELATED_STOCKS WHERE ARTICLE_ID = @articleId", connection))
+                using (SqlCommand command = new("SELECT STOCK_NAME FROM RELATED_STOCKS WHERE ARTICLE_ID = @articleId", connection))
                 {
                     command.CommandTimeout = 30;
                     command.Parameters.AddWithValue("@articleId", articleId);
@@ -773,7 +773,7 @@
                             command.Parameters.AddWithValue("@Title", userArticle.Title);
                             command.Parameters.AddWithValue("@Summary", userArticle.Summary ?? string.Empty);
                             command.Parameters.AddWithValue("@Content", userArticle.Content);
-                            command.Parameters.AddWithValue("@Source", $"User: {userArticle.Author}");
+                            command.Parameters.AddWithValue("@Source", $"User: {userArticle.Author.Username}");
                             command.Parameters.AddWithValue("@PublishedDate", userArticle.SubmissionDate.ToString("MMMM dd, yyyy"));
                             command.Parameters.AddWithValue("@IsRead", false);
                             command.Parameters.AddWithValue("@IsWatchlistRelated", false);
@@ -970,14 +970,14 @@
                     title: article.Title,
                     summary: article.Summary,
                     content: article.Content,
-                    source: $"User: {article.Author}",
+                    source: $"User: {article.Author.Username}",
                     publishedDate: article.SubmissionDate,
                     relatedStocks: article.RelatedStocks)
-                    {
-                        IsRead = false,
-                        IsWatchlistRelated = false,
-                        Category = article.Topic,
-                    };
+                {
+                    IsRead = false,
+                    IsWatchlistRelated = false,
+                    Category = article.Topic,
+                };
 
 
                 // Check if the news article already exists

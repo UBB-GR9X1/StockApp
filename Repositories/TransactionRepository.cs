@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Catel;
     using Microsoft.Data.SqlClient;
     using StockApp.Database;
     using StockApp.Exceptions;
@@ -71,7 +72,7 @@
         {
             // Use LINQ to apply all filter predicates in one query
             return [.. this.Transactions.Where(transaction =>
-                (string.IsNullOrEmpty(criteria.StockName) || transaction.StockName.Equals(criteria.StockName)) &&
+                (string.IsNullOrEmpty(criteria.StockName) || transaction.StockName.ContainsIgnoreCase(criteria.StockName)) &&
                 (string.IsNullOrEmpty(criteria.Type) || transaction.Type.Equals(criteria.Type)) &&
                 (!criteria.MinTotalValue.HasValue || transaction.TotalValue >= criteria.MinTotalValue) &&
                 (!criteria.MaxTotalValue.HasValue || transaction.TotalValue <= criteria.MaxTotalValue) &&
@@ -88,14 +89,12 @@
         /// </exception>
         public void AddTransaction(TransactionLogTransaction transaction)
         {
-            string connectionString = DatabaseHelper.GetConnection().ConnectionString;
 
             string insertQuery = @"
                 INSERT INTO USERS_TRANSACTION (STOCK_NAME, TYPE, QUANTITY, PRICE, DATE, USER_CNP)
                 VALUES (@stockName, @type, @quantity, @price, @date, @userCnp)";
 
-            using SqlConnection connection = new(connectionString);
-            connection.Open();
+            using SqlConnection connection = DatabaseHelper.GetConnection();
 
             // Ensure the stock exists before inserting the transaction
             string checkStockQuery = "SELECT COUNT(*) FROM STOCK WHERE STOCK_NAME = @stockName";
@@ -128,6 +127,9 @@
 
                 command.ExecuteNonQuery();
             }
+
+            // Close the connection
+            connection.Close();
 
             // Add the new transaction to the in-memory list
             this.Transactions.Add(transaction);

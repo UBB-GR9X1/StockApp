@@ -244,7 +244,7 @@
                     this.Title,
                     this.Summary ?? string.Empty,
                     this.Content,
-                    $"User: {this.appState.CurrentUser?.CNP ?? "Anonymous"}",
+                    $"User: {this.appState.CurrentUser?.Username ?? "Anonymous"}",
                     DateTime.Now,
                     this.ParseRelatedStocks(),
                     Status.Pending)
@@ -479,7 +479,7 @@
                 title: this.Title,
                 summary: this.Summary,
                 content: this.Content,
-                source: $"User: {this.appState.CurrentUser?.CNP ?? "Anonymous"}",
+                source: $"User: {this.appState.CurrentUser?.Username ?? "Anonymous"}",
                 publishedDate: DateTime.Now,
                 relatedStocks: this.ParseRelatedStocks(),
                 status: Status.Pending)

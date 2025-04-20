@@ -10,7 +10,7 @@
     /// <param name="execute">The action to execute when the command is invoked.</param>
     /// <param name="canExecute">A function that determines whether the command can execute.</param>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="execute"/> is null.</exception>
-    public partial class RelayCommandGeneric<T>(Action<T> execute, Func<T, bool>? canExecute = null): ICommand
+    public partial class RelayCommandGeneric<T>(Action<T> execute, Func<T, bool>? canExecute = null) : ICommand
     {
         private readonly Action<T> execute = execute ?? throw new ArgumentNullException(nameof(execute));
         private readonly Func<T, bool>? canExecute = canExecute;

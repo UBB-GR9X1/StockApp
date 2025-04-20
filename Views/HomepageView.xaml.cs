@@ -31,13 +31,13 @@
         /// <exception cref="InvalidOperationException"></exception>
         public void GoToStock(object sender, ItemClickEventArgs e)
         {
-            if (e.ClickedItem is not Stock myStock)
+            if (e.ClickedItem is not HomepageStock selectedStock)
             {
                 throw new InvalidOperationException("Clicked item is not a valid stock");
             }
 
             NavigationService.Initialize(new FrameAdapter(this.Frame));
-            NavigationService.Instance.Navigate(typeof(StockPage), myStock);
+            NavigationService.Instance.Navigate(typeof(StockPage), selectedStock.StockDetails);
         }
     }
 }

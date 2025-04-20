@@ -1,11 +1,13 @@
 ﻿namespace StockApp.ViewModels
 {
     using System;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
+    using System.Windows.Forms;
     using System.Windows.Input;
     using Microsoft.UI.Xaml.Controls;
     using StockApp.Models;
@@ -20,14 +22,14 @@
         private readonly ITransactionLogService service;
 
         private string stockNameFilter;
-        private string selectedTransactionType;
-        private string selectedSortBy;
-        private string selectedSortOrder;
-        private string selectedExportFormat;
+        private string selectedTransactionType = "ALL";
+        private string selectedSortBy = "Date";
+        private string selectedSortOrder = "ASC";
+        private string selectedExportFormat = "CSV";
         private string minTotalValue;
         private string maxTotalValue;
-        private DateTime? startDate;
-        private DateTime? endDate;
+        private DateTime startDate = DateTime.UnixEpoch;
+        private DateTime endDate = DateTime.Now;
 
         /// <summary>
         /// Event raised when a property value changes.
@@ -50,18 +52,22 @@
         public string StockNameFilter
         {
             get => this.stockNameFilter;
-            set { this.stockNameFilter = value; this.OnPropertyChanged(nameof(this.StockNameFilter)); }
+            set
+            {
+                this.stockNameFilter = value;
+                this.OnPropertyChanged(nameof(this.StockNameFilter));
+            }
         }
 
         /// <summary>
         /// Gets or sets the selected transaction type for filtering.
         /// </summary>
-        public string SelectedTransactionType
+        public ComboBoxItem SelectedTransactionType
         {
-            get => this.selectedTransactionType;
+            get => new ComboBoxItem { Content = this.selectedTransactionType };
             set
             {
-                this.selectedTransactionType = value;
+                this.selectedTransactionType = value.Content.ToString() ?? string.Empty;
                 this.OnPropertyChanged(nameof(this.SelectedTransactionType));
                 this.LoadTransactions(); // Reload transactions when the selected type changes
             }
@@ -70,12 +76,12 @@
         /// <summary>
         /// Gets or sets the criteria by which to sort the transactions.
         /// </summary>
-        public string SelectedSortBy
+        public ComboBoxItem SelectedSortBy
         {
-            get => this.selectedSortBy;
+            get => new ComboBoxItem { Content = this.selectedSortBy };
             set
             {
-                this.selectedSortBy = value;
+                this.selectedSortBy = value.Content.ToString() ?? string.Empty;
                 this.OnPropertyChanged(nameof(this.SelectedSortBy));
                 this.LoadTransactions(); // Reload transactions when the sorting criteria change
             }
@@ -84,12 +90,12 @@
         /// <summary>
         /// Gets or sets the sort order (ascending/descending).
         /// </summary>
-        public string SelectedSortOrder
+        public ComboBoxItem SelectedSortOrder
         {
-            get => this.selectedSortOrder;
+            get => new ComboBoxItem { Content = this.selectedSortOrder };
             set
             {
-                this.selectedSortOrder = value;
+                this.selectedSortOrder = value.Content.ToString() ?? string.Empty;
                 this.OnPropertyChanged(nameof(this.SelectedSortOrder));
                 this.LoadTransactions(); // Reload transactions when the sort order changes
             }
@@ -98,12 +104,12 @@
         /// <summary>
         /// Gets or sets the export format (e.g., CSV, JSON).
         /// </summary>
-        public string SelectedExportFormat
+        public ComboBoxItem SelectedExportFormat
         {
-            get => this.selectedExportFormat;
+            get => new ComboBoxItem { Content = this.selectedExportFormat };
             set
             {
-                this.selectedExportFormat = value;
+                this.selectedExportFormat = value.Content.ToString() ?? string.Empty;
                 this.OnPropertyChanged(nameof(this.SelectedExportFormat));
             }
         }
@@ -153,19 +159,55 @@
         /// <summary>
         /// Gets or sets the start date of the transaction date range filter.
         /// </summary>
-        public DateTime? StartDate
+        public DateTime StartDate
         {
             get => this.startDate;
-            set { this.startDate = value; this.OnPropertyChanged(nameof(this.StartDate)); this.LoadTransactions(); }
+            set
+            {
+                this.startDate = value;
+                this.OnPropertyChanged(nameof(this.StartDate));
+                this.LoadTransactions();
+            }
+        }
+
+        /// <summary>
+        /// Gets the start date of the transaction date range filter as a DateTimeOffset.
+        /// </summary>
+        public DateTimeOffset StartDateOffset
+        {
+            get => new(this.startDate);
+            set
+            {
+                this.startDate = value.DateTime;
+                this.OnPropertyChanged(nameof(this.StartDateOffset));
+            }
         }
 
         /// <summary>
         /// Gets or sets the end date of the transaction date range filter.
         /// </summary>
-        public DateTime? EndDate
+        public DateTime EndDate
         {
             get => this.endDate;
-            set { this.endDate = value; this.OnPropertyChanged(nameof(this.EndDate)); this.LoadTransactions(); }
+            set
+            {
+                this.endDate = value;
+                this.OnPropertyChanged(nameof(this.EndDate));
+                this.LoadTransactions();
+            }
+        }
+
+        /// <summary>
+        /// Gets the end date of the transaction date range filter as a DateTimeOffset.
+        /// </summary>
+        public DateTimeOffset EndDateOffset
+        {
+            get => new(this.endDate);
+            set
+            {
+                this.endDate = value.DateTime;
+                this.OnPropertyChanged(nameof(this.EndDateOffset));
+            }
         }
 
         /// <summary>
@@ -218,20 +260,47 @@
         /// <summary>
         /// Exports the transactions to a file in the selected format.
         /// </summary>
-        private void Export()
+        private async void Export()
         {
             string format = this.selectedExportFormat.ToString();
             string fileName = "transactions";
 
-            // Inline: determine user's Documents path
-            string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            string fullPath = Path.Combine(documentsPath, $"{fileName}.{format.ToLower()}");
+            string fileExtension = format switch
+            {
+                "CSV" => ".csv",
+                "JSON" => ".json",
+                "HTML" => ".html",
+                _ => throw new InvalidOperationException($"Unsupported export format: {format}"),
+            };
+
+            Windows.Storage.Pickers.FileSavePicker saveFileDialog = new()
+            {
+                SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
+                FileTypeChoices =
+                {
+                    { format, new List<string> { fileExtension } },
+                },
+                SuggestedFileName = fileName,
+            };
+
+            // We create another window when launching the app because bad coding practices so we get this beauty :D
+            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
+            WinRT.Interop.InitializeWithWindow.Initialize(saveFileDialog, hwnd);
+
+            // Show the save file dialog
+            Windows.Storage.StorageFile file = await saveFileDialog.PickSaveFileAsync();
+
+            if (file == null)
+            {
+                // User cancelled the dialog
+                return;
+            }
 
             // Export the transactions
-            this.service.ExportTransactions([.. this.Transactions], fullPath, format);
+            this.service.ExportTransactions([.. this.Transactions], file.Path, format);
 
-            // TODO: notify user of successful export
-            // ShowMessageBox("Export Successful", $"File saved: {fullPath}");
+            // Notify user of successful export
+            this.ShowMessageBox("Export Successful", $"File saved: {file.Path}");
         }
 
         /// <summary>
@@ -298,9 +367,9 @@
             }
 
             // Add null checks here for all ComboBoxItem properties to prevent null reference
-            string transactionType = this.selectedTransactionType?.ToString() ?? "ALL";
-            string sortBy = this.selectedSortBy?.ToString() ?? "Date";
-            string sortOrder = this.selectedSortOrder?.ToString() ?? "ASC";
+            string transactionType = this.selectedTransactionType ?? "ALL";
+            string sortBy = this.selectedSortBy ?? "Date";
+            string sortOrder = this.selectedSortOrder ?? "ASC";
 
             // Validate MinTotalValue < MaxTotalValue
             if (!ValidateTotalValues(this.minTotalValue, this.maxTotalValue))
@@ -316,8 +385,8 @@
                 return;
             }
 
-            DateTime startDate = this.startDate ?? DateTime.Now.AddYears(-10);
-            DateTime endDate = this.endDate ?? DateTime.Now;
+            DateTime startDate = this.startDate;
+            DateTime endDate = this.endDate;
 
             this.Transactions.Clear();
 
@@ -336,27 +405,30 @@
             var transactions = this.service.GetFilteredTransactions(filterCriteria)
                 ?? throw new InvalidOperationException("Transaction service returned null");
 
-            foreach (var transaction in transactions)
+            var transactionsSorted = transactions.OrderBy<TransactionLogTransaction, object>(t =>
             {
-                this.Transactions.Add(transaction);
+                return sortBy switch
+                {
+                    "Date" => t.Date,
+                    "Stock Name" => t.StockName,
+                    "Total Value" => t.TotalValue,
+                    _ => throw new InvalidOperationException($"Invalid sort type: {sortBy}"),
+                };
+            });
+
+            if (sortOrder == "DESC")
+            {
+                foreach (var transaction in transactionsSorted.Reverse())
+                {
+                    this.Transactions.Add(transaction);
+                }
             }
-
-            this.SortTransactions(sortBy, sortOrder == "ASC");
-        }
-
-        /// <summary>
-        /// Sorts the current transactions based on the specified criteria and order.
-        /// </summary>
-        /// <param name="sortBy">Property name to sort by.</param>
-        /// <param name="isAscending">Whether to sort ascending (<c>true</c>) or descending (<c>false</c>).</param>
-        private void SortTransactions(string sortBy, bool isAscending)
-        {
-            var sortedTransactions = this.service.SortTransactions([.. this.Transactions], sortBy, isAscending);
-
-            this.Transactions.Clear();
-            foreach (var transaction in sortedTransactions)
+            else
             {
-                this.Transactions.Add(transaction);
+                foreach (var transaction in transactionsSorted)
+                {
+                    this.Transactions.Add(transaction);
+                }
             }
         }
 

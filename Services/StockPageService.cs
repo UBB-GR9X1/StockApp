@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
     using StockApp.Models;
     using StockApp.Repositories;
 
@@ -198,10 +199,10 @@
         /// Gets the author of the selected stock.
         /// </summary>
         /// <returns></returns>
-        public User GetStockAuthor()
+        public async Task<User> GetStockAuthor()
         {
             string authorCNP = this.stockRepo.GetStock(this.selectedStockName).AuthorCNP;
-            return this.userRepo.GetUserByCnpAsync(authorCNP).Result;
+            return await this.userRepo.GetUserByCnpAsync(authorCNP);
         }
     }
 }

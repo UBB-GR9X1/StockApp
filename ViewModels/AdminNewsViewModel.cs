@@ -280,7 +280,7 @@
                 title: article.Title,
                 summary: article.Summary,
                 content: article.Content,
-                source: $"User: {article.Author}",
+                source: $"User: {article.Author.Username}",
                 publishedDate: article.SubmissionDate,
                 relatedStocks: article.RelatedStocks,
                 status: Enum.TryParse<Status>(article.Status, out var status) ? status : Status.Pending);

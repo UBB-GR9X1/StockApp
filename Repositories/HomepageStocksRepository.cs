@@ -116,18 +116,19 @@ namespace StockApp.Repositories
                 SELECT 
                     s.STOCK_NAME,
                     s.STOCK_SYMBOL,
+                    s.AUTHOR_CNP,
                     MAX(COALESCE(f.IS_FAVORITE, 0)) AS IS_FAVORITE
                 FROM STOCK s
                 LEFT JOIN FAVORITE_STOCK f ON s.STOCK_NAME = f.STOCK_NAME AND f.USER_CNP = @UserCNP
-                GROUP BY s.STOCK_NAME, s.STOCK_SYMBOL";
+                GROUP BY s.STOCK_NAME, s.STOCK_SYMBOL, s.AUTHOR_CNP";
 
             return ExecuteReader(
                 stocksQuery,
                 command => command.Parameters.AddWithValue("@UserCNP", this.UserCnp),
                 reader =>
                 {
-                    var stockName = reader["STOCK_NAME"]?.ToString();
-                    var stockSymbol = reader["STOCK_SYMBOL"]?.ToString();
+                    var stockName = reader["STOCK_NAME"]?.ToString() ?? throw new InvalidOperationException("Stock name cannot be null.");
+                    var stockSymbol = reader["STOCK_SYMBOL"]?.ToString() ?? throw new InvalidOperationException("Stock symbol cannot be null.");
                     var isFavorite = Convert.ToInt32(reader["IS_FAVORITE"]) == 1;
 
                     var stockHistory = allStockHistories.TryGetValue(stockName, out var history) ? history : [];
@@ -139,11 +140,16 @@ namespace StockApp.Repositories
                         ? $"{((currentPrice - previousPrice) * 100) / previousPrice:+0;-0}%"
                         : "0%";
 
+                    Stock stock = new(
+                                    symbol: stockSymbol,
+                                    name: stockName,
+                                    authorCNP: reader["AUTHOR_CNP"]?.ToString() ?? throw new InvalidOperationException("Author CNP cannot be null."),
+                                    price: currentPrice,
+                                    quantity: 0);
+
                     return new HomepageStock
                     {
-                        Symbol = stockSymbol,
-                        Name = stockName,
-                        Price = currentPrice,
+                        StockDetails = stock,
                         Change = changePercentage,
                         IsFavorite = isFavorite,
                     };
@@ -160,7 +166,7 @@ namespace StockApp.Repositories
             ExecuteSql(query, command =>
             {
                 command.Parameters.AddWithValue("@UserCNP", this.UserCnp);
-                command.Parameters.AddWithValue("@Name", stock.Name);
+                command.Parameters.AddWithValue("@Name", stock.StockDetails.Name);
             });
         }
 
@@ -174,7 +180,7 @@ namespace StockApp.Repositories
             ExecuteSql(query, command =>
             {
                 command.Parameters.AddWithValue("@UserCNP", this.UserCnp);
-                command.Parameters.AddWithValue("@Name", stock.Name);
+                command.Parameters.AddWithValue("@Name", stock.StockDetails.Name);
             });
         }
 

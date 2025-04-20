@@ -1,6 +1,9 @@
 namespace StockApp.Views
 {
+    using System;
     using Microsoft.UI.Xaml.Controls;
+    using Microsoft.UI.Xaml.Navigation;
+    using StockApp.Models;
     using StockApp.ViewModels;
 
     public sealed partial class AlertsView : Page
@@ -15,8 +18,24 @@ namespace StockApp.Views
         }
 
         /// <summary>
-        /// Gets the ViewModel for managing alerts.
+        /// Gets or Sets the ViewModel for managing alerts.
         /// </summary>
-        public AlertViewModel ViewModel { get; } = new ();
+        public AlertViewModel ViewModel { get; set; } = new();
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+
+            // Retrieve the stock name passed during navigation
+            if (e.Parameter is string stockName)
+            {
+                this.ViewModel.SelectedStockName = stockName;
+            }
+            else
+            {
+                throw new InvalidOperationException("Parameter is not of type string");
+            }
+        }
+
     }
 }

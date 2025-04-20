@@ -11,7 +11,7 @@
     /// </summary>
     public class StockPageRepository : IStockPageRepository
     {
-        private readonly SqlConnection connection;
+        private static readonly UserRepository userRepository = new();
 
         /// <summary>
         /// Gets the user associated with the stock page, or <c>null</c> if guest.
@@ -29,7 +29,6 @@
         /// </summary>
         public StockPageRepository()
         {
-            this.connection = DatabaseHelper.GetConnection();
             this.InitializeUser();
         }
 
@@ -39,7 +38,8 @@
         /// <param name="gems">New gem balance to set.</param>
         public void UpdateUserGems(int newGemBalance)
         {
-            using var command = new SqlCommand("UPDATE [USER] SET GEM_BALANCE = @gems WHERE CNP = @cnp", this.connection);
+            using SqlConnection connection = DatabaseHelper.GetConnection();
+            using var command = new SqlCommand("UPDATE [USER] SET GEM_BALANCE = @gems WHERE CNP = @cnp", connection);
             command.Parameters.AddWithValue("@gems", newGemBalance);
             command.Parameters.AddWithValue("@cnp", this.User?.CNP);
             command.ExecuteNonQuery();
@@ -67,8 +67,8 @@
                 BEGIN
                     INSERT INTO USER_STOCK (USER_CNP, STOCK_NAME, QUANTITY) VALUES (@cnp, @name, @quantity)
                 END";
-
-            using var command = new SqlCommand(query, this.connection);
+            using SqlConnection connection = DatabaseHelper.GetConnection();
+            using var command = new SqlCommand(query, connection);
             command.Parameters.AddWithValue("@cnp", this.User?.CNP);
             command.Parameters.AddWithValue("@name", stockName);
             command.Parameters.AddWithValue("@quantity", quantity);
@@ -82,7 +82,8 @@
         /// <param name="price">Price to record.</param>
         public void AddStockValue(string stockName, int price)
         {
-            using var command = new SqlCommand("INSERT INTO STOCK_VALUE (STOCK_NAME, PRICE) VALUES (@name, @price)", this.connection);
+            using SqlConnection connection = DatabaseHelper.GetConnection();
+            using var command = new SqlCommand("INSERT INTO STOCK_VALUE (STOCK_NAME, PRICE) VALUES (@name, @price)", connection);
             command.Parameters.AddWithValue("@name", stockName);
             command.Parameters.AddWithValue("@price", price);
             command.ExecuteNonQuery();
@@ -102,8 +103,8 @@
                 INNER JOIN STOCK_VALUE sv ON s.STOCK_NAME = sv.STOCK_NAME
                 LEFT JOIN USER_STOCK us ON s.STOCK_NAME = us.STOCK_NAME AND us.USER_CNP = @cnp
                 WHERE s.STOCK_NAME = @name";
-
-            using var command = new SqlCommand(query, this.connection);
+            using SqlConnection connection = DatabaseHelper.GetConnection();
+            using var command = new SqlCommand(query, connection);
             command.Parameters.AddWithValue("@name", stockName);
             command.Parameters.AddWithValue("@cnp", this.User?.CNP);
 
@@ -130,7 +131,8 @@
         /// <returns>List of historical prices.</returns>
         public List<int> GetStockHistory(string stockName)
         {
-            using var command = new SqlCommand("SELECT PRICE FROM STOCK_VALUE WHERE STOCK_NAME = @name", this.connection);
+            using SqlConnection connection = DatabaseHelper.GetConnection();
+            using var command = new SqlCommand("SELECT PRICE FROM STOCK_VALUE WHERE STOCK_NAME = @name", connection);
             command.Parameters.AddWithValue("@name", stockName);
 
             using var reader = command.ExecuteReader();
@@ -150,7 +152,8 @@
         /// <returns>Quantity owned.</returns>
         public int GetOwnedStocks(string stockName)
         {
-            using var command = new SqlCommand("SELECT QUANTITY FROM USER_STOCK WHERE USER_CNP = @cnp AND STOCK_NAME = @name", this.connection);
+            using SqlConnection connection = DatabaseHelper.GetConnection();
+            using var command = new SqlCommand("SELECT QUANTITY FROM USER_STOCK WHERE USER_CNP = @cnp AND STOCK_NAME = @name", connection);
             command.Parameters.AddWithValue("@cnp", this.User?.CNP);
             command.Parameters.AddWithValue("@name", stockName);
 
@@ -165,7 +168,8 @@
         /// <returns><c>true</c> if favorite; otherwise, <c>false</c>.</returns>
         public bool GetFavorite(string stockName)
         {
-            using var command = new SqlCommand("SELECT 1 FROM FAVORITE_STOCK WHERE USER_CNP = @cnp AND STOCK_NAME = @name", this.connection);
+            using SqlConnection connection = DatabaseHelper.GetConnection();
+            using var command = new SqlCommand("SELECT 1 FROM FAVORITE_STOCK WHERE USER_CNP = @cnp AND STOCK_NAME = @name", connection);
             command.Parameters.AddWithValue("@cnp", this.User?.CNP);
             command.Parameters.AddWithValue("@name", stockName);
 
@@ -182,14 +186,16 @@
         {
             if (state)
             {
-                using var command = new SqlCommand("INSERT INTO FAVORITE_STOCK (USER_CNP, STOCK_NAME) VALUES (@cnp, @name)", this.connection);
+                using SqlConnection connection = DatabaseHelper.GetConnection();
+                using var command = new SqlCommand("INSERT INTO FAVORITE_STOCK (USER_CNP, STOCK_NAME) VALUES (@cnp, @name)", connection);
                 command.Parameters.AddWithValue("@cnp", this.User?.CNP);
                 command.Parameters.AddWithValue("@name", stockName);
                 command.ExecuteNonQuery();
             }
             else
             {
-                using var command = new SqlCommand("DELETE FROM FAVORITE_STOCK WHERE USER_CNP = @cnp AND STOCK_NAME = @name", this.connection);
+                using SqlConnection connection = DatabaseHelper.GetConnection();
+                using var command = new SqlCommand("DELETE FROM FAVORITE_STOCK WHERE USER_CNP = @cnp AND STOCK_NAME = @name", connection);
                 command.Parameters.AddWithValue("@cnp", this.User?.CNP);
                 command.Parameters.AddWithValue("@name", stockName);
                 command.ExecuteNonQuery();
@@ -201,8 +207,9 @@
         /// </summary>
         private void InitializeUser()
         {
-            using var command = new SqlCommand("SELECT * FROM [USER] WHERE CNP = @cnp", this.connection);
-            command.Parameters.AddWithValue("@cnp", this.User?.CNP);
+            using SqlConnection connection = DatabaseHelper.GetConnection();
+            using var command = new SqlCommand("SELECT * FROM [USER] WHERE CNP = @cnp", connection);
+            command.Parameters.AddWithValue("@cnp", userRepository.CurrentUserCNP);
 
             using var reader = command.ExecuteReader();
             if (reader.Read())

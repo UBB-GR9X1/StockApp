@@ -10,7 +10,7 @@ namespace StockApp.Pages
         /// <summary>
         /// The view model for the NewsListPage.
         /// </summary>
-        public NewsListViewModel ViewModel { get; } = new ();
+        public NewsListViewModel ViewModel { get; } = new();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NewsListPage"/> class.
