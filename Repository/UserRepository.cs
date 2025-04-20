@@ -14,7 +14,10 @@
     /// </summary>
     public class UserRepository(string? cnp = null) : IUserRepository
     {
-        public string CurrentUserCNP { get; private set; } = !string.IsNullOrWhiteSpace(cnp)
+        /// <summary>
+        /// Gets the current user's CNP from the configuration or throws an exception if not set.
+        /// </summary>
+        public string CurrentUserCnp { get; private set; } = !string.IsNullOrWhiteSpace(cnp)
                 ? cnp
                 : App.Configuration["DefaultUserCNP"]
                     ?? throw new InvalidOperationException("DefaultUserCNP is not set in appsettings.json");
