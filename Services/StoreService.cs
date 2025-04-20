@@ -79,9 +79,9 @@
         /// <summary>
         /// Processes a bank transaction for selling gems.
         /// </summary>
-        /// <param name="cnp"></param>
-        /// <param name="gemAmount"></param>
-        /// <param name="selectedAccountId"></param>
+        /// <param name="cnp"> The CNP of the user.</param>
+        /// <param name="gemAmount"> The amount of gems to sell.</param>
+        /// <param name="selectedAccountId"> The selected account ID for the transaction.</param>
         /// <returns></returns>
         /// <exception cref="GuestUserOperationException"></exception>
         /// <exception cref="InsufficientGemsException"></exception>

@@ -108,7 +108,12 @@ namespace StockApp.Repositories
 
             foreach (var group in historyResults.GroupBy(h => h.StockName))
             {
-                allStockHistories[group.Key] = [.. group.Select(g => g.Price)];
+                if (group.Key == null)
+                {
+                    throw new InvalidOperationException("Stock name cannot be null.");
+                }
+
+                allStockHistories[group.Key] = group.Select(g => g.Price).ToList();
             }
 
             // Inline: query stock info and favorites
