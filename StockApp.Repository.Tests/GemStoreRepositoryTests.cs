@@ -25,7 +25,7 @@ namespace StockApp.Repository.Tests
         {
             // Arrange
             var userRepo = new UserRepository();
-            var expectedCnp = userRepo.CurrentUserCNP;
+            var expectedCnp = userRepo.CurrentUserCnp;
 
             // Act
             var actualCnp = _repo.GetCnp();

@@ -15,7 +15,7 @@
         public ProfileService()
         {
             this.userRepo = new UserRepository();
-            this.profileRepo = new ProfileRepository(this.userRepo.CurrentUserCNP);
+            this.profileRepo = new ProfileRepository(this.userRepo.CurrentUserCnp);
         }
 
         /// <summary>

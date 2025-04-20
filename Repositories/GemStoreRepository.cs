@@ -19,7 +19,7 @@
             : this(new SqlDbExecutor(DatabaseHelper.GetConnection()))
         {
             var userRepo = new UserRepository();
-            this.cnp = userRepo.CurrentUserCNP;
+            this.cnp = userRepo.CurrentUserCnp;
         }
 
         /// <summary>
@@ -31,7 +31,7 @@
             this.dbConnection = executor ?? throw new ArgumentNullException(nameof(executor));
 
             var userRepo = new UserRepository();
-            this.cnp = userRepo.CurrentUserCNP;
+            this.cnp = userRepo.CurrentUserCnp;
         }
 
         /// <summary>
@@ -40,7 +40,7 @@
         /// <returns>The CNP string, or empty if not found.</returns>
         public string GetCnp()
         {
-            return new UserRepository().CurrentUserCNP;
+            return new UserRepository().CurrentUserCnp;
         }
 
         /// <summary>

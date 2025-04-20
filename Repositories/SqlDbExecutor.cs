@@ -11,6 +11,12 @@
     {
         private readonly SqlConnection conn = conn;
 
+        /// <summary>
+        /// Executes a SQL command and returns the first column of the first row in the result set returned by the query.
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="parameterize"></param>
+        /// <returns></returns>
         public object? ExecuteScalar(string sql, Action<SqlCommand> parameterize)
         {
             using var cmd = new SqlCommand(sql, this.conn);
