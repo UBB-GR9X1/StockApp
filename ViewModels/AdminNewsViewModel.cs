@@ -236,7 +236,7 @@
                 string? status = this.SelectedStatus == "All" ? null : this.SelectedStatus;
                 string? topic = this.SelectedTopic == "All" ? null : this.SelectedTopic;
 
-                var articles = await this.newsService.GetUserArticlesAsync(status, topic);
+                var articles = this.newsService.GetUserArticles(status, topic);
 
                 // Update the collection on the UI thread
                 this.dispatcherQueue.TryEnqueue(() =>
@@ -302,7 +302,7 @@
         {
             try
             {
-                var success = await this.newsService.ApproveUserArticleAsync(articleId);
+                var success = this.newsService.ApproveUserArticle(articleId);
                 if (success)
                 {
                     await this.RefreshArticlesAsync();
@@ -342,7 +342,7 @@
         {
             try
             {
-                var success = await this.newsService.RejectUserArticleAsync(articleId);
+                var success = this.newsService.RejectUserArticle(articleId);
                 if (success)
                 {
                     await this.RefreshArticlesAsync();
@@ -395,7 +395,7 @@
                 var result = await confirmDialog.ShowAsync();
                 if (result == ContentDialogResult.Primary)
                 {
-                    var success = await this.newsService.DeleteUserArticleAsync(articleId);
+                    var success = this.newsService.DeleteUserArticle(articleId);
                     if (success)
                     {
                         await this.RefreshArticlesAsync();

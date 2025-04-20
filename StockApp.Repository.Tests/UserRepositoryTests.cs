@@ -88,6 +88,16 @@ namespace StockApp.Repository.Tests
             throw new KeyNotFoundException($"User with CNP '{cnp}' not found.");
         }
 
+        public Task<User> GetUserByUsernameAsync(string username)
+        {
+            foreach (var user in _users.Values)
+            {
+                if (user.Username.Equals(username, StringComparison.OrdinalIgnoreCase))
+                    return Task.FromResult(user);
+            }
+            throw new KeyNotFoundException($"User with username '{username}' not found.");
+        }
+
         public Task<List<User>> GetAllUsersAsync() =>
             Task.FromResult(new List<User>(_users.Values));
 

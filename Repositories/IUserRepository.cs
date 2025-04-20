@@ -16,6 +16,8 @@ namespace StockApp.Repositories
 
         Task<User> GetUserByCnpAsync(string cnp);
 
+        Task<User> GetUserByUsernameAsync(string username);
+
         Task UpdateUserAsync(User user);
     }
 }

@@ -55,12 +55,12 @@
         /// </summary>
         /// <returns>A list of <see cref="NewsArticle"/> instances.</returns>
         /// <exception cref="NewsPersistenceException">Thrown if retrieval fails.</exception>
-        public async Task<List<NewsArticle>> GetNewsArticlesAsync()
+        public List<NewsArticle> GetNewsArticles()
         {
             try
             {
                 // Fetch articles in a background thread
-                var articles = await Task.Run(() => this.repository.GetAllNewsArticles());
+                var articles = this.repository.GetAllNewsArticles();
 
                 // Refresh cache
                 this.cachedArticles.Clear();
@@ -89,7 +89,7 @@
         /// <exception cref="ArgumentNullException">If <paramref name="articleId"/> is null or empty.</exception>
         /// <exception cref="KeyNotFoundException">If no article matches the ID.</exception>
         /// <exception cref="NewsPersistenceException">If retrieval fails.</exception>
-        public async Task<NewsArticle> GetNewsArticleByIdAsync(string articleId)
+        public NewsArticle GetNewsArticleById(string articleId)
         {
             if (string.IsNullOrWhiteSpace(articleId))
             {
@@ -102,11 +102,9 @@
                 return previewArticle;
             }
 
-            await Task.Delay(200); // TODO: Replace artificial delay with real async call
-
             try
             {
-                var article = await Task.Run(() => this.repository.GetNewsArticleById(articleId));
+                var article = this.repository.GetNewsArticleById(articleId);
                 return article ?? throw new KeyNotFoundException($"Article with ID {articleId} not found");
             }
             catch (NewsPersistenceException ex)
@@ -122,18 +120,16 @@
         /// <returns>True if successful.</returns>
         /// <exception cref="ArgumentNullException">If <paramref name="articleId"/> is null or empty.</exception>
         /// <exception cref="NewsPersistenceException">If marking fails.</exception>
-        public async Task<bool> MarkArticleAsReadAsync(string articleId)
+        public bool MarkArticleAsRead(string articleId)
         {
             if (string.IsNullOrWhiteSpace(articleId))
             {
                 throw new ArgumentNullException(nameof(articleId));
             }
 
-            await Task.Delay(100); // TODO: Remove hardcoded delay
-
             try
             {
-                await Task.Run(() => this.repository.MarkArticleAsRead(articleId));
+                this.repository.MarkArticleAsRead(articleId);
                 return true;
             }
             catch (NewsPersistenceException ex)
@@ -149,18 +145,16 @@
         /// <returns>True if creation succeeded.</returns>
         /// <exception cref="UnauthorizedAccessException">If no user is logged in.</exception>
         /// <exception cref="NewsPersistenceException">If creation fails.</exception>
-        public async Task<bool> CreateArticleAsync(NewsArticle article)
+        public bool CreateArticle(NewsArticle article)
         {
             if (UserRepo.CurrentUserCNP == null)
             {
                 throw new UnauthorizedAccessException("User must be logged in to create an article");
             }
 
-            await Task.Delay(300); // TODO: Remove artificial delay
-
             try
             {
-                await Task.Run(() => this.repository.AddNewsArticle(article));
+                this.repository.AddNewsArticle(article);
                 return true;
             }
             catch (NewsPersistenceException ex)
@@ -177,14 +171,14 @@
         /// <returns>A list of <see cref="UserArticle"/> instances.</returns>
         /// <exception cref="UnauthorizedAccessException">If current user is not an admin.</exception>
         /// <exception cref="NewsPersistenceException">If loading fails.</exception>
-        public async Task<List<UserArticle>> GetUserArticlesAsync(string status = null, string topic = null)
+        public List<UserArticle> GetUserArticles(string status = null, string topic = null)
         {
             if (UserRepo.CurrentUserCNP == null)
             {
                 throw new UnauthorizedAccessException("User must be logged in to access user articles");
             }
 
-            User user = await UserRepo.GetUserByCnpAsync(UserRepo.CurrentUserCNP);
+            User user = UserRepo.GetUserByCnpAsync(UserRepo.CurrentUserCNP).Result;
             if (user.IsModerator)
             {
                 throw new UnauthorizedAccessException("User must be an admin to access user articles");
@@ -193,7 +187,7 @@
             try
             {
                 // Reload from repository
-                userArticles = await Task.Run(() => this.repository.GetAllUserArticles());
+                userArticles = this.repository.GetAllUserArticles();
 
                 // Inline: apply status filter
                 if (!string.IsNullOrEmpty(status) && status != "All")
@@ -223,14 +217,14 @@
         /// <exception cref="UnauthorizedAccessException">If current user is not an admin.</exception>
         /// <exception cref="ArgumentNullException">If <paramref name="articleId"/> is null or empty.</exception>
         /// <exception cref="NewsPersistenceException">If approval fails.</exception>
-        public async Task<bool> ApproveUserArticleAsync(string articleId)
+        public bool ApproveUserArticle(string articleId)
         {
             if (UserRepo.CurrentUserCNP == null)
             {
                 throw new UnauthorizedAccessException("User must be logged in to access user articles");
             }
 
-            User user = await UserRepo.GetUserByCnpAsync(UserRepo.CurrentUserCNP);
+            User user = UserRepo.GetUserByCnpAsync(UserRepo.CurrentUserCNP).Result;
             if (user.IsModerator)
             {
                 throw new UnauthorizedAccessException("User must be an admin to access user articles");
@@ -241,11 +235,9 @@
                 throw new ArgumentNullException(nameof(articleId));
             }
 
-            await Task.Delay(300); // TODO: Remove artificial delay
-
             try
             {
-                await Task.Run(() => this.repository.ApproveUserArticle(articleId));
+                this.repository.ApproveUserArticle(articleId);
                 this.cachedArticles.Clear(); // Invalidate cache after approval
                 return true;
             }
@@ -263,14 +255,14 @@
         /// <exception cref="UnauthorizedAccessException">If current user is not an admin.</exception>
         /// <exception cref="ArgumentNullException">If <paramref name="articleId"/> is null or empty.</exception>
         /// <exception cref="NewsPersistenceException">If rejection fails.</exception>
-        public async Task<bool> RejectUserArticleAsync(string articleId)
+        public bool RejectUserArticle(string articleId)
         {
             if (UserRepo.CurrentUserCNP == null)
             {
                 throw new UnauthorizedAccessException("User must be logged in to access user articles");
             }
 
-            User user = await UserRepo.GetUserByCnpAsync(UserRepo.CurrentUserCNP);
+            User user = UserRepo.GetUserByCnpAsync(UserRepo.CurrentUserCNP).Result;
             if (user.IsModerator)
             {
                 throw new UnauthorizedAccessException("User must be an admin to access user articles");
@@ -281,11 +273,9 @@
                 throw new ArgumentNullException(nameof(articleId));
             }
 
-            await Task.Delay(300); // TODO: Remove artificial delay
-
             try
             {
-                await Task.Run(() => this.repository.RejectUserArticle(articleId));
+                this.repository.RejectUserArticle(articleId);
                 this.cachedArticles.Clear(); // Invalidate cache after rejection
                 return true;
             }
@@ -303,14 +293,14 @@
         /// <exception cref="UnauthorizedAccessException">If current user is not an admin.</exception>
         /// <exception cref="ArgumentNullException">If <paramref name="articleId"/> is null or empty.</exception>
         /// <exception cref="NewsPersistenceException">If deletion fails.</exception>
-        public async Task<bool> DeleteUserArticleAsync(string articleId)
+        public bool DeleteUserArticle(string articleId)
         {
             if (UserRepo.CurrentUserCNP == null)
             {
                 throw new UnauthorizedAccessException("User must be logged in to access user articles");
             }
 
-            User user = await UserRepo.GetUserByCnpAsync(UserRepo.CurrentUserCNP);
+            User user = UserRepo.GetUserByCnpAsync(UserRepo.CurrentUserCNP).Result;
             if (user.IsModerator)
             {
                 throw new UnauthorizedAccessException("User must be an admin to access user articles");
@@ -321,13 +311,11 @@
                 throw new ArgumentNullException(nameof(articleId));
             }
 
-            await Task.Delay(300); // TODO: Remove artificial delay
-
             try
             {
                 // Remove user article and its published counterpart
-                await Task.Run(() => this.repository.DeleteUserArticle(articleId));
-                await Task.Run(() => this.repository.DeleteNewsArticle(articleId));
+                this.repository.DeleteUserArticle(articleId);
+                this.repository.DeleteNewsArticle(articleId);
                 this.cachedArticles.Clear(); // Invalidate cache after deletion
                 return true;
             }
@@ -344,14 +332,14 @@
         /// <returns>True if submission succeeded.</returns>
         /// <exception cref="UnauthorizedAccessException">If no user is logged in.</exception>
         /// <exception cref="NewsPersistenceException">If submission fails.</exception>
-        public async Task<bool> SubmitUserArticleAsync(UserArticle article)
+        public bool SubmitUserArticle(UserArticle article)
         {
             if (UserRepo.CurrentUserCNP == null)
             {
                 throw new UnauthorizedAccessException("User must be logged in to access user articles");
             }
 
-            User user = await UserRepo.GetUserByCnpAsync(UserRepo.CurrentUserCNP);
+            User user = UserRepo.GetUserByCnpAsync(UserRepo.CurrentUserCNP).Result;
             if (user.IsModerator)
             {
                 throw new UnauthorizedAccessException("User must be an admin to access user articles");
@@ -362,11 +350,9 @@
             article.SubmissionDate = DateTime.Now;
             article.Status = "Pending";
 
-            await Task.Delay(300); // TODO: Remove artificial delay
-
             try
             {
-                await Task.Run(() => this.repository.AddUserArticle(article));
+                this.repository.AddUserArticle(article);
                 this.cachedArticles.Clear(); // Invalidate cache after submission
                 return true;
             }
@@ -381,20 +367,20 @@
         /// </summary>
         /// <returns>The current <see cref="User"/>.</returns>
         /// <exception cref="InvalidOperationException">If no user is logged in.</exception>
-        public async Task<User> GetCurrentUserAsync()
+        public User GetCurrentUser()
         {
             if (UserRepo.CurrentUserCNP == null)
             {
                 throw new UnauthorizedAccessException("User must be logged in to access user articles");
             }
 
-            User user = await UserRepo.GetUserByCnpAsync(UserRepo.CurrentUserCNP);
+            User user = UserRepo.GetUserByCnpAsync(UserRepo.CurrentUserCNP).Result;
             if (user.IsModerator)
             {
                 throw new UnauthorizedAccessException("User must be an admin to access user articles");
             }
 
-            throw new InvalidOperationException("No user is currently logged in");
+            return user;
         }
 
         /// <summary>
@@ -446,16 +432,16 @@
                     false,
                     0);
             }
-            else if (username == "user" && password == "user")
+            else if (password == "user")
             {
-                return new User(
-                    "1234567890123",
-                    "Caramel",
-                    "asdf",
-                    false,
-                    "imagine",
-                    false,
-                    1000);
+                User user = UserRepo.GetUserByUsernameAsync(username).Result;
+                if (user == null)
+                {
+                    throw new UnauthorizedAccessException("Invalid username or password");
+                }
+
+                UserRepo.CurrentUserCNP = user.CNP;
+                return user;
             }
 
             throw new UnauthorizedAccessException("Invalid username or password");

@@ -319,7 +319,7 @@
                     this.SelectedTopic,
                     this.ParseRelatedStocks());
 
-                bool success = await this.newsService.SubmitUserArticleAsync(article);
+                bool success = this.newsService.SubmitUserArticle(article);
 
                 if (success)
                 {

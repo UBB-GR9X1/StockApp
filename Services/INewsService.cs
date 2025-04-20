@@ -6,25 +6,25 @@
 
     public interface INewsService
     {
-        Task<List<NewsArticle>> GetNewsArticlesAsync();
+        List<NewsArticle> GetNewsArticles();
 
-        Task<NewsArticle> GetNewsArticleByIdAsync(string articleId);
+        NewsArticle GetNewsArticleById(string articleId);
 
-        Task<bool> MarkArticleAsReadAsync(string articleId);
+        bool MarkArticleAsRead(string articleId);
 
-        Task<bool> CreateArticleAsync(NewsArticle article);
+        bool CreateArticle(NewsArticle article);
 
-        Task<List<UserArticle>> GetUserArticlesAsync(string status = null, string topic = null);
+        List<UserArticle> GetUserArticles(string status = null, string topic = null);
 
-        Task<bool> ApproveUserArticleAsync(string articleId);
+        bool ApproveUserArticle(string articleId);
 
-        Task<bool> RejectUserArticleAsync(string articleId);
+        bool RejectUserArticle(string articleId);
 
-        Task<bool> DeleteUserArticleAsync(string articleId);
+        bool DeleteUserArticle(string articleId);
 
-        Task<bool> SubmitUserArticleAsync(UserArticle article);
+        bool SubmitUserArticle(UserArticle article);
 
-        Task<User> GetCurrentUserAsync();
+        User GetCurrentUser();
 
         Task<User> LoginAsync(string username, string password);
 

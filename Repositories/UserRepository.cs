@@ -64,10 +64,9 @@
                 var command = new SqlCommand("SELECT * FROM [USER] WHERE CNP = @cnp", connection);
                 command.Parameters.AddWithValue("@cnp", userCNP);
 
-                using var reader = await command.ExecuteReaderAsync();
+                using var reader = command.ExecuteReader();
                 if (await reader.ReadAsync())
                 {
-                    await connection.CloseAsync();
                     return new User
                     {
                         CNP = reader["CNP"].ToString(),
@@ -87,6 +86,36 @@
                 throw new UserRepositoryException("Failed to retrieve user from the database.", ex);
             }
         }
+
+        public async Task<User> GetUserByUsernameAsync(string username)
+        {
+            try
+            {
+                using var connection = DatabaseHelper.GetConnection();
+                var command = new SqlCommand("SELECT * FROM [USER] WHERE NAME = @name", connection);
+                command.Parameters.AddWithValue("@name", username);
+                using var reader = command.ExecuteReader();
+                if (await reader.ReadAsync())
+                {
+                    return new User
+                    {
+                        CNP = reader["CNP"].ToString(),
+                        Username = reader["NAME"].ToString(),
+                        Description = reader["DESCRIPTION"] as string,
+                        IsHidden = (bool)reader["IS_HIDDEN"],
+                        IsModerator = (bool)reader["IS_ADMIN"],
+                        Image = reader["PROFILE_PICTURE"] as string,
+                        GemBalance = (int)reader["GEM_BALANCE"],
+                    };
+                }
+                throw new KeyNotFoundException($"No user found with username: {username}");
+            }
+            catch (SqlException ex)
+            {
+                throw new UserRepositoryException("Failed to retrieve user from the database.", ex);
+            }
+        }
+
 
         /// <summary>
         /// Updates an existing user's details in the database.

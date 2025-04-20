@@ -15,7 +15,6 @@
     public class NewsListViewModel : ViewModelBase
     {
         private readonly INewsService newsService;
-        private readonly IDispatcher dispatcherQueue;
         private readonly IAppState appState;
 
         // properties
@@ -202,14 +201,12 @@
         /// </summary>
         public NewsListViewModel(
             INewsService newsService,
-            IDispatcher dispatcherQueue,
             IAppState appState)
         {
             this.newsService = newsService ?? throw new ArgumentNullException(nameof(newsService));
-            this.dispatcherQueue = dispatcherQueue ?? throw new ArgumentNullException(nameof(dispatcherQueue));
             this.appState = appState ?? throw new ArgumentNullException(nameof(appState));
 
-            this.RefreshCommand = new StockNewsRelayCommand(async () => await this.RefreshArticlesAsync());
+            this.RefreshCommand = new StockNewsRelayCommand(() => this.RefreshArticles());
             this.CreateArticleCommand = new StockNewsRelayCommand(() => NavigateToCreateArticle());
             this.AdminPanelCommand = new StockNewsRelayCommand(() => NavigateToAdminPanel());
             this.LoginCommand = new StockNewsRelayCommand(async () => await this.ShowLoginDialogAsync());
@@ -231,7 +228,6 @@
         /// </summary>
         public NewsListViewModel()
           : this(new NewsService(),
-                 new DispatcherAdapter(),
                  AppState.Instance)
         {
         }
@@ -250,10 +246,8 @@
             try
             {
                 // get current user
-                await this.GetCurrentUserAsync();
+                this.GetCurrentUser();
 
-                // load articles
-                await this.RefreshArticlesAsync();
             }
             catch (Exception ex)
             {
@@ -266,29 +260,22 @@
             }
         }
 
-        private async Task GetCurrentUserAsync()
+        private void GetCurrentUser()
         {
             try
             {
-                var user = await this.newsService.GetCurrentUserAsync();
-                this.dispatcherQueue.TryEnqueue(() =>
-                {
-                    this.CurrentUser = user;
-                    this.appState.CurrentUser = (User)user;
-                });
+                var user = this.newsService.GetCurrentUser();
+                this.CurrentUser = user;
+                this.appState.CurrentUser = (User)user;
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error getting current user: {ex.Message}");
-                this.dispatcherQueue.TryEnqueue(() =>
-                {
-                    this.CurrentUser = null;
-                    this.appState.CurrentUser = null;
-                });
+                throw;
             }
         }
 
-        private async Task RefreshArticlesAsync()
+        public void RefreshArticles()
         {
             if (this.IsRefreshing)
             {
@@ -300,24 +287,19 @@
 
             try
             {
-                var articles = await this.newsService.GetNewsArticlesAsync();
+                var articles = this.newsService.GetNewsArticles();
 
-                this.dispatcherQueue.TryEnqueue(() =>
-                {
-                    // store the full list of articles for filtering
-                    this.newsService.UpdateCachedArticles(articles);
+                // store the full list of articles for filtering
+                this.newsService.UpdateCachedArticles(articles);
 
-                    // apply filters to the new data
-                    this.FilterArticles();
-                });
+                // apply filters to the new data
+                this.FilterArticles();
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error refreshing articles: {ex.Message}");
-                this.dispatcherQueue.TryEnqueue(() =>
-                {
-                    this.IsEmptyState = true;
-                });
+                throw;
+
             }
             finally
             {
@@ -337,11 +319,8 @@
             var allArticles = this.newsService.GetCachedArticles();
             if (allArticles == null || !allArticles.Any())
             {
-                this.dispatcherQueue.TryEnqueue(() =>
-                {
-                    this.Articles.Clear();
-                    this.IsEmptyState = true;
-                });
+                this.Articles.Clear();
+                this.IsEmptyState = true;
                 return;
             }
 
@@ -370,16 +349,13 @@
                 .ThenByDescending(a => a.PublishedDate)];
 
 
-            this.dispatcherQueue.TryEnqueue(() =>
+            this.Articles.Clear();
+            foreach (var article in filteredArticles)
             {
-                this.Articles.Clear();
-                foreach (var article in filteredArticles)
-                {
-                    this.Articles.Add(article);
-                }
+                this.Articles.Add(article);
+            }
 
-                this.IsEmptyState = !this.Articles.Any();
-            });
+            this.IsEmptyState = !this.Articles.Any();
         }
 
         private static void NavigateToArticleDetail(string articleId)
@@ -484,7 +460,7 @@
                     await dialog.ShowAsync();
 
                     // refresh articles to show user-specific content
-                    await this.RefreshArticlesAsync();
+                    this.RefreshArticles();
                 }
                 else
                 {
@@ -511,7 +487,7 @@
                 this.appState.CurrentUser = null;
 
                 // refresh articles to show non-user-specific content
-                this.RefreshArticlesAsync();
+                this.RefreshArticles();
             }
             catch (Exception ex)
             {

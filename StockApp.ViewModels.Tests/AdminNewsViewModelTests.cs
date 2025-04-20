@@ -60,8 +60,8 @@ namespace StockApp.ViewModels.Tests
                     )
             };
             _newsServiceMock
-                .Setup(s => s.GetUserArticlesAsync(null, null))
-                .ReturnsAsync(sample);
+                .Setup(s => s.GetUserArticles(null, null))
+                .Returns(sample);
 
             await InvokeAsync("RefreshArticlesAsync");
 
@@ -74,8 +74,8 @@ namespace StockApp.ViewModels.Tests
         public async Task RefreshArticlesAsync_EmptyList_SetsEmptyStateTrue()
         {
             _newsServiceMock
-                .Setup(s => s.GetUserArticlesAsync(null, null))
-                .ReturnsAsync([]);
+                .Setup(s => s.GetUserArticles(null, null))
+                .Returns([]);
 
             await InvokeAsync("RefreshArticlesAsync");
 
@@ -86,8 +86,8 @@ namespace StockApp.ViewModels.Tests
         public async Task RefreshArticlesAsync_ServiceThrows_SetsEmptyStateTrue()
         {
             _newsServiceMock
-                .Setup(s => s.GetUserArticlesAsync(null, null))
-                .ThrowsAsync(new Exception("fail"));
+                .Setup(s => s.GetUserArticles(null, null))
+                .Throws(new Exception("fail"));
 
             await InvokeAsync("RefreshArticlesAsync");
 
@@ -100,8 +100,8 @@ namespace StockApp.ViewModels.Tests
         {
             var called = false;
             _newsServiceMock
-                .Setup(s => s.GetUserArticlesAsync("Pending", null))
-                .ReturnsAsync([])
+                .Setup(s => s.GetUserArticles("Pending", null))
+                .Returns([])
                 .Callback(() => called = true);
 
             _vm.SelectedStatus = "Pending";
@@ -114,8 +114,8 @@ namespace StockApp.ViewModels.Tests
         {
             var called = false;
             _newsServiceMock
-                .Setup(s => s.GetUserArticlesAsync(null, "Economy"))
-                .ReturnsAsync([])
+                .Setup(s => s.GetUserArticles(null, "Economy"))
+                .Returns([])
                 .Callback(() => called = true);
 
             _vm.SelectedTopic = "Economy";

@@ -183,7 +183,7 @@ namespace StockApp.ViewModels
                         this.CanReject = userArticle.Status != "Rejected";
                     }
 
-                    var article = await this.newsService.GetNewsArticleByIdAsync(articleId);
+                    var article = this.newsService.GetNewsArticleById(articleId);
 
                     this.dispatcherQueue.TryEnqueue(() =>
                     {
@@ -217,7 +217,7 @@ namespace StockApp.ViewModels
                     this.currentArticleId = articleId;
                     this.IsAdminPreview = false;
 
-                    var regularArticle = await this.newsService.GetNewsArticleByIdAsync(articleId);
+                    var regularArticle = this.newsService.GetNewsArticleById(articleId);
 
                     if (regularArticle != null)
                     {
@@ -227,7 +227,7 @@ namespace StockApp.ViewModels
                         // Inline: mark article as read once loaded
                         try
                         {
-                            await this.newsService.MarkArticleAsReadAsync(articleId);
+                            this.newsService.MarkArticleAsRead(articleId);
                         }
                         catch (Exception ex)
                         {
@@ -275,7 +275,7 @@ namespace StockApp.ViewModels
 
             try
             {
-                var success = await this.newsService.ApproveUserArticleAsync(this.previewId);
+                var success = this.newsService.ApproveUserArticle(this.previewId);
                 if (success)
                 {
                     this.ArticleStatus = "Approved";
@@ -326,7 +326,7 @@ namespace StockApp.ViewModels
 
             try
             {
-                var success = await this.newsService.RejectUserArticleAsync(this.previewId);
+                var success = this.newsService.RejectUserArticle(this.previewId);
                 if (success)
                 {
                     this.ArticleStatus = "Rejected";
@@ -387,7 +387,7 @@ namespace StockApp.ViewModels
                 {
                     this.IsLoading = true;
 
-                    var success = await this.newsService.DeleteUserArticleAsync(this.previewId);
+                    var success = this.newsService.DeleteUserArticle(this.previewId);
                     if (success)
                     {
                         var dialog = new ContentDialog

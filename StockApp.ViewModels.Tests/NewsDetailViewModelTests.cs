@@ -59,8 +59,8 @@ namespace StockApp.ViewModels.Tests
             );
 
             _svcMock.Setup(s => s.GetUserArticleForPreview("123")).Returns(userArt);
-            _svcMock.Setup(s => s.GetNewsArticleByIdAsync("preview:123"))
-                    .ReturnsAsync(newsArt);
+            _svcMock.Setup(s => s.GetNewsArticleById("preview:123"))
+                    .Returns(newsArt);
 
             _vm.LoadArticle("preview:123");
 
@@ -76,8 +76,8 @@ namespace StockApp.ViewModels.Tests
         public void LoadArticle_PreviewMode_NotFound_ShowsNotFound()
         {
             _svcMock.Setup(s => s.GetUserArticleForPreview("id")).Returns((UserArticle?)null);
-            _svcMock.Setup(s => s.GetNewsArticleByIdAsync("preview:id"))
-                    .ReturnsAsync((NewsArticle?)null);
+            _svcMock.Setup(s => s.GetNewsArticleById("preview:id"))
+                    .Returns((NewsArticle?)null);
 
             _vm.LoadArticle("preview:id");
 
@@ -99,23 +99,23 @@ namespace StockApp.ViewModels.Tests
                 Status.Pending
                 );
 
-            _svcMock.Setup(s => s.GetNewsArticleByIdAsync("42"))
-                    .ReturnsAsync(newsArt);
-            _svcMock.Setup(s => s.MarkArticleAsReadAsync("42"))
-                    .ReturnsAsync(true);
+            _svcMock.Setup(s => s.GetNewsArticleById("42"))
+                    .Returns(newsArt);
+            _svcMock.Setup(s => s.MarkArticleAsRead("42"))
+                    .Returns(true);
 
             _vm.LoadArticle("42");
 
             Assert.IsFalse(_vm.IsAdminPreview);
             Assert.AreSame(newsArt, _vm.Article);
-            _svcMock.Verify(s => s.MarkArticleAsReadAsync("42"), Times.Once);
+            _svcMock.Verify(s => s.MarkArticleAsRead("42"), Times.Once);
         }
 
         [TestMethod]
         public void LoadArticle_RegularMode_NotFound_ShowsNotFound()
         {
-            _svcMock.Setup(s => s.GetNewsArticleByIdAsync("x"))
-                    .ReturnsAsync((NewsArticle?)null);
+            _svcMock.Setup(s => s.GetNewsArticleById("x"))
+                    .Returns((NewsArticle?)null);
 
             _vm.LoadArticle("x");
 

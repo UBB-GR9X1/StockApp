@@ -19,8 +19,13 @@ namespace StockApp.Service.Tests
         [TestInitialize]
         public void Init()
         {
-            _mockRepo = new Mock<NewsRepository>();
-            _mockStocks = new Mock<IBaseStocksRepository>();
+            _mockRepo = new Mock<NewsRepository>(MockBehavior.Strict);
+            _mockRepo.As<INewsRepository>(); // Ensure the mock implements INewsRepository  
+
+            // Setup for GetAllUserArticles to avoid strict mock exception  
+            _mockRepo.As<INewsRepository>().Setup(r => r.GetAllUserArticles()).Returns(new List<UserArticle>());
+
+            _mockStocks = new Mock<IBaseStocksRepository>(MockBehavior.Strict);
             _service = new NewsService(_mockRepo.Object, _mockStocks.Object);
         }
 
@@ -28,21 +33,23 @@ namespace StockApp.Service.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public async Task GetNewsArticleByIdAsync_Throws_WhenNullId()
         {
-            await _service.GetNewsArticleByIdAsync(null);
+            _service.GetNewsArticleById(null);
         }
 
         [TestMethod]
         public async Task GetNewsArticleByIdAsync_ReturnsArticle_WhenFound()
         {
-            // Arrange
-            var article = new NewsArticle (articleId: "a1", title: "Test", summary: "Summary", content: "Content", source: "Source", publishedDate: DateTime.Now, relatedStocks: new List<string>(), status: Status.Pending);
-            _mockRepo.Setup(r => r.GetNewsArticleById("a1")).Callback(() => article);
+            // Arrange  
+            var article = new NewsArticle(articleId: "a1", title: "Test", summary: "Summary", content: "Content", source: "Source", publishedDate: DateTime.Now, relatedStocks: new List<string>(), status: Status.Pending);
+            _mockRepo.As<INewsRepository>().Setup(r => r.GetNewsArticleById(It.IsAny<string>())).Returns(article);
 
-            // Act
-            var result = await _service.GetNewsArticleByIdAsync("a1");
+            // Act  
+            var result = _service.GetNewsArticleById("a1");
 
-            // Assert
-            Assert.AreEqual("Test", result.Title);
+            // Assert  
+            Assert.AreEqual(article.Title, result.Title);
+            Assert.AreEqual(article.ArticleId, result.ArticleId);
+            Assert.AreEqual(article.Content, result.Content);
         }
 
         [TestMethod]
@@ -50,14 +57,14 @@ namespace StockApp.Service.Tests
         {
             // Arrange
             string articleId = "a2";
-            _mockRepo.Setup(r => r.MarkArticleAsRead(articleId));
+            _mockRepo.As<INewsRepository>().Setup(r => r.MarkArticleAsRead(articleId));
 
             // Act
-            var result = await _service.MarkArticleAsReadAsync(articleId);
+            var result = _service.MarkArticleAsRead(articleId);
 
             // Assert
             Assert.IsTrue(result);
-            _mockRepo.Verify(r => r.MarkArticleAsRead(articleId), Times.Once);
+            _mockRepo.As<INewsRepository>().Verify(r => r.MarkArticleAsRead(articleId), Times.Once);
         }
 
         [TestMethod]
@@ -65,17 +72,20 @@ namespace StockApp.Service.Tests
         {
             // Arrange
             var articles = new List<NewsArticle>
-            {
-                new NewsArticle (articleId : "1", title : "First", summary : "Summary", content : "Content", source : "Source", publishedDate : DateTime.Now, relatedStocks : new List < string >(), status : Status.Pending),
-                new NewsArticle (articleId : "2", title : "Second", summary : "Summary", content : "Content", source : "Source", publishedDate : DateTime.Now, relatedStocks : new List < string >(), status : Status.Pending)
-            };
-            _mockRepo.Setup(r => r.GetAllNewsArticles()).Callback(() => articles);
+           {
+               new NewsArticle(articleId: "1", title: "First", summary: "Summary", content: "Content", source: "Source", publishedDate: DateTime.Now, relatedStocks: new List<string>(), status: Status.Pending),
+               new NewsArticle(articleId: "2", title: "Second", summary: "Summary", content: "Content", source: "Source", publishedDate: DateTime.Now, relatedStocks: new List<string>(), status: Status.Pending)
+           };
+
+            _mockRepo.As<INewsRepository>().Setup(r => r.GetAllNewsArticles()).Returns(articles);
+
             // Act
-            var result = await _service.GetNewsArticlesAsync();
+            var result = _service.GetNewsArticles();
 
             // Assert
             Assert.AreEqual(2, result.Count);
             Assert.AreEqual("First", result[0].Title);
+            Assert.AreEqual("Second", result[1].Title);
         }
     }
 }
