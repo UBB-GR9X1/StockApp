@@ -80,7 +80,11 @@ namespace StockApp.Pages
                 newUsername = this.viewModelUpdate.GetUsername() ?? throw new InvalidOperationException("Username cannot be null");
             }
 
-            if (!DescriptionEmpty)
+            if (DescriptionEmpty)
+            {
+                newDescription = string.Empty;
+            }
+            else if (string.IsNullOrWhiteSpace(newDescription))
             {
                 newDescription = this.viewModelUpdate.GetDescription() ?? string.Empty;
             }
@@ -88,10 +92,6 @@ namespace StockApp.Pages
             if (string.IsNullOrEmpty(newImage))
             {
                 newImage = this.viewModelUpdate.GetImage() ?? throw new InvalidOperationException("Image cannot be null");
-            }
-            else if (DescriptionEmpty)
-            {
-                newDescription = string.Empty;
             }
 
             this.viewModelUpdate.UpdateAll(newUsername, newImage, newDescription, newHidden);
