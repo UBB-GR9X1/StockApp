@@ -21,8 +21,8 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="ProfileService"/> class.
         /// </summary>
-        /// <param name="userRepo"></param>
-        /// <param name="profileRepo"></param>
+        /// <param name="userRepo">User repository instance.</param>
+        /// <param name="profileRepo">Profile repository instance.</param>
         public ProfileService(IUserRepository userRepo, IProfileRepository profileRepo)
         {
             this.userRepo = userRepo;
@@ -32,46 +32,46 @@
         /// <summary>
         /// Gets the image of the current user.
         /// </summary>
-        /// <returns></returns>
+        /// <returns> The image URL of the current user.</returns>
         public string GetImage() => this.profileRepo.CurrentUser().Image;
 
         /// <summary>
         /// Gets the username of the current user.
         /// </summary>
-        /// <returns></returns>
+        /// <returns> The username of the current user.</returns>
         public string GetUsername() => this.profileRepo.CurrentUser().Username;
 
         /// <summary>
         /// Gets the description of the current user.
         /// </summary>
-        /// <returns></returns>
+        /// <returns> The description of the current user.</returns>
         public string GetDescription() => this.profileRepo.CurrentUser().Description;
 
         /// <summary>
         /// Checks if the current user is hidden.
         /// </summary>
-        /// <returns></returns>
+        /// <returns> True if the user is hidden; otherwise, false.</returns>
         public bool IsHidden() => this.profileRepo.CurrentUser().IsHidden;
 
         /// <summary>
         /// Checks if the current user is an admin.
         /// </summary>
-        /// <returns></returns>
+        /// <returns> True if the user is an admin; otherwise, false.</returns>
         public bool IsAdmin() => this.profileRepo.CurrentUser().IsModerator;
 
         /// <summary>
         /// Gets the profile of a user by their CNP.
         /// </summary>
-        /// <returns></returns>
+        /// <returns> The profile of the user.</returns>
         public List<Stock> GetUserStocks() => this.profileRepo.UserStocks();
 
         /// <summary>
         /// Updates the current user's profile with new information.
         /// </summary>
-        /// <param name="newUsername"></param>
-        /// <param name="newImage"></param>
-        /// <param name="newDescription"></param>
-        /// <param name="newHidden"></param>
+        /// <param name="newUsername"> The new username.</param>
+        /// <param name="newImage"> The new image URL.</param>
+        /// <param name="newDescription"> The new description.</param>
+        /// <param name="newHidden"> Indicates if the user should be hidden.</param>
         public void UpdateUser(string newUsername, string newImage, string newDescription, bool newHidden)
         {
             this.profileRepo.UpdateMyUser(newUsername, newImage, newDescription, newHidden);
@@ -80,7 +80,7 @@
         /// <summary>
         /// Updates the admin status of the current user.
         /// </summary>
-        /// <param name="isAdmin"></param>
+        /// <param name="isAdmin"> Indicates if the user should be an admin.</param>
         public void UpdateIsAdmin(bool isAdmin)
         {
             this.profileRepo.UpdateRepoIsAdmin(isAdmin);
@@ -89,7 +89,7 @@
         /// <summary>
         /// Gets the CNP of the logged-in user.
         /// </summary>
-        /// <returns></returns>
+        /// <returns> The CNP of the logged-in user.</returns>
         public string GetLoggedInUserCnp() => this.profileRepo.CurrentUser().CNP;
     }
 }
