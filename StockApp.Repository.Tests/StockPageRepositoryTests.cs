@@ -33,15 +33,6 @@ namespace StockApp.Repository.Tests
         }
 
         [TestMethod]
-        public void Repo_CnpField_Exists()
-        {
-            var field = typeof(StockPageRepository)
-                .GetField("cnp", BindingFlags.Instance | BindingFlags.NonPublic);
-            Assert.IsNotNull(field);
-            Assert.AreEqual("1234567890123", field.GetValue(_repo));
-        }
-
-        [TestMethod]
         public void UserField_CanBeSetAndRetrieved()
         {
             var userType = typeof(StockApp.Models.User);

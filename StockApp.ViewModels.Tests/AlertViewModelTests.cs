@@ -55,10 +55,15 @@ namespace StockApp.ViewModels.Tests
         [TestMethod]
         public async Task CreateAlert_Success_AddsAlertAndShowsSuccess()
         {
-            var created = new Alert { AlertId = 99, Name = "X", UpperBound = 5, LowerBound = 1, StockName = "Tesla", ToggleOnOff = true };
+            var created = new Alert { AlertId = 99, Name = "New Alert", UpperBound = 100, LowerBound = 0, StockName = "Tesla", ToggleOnOff = true };
             _alertServiceMock
                 .Setup(s => s.CreateAlert("Tesla", "New Alert", 100m, 0m, true))
                 .Returns(created);
+
+            _vm.SelectedStockName = "Tesla";
+            _vm.NewAlertName = "New Alert";
+            _vm.NewAlertUpperBound = "100";
+            _vm.NewAlertLowerBound = "0";
 
             await _vm.CreateAlertCommand.ExecuteAsync(null);
 
@@ -77,6 +82,11 @@ namespace StockApp.ViewModels.Tests
                                           It.IsAny<decimal>(), It.IsAny<decimal>(),
                                           It.IsAny<bool>()))
                 .Throws(new InvalidOperationException("fail"));
+
+            _vm.NewAlertName = "Test Alert";
+            _vm.NewAlertUpperBound = "100";
+            _vm.NewAlertLowerBound = "50";
+            _vm.SelectedStockName = "Test Stock";
 
             await _vm.CreateAlertCommand.ExecuteAsync(null);
 
@@ -119,7 +129,7 @@ namespace StockApp.ViewModels.Tests
                               It.IsAny<bool>()),
                 Times.Never);
             _dialogServiceMock.Verify(d =>
-                d.ShowMessageAsync("Error", "Lower bound cannot be greater than upper bound."),
+                d.ShowMessageAsync("Error", "Lower bound must be less than upper bound."),
                 Times.Once);
         }
 

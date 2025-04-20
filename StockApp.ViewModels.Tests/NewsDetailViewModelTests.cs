@@ -35,8 +35,28 @@ namespace StockApp.ViewModels.Tests
         [TestMethod]
         public void LoadArticle_PreviewMode_UserFound_SetsState()
         {
-            var userArt = new UserArticle { Status = "Pending", RelatedStocks = ["AAPL"] };
-            var newsArt = new NewsArticle { RelatedStocks = ["AAPL"] };
+            var userArt = new UserArticle(
+                articleId: "123",
+                title: "User Article Title",
+                summary: "User Article Summary",
+                content: "User Article Content",
+                author: new User(username: "testUser"),
+                submissionDate: DateTime.Now,
+                status: "Pending",
+                topic: "Finance",
+                relatedStocks: new List<string> { "AAPL" }
+            );
+
+            var newsArt = new NewsArticle(
+                articleId: "preview:123",
+                title: "News Article Title",
+                summary: "News Article Summary",
+                content: "News Article Content",
+                source: "News Source",
+                publishedDate: DateTime.Now,
+                relatedStocks: new List<string> { "AAPL" },
+                status: Status.Pending
+            );
 
             _svcMock.Setup(s => s.GetUserArticleForPreview("123")).Returns(userArt);
             _svcMock.Setup(s => s.GetNewsArticleByIdAsync("preview:123"))
@@ -68,7 +88,17 @@ namespace StockApp.ViewModels.Tests
         [TestMethod]
         public void LoadArticle_RegularMode_Found_MarksRead()
         {
-            var newsArt = new NewsArticle { RelatedStocks = [] };
+            var newsArt = new NewsArticle(
+                "42",
+                "Article Title",
+                "Article Summary",
+                "Article Content",
+                "News Source",
+                DateTime.Now,
+                new List<string> { "AAPL" },
+                Status.Pending
+                );
+
             _svcMock.Setup(s => s.GetNewsArticleByIdAsync("42"))
                     .ReturnsAsync(newsArt);
             _svcMock.Setup(s => s.MarkArticleAsReadAsync("42"))

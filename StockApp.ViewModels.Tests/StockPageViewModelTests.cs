@@ -38,7 +38,7 @@ namespace StockApp.ViewModels.Tests
             _svc.Setup(s => s.ToggleFavorite(It.IsAny<bool>()));
             _svc.Setup(s => s.BuyStock(It.IsAny<int>())).Returns(true);
             _svc.Setup(s => s.SellStock(It.IsAny<int>())).Returns(false);
-            _svc.Setup(s => s.GetStockAuthor()).Returns(new User { Username = "u" });
+            _svc.Setup(s => s.GetStockAuthor()).ReturnsAsync(new User(cnp: "u", username: "u", isModerator: false));
 
             _vm = new StockPageViewModel(
                 _svc.Object,
@@ -84,7 +84,7 @@ namespace StockApp.ViewModels.Tests
         public void GetStockAuthor_Delegates()
         {
             var u = _vm.GetStockAuthor();
-            Assert.AreEqual("u", u.Username);
+            Assert.AreEqual("u", u.Result.Username);
         }
     }
 }

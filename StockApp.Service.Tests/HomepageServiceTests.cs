@@ -22,8 +22,8 @@ namespace StockApp.Service.Tests
 
             var testStocks = new List<HomepageStock>
             {
-                new HomepageStock { Name = "Alpha", Symbol = "ALP", Price = 100, Change = "+2%", IsFavorite = true },
-                new HomepageStock { Name = "Beta", Symbol = "BET", Price = 200, Change = "-1%", IsFavorite = false },
+                new HomepageStock { StockDetails = new Stock("Alpha", "ALP", "AuthorCNP", 100, 10), Change = "+2%", IsFavorite = true },
+                new HomepageStock { StockDetails = new Stock("Beta", "BET", "AuthorCNP", 200, 20), Change = "+5%", IsFavorite = false },
             };
 
             _repoMock.Setup(r => r.LoadStocks()).Returns(testStocks);
@@ -41,7 +41,7 @@ namespace StockApp.Service.Tests
 
             Assert.AreEqual(2, all.Count);
             Assert.AreEqual(1, favorites.Count);
-            Assert.AreEqual("Alpha", favorites[0].Name);
+            Assert.AreEqual("Alpha", favorites[0].StockDetails.Name);
         }
 
         [TestMethod]
@@ -50,7 +50,7 @@ namespace StockApp.Service.Tests
             _service.FilterStocks("AlP");
 
             Assert.AreEqual(1, _service.FilteredAllStocks.Count);
-            Assert.AreEqual("Alpha", _service.FilteredAllStocks[0].Name);
+            Assert.AreEqual("Alpha", _service.FilteredAllStocks[0].StockDetails.Name);
         }
 
         [TestMethod]
@@ -59,7 +59,7 @@ namespace StockApp.Service.Tests
             _service.FilterStocks(""); // setup
             _service.SortStocks("Sort by Name");
 
-            var first = _service.FilteredAllStocks.First().Name;
+            var first = _service.FilteredAllStocks.First().StockDetails.Name;
             Assert.AreEqual("Alpha", first);
         }
 

@@ -47,12 +47,17 @@ namespace StockApp.ViewModels.Tests
         {
             var sample = new List<UserArticle>
             {
-                new UserArticle {
-                    ArticleId      = "1",
-                    Author         = new User(),
-                    Topic          = "T",
-                    SubmissionDate = DateTime.Today
-                }
+                new UserArticle (
+                    "123",
+                    "User Article Title",
+                    "User Article Summary",
+                    "User Article Content",
+                    new User("testUser"),
+                    DateTime.Now,
+                    "Pending",
+                    "Finance",
+                    new List<string> { "AAPL" }
+                    )
             };
             _newsServiceMock
                 .Setup(s => s.GetUserArticlesAsync(null, null))

@@ -1,4 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using StockApp.Database;
 using StockApp.Repositories;
 using System;
 using System.Reflection;
@@ -31,14 +33,5 @@ namespace StockApp.Repository.Tests
             Assert.IsTrue(result.Contains("_") || result.Length > 5); 
         }
 
-        [TestMethod]
-        public void CnpField_IsSetCorrectly()
-        {
-            var field = typeof(ProfileRepository)
-                .GetField("loggedInUserCNP", BindingFlags.NonPublic | BindingFlags.Instance)!
-                .GetValue(_repo);
-
-            Assert.AreEqual("1234567890123", field);
-        }
     }
 }

@@ -19,8 +19,8 @@ namespace StockApp.ViewModels.Tests
 
         private readonly List<HomepageStock> _allStocks =
         [
-            new HomepageStock { Symbol = "AAPL", IsFavorite = false },
-            new HomepageStock { Symbol = "GOOG", IsFavorite = true  },
+            new HomepageStock { StockDetails = new Stock("AAPL", "AAPL", "AuthorCNP", 100, 10), IsFavorite = false },
+            new HomepageStock { StockDetails = new Stock("GOOG", "GOOG", "AuthorCNP", 100, 10), IsFavorite = true  },
         ];
 
         [TestInitialize]
@@ -116,7 +116,7 @@ namespace StockApp.ViewModels.Tests
         [TestMethod]
         public void ToggleFavorite_AddAndReload()
         {
-            var stock = new HomepageStock { Symbol = "XYZ", IsFavorite = false };
+            var stock = new HomepageStock { StockDetails = new Stock("XYZ", "XYZ", "AuthorCNP", 100, 10), IsFavorite = false };
             var all2 = new ObservableCollection<HomepageStock> { stock };
             var fav2 = new ObservableCollection<HomepageStock>();
 
@@ -132,7 +132,7 @@ namespace StockApp.ViewModels.Tests
         [TestMethod]
         public void ToggleFavorite_RemoveAndReload()
         {
-            var stock = new HomepageStock { Symbol = "XYZ", IsFavorite = true };
+            var stock = new HomepageStock { StockDetails = new Stock("XYZ", "XYZ", "AuthorCNP", 100, 10), IsFavorite = true };
             var all2 = new ObservableCollection<HomepageStock> { stock };
             var fav2 = new ObservableCollection<HomepageStock> { stock };
 

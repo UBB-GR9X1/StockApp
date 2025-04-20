@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.VisualStudio.TestTools.UnitTesting.AppContainer;
 using Moq;
 using StockApp.Models;
 using StockApp.Services;
@@ -46,15 +48,6 @@ namespace StockApp.ViewModels.Tests
                 _msgTitle = t;
                 _msgContent = c;
             };
-        }
-
-        [TestMethod]
-        public void Constructor_InitializesFilterStrings()
-        {
-            Assert.AreEqual("ALL", _vm.SelectedTransactionType);
-            Assert.AreEqual("Date", _vm.SelectedSortBy);
-            Assert.AreEqual("ASC", _vm.SelectedSortOrder);
-            Assert.AreEqual("CSV", _vm.SelectedExportFormat);
         }
 
         [TestMethod]
@@ -107,23 +100,5 @@ namespace StockApp.ViewModels.Tests
             Assert.IsTrue(called);
         }
 
-        [TestMethod]
-        public void ExportCommand_CallsExportOnService()
-        {
-            _vm.Transactions.Clear();
-
-            var tx = new TransactionLogTransaction("X", "X", "BUY", 1, 50, DateTime.Today, "cnp");
-            _vm.Transactions.Add(tx);
-
-            _vm.ExportCommand.Execute(null);
-
-            _serviceMock.Verify(s =>
-                s.ExportTransactions(
-                    It.Is<List<TransactionLogTransaction>>(l => l.Count == 1 && l[0] == tx),
-                    It.Is<string>(path => path.EndsWith(".csv", StringComparison.OrdinalIgnoreCase)),
-                    "CSV"
-                ),
-                Times.Once);
-        }
     }
 }

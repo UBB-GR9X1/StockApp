@@ -32,40 +32,55 @@ namespace StockApp.Repository.Tests
         [TestMethod]
         public void AddNewsArticle_AddsToInternalList()
         {
-            var article = new NewsArticle
-            {
-                ArticleId = "123",
-                Title = "Mock",
-                Summary = "Unit Test",
-                Content = "Test content",
-                Source = "Mock Source",
-                PublishedDate = DateTime.Parse("2025-01-01"),
-                IsRead = false,
-                IsWatchlistRelated = false,
-                Category = "Test",
-                RelatedStocks = ["AAPL"]
-            };
+            var article = new NewsArticle(
+                articleId: "A1",
+                title: "Mock",
+                summary: "Summary",
+                content: "Content",
+                source: "Source",
+                publishedDate: DateTime.Now,
+                relatedStocks: new List<string>(),
+                status: Status.Pending
+            );
 
-            // Manually add article to internal list (simulate successful DB write)
+            // Use the repository's AddNewsArticle method to add the article  
+            _repository.AddNewsArticle(article);
+
+            // Retrieve the internal list to verify the addition  
             var internalList = (List<NewsArticle>)typeof(NewsRepository)
                 .GetField("newsArticles", BindingFlags.NonPublic | BindingFlags.Instance)
                 .GetValue(_repository);
 
-            internalList.Add(article);
-
-            var result = _repository.GetAllNewsArticles();
-            Assert.AreEqual(1, result.Count);
-            Assert.AreEqual("Mock", result[0].Title);
+            Assert.AreEqual(1, internalList.Count);
+            Assert.AreEqual("Mock", internalList[0].Title);
         }
 
         [TestMethod]
         public void GetNewsArticlesByCategory_FiltersCorrectly()
         {
             var list = new List<NewsArticle>
-            {
-                new NewsArticle { ArticleId = "1", Title = "Finance", Category = "Finance" },
-                new NewsArticle { ArticleId = "2", Title = "Tech", Category = "Tech" }
-            };
+           {
+               new NewsArticle (
+                   articleId: "1",
+                   title: "Finance",
+                   summary: "Summary",
+                   content: "Content",
+                   source: "Source",
+                   publishedDate: DateTime.Now,
+                   relatedStocks: new List<string>(),
+                   status: Status.Pending
+               ) { Category = "Finance" },
+               new NewsArticle (
+                   articleId: "2",
+                   title: "Tech",
+                   summary: "Summary",
+                   content: "Content",
+                   source: "Source",
+                   publishedDate: DateTime.Now,
+                   relatedStocks: new List<string>(),
+                   status: Status.Pending
+               ) { Category = "Tech" }
+           };
 
             typeof(NewsRepository)
                 .GetField("newsArticles", BindingFlags.NonPublic | BindingFlags.Instance)
@@ -79,7 +94,16 @@ namespace StockApp.Repository.Tests
         [TestMethod]
         public void GetNewsArticleById_ReturnsCorrectArticle()
         {
-            var article = new NewsArticle { ArticleId = "A1", Title = "Read Me", RelatedStocks = ["TSLA"] };
+            var article = new NewsArticle (
+                articleId: "A1",
+                title: "Read Me",
+                summary: "Summary",
+                content: "Content",
+                source: "Source",
+                publishedDate: DateTime.Now,
+                relatedStocks: new List<string>(),
+                status: Status.Pending
+            );
 
             typeof(NewsRepository)
                 .GetField("newsArticles", BindingFlags.NonPublic | BindingFlags.Instance)

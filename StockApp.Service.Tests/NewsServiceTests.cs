@@ -12,14 +12,14 @@ namespace StockApp.Service.Tests
     [TestClass]
     public class NewsServiceTests
     {
-        private Mock<INewsRepository> _mockRepo;
+        private Mock<NewsRepository> _mockRepo;
         private Mock<IBaseStocksRepository> _mockStocks;
         private NewsService _service;
 
         [TestInitialize]
         public void Init()
         {
-            _mockRepo = new Mock<INewsRepository>();
+            _mockRepo = new Mock<NewsRepository>();
             _mockStocks = new Mock<IBaseStocksRepository>();
             _service = new NewsService(_mockRepo.Object, _mockStocks.Object);
         }
@@ -35,8 +35,8 @@ namespace StockApp.Service.Tests
         public async Task GetNewsArticleByIdAsync_ReturnsArticle_WhenFound()
         {
             // Arrange
-            var article = new NewsArticle { ArticleId = "a1", Title = "Test", Content = "..." };
-            _mockRepo.Setup(r => r.GetNewsArticleById("a1")).Returns(article);
+            var article = new NewsArticle (articleId: "a1", title: "Test", summary: "Summary", content: "Content", source: "Source", publishedDate: DateTime.Now, relatedStocks: new List<string>(), status: Status.Pending);
+            _mockRepo.Setup(r => r.GetNewsArticleById("a1")).Callback(() => article);
 
             // Act
             var result = await _service.GetNewsArticleByIdAsync("a1");
@@ -66,11 +66,10 @@ namespace StockApp.Service.Tests
             // Arrange
             var articles = new List<NewsArticle>
             {
-                new NewsArticle { ArticleId = "1", Title = "First" },
-                new NewsArticle { ArticleId = "2", Title = "Second" }
+                new NewsArticle (articleId : "1", title : "First", summary : "Summary", content : "Content", source : "Source", publishedDate : DateTime.Now, relatedStocks : new List < string >(), status : Status.Pending),
+                new NewsArticle (articleId : "2", title : "Second", summary : "Summary", content : "Content", source : "Source", publishedDate : DateTime.Now, relatedStocks : new List < string >(), status : Status.Pending)
             };
-            _mockRepo.Setup(r => r.GetAllNewsArticles()).Returns(articles);
-
+            _mockRepo.Setup(r => r.GetAllNewsArticles()).Callback(() => articles);
             // Act
             var result = await _service.GetNewsArticlesAsync();
 
