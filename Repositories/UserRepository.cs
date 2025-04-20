@@ -13,7 +13,7 @@
         /// <summary>
         /// Gets or sets the CNP (unique identifier) of the current user.
         /// </summary>
-        public string CurrentUserCNP { get; set; } = !string.IsNullOrWhiteSpace(cnp)
+        public string CurrentUserCnp { get; set; } = !string.IsNullOrWhiteSpace(cnp)
                 ? cnp
                 : App.Configuration["DefaultUserCNP"]
                     ?? throw new InvalidOperationException("DefaultUserCNP is not set in appsettings.json");
