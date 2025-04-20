@@ -6,7 +6,7 @@ namespace StockApp.Repositories
 {
     public interface IUserRepository
     {
-        string CurrentUserCnp { get; set; }
+        string CurrentUserCNP { get; set; }
 
         Task CreateUserAsync(User user);
 

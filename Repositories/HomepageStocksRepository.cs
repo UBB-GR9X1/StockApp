@@ -45,7 +45,7 @@ namespace StockApp.Repositories
         public HomepageStocksRepository()
         {
             var userRepository = new UserRepository();
-            this.userCnp = userRepository.CurrentUserCnp;
+            this.userCnp = userRepository.CurrentUserCNP;
         }
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace StockApp.Repositories
         /// <returns>The latest CNP string.</returns>
         public string GetUserCnp()
         {
-            return new UserRepository().CurrentUserCnp;
+            return new UserRepository().CurrentUserCNP;
         }
 
         /// <summary>
