@@ -23,7 +23,7 @@
                  new SqlParameter("@UserCnp", reportedUserCnp)
             };
             const string GetQuery = "SET NOCOUNT ON; SELECT COUNT(*) AS NumberOfTips FROM GivenTips WHERE UserCnp = @UserCnp;";
-            int countTips = dbConnection.ExecuteScalar<int>(GetQuery, tipsParameters, CommandType.Text);
+            int countTips = this.dbConnection.ExecuteScalar<int>(GetQuery, tipsParameters, CommandType.Text);
             return countTips;
         }
 
@@ -37,7 +37,7 @@
                 new SqlParameter("@ActivityDetails", "Chat abuse")
             };
             const string UpdateQuery = "DECLARE @count INT; SELECT @count = COUNT(*) FROM ActivityLog a WHERE a.UserCnp = @UserCnp and a.ActivityName = @ActivityName; IF @count = 0 BEGIN INSERT INTO ActivityLog (ActivityName, UserCnp, LastModifiedAmount, ActivityDetails) VALUES (@ActivityName, @UserCnp, @LastModifiedAmount, @ActivityDetails); END ELSE BEGIN UPDATE ActivityLog SET LastModifiedAmount = @LastModifiedAmount, ActivityDetails = @ActivityDetails WHERE UserCnp = @UserCnp AND ActivityName = @ActivityName; END;";
-            dbConnection.ExecuteNonQuery(UpdateQuery, activityParameters, CommandType.Text);
+            this.dbConnection.ExecuteNonQuery(UpdateQuery, activityParameters, CommandType.Text);
         }
 
         public List<ChatReport> GetChatReports()
@@ -48,7 +48,7 @@
                     SELECT Id, ReportedUserCnp, ReportedMessage 
                     FROM ChatReports";
 
-                DataTable? chatReportsDataTable = dbConnection.ExecuteReader(SelectQuery, null, CommandType.Text);
+                DataTable? chatReportsDataTable = this.dbConnection.ExecuteReader(SelectQuery, null, CommandType.Text);
 
                 if (chatReportsDataTable == null)
                 {
@@ -91,7 +91,7 @@
                     new SqlParameter("@Id", id)
                 };
 
-                int rowsAffected = dbConnection.ExecuteNonQuery(DeleteQuery, deleteParameters, CommandType.Text);
+                int rowsAffected = this.dbConnection.ExecuteNonQuery(DeleteQuery, deleteParameters, CommandType.Text);
 
                 if (rowsAffected == 0)
                 {
@@ -127,7 +127,7 @@
             new SqlParameter("@NewScore", SqlDbType.Int) { Value = newScore }
                 };
 
-                int rowsAffected = dbConnection.ExecuteNonQuery(UpdateScoreHistoryQuery, scoreHistoryParameters, CommandType.Text);
+                int rowsAffected = this.dbConnection.ExecuteNonQuery(UpdateScoreHistoryQuery, scoreHistoryParameters, CommandType.Text);
 
                 if (rowsAffected == 0)
                 {

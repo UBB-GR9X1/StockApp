@@ -27,39 +27,39 @@ namespace StockApp.Views.Components
         {
             ChatReport chatReport = new ChatReport
             {
-                Id = ReportId,
-                ReportedUserCnp = ReportedUserCNP,
-                ReportedMessage = ReportedMessage
+                Id = this.ReportId,
+                ReportedUserCnp = this.ReportedUserCNP,
+                ReportedMessage = this.ReportedMessage
             };
 
-            await chatReportService.PunishUser(chatReport);
-            ReportSolved?.Invoke(this, EventArgs.Empty);
+            await this.chatReportService.PunishUser(chatReport);
+            this.ReportSolved?.Invoke(this, EventArgs.Empty);
         }
 
         private void DoNotPunishReportedUser(object sender, RoutedEventArgs e)
         {
             ChatReport chatReport = new ChatReport
             {
-                Id = ReportId,
-                ReportedUserCnp = ReportedUserCNP,
-                ReportedMessage = ReportedMessage
+                Id = this.ReportId,
+                ReportedUserCnp = this.ReportedUserCNP,
+                ReportedMessage = this.ReportedMessage
             };
-            chatReportService.DoNotPunishUser(chatReport);
-            ReportSolved?.Invoke(this, EventArgs.Empty);
+            this.chatReportService.DoNotPunishUser(chatReport);
+            this.ReportSolved?.Invoke(this, EventArgs.Empty);
         }
 
         public async void SetReportData(int id, string reportedUserCnp, string reportedMessage)
         {
-            ReportId = id;
-            ReportedUserCNP = reportedUserCnp;
-            ReportedMessage = reportedMessage;
+            this.ReportId = id;
+            this.ReportedUserCNP = reportedUserCnp;
+            this.ReportedMessage = reportedMessage;
 
             bool apiSuggestion = await ProfanityChecker.IsMessageOffensive(reportedMessage);
 
-            IdTextBlock.Text = $"Report ID: {id}";
-            ReportedUserCNPTextBlock.Text = $"Reported user's CNP: {reportedUserCnp}";
-            ReportedMessageTextBlock.Text = $"Message: {reportedMessage}";
-            ApiSuggestionTextBlock.Text = apiSuggestion ? "The software marked this message as offensive" : "The software marked this message as inoffensive";
+            this.IdTextBlock.Text = $"Report ID: {id}";
+            this.ReportedUserCNPTextBlock.Text = $"Reported user's CNP: {reportedUserCnp}";
+            this.ReportedMessageTextBlock.Text = $"Message: {reportedMessage}";
+            this.ApiSuggestionTextBlock.Text = apiSuggestion ? "The software marked this message as offensive" : "The software marked this message as inoffensive";
         }
     }
 }

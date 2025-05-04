@@ -21,7 +21,7 @@
             try
             {
                 const string SelectBillSplitReportsQuery = "SELECT Id, ReportedUserCnp, ReportingUserCnp, DateOfTransaction, BillShare FROM BillSplitReports";
-                DataTable reportDataTable = dbConnection.ExecuteReader(SelectBillSplitReportsQuery, null, CommandType.Text);
+                DataTable reportDataTable = this.dbConnection.ExecuteReader(SelectBillSplitReportsQuery, null, CommandType.Text);
 
                 if (reportDataTable == null || reportDataTable.Rows.Count == 0)
                 {
@@ -62,7 +62,7 @@
                     new SqlParameter("@Id", id)
                 };
 
-                int rowsAffected = dbConnection.ExecuteNonQuery(DeleteQuery, deleteParameters, CommandType.Text);
+                int rowsAffected = this.dbConnection.ExecuteNonQuery(DeleteQuery, deleteParameters, CommandType.Text);
 
                 if (rowsAffected == 0)
                 {
@@ -93,7 +93,7 @@
                     new SqlParameter("@BillShare", billSplitReport.BillShare)
                 };
 
-                dbConnection.ExecuteNonQuery(InsertQuery, insertParameters, CommandType.Text);
+                this.dbConnection.ExecuteNonQuery(InsertQuery, insertParameters, CommandType.Text);
             }
             catch (Exception exception)
             {
@@ -123,7 +123,7 @@
                 new SqlParameter("@BillShare", billSplitReport.BillShare)
             };
 
-            int count = dbConnection.ExecuteScalar<int>(SelectQuery, selectParameters, CommandType.Text);
+            int count = this.dbConnection.ExecuteScalar<int>(SelectQuery, selectParameters, CommandType.Text);
             return count > 0;
         }
 
@@ -137,7 +137,7 @@
                     new SqlParameter("@ReportedUserCnp", billSplitReport.ReportedUserCnp)
                 };
 
-                return dbConnection.ExecuteScalar<int>(SelectQuery, selectParameter, CommandType.Text);
+                return this.dbConnection.ExecuteScalar<int>(SelectQuery, selectParameter, CommandType.Text);
             }
             catch (SqlException sqlException)
             {
@@ -170,7 +170,7 @@
                     new SqlParameter("@DateOfTransaction", billSplitReport.DateOfTransaction)
                 };
 
-                decimal result = dbConnection.ExecuteScalar<decimal>(SelectQuery, selectParameters, CommandType.Text);
+                decimal result = this.dbConnection.ExecuteScalar<decimal>(SelectQuery, selectParameters, CommandType.Text);
                 return result;
             }
             catch (SqlException sqlException)
@@ -198,7 +198,7 @@
                     new SqlParameter("@ReportedUserCnp", billSplitReport.ReportedUserCnp)
                 };
 
-                int count = dbConnection.ExecuteScalar<int>(SelectQuery, selectParameters, CommandType.Text);
+                int count = this.dbConnection.ExecuteScalar<int>(SelectQuery, selectParameters, CommandType.Text);
                 return count >= 3;
             }
             catch (SqlException sqlException)
@@ -234,7 +234,7 @@
                     new SqlParameter("@ReportingUserCnp", billSplitReport.ReportingUserCnp)
                 };
 
-                int count = dbConnection.ExecuteScalar<int>(SelectQuery, selectParameters, CommandType.Text);
+                int count = this.dbConnection.ExecuteScalar<int>(SelectQuery, selectParameters, CommandType.Text);
                 return count >= 5;
             }
             catch (SqlException sqlException)
@@ -262,7 +262,7 @@
                     new SqlParameter("@ReportedUserCnp", billSplitReport.ReportedUserCnp)
                 };
 
-                return dbConnection.ExecuteScalar<int>(SelectQuery, selectParameters, CommandType.Text);
+                return this.dbConnection.ExecuteScalar<int>(SelectQuery, selectParameters, CommandType.Text);
             }
             catch (SqlException sqlException)
             {
@@ -289,7 +289,7 @@
                     new SqlParameter("@ReportedUserCnp", billSplitReport.ReportedUserCnp)
                 };
 
-                return dbConnection.ExecuteScalar<int>(selectQuery, selectParameters, CommandType.Text);
+                return this.dbConnection.ExecuteScalar<int>(selectQuery, selectParameters, CommandType.Text);
             }
             catch (SqlException sqlException)
             {
@@ -317,7 +317,7 @@
                     new SqlParameter("@NewCreditScore", newCreditScore)
                 };
 
-                int rowsAffected = dbConnection.ExecuteNonQuery(updateQuery, updateParameters, CommandType.Text);
+                int rowsAffected = this.dbConnection.ExecuteNonQuery(updateQuery, updateParameters, CommandType.Text);
 
                 if (rowsAffected == 0)
                 {
@@ -362,7 +362,7 @@
                     new SqlParameter("@NewScore", newCreditScore)
                 };
 
-                int rowsAffected = dbConnection.ExecuteNonQuery(updateCreditScoreQuery, creditScoreParameters, CommandType.Text);
+                int rowsAffected = this.dbConnection.ExecuteNonQuery(updateCreditScoreQuery, creditScoreParameters, CommandType.Text);
 
                 if (rowsAffected == 0)
                 {
@@ -394,7 +394,7 @@
                     new SqlParameter("@UserCnp", billSplitReport.ReportedUserCnp)
                 };
 
-                int rowsAffected = dbConnection.ExecuteNonQuery(updateQuery, parameters, CommandType.Text);
+                int rowsAffected = this.dbConnection.ExecuteNonQuery(updateQuery, parameters, CommandType.Text);
 
                 if (rowsAffected == 0)
                 {

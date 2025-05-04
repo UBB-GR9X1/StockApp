@@ -80,14 +80,5 @@
             }
         }
 
-        /// <summary>
-        /// Handles the event when the user clicks the "Export" button.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public void GoBack(object sender, RoutedEventArgs e)
-        {
-            this.Frame.GoBack();
-        }
     }
 }

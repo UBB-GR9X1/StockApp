@@ -31,7 +31,7 @@
                     WHERE Type = 'Congrats-message' 
                     ORDER BY NEWID()";
 
-                DataTable messagesTable = dbConnection.ExecuteReader(SelectQuery, null, CommandType.Text);
+                DataTable messagesTable = this.dbConnection.ExecuteReader(SelectQuery, null, CommandType.Text);
 
                 if (messagesTable == null || messagesTable.Rows.Count == 0)
                 {
@@ -58,7 +58,7 @@
                     VALUES 
                         (@UserCnp, @MessageId, GETDATE())";
 
-                int rowsAffected = dbConnection.ExecuteNonQuery(InsertQuery, insertParameters, CommandType.Text);
+                int rowsAffected = this.dbConnection.ExecuteNonQuery(InsertQuery, insertParameters, CommandType.Text);
 
                 if (rowsAffected == 0)
                 {
@@ -86,7 +86,7 @@
                     WHERE Type = 'Roast-message' 
                     ORDER BY NEWID()";
 
-                DataTable messagesTable = dbConnection.ExecuteReader(SelectQuery, null, CommandType.Text);
+                DataTable messagesTable = this.dbConnection.ExecuteReader(SelectQuery, null, CommandType.Text);
 
                 if (messagesTable == null || messagesTable.Rows.Count == 0)
                 {
@@ -113,7 +113,7 @@
                     VALUES 
                         (@UserCnp, @MessageId, GETDATE())";
 
-                int rowsAffected = dbConnection.ExecuteNonQuery(InsertQuery, insertParameters, CommandType.Text);
+                int rowsAffected = this.dbConnection.ExecuteNonQuery(InsertQuery, insertParameters, CommandType.Text);
 
                 if (rowsAffected == 0)
                 {
@@ -133,7 +133,7 @@
                  new SqlParameter("@UserCNP", userCnp)
             };
             const string GetQuery = "SELECT m.ID, m.Type, m.Message FROM GivenTips gt INNER JOIN Messages m ON gt.MessageID = m.ID WHERE gt.UserCNP = @UserCNP;";
-            DataTable messagesRows = dbConnection.ExecuteReader(GetQuery, messageParameters, CommandType.Text);
+            DataTable messagesRows = this.dbConnection.ExecuteReader(GetQuery, messageParameters, CommandType.Text);
             List<Message> messages = new List<Message>();
 
             foreach (DataRow row in messagesRows.Rows)

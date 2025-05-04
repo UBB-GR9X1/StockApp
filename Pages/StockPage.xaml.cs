@@ -87,7 +87,7 @@ namespace StockApp.Pages
         /// <param name="e"></param>
         public void AlertsButtonClick(object sender, RoutedEventArgs e)
         {
-            NavigationService.Instance.Navigate(typeof(AlertsView), _viewModel.StockName);
+            NavigationService.Instance.Navigate(typeof(AlertsView), this._viewModel.StockName);
         }
 
         /// <summary>

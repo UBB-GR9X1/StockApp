@@ -24,41 +24,41 @@ namespace StockApp.Views.Components
         public LoanRequestComponent(ILoanRequestService loanRequestService, ILoanService loanService)
         {
             this.loanRequestService = loanRequestService;
-            loanServices = loanService;
+            this.loanServices = loanService;
             this.InitializeComponent();
         }
 
         private async void OnDenyClick(object sender, RoutedEventArgs e)
         {
-            LoanRequest loanRequest = new LoanRequest(RequestID, RequestingUserCNP, RequestedAmount, ApplicationDate, RepaymentDate, State);
-            loanRequestService.DenyLoanRequest(loanRequest);
-            LoanRequestSolved?.Invoke(this, EventArgs.Empty);
+            LoanRequest loanRequest = new LoanRequest(this.RequestID, this.RequestingUserCNP, this.RequestedAmount, this.ApplicationDate, this.RepaymentDate, this.State);
+            this.loanRequestService.DenyLoanRequest(loanRequest);
+            this.LoanRequestSolved?.Invoke(this, EventArgs.Empty);
         }
 
         private async void OnApproveClick(object sender, RoutedEventArgs e)
         {
-            LoanRequest loanRequest = new LoanRequest(RequestID, RequestingUserCNP, RequestedAmount, ApplicationDate, RepaymentDate, State);
-            loanServices.AddLoan(loanRequest);
-            loanRequestService.SolveLoanRequest(loanRequest);
-            LoanRequestSolved?.Invoke(this, EventArgs.Empty);
+            LoanRequest loanRequest = new LoanRequest(this.RequestID, this.RequestingUserCNP, this.RequestedAmount, this.ApplicationDate, this.RepaymentDate, this.State);
+            this.loanServices.AddLoan(loanRequest);
+            this.loanRequestService.SolveLoanRequest(loanRequest);
+            this.LoanRequestSolved?.Invoke(this, EventArgs.Empty);
         }
 
         public void SetRequestData(int id, string requestingUserCnp, float requestedAmount, DateTime applicationDate, DateTime repaymentDate, string state, string suggestion)
         {
-            RequestID = id;
-            RequestingUserCNP = requestingUserCnp;
-            RequestedAmount = requestedAmount;
-            ApplicationDate = applicationDate;
-            RepaymentDate = repaymentDate;
-            State = state;
-            Suggestion = suggestion;
+            this.RequestID = id;
+            this.RequestingUserCNP = requestingUserCnp;
+            this.RequestedAmount = requestedAmount;
+            this.ApplicationDate = applicationDate;
+            this.RepaymentDate = repaymentDate;
+            this.State = state;
+            this.Suggestion = suggestion;
 
-            IdTextBlock.Text = $"ID: {id}";
-            RequestingUserCNPTextBlock.Text = $"User CNP: {requestingUserCnp}";
-            RequestedAmountTextBlock.Text = $"Amount: {requestedAmount}";
-            ApplicationDateTextBlock.Text = $"Application Date: {applicationDate:yyyy-MM-dd}";
-            RepaymentDateTextBlock.Text = $"Repayment Date: {repaymentDate:yyyy-MM-dd}";
-            SuggestionTextBlock.Text = $"{suggestion}";
+            this.IdTextBlock.Text = $"ID: {id}";
+            this.RequestingUserCNPTextBlock.Text = $"User CNP: {requestingUserCnp}";
+            this.RequestedAmountTextBlock.Text = $"Amount: {requestedAmount}";
+            this.ApplicationDateTextBlock.Text = $"Application Date: {applicationDate:yyyy-MM-dd}";
+            this.RepaymentDateTextBlock.Text = $"Repayment Date: {repaymentDate:yyyy-MM-dd}";
+            this.SuggestionTextBlock.Text = $"{suggestion}";
         }
     }
 }

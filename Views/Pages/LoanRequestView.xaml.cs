@@ -1,4 +1,4 @@
-namespace Src.Views
+namespace StockApp.Views.Pages
 {
     using System;
     using System.Collections.Generic;
@@ -15,28 +15,28 @@ namespace Src.Views
         public LoanRequestView(ILoanRequestService loanRequestService, Func<LoanRequestComponent> componentFactory)
         {
             this.InitializeComponent();
-            service = loanRequestService;
+            this.service = loanRequestService;
             this.componentFactory = componentFactory;
-            LoadLoanRequests();
+            this.LoadLoanRequests();
         }
 
         private void LoadLoanRequests()
         {
-            LoanRequestContainer.Items.Clear();
+            this.LoanRequestContainer.Items.Clear();
 
             try
             {
-                List<LoanRequest> loanRequests = service.GetUnsolvedLoanRequests();
+                List<LoanRequest> loanRequests = this.service.GetUnsolvedLoanRequests();
 
                 if (loanRequests.Count == 0)
                 {
-                    LoanRequestContainer.Items.Add("There are no loan requests that need solving.");
+                    this.LoanRequestContainer.Items.Add("There are no loan requests that need solving.");
                     return;
                 }
 
                 foreach (var request in loanRequests)
                 {
-                    LoanRequestComponent requestComponent = componentFactory();
+                    LoanRequestComponent requestComponent = this.componentFactory();
                     requestComponent.SetRequestData(
                         request.Id,
                         request.UserCnp,
@@ -44,22 +44,22 @@ namespace Src.Views
                         request.ApplicationDate,
                         request.RepaymentDate,
                         request.Status,
-                        service.GiveSuggestion(request));
+                        this.service.GiveSuggestion(request));
 
-                    requestComponent.LoanRequestSolved += OnLoanRequestSolved;
+                    requestComponent.LoanRequestSolved += this.OnLoanRequestSolved;
 
-                    LoanRequestContainer.Items.Add(requestComponent);
+                    this.LoanRequestContainer.Items.Add(requestComponent);
                 }
             }
             catch (Exception ex)
             {
-                LoanRequestContainer.Items.Add($"Error loading loan requests: {ex.Message}");
+                this.LoanRequestContainer.Items.Add($"Error loading loan requests: {ex.Message}");
             }
         }
 
         private void OnLoanRequestSolved(object sender, EventArgs e)
         {
-            LoadLoanRequests();
+            this.LoadLoanRequests();
         }
     }
 }

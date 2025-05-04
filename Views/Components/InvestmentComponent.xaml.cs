@@ -20,21 +20,21 @@ namespace StockApp.Views.Components
 
         public void SetPortfolioSummary(InvestmentPortfolio userPortfolio)
         {
-            FirstName = userPortfolio.FirstName;
-            SecondName = userPortfolio.SecondName;
-            TotalInvested = userPortfolio.TotalAmountInvested;
-            TotalReturns = userPortfolio.TotalAmountReturned;
-            AverageROI = userPortfolio.AverageROI;
-            NumberOfInvestments = userPortfolio.NumberOfInvestments;
-            RiskFactor = userPortfolio.RiskFactor;
+            this.FirstName = userPortfolio.FirstName;
+            this.SecondName = userPortfolio.SecondName;
+            this.TotalInvested = userPortfolio.TotalAmountInvested;
+            this.TotalReturns = userPortfolio.TotalAmountReturned;
+            this.AverageROI = userPortfolio.AverageROI;
+            this.NumberOfInvestments = userPortfolio.NumberOfInvestments;
+            this.RiskFactor = userPortfolio.RiskFactor;
 
-            UserFirstNameTextBlock.Text = $"First Name: {FirstName}";
-            UserSecondNameTextBlock.Text = $"Second Name: {SecondName}";
-            TotalInvestedTextBlock.Text = $"Total Invested: {TotalInvested}";
-            TotalReturnsTextBlock.Text = $"Total Returns: {TotalReturns}";
-            AverageROITextBlock.Text = $"Average ROI: {AverageROI}";
-            NumberOfInvestmentsTextBlock.Text = $"Number of Investments: {NumberOfInvestments}";
-            RiskFactorTextBlock.Text = $"Risk Score: {RiskFactor}";
+            this.UserFirstNameTextBlock.Text = $"First Name: {this.FirstName}";
+            this.UserSecondNameTextBlock.Text = $"Second Name: {this.SecondName}";
+            this.TotalInvestedTextBlock.Text = $"Total Invested: {this.TotalInvested}";
+            this.TotalReturnsTextBlock.Text = $"Total Returns: {this.TotalReturns}";
+            this.AverageROITextBlock.Text = $"Average ROI: {this.AverageROI}";
+            this.NumberOfInvestmentsTextBlock.Text = $"Number of Investments: {this.NumberOfInvestments}";
+            this.RiskFactorTextBlock.Text = $"Risk Score: {this.RiskFactor}";
         }
     }
 }

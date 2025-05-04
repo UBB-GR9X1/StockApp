@@ -2,7 +2,6 @@ namespace StockApp.Pages
 {
     using Microsoft.UI.Xaml.Controls;
     using Microsoft.UI.Xaml.Input;
-    using StockApp.Services;
     using StockApp.ViewModels;
 
     public sealed partial class NewsListPage : Page
@@ -43,11 +42,6 @@ namespace StockApp.Pages
             {
                 this.ViewModel.RefreshCommand.Execute(null);
             }
-        }
-
-        private void BackButtonClick(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
-        {
-            NavigationService.Instance.GoBack();
         }
     }
 }

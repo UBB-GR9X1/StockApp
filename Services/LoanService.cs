@@ -19,12 +19,12 @@
 
         public List<Loan> GetLoans()
         {
-            return loanRepository.GetLoans();
+            return this.loanRepository.GetLoans();
         }
 
         public List<Loan> GetUserLoans(string userCNP)
         {
-            return loanRepository.GetUserLoans(userCNP);
+            return this.loanRepository.GetUserLoans(userCNP);
         }
 
         public void AddLoan(LoanRequest loanRequest)
@@ -60,12 +60,12 @@
                 penalty,
                 "active");
 
-            loanRepository.AddLoan(loan);
+            this.loanRepository.AddLoan(loan);
         }
 
         public void CheckLoans()
         {
-            List<Loan> loanList = loanRepository.GetLoans();
+            List<Loan> loanList = this.loanRepository.GetLoans();
             foreach (Loan loan in loanList)
             {
                 int numberOfMonthsPassed = (DateTime.Today.Year - loan.ApplicationDate.Year) * 12 + DateTime.Today.Month - loan.ApplicationDate.Month;
@@ -73,7 +73,7 @@
                 if (loan.MonthlyPaymentsCompleted >= loan.NumberOfMonths)
                 {
                     loan.Status = "completed";
-                    int newUserCreditScore = ComputeNewCreditScore(user, loan);
+                    int newUserCreditScore = this.ComputeNewCreditScore(user, loan);
 
                     new UserRepository(new DatabaseConnection()).UpdateUserCreditScore(loan.UserCnp, newUserCreditScore);
                 }
@@ -90,29 +90,29 @@
                 if (DateTime.Today > loan.RepaymentDate && loan.Status == "active")
                 {
                     loan.Status = "overdue";
-                    int newUserCreditScore = ComputeNewCreditScore(user, loan);
+                    int newUserCreditScore = this.ComputeNewCreditScore(user, loan);
 
                     new UserRepository(new DatabaseConnection()).UpdateUserCreditScore(loan.UserCnp, newUserCreditScore);
-                    UpdateHistoryForUser(loan.UserCnp, newUserCreditScore);
+                    this.UpdateHistoryForUser(loan.UserCnp, newUserCreditScore);
                 }
                 else if (loan.Status == "overdue")
                 {
                     if (loan.MonthlyPaymentsCompleted >= loan.NumberOfMonths)
                     {
                         loan.Status = "completed";
-                        int newUserCreditScore = ComputeNewCreditScore(user, loan);
+                        int newUserCreditScore = this.ComputeNewCreditScore(user, loan);
 
                         new UserRepository(new DatabaseConnection()).UpdateUserCreditScore(loan.UserCnp, newUserCreditScore);
-                        UpdateHistoryForUser(loan.UserCnp, newUserCreditScore);
+                        this.UpdateHistoryForUser(loan.UserCnp, newUserCreditScore);
                     }
                 }
                 if (loan.Status == "completed")
                 {
-                    loanRepository.DeleteLoan(loan.Id);
+                    this.loanRepository.DeleteLoan(loan.Id);
                 }
                 else
                 {
-                    loanRepository.UpdateLoan(loan);
+                    this.loanRepository.UpdateLoan(loan);
                 }
             }
         }
@@ -137,15 +137,15 @@
 
         public void UpdateHistoryForUser(string userCNP, int newScore)
         {
-            loanRepository.UpdateCreditScoreHistoryForUser(userCNP, newScore);
+            this.loanRepository.UpdateCreditScoreHistoryForUser(userCNP, newScore);
         }
 
         public void IncrementMonthlyPaymentsCompleted(int loanID, float penalty)
         {
-            Loan loan = loanRepository.GetLoanById(loanID);
+            Loan loan = this.loanRepository.GetLoanById(loanID);
             loan.MonthlyPaymentsCompleted++;
             loan.RepaidAmount += loan.MonthlyPaymentAmount + penalty;
-            loanRepository.UpdateLoan(loan);
+            this.loanRepository.UpdateLoan(loan);
         }
     }
 }

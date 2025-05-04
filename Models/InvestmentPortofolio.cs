@@ -12,13 +12,13 @@
 
         public InvestmentPortfolio(string firstName, string secondName, decimal totalAmountInvested, decimal totalAmountReturned, decimal averageROI, int numberOfInvestments, int riskFactor)
         {
-            FirstName = firstName;
-            SecondName = secondName;
-            TotalAmountInvested = totalAmountInvested;
-            TotalAmountReturned = totalAmountReturned;
-            AverageROI = averageROI;
-            NumberOfInvestments = numberOfInvestments;
-            RiskFactor = riskFactor;
+            this.FirstName = firstName;
+            this.SecondName = secondName;
+            this.TotalAmountInvested = totalAmountInvested;
+            this.TotalAmountReturned = totalAmountReturned;
+            this.AverageROI = averageROI;
+            this.NumberOfInvestments = numberOfInvestments;
+            this.RiskFactor = riskFactor;
         }
     }
 }

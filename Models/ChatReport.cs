@@ -10,9 +10,9 @@
 
         public ChatReport(int id = 0, string reportedUserCNP = "", string reportedMessage = "")
         {
-            Id = id;
-            ReportedUserCnp = reportedUserCNP;
-            ReportedMessage = reportedMessage;
+            this.Id = id;
+            this.ReportedUserCnp = reportedUserCNP;
+            this.ReportedMessage = reportedMessage;
         }
     }
 }

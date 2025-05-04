@@ -11,18 +11,18 @@
 
         public CreditScoreHistory(int id, string userCnp, DateOnly date, int creditScore)
         {
-            Id = id;
-            UserCnp = userCnp;
-            Date = date;
-            Score = creditScore;
+            this.Id = id;
+            this.UserCnp = userCnp;
+            this.Date = date;
+            this.Score = creditScore;
         }
 
         public CreditScoreHistory()
         {
-            Id = 0;
-            UserCnp = string.Empty;
-            Date = new DateOnly();
-            Score = 0;
+            this.Id = 0;
+            this.UserCnp = string.Empty;
+            this.Date = new DateOnly();
+            this.Score = 0;
         }
     }
 }

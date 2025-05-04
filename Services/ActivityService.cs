@@ -20,7 +20,7 @@
             {
                 throw new ArgumentException("user cannot be found");
             }
-            return activityRepository.GetActivityForUser(userCnp);
+            return this.activityRepository.GetActivityForUser(userCnp);
         }
     }
 }

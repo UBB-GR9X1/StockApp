@@ -14,9 +14,9 @@ namespace StockApp.Views.Components
 
         public void SetMessageData(Message givenMessage)
         {
-            Message = givenMessage;
-            MessageTypeTextBlock.Text = $"Type: {Message.Type}";
-            MessageTextBlock.Text = $"{Message.MessageText}";
+            this.Message = givenMessage;
+            this.MessageTypeTextBlock.Text = $"Type: {this.Message.Type}";
+            this.MessageTextBlock.Text = $"{this.Message.MessageText}";
         }
     }
 }

@@ -10,12 +10,11 @@ namespace StockApp
     using Microsoft.UI.Xaml;
     using Src.Data;
     using Src.Repos;
-    using Src.View;
-    using Src.Views;
     using StockApp.Database;
     using StockApp.Repositories;
     using StockApp.Services;
     using StockApp.Views.Components;
+    using StockApp.Views.Pages;
 
     /// <summary>
     /// Provides application-specific behavior to supplement the default Application class.

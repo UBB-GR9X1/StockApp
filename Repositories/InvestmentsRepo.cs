@@ -21,7 +21,7 @@
             try
             {
                 const string SelectQuery = "SELECT Id, InvestorCnp, Details, AmountInvested, AmountReturned, InvestmentDate FROM Investments";
-                DataTable investmentsDataTable = dbConnection.ExecuteReader(SelectQuery, null, CommandType.Text);
+                DataTable investmentsDataTable = this.dbConnection.ExecuteReader(SelectQuery, null, CommandType.Text);
 
                 if (investmentsDataTable == null || investmentsDataTable.Rows.Count == 0)
                 {
@@ -74,7 +74,7 @@
                               VALUES 
                               (@InvestorCnp, @Details, @AmountInvested, @AmountReturned, @InvestmentDate)";
 
-                int rowsAffected = dbConnection.ExecuteNonQuery(InsertInvestmentQuery, parameters, CommandType.Text);
+                int rowsAffected = this.dbConnection.ExecuteNonQuery(InsertInvestmentQuery, parameters, CommandType.Text);
 
                 if (rowsAffected == 0)
                 {
@@ -109,7 +109,7 @@
                 };
 
                 const string SelectQuery = "SELECT Id, InvestorCnp, AmountReturned FROM Investments WHERE Id = @InvestmentId AND InvestorCnp = @InvestorCnp";
-                DataTable dataTable = dbConnection.ExecuteReader(SelectQuery, parameters, CommandType.Text);
+                DataTable dataTable = this.dbConnection.ExecuteReader(SelectQuery, parameters, CommandType.Text);
 
                 if (dataTable == null || dataTable.Rows.Count == 0)
                 {
@@ -129,7 +129,7 @@
                 }
 
                 const string UpdateQuery = "UPDATE Investments SET AmountReturned = @AmountReturned WHERE Id = @InvestmentId AND AmountReturned = -1";
-                int rowsAffected = dbConnection.ExecuteNonQuery(UpdateQuery, parameters, CommandType.Text);
+                int rowsAffected = this.dbConnection.ExecuteNonQuery(UpdateQuery, parameters, CommandType.Text);
 
                 if (rowsAffected == 0)
                 {

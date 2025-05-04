@@ -36,7 +36,7 @@
                     new SqlParameter("@UserCnp", userCnp)
                 };
 
-                DataTable? creditScoreDataTable = dbConnection.ExecuteReader(SelectQuery, selectParameters, CommandType.Text);
+                DataTable? creditScoreDataTable = this.dbConnection.ExecuteReader(SelectQuery, selectParameters, CommandType.Text);
 
                 if (creditScoreDataTable == null)
                 {

@@ -1,7 +1,5 @@
 namespace StockApp.Pages
 {
-    using System;
-    using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
     using StockApp.ViewModels;
 
@@ -16,16 +14,5 @@ namespace StockApp.Pages
             this.DataContext = new CreateStockViewModel();
         }
 
-        private void GoBackClick(object sender, RoutedEventArgs e)
-        {
-            if (this.Frame.CanGoBack)
-            {
-                this.Frame.GoBack();
-            }
-            else
-            {
-                throw new InvalidOperationException("No page to navigate back to.");
-            }
-        }
     }
 }

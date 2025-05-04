@@ -11,11 +11,11 @@
 
         public DatabaseConnection()
         {
-            connectionString = "Server=MINNIE;Database=GitPushForce;Trusted_Connection=True;TrustServerCertificate=True;";
+            this.connectionString = "Server=MINNIE;Database=GitPushForce;Trusted_Connection=True;TrustServerCertificate=True;";
 
             try
             {
-                sqlConnection = new SqlConnection(connectionString);
+                this.sqlConnection = new SqlConnection(this.connectionString);
             }
             catch (Exception exception)
             {
@@ -25,17 +25,17 @@
 
         public void OpenConnection()
         {
-            if (sqlConnection.State != ConnectionState.Open)
+            if (this.sqlConnection.State != ConnectionState.Open)
             {
-                sqlConnection.Open();
+                this.sqlConnection.Open();
             }
         }
 
         public void CloseConnection()
         {
-            if (sqlConnection.State != ConnectionState.Closed)
+            if (this.sqlConnection.State != ConnectionState.Closed)
             {
-                sqlConnection.Close();
+                this.sqlConnection.Close();
             }
         }
         // TODO
@@ -43,8 +43,8 @@
         {
             try
             {
-                OpenConnection();
-                using (SqlCommand command = new SqlCommand(query, sqlConnection))
+                this.OpenConnection();
+                using (SqlCommand command = new SqlCommand(query, this.sqlConnection))
                 {
                     command.CommandType = commandType;
 
@@ -68,7 +68,7 @@
             }
             finally
             {
-                CloseConnection();
+                this.CloseConnection();
             }
         }
 
@@ -76,8 +76,8 @@
         {
             try
             {
-                OpenConnection();
-                using (SqlCommand command = new SqlCommand(query, sqlConnection))
+                this.OpenConnection();
+                using (SqlCommand command = new SqlCommand(query, this.sqlConnection))
                 {
                     command.CommandType = commandType;
 
@@ -100,7 +100,7 @@
             }
             finally
             {
-                CloseConnection();
+                this.CloseConnection();
             }
         }
 
@@ -108,8 +108,8 @@
         {
             try
             {
-                OpenConnection();
-                using (SqlCommand sqlCommand = new SqlCommand(query, sqlConnection))
+                this.OpenConnection();
+                using (SqlCommand sqlCommand = new SqlCommand(query, this.sqlConnection))
                 {
                     sqlCommand.CommandType = commandType;
 
@@ -127,7 +127,7 @@
             }
             finally
             {
-                CloseConnection();
+                this.CloseConnection();
             }
         }
     }

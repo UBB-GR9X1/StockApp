@@ -19,11 +19,11 @@
             {
                 throw new ArgumentException("CNP cannot be empty");
             }
-            return userRepository.GetUserByCnp(cnp);
+            return this.userRepository.GetUserByCnp(cnp);
         }
         public List<User> GetUsers()
         {
-            return userRepository.GetUsers();
+            return this.userRepository.GetUsers();
         }
     }
 }

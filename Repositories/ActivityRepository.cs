@@ -28,7 +28,7 @@
 
             try
             {
-                User? existingUser = userRepository.GetUserByCnp(userCnp);
+                User? existingUser = this.userRepository.GetUserByCnp(userCnp);
                 if (existingUser == null)
                 {
                     throw new ArgumentException("User not found");
@@ -57,7 +57,7 @@
 
             try
             {
-                int rowsAffected = dbConnection.ExecuteNonQuery(InsertQuery, activityParameters, CommandType.Text);
+                int rowsAffected = this.dbConnection.ExecuteNonQuery(InsertQuery, activityParameters, CommandType.Text);
                 if (rowsAffected == 0)
                 {
                     throw new Exception("No rows were inserted");
@@ -88,7 +88,7 @@
 
             try
             {
-                DataTable? userActivityTable = dbConnection.ExecuteReader(SelectQuery, selectQueryParameter, CommandType.Text);
+                DataTable? userActivityTable = this.dbConnection.ExecuteReader(SelectQuery, selectQueryParameter, CommandType.Text);
 
                 if (userActivityTable == null || userActivityTable.Rows.Count == 0)
                 {

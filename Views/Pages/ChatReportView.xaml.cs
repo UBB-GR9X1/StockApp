@@ -1,4 +1,4 @@
-namespace Src.Views
+namespace StockApp.Views.Pages
 {
     using System;
     using System.Collections.Generic;
@@ -17,35 +17,35 @@ namespace Src.Views
             this.componentFactory = componentFactory;
             this.chatReportService = chatReportService;
             this.InitializeComponent();
-            LoadChatReports();
+            this.LoadChatReports();
         }
 
         private void LoadChatReports()
         {
-            ChatReportsContainer.Items.Clear();
+            this.ChatReportsContainer.Items.Clear();
 
             try
             {
-                List<ChatReport> chatReports = chatReportService.GetChatReports();
+                List<ChatReport> chatReports = this.chatReportService.GetChatReports();
                 foreach (var report in chatReports)
                 {
-                    ChatReportComponent reportComponent = componentFactory();
+                    ChatReportComponent reportComponent = this.componentFactory();
                     reportComponent.SetReportData(report.Id, report.ReportedUserCnp, report.ReportedMessage);
 
-                    reportComponent.ReportSolved += OnReportSolved;
+                    reportComponent.ReportSolved += this.OnReportSolved;
 
-                    ChatReportsContainer.Items.Add(reportComponent);
+                    this.ChatReportsContainer.Items.Add(reportComponent);
                 }
             }
             catch (Exception)
             {
-                ChatReportsContainer.Items.Add("There are no chat reports that need solving.");
+                this.ChatReportsContainer.Items.Add("There are no chat reports that need solving.");
             }
         }
 
         private void OnReportSolved(object sender, EventArgs e)
         {
-            LoadChatReports();
+            this.LoadChatReports();
         }
     }
 }

@@ -46,24 +46,24 @@ namespace StockApp.Views.Components
             this.repaidAmount = repaidAmount;
             this.penalty = penalty;
 
-            LoanIDTextBlock.Text = $"Loan ID: {loanID}";
-            UserCNPTextBlock.Text = $"User CNP: {userCNP}";
-            LoanAmountTextBlock.Text = $"Amount: {loanAmount}";
-            ApplicationDateTextBlock.Text = $"Applied: {applicationDate:yyyy-MM-dd}";
-            RepaymentDateTextBlock.Text = $"Repay By: {repaymentDate:yyyy-MM-dd}";
-            InterestRateTextBlock.Text = $"Interest: {interestRate}%";
-            NoMonthsTextBlock.Text = $"Duration: {noMonths} months";
-            MonthlyPaymentAmountTextBlock.Text = $"Monthly Payment: {monthlyPaymentAmount}";
-            StateTextBlock.Text = $"State: {state}";
-            MonthlyPaymentsCompletedTextBlock.Text = $"Payments Done: {monthlyPaymentsCompleted}";
-            RepaidAmountTextBlock.Text = $"Repaid: {repaidAmount}";
-            PenaltyTextBlock.Text = $"Penalty: {penalty}";
+            this.LoanIDTextBlock.Text = $"Loan ID: {loanID}";
+            this.UserCNPTextBlock.Text = $"User CNP: {userCNP}";
+            this.LoanAmountTextBlock.Text = $"Amount: {loanAmount}";
+            this.ApplicationDateTextBlock.Text = $"Applied: {applicationDate:yyyy-MM-dd}";
+            this.RepaymentDateTextBlock.Text = $"Repay By: {repaymentDate:yyyy-MM-dd}";
+            this.InterestRateTextBlock.Text = $"Interest: {interestRate}%";
+            this.NoMonthsTextBlock.Text = $"Duration: {noMonths} months";
+            this.MonthlyPaymentAmountTextBlock.Text = $"Monthly Payment: {monthlyPaymentAmount}";
+            this.StateTextBlock.Text = $"State: {state}";
+            this.MonthlyPaymentsCompletedTextBlock.Text = $"Payments Done: {monthlyPaymentsCompleted}";
+            this.RepaidAmountTextBlock.Text = $"Repaid: {repaidAmount}";
+            this.PenaltyTextBlock.Text = $"Penalty: {penalty}";
         }
 
         private async void OnSolveClick(object sender, RoutedEventArgs e)
         {
-            loanServices.IncrementMonthlyPaymentsCompleted(loanID, penalty);
-            LoanUpdated?.Invoke(this, EventArgs.Empty);
+            this.loanServices.IncrementMonthlyPaymentsCompleted(this.loanID, this.penalty);
+            this.LoanUpdated?.Invoke(this, EventArgs.Empty);
         }
     }
 }

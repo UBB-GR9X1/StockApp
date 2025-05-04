@@ -21,13 +21,13 @@
             try
             {
                 const string SelectQuery = "SELECT * FROM Loans";
-                DataTable dataTable = dbConnection.ExecuteReader(SelectQuery, null, CommandType.Text);
+                DataTable dataTable = this.dbConnection.ExecuteReader(SelectQuery, null, CommandType.Text);
 
                 List<Loan> loans = new List<Loan>();
 
                 foreach (DataRow row in dataTable.Rows)
                 {
-                    loans.Add(CreateLoanFromDataRow(row));
+                    loans.Add(this.CreateLoanFromDataRow(row));
                 }
 
                 return loans;
@@ -54,7 +54,7 @@
                     FROM Loans 
                     WHERE UserCnp = @UserCnp";
 
-                DataTable dataTable = dbConnection.ExecuteReader(SelectQuery, parameters, CommandType.Text);
+                DataTable dataTable = this.dbConnection.ExecuteReader(SelectQuery, parameters, CommandType.Text);
 
                 if (dataTable == null || dataTable.Rows.Count == 0)
                 {
@@ -65,7 +65,7 @@
 
                 foreach (DataRow row in dataTable.Rows)
                 {
-                    loans.Add(CreateLoanFromDataRow(row));
+                    loans.Add(this.CreateLoanFromDataRow(row));
                 }
 
                 return loans;
@@ -111,7 +111,7 @@
                          @InterestRate, @NumberOfMonths, @Status, @MonthlyPaymentAmount, 
                          @MonthlyPaymentsCompleted, @RepaidAmount, @Penalty)";
 
-                int rowsAffected = dbConnection.ExecuteNonQuery(InsertQuery, parameters, CommandType.Text);
+                int rowsAffected = this.dbConnection.ExecuteNonQuery(InsertQuery, parameters, CommandType.Text);
 
                 if (rowsAffected == 0)
                 {
@@ -164,7 +164,7 @@
                         Penalty = @Penalty 
                     WHERE LoanRequestId = @LoanRequestId";
 
-                int rowsAffected = dbConnection.ExecuteNonQuery(UpdateQuery, parameters, CommandType.Text);
+                int rowsAffected = this.dbConnection.ExecuteNonQuery(UpdateQuery, parameters, CommandType.Text);
 
                 if (rowsAffected == 0)
                 {
@@ -192,7 +192,7 @@
                 };
 
                 const string DeleteQuery = "DELETE FROM Loans WHERE LoanRequestId = @LoanRequestId";
-                int rowsAffected = dbConnection.ExecuteNonQuery(DeleteQuery, parameters, CommandType.Text);
+                int rowsAffected = this.dbConnection.ExecuteNonQuery(DeleteQuery, parameters, CommandType.Text);
 
                 if (rowsAffected == 0)
                 {
@@ -220,14 +220,14 @@
                 };
 
                 const string SelectQuery = "SELECT * FROM Loans WHERE LoanRequestId = @LoanRequestId";
-                DataTable dataTable = dbConnection.ExecuteReader(SelectQuery, parameters, CommandType.Text);
+                DataTable dataTable = this.dbConnection.ExecuteReader(SelectQuery, parameters, CommandType.Text);
 
                 if (dataTable == null || dataTable.Rows.Count == 0)
                 {
                     throw new Exception($"Loan with ID {loanId} not found");
                 }
 
-                return CreateLoanFromDataRow(dataTable.Rows[0]);
+                return this.CreateLoanFromDataRow(dataTable.Rows[0]);
             }
             catch (Exception exception)
             {
@@ -263,7 +263,7 @@
                         VALUES (@UserCnp, CAST(GETDATE() AS DATE), @NewScore);
                     END";
 
-                int rowsAffected = dbConnection.ExecuteNonQuery(updateOrInsertQuery, parameters, CommandType.Text);
+                int rowsAffected = this.dbConnection.ExecuteNonQuery(updateOrInsertQuery, parameters, CommandType.Text);
 
                 if (rowsAffected == 0)
                 {

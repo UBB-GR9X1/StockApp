@@ -25,7 +25,7 @@
 
             try
             {
-                history = historyRepository.GetHistoryForUser(userCNP);
+                history = this.historyRepository.GetHistoryForUser(userCNP);
             }
             catch (ArgumentException ex)
             {
@@ -45,7 +45,7 @@
 
             try
             {
-                history = historyRepository.GetHistoryForUser(userCNP);
+                history = this.historyRepository.GetHistoryForUser(userCNP);
             }
             catch (ArgumentException ex)
             {
@@ -74,7 +74,7 @@
 
             try
             {
-                history = historyRepository.GetHistoryForUser(userCNP);
+                history = this.historyRepository.GetHistoryForUser(userCNP);
             }
             catch (ArgumentException ex)
             {
@@ -103,7 +103,7 @@
 
             try
             {
-                history = historyRepository.GetHistoryForUser(userCNP);
+                history = this.historyRepository.GetHistoryForUser(userCNP);
             }
             catch (ArgumentException ex)
             {

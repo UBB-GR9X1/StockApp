@@ -13,7 +13,7 @@
 
         public LoanRequestRepository(DatabaseConnection databaseConnection)
         {
-            dbConnection = databaseConnection;
+            this.dbConnection = databaseConnection;
         }
 
         public List<LoanRequest> GetLoanRequests()
@@ -21,7 +21,7 @@
             try
             {
                 const string SelectQuery = "SELECT Id, UserCnp, Amount, ApplicationDate, RepaymentDate, Status FROM LoanRequest";
-                DataTable dataTable = dbConnection.ExecuteReader(SelectQuery, null, CommandType.Text);
+                DataTable dataTable = this.dbConnection.ExecuteReader(SelectQuery, null, CommandType.Text);
 
                 if (dataTable == null || dataTable.Rows.Count == 0)
                 {
@@ -58,7 +58,7 @@
                     FROM LoanRequest 
                     WHERE Status <> 'Solved' OR Status IS NULL";
 
-                DataTable dataTable = dbConnection.ExecuteReader(SelectQuery, null, CommandType.Text);
+                DataTable dataTable = this.dbConnection.ExecuteReader(SelectQuery, null, CommandType.Text);
 
                 if (dataTable == null || dataTable.Rows.Count == 0)
                 {
@@ -101,7 +101,7 @@
                 };
 
                 const string UpdateQuery = "UPDATE LoanRequest SET Status = 'Solved' WHERE Id = @LoanRequestId";
-                int rowsAffected = dbConnection.ExecuteNonQuery(UpdateQuery, parameters, CommandType.Text);
+                int rowsAffected = this.dbConnection.ExecuteNonQuery(UpdateQuery, parameters, CommandType.Text);
 
                 if (rowsAffected == 0)
                 {
@@ -129,7 +129,7 @@
                 };
 
                 const string DeleteQuery = "DELETE FROM LoanRequest WHERE Id = @LoanRequestId";
-                int rowsAffected = dbConnection.ExecuteNonQuery(DeleteQuery, parameters, CommandType.Text);
+                int rowsAffected = this.dbConnection.ExecuteNonQuery(DeleteQuery, parameters, CommandType.Text);
 
                 if (rowsAffected == 0)
                 {

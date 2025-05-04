@@ -14,17 +14,17 @@ namespace StockApp.ViewModels
 
         public BillSplitReportViewModel()
         {
-            BillSplitReports = new ObservableCollection<BillSplitReport>(billSplitReportService.GetBillSplitReports());
+            this.BillSplitReports = new ObservableCollection<BillSplitReport>(this.billSplitReportService.GetBillSplitReports());
         }
 
         public async Task LoadBillSplitReports()
         {
             try
             {
-                var reports = billSplitReportService.GetBillSplitReports();
+                var reports = this.billSplitReportService.GetBillSplitReports();
                 foreach (var report in reports)
                 {
-                    BillSplitReports.Add(report);
+                    this.BillSplitReports.Add(report);
                 }
             }
             catch (Exception exception)

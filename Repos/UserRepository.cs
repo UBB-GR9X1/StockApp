@@ -28,7 +28,7 @@
                 throw new ArgumentException("First and last names cannot be empty");
             }
 
-            User existingUser = GetUserByCnp(user.CNP);
+            User existingUser = this.GetUserByCnp(user.CNP);
             if (existingUser != null)
             {
                 return existingUser.Id;
@@ -71,7 +71,7 @@
 
             try
             {
-                int? result = dbConnection.ExecuteScalar<int>(InsertQuery, parameters, CommandType.Text);
+                int? result = this.dbConnection.ExecuteScalar<int>(InsertQuery, parameters, CommandType.Text);
                 return result ?? 0;
             }
             catch (SqlException exception)
@@ -102,7 +102,7 @@
                     FROM Users 
                     WHERE CNP = @CNP";
 
-                DataTable dataTable = dbConnection.ExecuteReader(SelectQuery, parameters, CommandType.Text);
+                DataTable dataTable = this.dbConnection.ExecuteReader(SelectQuery, parameters, CommandType.Text);
 
                 if (dataTable == null || dataTable.Rows.Count == 0)
                 {
@@ -110,7 +110,7 @@
                 }
 
                 DataRow row = dataTable.Rows[0];
-                return CreateUserFromDataRow(row);
+                return this.CreateUserFromDataRow(row);
             }
             catch (SqlException exception)
             {
@@ -138,7 +138,7 @@
 
             try
             {
-                int rowsAffected = dbConnection.ExecuteNonQuery(UpdateQuery, parameters, CommandType.Text);
+                int rowsAffected = this.dbConnection.ExecuteNonQuery(UpdateQuery, parameters, CommandType.Text);
                 if (rowsAffected == 0)
                 {
                     throw new Exception($"No user found with CNP: {cnp}");
@@ -169,7 +169,7 @@
 
             try
             {
-                int rowsAffected = dbConnection.ExecuteNonQuery(updateQuery, parameters, CommandType.Text);
+                int rowsAffected = this.dbConnection.ExecuteNonQuery(updateQuery, parameters, CommandType.Text);
                 if (rowsAffected == 0)
                 {
                     throw new Exception($"No user found with CNP: {cnp}");
@@ -201,7 +201,7 @@
 
             try
             {
-                int rowsAffected = dbConnection.ExecuteNonQuery(UpdateQuery, parameters, CommandType.Text);
+                int rowsAffected = this.dbConnection.ExecuteNonQuery(UpdateQuery, parameters, CommandType.Text);
                 if (rowsAffected == 0)
                 {
                     throw new Exception($"No user found with CNP: {cnp}");
@@ -233,7 +233,7 @@
 
             try
             {
-                int rowsAffected = dbConnection.ExecuteNonQuery(UpdateQuery, parameters, CommandType.Text);
+                int rowsAffected = this.dbConnection.ExecuteNonQuery(UpdateQuery, parameters, CommandType.Text);
                 if (rowsAffected == 0)
                 {
                     throw new Exception($"No user found with CNP: {cnp}");
@@ -265,7 +265,7 @@
 
             try
             {
-                int rowsAffected = dbConnection.ExecuteNonQuery(UpdateQuery, parameters, CommandType.Text);
+                int rowsAffected = this.dbConnection.ExecuteNonQuery(UpdateQuery, parameters, CommandType.Text);
                 if (rowsAffected == 0)
                 {
                     throw new Exception($"No user found with CNP: {cnp}");
@@ -288,7 +288,7 @@
                            NumberOfBillSharesPaid, Income, Balance 
                     FROM Users";
 
-                DataTable dataTable = dbConnection.ExecuteReader(SelectQuery, null, CommandType.Text);
+                DataTable dataTable = this.dbConnection.ExecuteReader(SelectQuery, null, CommandType.Text);
 
                 if (dataTable == null || dataTable.Rows.Count == 0)
                 {
@@ -298,7 +298,7 @@
                 List<User> users = new List<User>();
                 foreach (DataRow row in dataTable.Rows)
                 {
-                    users.Add(CreateUserFromDataRow(row));
+                    users.Add(this.CreateUserFromDataRow(row));
                 }
 
                 return users;

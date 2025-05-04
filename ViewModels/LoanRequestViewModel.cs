@@ -16,18 +16,18 @@ namespace StockApp.ViewModels
 
         public LoanRequestViewModel()
         {
-            loanRequestService = new LoanRequestService(new LoanRequestRepository(new DatabaseConnection()));
-            LoanRequests = new ObservableCollection<LoanRequest>();
+            this.loanRequestService = new LoanRequestService(new LoanRequestRepository(new DatabaseConnection()));
+            this.LoanRequests = new ObservableCollection<LoanRequest>();
         }
 
         public async Task LoadLoanRequests()
         {
             try
             {
-                var requests = loanRequestService.GetLoanRequests();
+                var requests = this.loanRequestService.GetLoanRequests();
                 foreach (var request in requests)
                 {
-                    LoanRequests.Add(request);
+                    this.LoanRequests.Add(request);
                 }
             }
             catch (Exception exception)

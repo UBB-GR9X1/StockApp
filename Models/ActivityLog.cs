@@ -10,20 +10,20 @@
 
         public ActivityLog(int id, string userCNP, string name, int amount, string details)
         {
-            Id = id;
-            UserCnp = userCNP;
-            ActivityName = name;
-            LastModifiedAmount = amount;
-            ActivityDetails = details;
+            this.Id = id;
+            this.UserCnp = userCNP;
+            this.ActivityName = name;
+            this.LastModifiedAmount = amount;
+            this.ActivityDetails = details;
         }
 
         public ActivityLog()
         {
-            Id = 0;
-            UserCnp = string.Empty;
-            ActivityName = string.Empty;
-            LastModifiedAmount = 0;
-            ActivityDetails = string.Empty;
+            this.Id = 0;
+            this.UserCnp = string.Empty;
+            this.ActivityName = string.Empty;
+            this.LastModifiedAmount = 0;
+            this.ActivityDetails = string.Empty;
         }
     }
 }

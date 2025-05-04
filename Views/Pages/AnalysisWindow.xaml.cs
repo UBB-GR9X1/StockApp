@@ -1,12 +1,16 @@
-namespace Src.View.Pages
+namespace StockApp.Views.Pages
 {
     using System;
     using System.Collections.Generic;
     using Microsoft.UI.Xaml;
+    using OxyPlot;
+    using OxyPlot.Axes;
+    using OxyPlot.Series;
     using Src.Data;
     using Src.Model;
     using Src.Repos;
     using StockApp.Models;
+    using StockApp.Repositories;
     using StockApp.Services;
 
     public sealed partial class AnalysisWindow : Window
@@ -18,31 +22,31 @@ namespace Src.View.Pages
         public AnalysisWindow(User selectedUser)
         {
             this.InitializeComponent();
-            user = selectedUser;
-            activityService = new ActivityService(new ActivityRepository(new DatabaseConnection(), new UserRepository(new DatabaseConnection())));
-            historyService = new HistoryService(new HistoryRepository(new DatabaseConnection()));
-            LoadUserData();
-            LoadHistory(historyService.GetHistoryMonthly(user.Cnp));
-            LoadUserActivities();
+            this.user = selectedUser;
+            this.activityService = new ActivityService(new ActivityRepository(new DatabaseConnection(), new UserRepository(new DatabaseConnection())));
+            this.historyService = new HistoryService(new HistoryRepository(new DatabaseConnection()));
+            this.LoadUserData();
+            this.LoadHistory(this.historyService.GetHistoryMonthly(this.user.CNP));
+            this.LoadUserActivities();
         }
 
         public void LoadUserData()
         {
-            IdTextBlock.Text = $"Id: {user.Id}";
-            FirstNameTextBlock.Text = $"First name: {user.FirstName}";
-            LastNameTextBlock.Text = $"Last name: {user.LastName}";
-            CNPTextBlock.Text = $"CNP: {user.Cnp}";
-            EmailTextBlock.Text = $"Email: {user.Email}";
-            PhoneNumberTextBlock.Text = $"Phone number: {user.PhoneNumber}";
+            this.IdTextBlock.Text = $"Id: {this.user.Id}";
+            this.FirstNameTextBlock.Text = $"First name: {this.user.FirstName}";
+            this.LastNameTextBlock.Text = $"Last name: {this.user.LastName}";
+            this.CNPTextBlock.Text = $"CNP: {this.user.CNP}";
+            this.EmailTextBlock.Text = $"Email: {this.user.Email}";
+            this.PhoneNumberTextBlock.Text = $"Phone number: {this.user.PhoneNumber}";
         }
 
         public void LoadUserActivities()
         {
             try
             {
-                var activities = activityService.GetActivityForUser(user.Cnp);
+                var activities = this.activityService.GetActivityForUser(this.user.CNP);
 
-                ActivityListView.ItemsSource = activities;
+                this.ActivityListView.ItemsSource = activities;
             }
             catch (Exception exception)
             {
@@ -113,8 +117,8 @@ namespace Src.View.Pages
                 plotModel.Axes.Add(categoryAxis);
                 plotModel.Series.Add(barSeries);
 
-                CreditScorePlotView.Model = plotModel;
-                CreditScorePlotView.InvalidatePlot(true);
+                this.CreditScorePlotView.Model = plotModel;
+                this.CreditScorePlotView.InvalidatePlot(true);
             }
             catch (Exception exception)
             {
@@ -126,8 +130,8 @@ namespace Src.View.Pages
         {
             try
             {
-                var history = historyService.GetHistoryMonthly(user.Cnp);
-                LoadHistory(history);
+                var history = this.historyService.GetHistoryMonthly(this.user.CNP);
+                this.LoadHistory(history);
             }
             catch (Exception ex)
             {
@@ -139,8 +143,8 @@ namespace Src.View.Pages
         {
             try
             {
-                var history = historyService.GetHistoryYearly(user.Cnp);
-                LoadHistory(history);
+                var history = this.historyService.GetHistoryYearly(this.user.CNP);
+                this.LoadHistory(history);
             }
             catch (Exception exception)
             {
@@ -152,8 +156,8 @@ namespace Src.View.Pages
         {
             try
             {
-                var history = historyService.GetHistoryWeekly(user.Cnp);
-                LoadHistory(history);
+                var history = this.historyService.GetHistoryWeekly(this.user.CNP);
+                this.LoadHistory(history);
             }
             catch (Exception exception)
             {

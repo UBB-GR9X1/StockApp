@@ -16,22 +16,22 @@ namespace StockApp.ViewModels
 
         public UserViewModel(IUserService userServices)
         {
-            userService = userServices ?? throw new ArgumentNullException(nameof(userServices));
+            this.userService = userServices ?? throw new ArgumentNullException(nameof(userServices));
         }
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         public async Task LoadUsers()
         {
             try
             {
-                var users = userService.GetUsers();
+                var users = this.userService.GetUsers();
                 foreach (var user in users)
                 {
-                    Users.Add(user);
+                    this.Users.Add(user);
                 }
             }
             catch (Exception exception)

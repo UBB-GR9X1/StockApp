@@ -26,15 +26,15 @@
                 int userCreditScore = userRepository.GetUserByCnp(userCNP).CreditScore;
                 if (userCreditScore < 300)
                 {
-                    tipsRepository.GiveUserTipForLowBracket(userCNP);
+                    this.tipsRepository.GiveUserTipForLowBracket(userCNP);
                 }
                 else if (userCreditScore < 550)
                 {
-                    tipsRepository.GiveUserTipForMediumBracket(userCNP);
+                    this.tipsRepository.GiveUserTipForMediumBracket(userCNP);
                 }
                 else if (userCreditScore > 549)
                 {
-                    tipsRepository.GiveUserTipForHighBracket(userCNP);
+                    this.tipsRepository.GiveUserTipForHighBracket(userCNP);
                 }
             }
             catch (Exception exception)
@@ -45,7 +45,7 @@
 
         public List<Tip> GetTipsForGivenUser(string userCnp)
         {
-            return tipsRepository.GetTipsForGivenUser(userCnp);
+            return this.tipsRepository.GetTipsForGivenUser(userCnp);
         }
     }
 }

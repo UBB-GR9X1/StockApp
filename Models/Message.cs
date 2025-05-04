@@ -8,22 +8,22 @@
 
         public Message(int id, string type, string message)
         {
-            Id = id;
-            Type = type;
-            MessageContent = message;
+            this.Id = id;
+            this.Type = type;
+            this.MessageContent = message;
         }
 
         public Message()
         {
-            Id = 0;
-            Type = string.Empty;
-            MessageContent = string.Empty;
+            this.Id = 0;
+            this.Type = string.Empty;
+            this.MessageContent = string.Empty;
         }
 
         public string MessageText
         {
-            get { return MessageContent; }
-            set { MessageContent = value; }
+            get { return this.MessageContent; }
+            set { this.MessageContent = value; }
         }
     }
 }

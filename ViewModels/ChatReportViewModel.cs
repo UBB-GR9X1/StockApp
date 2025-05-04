@@ -14,17 +14,17 @@ namespace StockApp.ViewModels
 
         public ChatReportsViewModel()
         {
-            ChatReports = new ObservableCollection<ChatReport>();
+            this.ChatReports = new ObservableCollection<ChatReport>();
         }
 
         public async Task LoadChatReports()
         {
             try
             {
-                var reports = chatReportService.GetChatReports();
+                var reports = this.chatReportService.GetChatReports();
                 foreach (var report in reports)
                 {
-                    ChatReports.Add(report);
+                    this.ChatReports.Add(report);
                 }
             }
             catch (Exception exception)

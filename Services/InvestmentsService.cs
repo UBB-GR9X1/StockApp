@@ -23,7 +23,7 @@
 
         public void CalculateAndUpdateRiskScore()
         {
-            var allExistentUsers = userRepository.GetUsers();
+            var allExistentUsers = this.userRepository.GetUsers();
 
             foreach (var currentUser in allExistentUsers)
             {
@@ -32,14 +32,14 @@
                 {
                     var riskScoreChange = CalculateRiskScoreChange(currentUser, recentInvestments);
                     UpdateUserRiskScore(currentUser, riskScoreChange);
-                    userRepository.UpdateUserRiskScore(currentUser.Cnp, currentUser.RiskScore);
+                    this.userRepository.UpdateUserRiskScore(currentUser.Cnp, currentUser.RiskScore);
                 }
             }
         }
 
         private List<Investment> GetRecentInvestments(string cnp)
         {
-            var allInvestments = investmentsRepository.GetInvestmentsHistory();
+            var allInvestments = this.investmentsRepository.GetInvestmentsHistory();
 
             var latestInvestment = allInvestments
                 .Where(i => i.InvestorCnp == cnp)
@@ -122,12 +122,12 @@
         }
         public void CalculateAndUpdateROI()
         {
-            var allExistentUsers = userRepository.GetUsers();
+            var allExistentUsers = this.userRepository.GetUsers();
 
             foreach (var currentUser in allExistentUsers)
             {
                 CalculateAndSetUserROI(currentUser);
-                userRepository.UpdateUserROI(currentUser.Cnp, currentUser.ROI);
+                this.userRepository.UpdateUserROI(currentUser.Cnp, currentUser.ROI);
             }
         }
 
@@ -135,7 +135,7 @@
         {
             var investmentOpen = -1;
 
-            var allInvestments = investmentsRepository.GetInvestmentsHistory()
+            var allInvestments = this.investmentsRepository.GetInvestmentsHistory()
                 .Where(i => i.InvestorCnp == user.CNP)
                 .Where(i => i.AmountReturned != investmentOpen)
                 .ToList();
@@ -161,7 +161,7 @@
 
         public void CreditScoreUpdateInvestmentsBased()
         {
-            var allExistentUsers = userRepository.GetUsers();
+            var allExistentUsers = this.userRepository.GetUsers();
 
             foreach (var currentUser in allExistentUsers)
             {
@@ -193,7 +193,7 @@
 
                 currentUser.CreditScore = Math.Min(maxCreditScore, Math.Max(minCreditScore, currentUser.CreditScore));
 
-                userRepository.UpdateUserCreditScore(currentUser.Cnp, currentUser.CreditScore);
+                this.userRepository.UpdateUserCreditScore(currentUser.Cnp, currentUser.CreditScore);
             }
         }
         public List<InvestmentPortfolio> GetPortfolioSummary()
@@ -205,7 +205,7 @@
 
             foreach (var user in userList)
             {
-                var investments = investmentsRepository.GetInvestmentsHistory()
+                var investments = this.investmentsRepository.GetInvestmentsHistory()
                     .Where(i => i.InvestorCnp == user.CNP)
                     .ToList();
 

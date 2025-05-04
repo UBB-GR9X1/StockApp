@@ -6,6 +6,7 @@
     using System.Text.Json;
     using System.Threading.Tasks;
     using Src.Repos;
+    using StockApp.Models;
 
     public class ZodiacService : IZodiacService
     {
@@ -53,7 +54,7 @@
             string joke = doc.RootElement.GetProperty("value").GetString();
 
             int asciiJokeModulo10 = ComputeJokeAsciiModulo10(joke);
-            List<User> users = userRepository.GetUsers();
+            List<User> users = this.userRepository.GetUsers();
             bool flip = FlipCoin();
 
             foreach (User user in users)
@@ -67,7 +68,7 @@
                     user.CreditScore -= asciiJokeModulo10;
                 }
 
-                userRepository.UpdateUserCreditScore(user.Cnp, user.CreditScore);
+                this.userRepository.UpdateUserCreditScore(user.Cnp, user.CreditScore);
             }
         }
 
@@ -77,7 +78,7 @@
         }
         public void CreditScoreModificationBasedOnAttributeAndGravity()
         {
-            List<User> userList = userRepository.GetUsers();
+            List<User> userList = this.userRepository.GetUsers();
 
             if (userList == null || userList.Count == 0)
             {
@@ -88,7 +89,7 @@
             {
                 int gravityResult = ComputeGravity();
                 user.CreditScore += gravityResult;
-                userRepository.UpdateUserCreditScore(user.Cnp, user.CreditScore);
+                this.userRepository.UpdateUserCreditScore(user.Cnp, user.CreditScore);
             }
         }
     }

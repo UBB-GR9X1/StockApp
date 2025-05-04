@@ -13,22 +13,22 @@ namespace Src.Model
 
         public Investment(int id, string investorCnp, string details, float amountInvested, float amountReturned, DateTime investmentDate)
         {
-            Id = id;
-            InvestorCnp = investorCnp;
-            Details = details;
-            AmountInvested = amountInvested;
-            AmountReturned = amountReturned;
-            InvestmentDate = investmentDate;
+            this.Id = id;
+            this.InvestorCnp = investorCnp;
+            this.Details = details;
+            this.AmountInvested = amountInvested;
+            this.AmountReturned = amountReturned;
+            this.InvestmentDate = investmentDate;
         }
 
         public Investment()
         {
-            Id = 0;
-            InvestorCnp = string.Empty;
-            Details = string.Empty;
-            AmountInvested = 0;
-            AmountReturned = 0;
-            InvestmentDate = DateTime.Now;
+            this.Id = 0;
+            this.InvestorCnp = string.Empty;
+            this.Details = string.Empty;
+            this.AmountInvested = 0;
+            this.AmountReturned = 0;
+            this.InvestmentDate = DateTime.Now;
         }
     }
 }

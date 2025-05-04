@@ -18,8 +18,8 @@ namespace StockApp.Views.Components
         }
         public void SetTipData(Tip givenTip)
         {
-            Tip = givenTip;
-            TipTextBlock.Text = $"{Tip.TipText}";
+            this.Tip = givenTip;
+            this.TipTextBlock.Text = $"{this.Tip.TipText}";
         }
     }
 }

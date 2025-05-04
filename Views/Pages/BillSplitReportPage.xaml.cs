@@ -1,4 +1,4 @@
-namespace Src.View
+namespace StockApp.Views.Pages
 {
     using System;
     using System.Collections.Generic;
@@ -17,12 +17,12 @@ namespace Src.View
         {
             this.componentFactory = componentFactory;
             this.InitializeComponent();
-            LoadReports();
+            this.LoadReports();
         }
 
         private void LoadReports()
         {
-            BillSplitReportsContainer.Items.Clear();
+            this.BillSplitReportsContainer.Items.Clear();
 
             DatabaseConnection dbConnection = new DatabaseConnection();
             BillSplitReportRepository billSplitReportRepository = new BillSplitReportRepository(dbConnection);
@@ -34,21 +34,21 @@ namespace Src.View
 
                 foreach (var report in reports)
                 {
-                    var reportComponent = componentFactory();
+                    var reportComponent = this.componentFactory();
                     reportComponent.SetReportData(report);
-                    reportComponent.ReportSolved += OnReportSolved;
-                    BillSplitReportsContainer.Items.Add(reportComponent);
+                    reportComponent.ReportSolved += this.OnReportSolved;
+                    this.BillSplitReportsContainer.Items.Add(reportComponent);
                 }
             }
             catch (Exception)
             {
-                BillSplitReportsContainer.Items.Add("There are no chat reports that need solving.");
+                this.BillSplitReportsContainer.Items.Add("There are no chat reports that need solving.");
             }
         }
 
         private void OnReportSolved(object sender, EventArgs e)
         {
-            LoadReports();
+            this.LoadReports();
         }
     }
 }

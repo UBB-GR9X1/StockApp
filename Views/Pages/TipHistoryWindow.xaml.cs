@@ -1,10 +1,11 @@
-namespace Src.View.Pages
+namespace StockApp.Views.Pages
 {
     using System.Collections.Generic;
     using Microsoft.UI.Xaml;
     using Src.Model;
     using StockApp.Models;
     using StockApp.Repositories;
+    using StockApp.Views.Components;
 
     public sealed partial class TipHistoryWindow : Window
     {
@@ -19,11 +20,11 @@ namespace Src.View.Pages
             this.messagesRepository = messagesRepository;
             this.tipsRepository = tipsRepository;
 
-            List<Message> messages = this.messagesRepository.GetMessagesForGivenUser(selectedUser.Cnp);
-            List<Tip> tips = this.tipsRepository.GetTipsForGivenUser(selectedUser.Cnp);
+            List<Message> messages = this.messagesRepository.GetMessagesForGivenUser(selectedUser.CNP);
+            List<Tip> tips = this.tipsRepository.GetTipsForGivenUser(selectedUser.CNP);
 
-            LoadHistory(tips);
-            LoadHistory(messages);
+            this.LoadHistory(tips);
+            this.LoadHistory(messages);
         }
 
         private void LoadHistory(List<Message> messages)
@@ -32,7 +33,7 @@ namespace Src.View.Pages
             {
                 MessageHistoryComponent messageComponent = new MessageHistoryComponent();
                 messageComponent.SetMessageData(message);
-                MessageHistoryContainer.Items.Add(messageComponent);
+                this.MessageHistoryContainer.Items.Add(messageComponent);
             }
         }
 
@@ -42,7 +43,7 @@ namespace Src.View.Pages
             {
                 TipHistoryComponent tipComponent = new TipHistoryComponent();
                 tipComponent.SetTipData(tip);
-                TipHistoryContainer.Items.Add(tipComponent);
+                this.TipHistoryContainer.Items.Add(tipComponent);
             }
         }
     }

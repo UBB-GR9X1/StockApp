@@ -31,55 +31,55 @@ namespace StockApp.Views.Components
         {
             BillSplitReport billSplitReport = new BillSplitReport
             {
-                Id = Id,
-                ReportedUserCnp = ReportedUserCNP,
-                ReportingUserCnp = ReporterUserCNP,
-                DateOfTransaction = DateTransaction,
-                BillShare = BillShare
+                Id = this.Id,
+                ReportedUserCnp = this.ReportedUserCNP,
+                ReportingUserCnp = this.ReporterUserCNP,
+                DateOfTransaction = this.DateTransaction,
+                BillShare = this.BillShare
             };
 
-            billSplitReportService.SolveBillSplitReport(billSplitReport);
-            ReportSolved?.Invoke(this, EventArgs.Empty);
+            this.billSplitReportService.SolveBillSplitReport(billSplitReport);
+            this.ReportSolved?.Invoke(this, EventArgs.Empty);
         }
 
         private void OnDropReportClick(object sender, RoutedEventArgs e)
         {
             BillSplitReport billSplitReport = new BillSplitReport
             {
-                Id = Id,
-                ReportedUserCnp = ReportedUserCNP,
-                ReportingUserCnp = ReporterUserCNP,
-                DateOfTransaction = DateTransaction,
-                BillShare = BillShare
+                Id = this.Id,
+                ReportedUserCnp = this.ReportedUserCNP,
+                ReportingUserCnp = this.ReporterUserCNP,
+                DateOfTransaction = this.DateTransaction,
+                BillShare = this.BillShare
             };
 
-            billSplitReportService.DeleteBillSplitReport(billSplitReport);
-            ReportSolved?.Invoke(this, EventArgs.Empty);
+            this.billSplitReportService.DeleteBillSplitReport(billSplitReport);
+            this.ReportSolved?.Invoke(this, EventArgs.Empty);
         }
 
         public void SetReportData(BillSplitReport billSplitReport)
         {
-            User reportedUser = billSplitReportService.GetUserByCNP(billSplitReport.ReportedUserCnp);
-            User reporterUser = billSplitReportService.GetUserByCNP(billSplitReport.ReportingUserCnp);
+            User reportedUser = this.billSplitReportService.GetUserByCNP(billSplitReport.ReportedUserCnp);
+            User reporterUser = this.billSplitReportService.GetUserByCNP(billSplitReport.ReportingUserCnp);
 
-            Id = billSplitReport.Id;
-            ReportedUserCNP = billSplitReport.ReportedUserCnp;
-            ReportedUserFirstName = reportedUser.FirstName;
-            ReportedUserLastName = reportedUser.LastName;
-            ReporterUserCNP = billSplitReport.ReportingUserCnp;
-            ReporterUserFirstName = reporterUser.FirstName;
-            ReporterUserLastName = reporterUser.LastName;
-            DateTransaction = billSplitReport.DateOfTransaction;
-            BillShare = billSplitReport.BillShare;
+            this.Id = billSplitReport.Id;
+            this.ReportedUserCNP = billSplitReport.ReportedUserCnp;
+            this.ReportedUserFirstName = reportedUser.FirstName;
+            this.ReportedUserLastName = reportedUser.LastName;
+            this.ReporterUserCNP = billSplitReport.ReportingUserCnp;
+            this.ReporterUserFirstName = reporterUser.FirstName;
+            this.ReporterUserLastName = reporterUser.LastName;
+            this.DateTransaction = billSplitReport.DateOfTransaction;
+            this.BillShare = billSplitReport.BillShare;
 
-            IdTextBlock.Text = $"Report ID: {Id}";
-            ReportedUserCNPTextBlock.Text = $"CNP: {ReportedUserCNP}";
-            ReportedUserNameTextBlock.Text = $"{reportedUser.FirstName} {reportedUser.LastName}";
-            ReporterUserCNPTextBlock.Text = $"CNP: {ReporterUserCNP}";
-            ReporterUserNameTextBlock.Text = $"{reporterUser.FirstName} {reporterUser.LastName}";
-            DateTransactionTextBlock.Text = $"{DateTransaction}";
-            DaysOverdueTextBlock.Text = $"{billSplitReportService.GetDaysOverdue(billSplitReport)} days overdue!";
-            BillShareTextBlock.Text = $"Bill share: {BillShare}";
+            this.IdTextBlock.Text = $"Report ID: {this.Id}";
+            this.ReportedUserCNPTextBlock.Text = $"CNP: {this.ReportedUserCNP}";
+            this.ReportedUserNameTextBlock.Text = $"{reportedUser.FirstName} {reportedUser.LastName}";
+            this.ReporterUserCNPTextBlock.Text = $"CNP: {this.ReporterUserCNP}";
+            this.ReporterUserNameTextBlock.Text = $"{reporterUser.FirstName} {reporterUser.LastName}";
+            this.DateTransactionTextBlock.Text = $"{this.DateTransaction}";
+            this.DaysOverdueTextBlock.Text = $"{this.billSplitReportService.GetDaysOverdue(billSplitReport)} days overdue!";
+            this.BillShareTextBlock.Text = $"Bill share: {this.BillShare}";
         }
     }
 }

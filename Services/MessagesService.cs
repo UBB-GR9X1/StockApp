@@ -26,11 +26,11 @@
             {
                 if (userCreditScore >= 550)
                 {
-                    messagesRepository.GiveUserRandomMessage(userCNP);
+                    this.messagesRepository.GiveUserRandomMessage(userCNP);
                 }
                 else
                 {
-                    messagesRepository.GiveUserRandomRoastMessage(userCNP);
+                    this.messagesRepository.GiveUserRandomRoastMessage(userCNP);
                 }
             }
             catch (Exception e)
@@ -41,7 +41,7 @@
 
         public List<Message> GetMessagesForGivenUser(string userCnp)
         {
-            return messagesRepository.GetMessagesForGivenUser(userCnp);
+            return this.messagesRepository.GetMessagesForGivenUser(userCnp);
         }
     }
 }

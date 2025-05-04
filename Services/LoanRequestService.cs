@@ -60,12 +60,12 @@
 
         public void SolveLoanRequest(LoanRequest loanRequest)
         {
-            loanRequestRepository.SolveLoanRequest(loanRequest.Id);
+            this.loanRequestRepository.SolveLoanRequest(loanRequest.Id);
         }
 
         public void DenyLoanRequest(LoanRequest loanRequest)
         {
-            loanRequestRepository.DeleteLoanRequest(loanRequest.Id);
+            this.loanRequestRepository.DeleteLoanRequest(loanRequest.Id);
         }
 
         public bool PastUnpaidLoans(User user, LoanService loanService)
@@ -116,12 +116,12 @@
 
         public List<LoanRequest> GetLoanRequests()
         {
-            return loanRequestRepository.GetLoanRequests();
+            return this.loanRequestRepository.GetLoanRequests();
         }
 
         public List<LoanRequest> GetUnsolvedLoanRequests()
         {
-            return loanRequestRepository.GetUnsolvedLoanRequests();
+            return this.loanRequestRepository.GetUnsolvedLoanRequests();
         }
     }
 }
