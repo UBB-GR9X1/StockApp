@@ -5,8 +5,17 @@ namespace StockApp
 {
     using System;
     using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Hosting;
     using Microsoft.UI.Xaml;
+    using Src.Data;
+    using Src.Repos;
+    using Src.View;
+    using Src.Views;
     using StockApp.Database;
+    using StockApp.Repositories;
+    using StockApp.Services;
+    using StockApp.Views.Components;
 
     /// <summary>
     /// Provides application-specific behavior to supplement the default Application class.
@@ -14,6 +23,7 @@ namespace StockApp
     public partial class App : Application
     {
         public static Window? MainWindow { get; private set; } = null!;
+        public static IHost Host { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="App"/> class.
@@ -24,10 +34,80 @@ namespace StockApp
         {
             DatabaseHelper.InitializeDatabase();
             this.InitializeComponent();
+            this.ConfigureHost();
 
             // explanation before the OnUnhandledException method
-            this.UnhandledException += this.OnUnhandledException;
+            //this.UnhandledException += this.OnUnhandledException;
         }
+
+        private void ConfigureHost()
+        {
+            Host = Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder().ConfigureServices((context, services) =>
+            {
+                var config = new ConfigurationBuilder().AddUserSecrets<App>().AddEnvironmentVariables().Build();
+                services.AddSingleton<IConfiguration>(config);
+                services.AddSingleton(new DatabaseConnection());
+
+                services.AddSingleton<IActivityRepository, ActivityRepository>();
+                services.AddSingleton<IBillSplitReportRepository, BillSplitReportRepository>();
+                services.AddSingleton<IChatReportRepository, ChatReportRepository>();
+                services.AddSingleton<IHistoryRepository, HistoryRepository>();
+                services.AddSingleton<IInvestmentsRepository, InvestmentsRepository>();
+                services.AddSingleton<ILoanRepository, LoanRepository>();
+                services.AddSingleton<ILoanRequestRepository, LoanRequestRepository>();
+                services.AddSingleton<IUserRepository, UserRepository>();
+
+                services.AddSingleton<IActivityService, ActivityService>();
+                services.AddSingleton<IBillSplitReportService, BillSplitReportService>();
+                services.AddSingleton<IChatReportService, ChatReportService>();
+                services.AddSingleton<IHistoryService, HistoryService>();
+                services.AddSingleton<IInvestmentsService, InvestmentsService>();
+                services.AddSingleton<ILoanCheckerService, LoanCheckerService>();
+                services.AddSingleton<ILoanRequestService, LoanRequestService>();
+                services.AddSingleton<ILoanService, LoanService>();
+                services.AddSingleton<IMessagesService, MessagesService>();
+                services.AddSingleton<ITipsService, TipsService>();
+                services.AddSingleton<IUserService, UserService>();
+                services.AddSingleton<IZodiacService, ZodiacService>();
+                services.AddSingleton<MainWindow>();
+
+                services.AddTransient<BillSplitReportComponent>();
+                services.AddTransient<Func<BillSplitReportComponent>>(provider =>
+                {
+                    return () => provider.GetRequiredService<BillSplitReportComponent>();
+                });
+                services.AddTransient<BillSplitReportPage>();
+
+                services.AddTransient<ChatReportComponent>();
+                services.AddTransient<Func<ChatReportComponent>>(provider =>
+                {
+                    return () => provider.GetRequiredService<ChatReportComponent>();
+                });
+                services.AddTransient<ChatReportView>();
+
+                services.AddTransient<LoanComponent>();
+                services.AddTransient<Func<LoanComponent>>(provider =>
+                {
+                    return () => provider.GetRequiredService<LoanComponent>();
+                });
+                services.AddTransient<LoansView>();
+
+                services.AddTransient<LoanRequestComponent>();
+                services.AddTransient<Func<LoanRequestComponent>>(provider =>
+                {
+                    return () => provider.GetRequiredService<LoanRequestComponent>();
+                });
+                services.AddTransient<LoanRequestView>();
+
+                services.AddTransient<UserInfoComponent>();
+                services.AddTransient<Func<UserInfoComponent>>(provider =>
+                {
+                    return () => provider.GetRequiredService<UserInfoComponent>();
+                });
+                services.AddTransient<UsersView>();
+            }).Build();
+        }
+
 
         /// <summary>
         /// Gets or sets the current window of the application.
@@ -57,8 +137,7 @@ namespace StockApp
         /// <param name="launchActivatedEventArgs">Details about the launch request and process.</param>
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs launchActivatedEventArgs)
         {
-            MainWindow = new MainWindow();
-            CurrentWindow = MainWindow;
+            MainWindow = Host.Services.GetRequiredService<MainWindow>();
             MainWindow.Activate();
         }
 

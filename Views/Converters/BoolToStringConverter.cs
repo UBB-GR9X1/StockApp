@@ -1,4 +1,4 @@
-﻿namespace StockApp.Converters
+﻿namespace StockApp.Views.Converters
 {
     using System;
 
