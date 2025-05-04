@@ -407,6 +407,7 @@
 
             if (username == "admin" && password == "admin")
             {
+                throw new Exception("UNIMPLEMENTED FIX THIS");
                 string adminCnp = "6666666666666";
                 try
                 {
@@ -423,14 +424,14 @@
                     System.Diagnostics.Debug.WriteLine($"Error ensuring admin user exists: {ex.Message}");
                 }
 
-                return new User(
-                    adminCnp,
-                    "admin",
-                    "Administrator Account",
-                    true,
-                    "img.jpg",
-                    false,
-                    0);
+                //return new User(
+                //    adminCnp,
+                //    "admin",
+                //    "Administrator Account",
+                //    true,
+                //    "img.jpg",
+                //    false,
+                //    0);
             }
             else if (password == "user")
             {

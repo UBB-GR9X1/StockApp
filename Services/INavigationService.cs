@@ -1,8 +1,8 @@
-﻿using System;
-using Microsoft.UI.Xaml.Controls;
-
-namespace StockApp.Services
+﻿namespace StockApp.Services
 {
+    using System;
+    using Microsoft.UI.Xaml.Controls;
+
     public interface INavigationService
     {
         static abstract NavigationService Instance { get; }

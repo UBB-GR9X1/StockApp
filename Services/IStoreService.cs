@@ -1,8 +1,8 @@
-﻿using System.Threading.Tasks;
-using StockApp.Models;
-
-namespace StockApp.Services
+﻿namespace StockApp.Services
 {
+    using System.Threading.Tasks;
+    using StockApp.Models;
+
     public interface IStoreService
     {
         string GetCnp();

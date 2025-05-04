@@ -21,13 +21,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Homepage\**" />
-    <Compile Remove="View\**" />
     <EmbeddedResource Remove="Homepage\**" />
-    <EmbeddedResource Remove="View\**" />
     <None Remove="Homepage\**" />
-    <None Remove="View\**" />
     <Page Remove="Homepage\**" />
-    <Page Remove="View\**" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="MainPage.xaml" />
@@ -126,7 +122,4 @@
     </None>
   </ItemGroup>
   <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
-  <ItemGroup>
-    <PRIResource Remove="View\**" />
-  </ItemGroup>
 </Project>

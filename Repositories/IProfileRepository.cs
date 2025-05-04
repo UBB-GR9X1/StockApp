@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using StockApp.Models;
-
-namespace StockApp.Repositories
+﻿namespace StockApp.Repositories
 {
+    using System.Collections.Generic;
+    using StockApp.Models;
+
     public interface IProfileRepository
     {
         User CurrentUser();

@@ -216,13 +216,13 @@
             {
                 // Inline: construct User model from database row
                 this.User = new User(
-                    reader["CNP"].ToString(),
+                    Convert.ToInt32(reader["CNP"]),
                     reader["NAME"].ToString(),
                     reader["DESCRIPTION"].ToString(),
-                    Convert.ToBoolean(reader["IS_ADMIN"]),
+                    reader["IS_ADMIN"].ToString(),
                     reader["PROFILE_PICTURE"].ToString(),
-                    Convert.ToBoolean(reader["IS_HIDDEN"]),
-                    Convert.ToInt32(reader["GEM_BALANCE"]));
+                    reader["IS_HIDDEN"].ToString(),
+                    reader["GEM_BALANCE"].ToString());
                 this.IsGuest = false;
             }
             else

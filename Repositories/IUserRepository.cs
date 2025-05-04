@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using StockApp.Models;
-
-namespace StockApp.Repositories
+﻿namespace StockApp.Repositories
 {
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using StockApp.Models;
+
     public interface IUserRepository
     {
         string CurrentUserCNP { get; set; }

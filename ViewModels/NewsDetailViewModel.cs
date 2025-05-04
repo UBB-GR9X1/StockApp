@@ -1,16 +1,16 @@
-﻿using System;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using Microsoft.UI.Dispatching;
-using Microsoft.UI.Xaml.Controls;
-using StockApp.Commands;
-using StockApp.Models;
-using StockApp.Services;
-
-namespace StockApp.ViewModels
+﻿namespace StockApp.ViewModels
 {
+    using System;
+    using System.Linq;
+    using System.Runtime.CompilerServices;
+    using System.Threading.Tasks;
+    using System.Windows.Input;
+    using Microsoft.UI.Dispatching;
+    using Microsoft.UI.Xaml.Controls;
+    using StockApp.Commands;
+    using StockApp.Models;
+    using StockApp.Services;
+
     /// <summary>
     /// ViewModel for displaying details of a news article, handling loading,
     /// preview mode, and administrative actions such as approval, rejection, and deletion.
