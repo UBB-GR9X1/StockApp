@@ -6,11 +6,16 @@
 
     public interface IBillSplitReportService
     {
-        public List<BillSplitReport> GetBillSplitReports();
-        public void CreateBillSplitReport(BillSplitReport billSplitReport);
-        public int GetDaysOverdue(BillSplitReport billSplitReport);
-        public void SolveBillSplitReport(BillSplitReport billSplitReportToBeSolved);
-        public void DeleteBillSplitReport(BillSplitReport billSplitReportToBeSolved);
-        public User GetUserByCNP(string cNP);
+        List<BillSplitReport> GetBillSplitReports();
+
+        void CreateBillSplitReport(BillSplitReport billSplitReport);
+
+        int GetDaysOverdue(BillSplitReport billSplitReport);
+
+        void SolveBillSplitReport(BillSplitReport billSplitReportToBeSolved);
+
+        void DeleteBillSplitReport(BillSplitReport billSplitReportToBeSolved);
+
+        User GetUserByCNP(string cNP);
     }
 }

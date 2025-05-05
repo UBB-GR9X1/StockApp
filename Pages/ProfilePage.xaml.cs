@@ -14,28 +14,15 @@ namespace StockApp.Pages
     {
         private ProfilePageViewModel viewModel;
 
-        ICommand UpdateProfileButton { get; }
+        private ICommand UpdateProfileButton { get; }
 
         /// <summary>
         /// Constructor for the ProfilePage class.
         /// </summary>
         public ProfilePage()
         {
-            this.UpdateProfileButton = new StockNewsRelayCommand(() => this.GoToUpdatePage());
-        }
-
-        private void DoStuff()
-        {
             this.InitializeComponent();
-            this.ShowUserInformation();
-            this.StocksListView.ItemsSource = this.viewModel.GetUserStocks();
-
-            if (this.viewModel.IsHidden())
-            {
-                this.HideProfile();
-            }
-
-            this.UserStocksShowUsername();
+            this.UpdateProfileButton = new StockNewsRelayCommand(() => this.GoToUpdatePage());
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -45,8 +32,15 @@ namespace StockApp.Pages
             this.viewModel = new ProfilePageViewModel();
             this.DataContext = this.viewModel;
 
-            //TODO:fix this naming jesus
-            this.DoStuff();
+            this.ShowUserInformation();
+            this.StocksListView.ItemsSource = this.viewModel.GetUserStocks();
+
+            if (this.viewModel.IsHidden())
+            {
+                this.HideProfile();
+            }
+
+            this.UserStocksShowUsername();
         }
 
         private void ShowUserInformation()

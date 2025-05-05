@@ -114,7 +114,7 @@
                 using var reader = await command.ExecuteReaderAsync();
                 if (await reader.ReadAsync())
                 {
-                    return CreateUserFromDataReader(reader);
+                    return this.CreateUserFromDataReader(reader);
                 }
 
                 throw new KeyNotFoundException($"No user found with CNP: {userCNP}");
@@ -137,8 +137,9 @@
                 using var reader = await command.ExecuteReaderAsync();
                 if (await reader.ReadAsync())
                 {
-                    return CreateUserFromDataReader(reader);
+                    return this.CreateUserFromDataReader(reader);
                 }
+
                 throw new KeyNotFoundException($"No user found with username: {username}");
             }
             catch (SqlException ex)
@@ -257,7 +258,7 @@
                 using var reader = await command.ExecuteReaderAsync();
                 while (await reader.ReadAsync())
                 {
-                    users.Add(CreateUserFromDataReader(reader));
+                    users.Add(this.CreateUserFromDataReader(reader));
                 }
 
                 await connection.CloseAsync();
@@ -293,6 +294,7 @@
                 {
                     throw new KeyNotFoundException($"No user found with CNP: {cnp}");
                 }
+
                 await connection.CloseAsync();
             }
             catch (SqlException ex)
@@ -324,6 +326,7 @@
                 {
                     throw new KeyNotFoundException($"No user found with CNP: {cnp}");
                 }
+
                 await connection.CloseAsync();
             }
             catch (SqlException ex)
@@ -356,6 +359,7 @@
                 {
                     throw new KeyNotFoundException($"No user found with CNP: {cnp}");
                 }
+
                 await connection.CloseAsync();
             }
             catch (SqlException ex)
@@ -388,6 +392,7 @@
                 {
                     throw new KeyNotFoundException($"No user found with CNP: {cnp}");
                 }
+
                 await connection.CloseAsync();
             }
             catch (SqlException ex)
@@ -420,6 +425,7 @@
                 {
                     throw new KeyNotFoundException($"No user found with CNP: {cnp}");
                 }
+
                 await connection.CloseAsync();
             }
             catch (SqlException ex)

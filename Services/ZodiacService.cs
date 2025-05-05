@@ -5,8 +5,8 @@
     using System.Net.Http;
     using System.Text.Json;
     using System.Threading.Tasks;
-    using Src.Repos;
     using StockApp.Models;
+    using StockApp.Repositories;
 
     public class ZodiacService : IZodiacService
     {
@@ -39,6 +39,7 @@
 
             return jokeCharacterSum % 10;
         }
+
         public async Task CreditScoreModificationBasedOnJokeAndCoinFlipAsync()
         {
             HttpClient client = new HttpClient();
@@ -54,7 +55,7 @@
             string joke = doc.RootElement.GetProperty("value").GetString();
 
             int asciiJokeModulo10 = ComputeJokeAsciiModulo10(joke);
-            List<User> users = this.userRepository.GetUsers();
+            List<User> users = this.userRepository.GetAllUsersAsync().Result;
             bool flip = FlipCoin();
 
             foreach (User user in users)
@@ -68,7 +69,7 @@
                     user.CreditScore -= asciiJokeModulo10;
                 }
 
-                this.userRepository.UpdateUserCreditScore(user.Cnp, user.CreditScore);
+                this.userRepository.UpdateUserCreditScoreAsync(user.CNP, user.CreditScore);
             }
         }
 
@@ -76,9 +77,10 @@
         {
             return Random.Next(-10, 11);
         }
-        public void CreditScoreModificationBasedOnAttributeAndGravity()
+
+        public async void CreditScoreModificationBasedOnAttributeAndGravity()
         {
-            List<User> userList = this.userRepository.GetUsers();
+            List<User> userList = await this.userRepository.GetAllUsersAsync();
 
             if (userList == null || userList.Count == 0)
             {
@@ -89,7 +91,7 @@
             {
                 int gravityResult = ComputeGravity();
                 user.CreditScore += gravityResult;
-                this.userRepository.UpdateUserCreditScore(user.Cnp, user.CreditScore);
+                await this.userRepository.UpdateUserCreditScoreAsync(user.CNP, user.CreditScore);
             }
         }
     }

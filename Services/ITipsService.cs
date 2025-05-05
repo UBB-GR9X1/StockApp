@@ -8,6 +8,6 @@
 
     public interface ITipsService
     {
-        public void GiveTipToUser(string userCNP);
+        void GiveTipToUser(string userCNP);
     }
 }

@@ -17,9 +17,9 @@ namespace StockApp.Pages
     /// </summary>
     public sealed partial class StockPage : Page
     {
-        private StockPageViewModel? _viewModel;
+        private StockPageViewModel? viewModel;
 
-        ICommand command { get; }
+        private ICommand command { get; }
 
         /// <summary>
         /// Constructor for the StockPage class.
@@ -46,12 +46,12 @@ namespace StockApp.Pages
         /// <exception cref="InvalidOperationException"></exception>
         public void AuthorButtonClick()
         {
-            if (this._viewModel == null)
+            if (this.viewModel == null)
             {
                 throw new InvalidOperationException("ViewModel is not initialized");
             }
 
-            NavigationService.Instance.Navigate(typeof(ProfilePage), this._viewModel.GetStockAuthor());
+            NavigationService.Instance.Navigate(typeof(ProfilePage), this.viewModel.GetStockAuthor());
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -61,8 +61,8 @@ namespace StockApp.Pages
             // Retrieve the stock name passed during navigation
             if (e.Parameter is Stock selectedStock)
             {
-                this._viewModel = new StockPageViewModel(selectedStock, this.PriceLabel, this.IncreaseLabel, this.OwnedStocks, this.StockChart);
-                this.DataContext = this._viewModel;
+                this.viewModel = new StockPageViewModel(selectedStock, this.PriceLabel, this.IncreaseLabel, this.OwnedStocks, this.StockChart);
+                this.DataContext = this.viewModel;
             }
             else
             {
@@ -77,7 +77,7 @@ namespace StockApp.Pages
         /// <param name="e"></param>
         public void FavoriteButtonClick(object sender, RoutedEventArgs e)
         {
-            this._viewModel.ToggleFavorite();
+            this.viewModel.ToggleFavorite();
         }
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace StockApp.Pages
         /// <param name="e"></param>
         public void AlertsButtonClick(object sender, RoutedEventArgs e)
         {
-            NavigationService.Instance.Navigate(typeof(AlertsView), this._viewModel.StockName);
+            NavigationService.Instance.Navigate(typeof(AlertsView), this.viewModel.StockName);
         }
 
         /// <summary>
@@ -98,7 +98,7 @@ namespace StockApp.Pages
         public async void BuyButtonClick(object sender, RoutedEventArgs e)
         {
             int quantity = (int)this.QuantityInput.Value;
-            bool success = this._viewModel?.BuyStock(quantity) ?? false;
+            bool success = this.viewModel?.BuyStock(quantity) ?? false;
             this.QuantityInput.Value = 1;
 
             if (!success)
@@ -115,7 +115,7 @@ namespace StockApp.Pages
         public async void SellButtonClick(object sender, RoutedEventArgs e)
         {
             int quantity = (int)this.QuantityInput.Value;
-            bool success = this._viewModel?.SellStock(quantity) ?? false;
+            bool success = this.viewModel?.SellStock(quantity) ?? false;
             this.QuantityInput.Value = 1;
 
             if (!success)

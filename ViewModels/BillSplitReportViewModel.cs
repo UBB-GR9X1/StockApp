@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Threading.Tasks;
-using Src.Model;
-using StockApp.Services;
-
-namespace StockApp.ViewModels
+﻿namespace StockApp.ViewModels
 {
+    using System;
+    using System.Collections.ObjectModel;
+    using System.Threading.Tasks;
+    using Src.Model;
+    using StockApp.Services;
+
     public class BillSplitReportViewModel
     {
         private readonly IBillSplitReportService billSplitReportService;

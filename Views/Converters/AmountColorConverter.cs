@@ -24,6 +24,7 @@
                     return new SolidColorBrush(Microsoft.UI.Colors.Black);
                 }
             }
+
             return new SolidColorBrush(Microsoft.UI.Colors.Black);
         }
 

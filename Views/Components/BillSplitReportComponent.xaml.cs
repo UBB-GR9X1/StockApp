@@ -4,21 +4,31 @@ namespace StockApp.Views.Components
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
     using Src.Model;
+    using StockApp.Models;
     using StockApp.Services;
 
     public sealed partial class BillSplitReportComponent : Page
     {
         private readonly IBillSplitReportService billSplitReportService;
+
         public event EventHandler ReportSolved;
 
         public int Id { get; set; }
+
         public string ReportedUserCNP { get; set; }
+
         public string ReportedUserFirstName { get; set; }
+
         public string ReportedUserLastName { get; set; }
+
         public string ReporterUserCNP { get; set; }
+
         public string ReporterUserFirstName { get; set; }
+
         public string ReporterUserLastName { get; set; }
+
         public DateTime DateTransaction { get; set; }
+
         private float BillShare { get; set; }
 
         public BillSplitReportComponent(IBillSplitReportService billSplitReportService)

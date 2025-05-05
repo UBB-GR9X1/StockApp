@@ -9,13 +9,13 @@
 
         bool IsGuestUser(string userCnp);
 
-        public List<HomepageStock> LoadStocks();
+        List<HomepageStock> LoadStocks();
 
         void AddToFavorites(HomepageStock stock);
 
         void RemoveFromFavorites(HomepageStock stock);
 
-        public List<int> GetStockHistory(string stockName);
+        List<int> GetStockHistory(string stockName);
 
         void CreateUserProfile();
     }

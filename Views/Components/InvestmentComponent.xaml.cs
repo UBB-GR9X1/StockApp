@@ -6,11 +6,17 @@ namespace StockApp.Views.Components
     public sealed partial class InvestmentComponent : Page
     {
         public string FirstName { get; set; }
+
         public string SecondName { get; set; }
+
         public decimal TotalInvested { get; set; }
+
         public decimal TotalReturns { get; set; }
+
         public decimal AverageROI { get; set; }
+
         public int NumberOfInvestments { get; set; }
+
         public int RiskFactor { get; set; }
 
         public InvestmentComponent()

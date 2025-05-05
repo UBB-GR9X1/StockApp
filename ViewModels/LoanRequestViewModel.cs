@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Threading.Tasks;
-using Src.Data;
-using Src.Model;
-using StockApp.Repositories;
-using StockApp.Services;
-
-namespace StockApp.ViewModels
+﻿namespace StockApp.ViewModels
 {
+    using System;
+    using System.Collections.ObjectModel;
+    using System.Threading.Tasks;
+    using Src.Data;
+    using Src.Model;
+    using StockApp.Repositories;
+    using StockApp.Services;
+
     public class LoanRequestViewModel
     {
         private readonly LoanRequestService loanRequestService;

@@ -2,8 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
-    using Microsoft.VisualBasic.ApplicationServices;
     using Src.Model;
+    using StockApp.Models;
     using StockApp.Repositories;
 
     public class BillSplitReportService : IBillSplitReportService
@@ -49,10 +49,12 @@
             {
                 gravityFactor += gravityFactor * 0.1f;
             }
+
             if (this.billSplitReportRepository.CheckHistoryOfBillShares(billSplitReportToBeSolved))
             {
                 gravityFactor -= gravityFactor * 0.05f;
             }
+
             if (this.billSplitReportRepository.CheckFrequentTransfers(billSplitReportToBeSolved))
             {
                 gravityFactor -= gravityFactor * 0.05f;

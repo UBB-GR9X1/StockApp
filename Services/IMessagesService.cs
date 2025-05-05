@@ -8,6 +8,6 @@
 
     public interface IMessagesService
     {
-        public void GiveMessageToUser(string userCNP);
+        void GiveMessageToUser(string userCNP);
     }
 }

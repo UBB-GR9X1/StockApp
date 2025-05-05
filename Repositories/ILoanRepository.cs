@@ -5,18 +5,18 @@
 
     public interface ILoanRepository
     {
-        public List<Loan> GetLoans();
+        List<Loan> GetLoans();
 
-        public List<Loan> GetUserLoans(string userCNP);
+        List<Loan> GetUserLoans(string userCNP);
 
-        public void AddLoan(Loan loan);
+        void AddLoan(Loan loan);
 
-        public void UpdateLoan(Loan loan);
+        void UpdateLoan(Loan loan);
 
-        public void DeleteLoan(int loanID);
+        void DeleteLoan(int loanID);
 
-        public Loan GetLoanById(int loanID);
+        Loan GetLoanById(int loanID);
 
-        public void UpdateCreditScoreHistoryForUser(string userCNP, int newScore);
+        void UpdateCreditScoreHistoryForUser(string userCNP, int newScore);
     }
 }

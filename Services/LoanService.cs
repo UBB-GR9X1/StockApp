@@ -2,9 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-    using Src.Data;
     using Src.Model;
-    using Src.Repos;
     using StockApp.Models;
     using StockApp.Repositories;
 
@@ -29,10 +27,9 @@
 
         public void AddLoan(LoanRequest loanRequest)
         {
-            DatabaseConnection dbConnection = new DatabaseConnection();
-            UserRepository userRepository = new UserRepository(dbConnection);
+            UserRepository userRepository = new UserRepository();
 
-            User user = userRepository.GetUserByCnp(loanRequest.UserCnp);
+            User user = userRepository.GetUserByCnpAsync(loanRequest.UserCnp).Result;
 
             if (user == null)
             {
@@ -62,21 +59,23 @@
 
             this.loanRepository.AddLoan(loan);
         }
+        UserRepository userRepo = new();
 
-        public void CheckLoans()
+        public async void CheckLoans()
         {
             List<Loan> loanList = this.loanRepository.GetLoans();
             foreach (Loan loan in loanList)
             {
-                int numberOfMonthsPassed = (DateTime.Today.Year - loan.ApplicationDate.Year) * 12 + DateTime.Today.Month - loan.ApplicationDate.Month;
-                User user = new UserRepository(new DatabaseConnection()).GetUserByCnp(loan.UserCnp);
+                int numberOfMonthsPassed = ((DateTime.Today.Year - loan.ApplicationDate.Year) * 12) + DateTime.Today.Month - loan.ApplicationDate.Month;
+                User user = await this.userRepo.GetUserByCnpAsync(loan.UserCnp);
                 if (loan.MonthlyPaymentsCompleted >= loan.NumberOfMonths)
                 {
                     loan.Status = "completed";
                     int newUserCreditScore = this.ComputeNewCreditScore(user, loan);
 
-                    new UserRepository(new DatabaseConnection()).UpdateUserCreditScore(loan.UserCnp, newUserCreditScore);
+                    await this.userRepo.UpdateUserCreditScoreAsync(loan.UserCnp, newUserCreditScore);
                 }
+
                 if (numberOfMonthsPassed > loan.MonthlyPaymentsCompleted)
                 {
                     int numberOfOverdueDays = (DateTime.Today - loan.ApplicationDate.AddMonths(loan.MonthlyPaymentsCompleted)).Days;
@@ -87,12 +86,13 @@
                 {
                     loan.Penalty = 0;
                 }
+
                 if (DateTime.Today > loan.RepaymentDate && loan.Status == "active")
                 {
                     loan.Status = "overdue";
                     int newUserCreditScore = this.ComputeNewCreditScore(user, loan);
 
-                    new UserRepository(new DatabaseConnection()).UpdateUserCreditScore(loan.UserCnp, newUserCreditScore);
+                    await this.userRepo.UpdateUserCreditScoreAsync(loan.UserCnp, newUserCreditScore);
                     this.UpdateHistoryForUser(loan.UserCnp, newUserCreditScore);
                 }
                 else if (loan.Status == "overdue")
@@ -102,10 +102,11 @@
                         loan.Status = "completed";
                         int newUserCreditScore = this.ComputeNewCreditScore(user, loan);
 
-                        new UserRepository(new DatabaseConnection()).UpdateUserCreditScore(loan.UserCnp, newUserCreditScore);
+                        await this.userRepo.UpdateUserCreditScoreAsync(loan.UserCnp, newUserCreditScore);
                         this.UpdateHistoryForUser(loan.UserCnp, newUserCreditScore);
                     }
                 }
+
                 if (loan.Status == "completed")
                 {
                     this.loanRepository.DeleteLoan(loan.Id);
@@ -128,6 +129,7 @@
             {
                 totalDaysInAdvance = -100;
             }
+
             int newUserCreditScore = user.CreditScore + (int)loan.LoanAmount * 10 / user.Income + totalDaysInAdvance;
             newUserCreditScore = Math.Min(newUserCreditScore, 700);
             newUserCreditScore = Math.Max(newUserCreditScore, 100);

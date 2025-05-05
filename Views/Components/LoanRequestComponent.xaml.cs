@@ -14,11 +14,17 @@ namespace StockApp.Views.Components
         public event EventHandler LoanRequestSolved;
 
         public int RequestID { get; set; }
+
         public string RequestingUserCNP { get; set; }
+
         public float RequestedAmount { get; set; }
+
         public DateTime ApplicationDate { get; set; }
+
         public DateTime RepaymentDate { get; set; }
+
         public string State { get; set; }
+
         public string Suggestion { get; set; }
 
         public LoanRequestComponent(ILoanRequestService loanRequestService, ILoanService loanService)

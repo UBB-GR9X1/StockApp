@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using Src.Data;
     using Src.Model;
-    using Src.Repos;
     using StockApp.Models;
     using StockApp.Repositories;
 
@@ -20,10 +19,10 @@
         public string GiveSuggestion(LoanRequest loanRequest)
         {
             DatabaseConnection dbConnection = new DatabaseConnection();
-            UserRepository userRepository = new UserRepository(dbConnection);
+            UserRepository userRepository = new UserRepository();
             LoanService loanService = new LoanService(new LoanRepository(dbConnection));
 
-            User user = userRepository.GetUserByCnp(loanRequest.UserCnp);
+            User user = userRepository.GetUserByCnpAsync(loanRequest.UserCnp).Result;
 
             string givenSuggestion = string.Empty;
 
@@ -38,6 +37,7 @@
                 {
                     givenSuggestion += ", ";
                 }
+
                 givenSuggestion += "Credit score is too low";
             }
 
@@ -47,6 +47,7 @@
                 {
                     givenSuggestion += ", ";
                 }
+
                 givenSuggestion += "User risk score is too high";
             }
 
@@ -79,6 +80,7 @@
             {
                 userLoanList = new List<Loan>();
             }
+
             foreach (Loan loan in userLoanList)
             {
                 if (loan.Status == "Active" && loan.RepaymentDate < DateTime.Today)
@@ -101,6 +103,7 @@
             {
                 loanList = new List<Loan>();
             }
+
             float monthlyDebtAmount = 0;
 
             foreach (Loan loan in loanList)

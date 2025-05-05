@@ -14,7 +14,9 @@ namespace StockApp.Views.Components
         public event EventHandler ReportSolved;
 
         public string ReportedUserCNP { get; set; }
+
         public string ReportedMessage { get; set; }
+
         public int ReportId { get; set; }
 
         public ChatReportComponent(IChatReportService chatReportService)

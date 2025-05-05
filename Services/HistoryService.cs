@@ -55,6 +55,7 @@
             {
                 throw new Exception("Error retrieving history for user: ", ex);
             }
+
             List<CreditScoreHistory> weeklyHistory = new List<CreditScoreHistory>();
 
             foreach (CreditScoreHistory h in history)
@@ -97,6 +98,7 @@
 
             return monthlyHistory;
         }
+
         public List<CreditScoreHistory> GetHistoryYearly(string userCNP)
         {
             List<CreditScoreHistory> history = new List<CreditScoreHistory>();

@@ -5,8 +5,11 @@
     public class CreditScoreHistory
     {
         public int Id { get; set; }
+
         public string UserCnp { get; set; }
+
         public DateOnly Date { get; set; }
+
         public int Score { get; set; }
 
         public CreditScoreHistory(int id, string userCnp, DateOnly date, int creditScore)

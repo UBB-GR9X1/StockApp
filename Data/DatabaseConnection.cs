@@ -38,6 +38,7 @@
                 this.sqlConnection.Close();
             }
         }
+
         // TODO
         public T? ExecuteScalar<T>(string query, SqlParameter[] sqlParameters, CommandType commandType = CommandType.StoredProcedure)
         {

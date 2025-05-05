@@ -8,6 +8,7 @@ namespace StockApp.Views.Components
     public sealed partial class LoanComponent : Page
     {
         private readonly ILoanService loanServices;
+
         public event EventHandler LoanUpdated;
 
         private int loanID;

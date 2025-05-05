@@ -9,8 +9,8 @@ namespace StockApp
     using Microsoft.Extensions.Hosting;
     using Microsoft.UI.Xaml;
     using Src.Data;
-    using Src.Repos;
     using StockApp.Database;
+    using StockApp.Pages;
     using StockApp.Repositories;
     using StockApp.Services;
     using StockApp.Views.Components;
@@ -22,6 +22,7 @@ namespace StockApp
     public partial class App : Application
     {
         public static Window? MainWindow { get; private set; } = null!;
+
         public static IHost Host { get; private set; }
 
         /// <summary>
@@ -104,6 +105,13 @@ namespace StockApp
                     return () => provider.GetRequiredService<UserInfoComponent>();
                 });
                 services.AddTransient<UsersView>();
+
+                services.AddTransient<NewsListPage>();
+                services.AddTransient<CreateStockPage>();
+                services.AddTransient<TransactionLogPage>();
+                services.AddTransient<ProfilePage>();
+                services.AddTransient<GemStoreWindow>();
+                services.AddTransient<CreateProfilePage>();
             }).Build();
         }
 

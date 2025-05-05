@@ -6,7 +6,6 @@
     using System.Linq;
     using System.Threading.Tasks;
     using System.Windows.Input;
-    using Microsoft.UI.Dispatching;
     using Microsoft.UI.Xaml.Controls;
     using StockApp;
     using StockApp.Commands;
@@ -22,7 +21,6 @@
     {
         private readonly INewsService newsService;
         private readonly IDispatcher dispatcherQueue;
-        private readonly IAppState appState;
         private readonly IBaseStocksRepository stocksRepository;
 
         private string title;
@@ -158,12 +156,10 @@
         public ArticleCreationViewModel(
             INewsService newsService,
             IDispatcher dispatcher,
-            IAppState appState,
             IBaseStocksRepository stocksRepo)
         {
             this.newsService = newsService ?? throw new ArgumentNullException(nameof(newsService));
             this.dispatcherQueue = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
-            this.appState = appState ?? throw new ArgumentNullException(nameof(appState));
             this.stocksRepository = stocksRepo ?? throw new ArgumentNullException(nameof(stocksRepo));
 
             // Initialize commands
@@ -190,25 +186,8 @@
           : this(
               new NewsService(),
               new DispatcherAdapter(),
-              AppState.Instance,
               new BaseStocksRepository())
         {
-        }
-
-        /// <summary>
-        /// Performs initial setup, including checking user authentication and clearing the form.
-        /// </summary>
-        public void Initialize()
-        {
-            // Ensure user is logged in before allowing article creation
-            if (this.appState.CurrentUser == null)
-            {
-                ShowErrorDialog("You must be logged in to create an article.");
-                NavigationService.Instance.GoBack();
-                return;
-            }
-
-            this.ClearForm();
         }
 
         /// <summary>
@@ -237,36 +216,36 @@
 
                 // Create a unique ID for this preview
                 var previewId = Guid.NewGuid().ToString();
-
+                throw new NotImplementedException("Preview functionality is not implemented yet.");
                 // Build the NewsArticle for display
-                NewsArticle article = new(
-                    previewId,
-                    this.Title,
-                    this.Summary ?? string.Empty,
-                    this.Content,
-                    $"User: {this.appState.CurrentUser?.Username ?? "Anonymous"}",
-                    DateTime.Now,
-                    this.ParseRelatedStocks(),
-                    Status.Pending)
-                {
-                    IsRead = false,
-                    IsWatchlistRelated = false,
-                };
+                //NewsArticle article = new(
+                //    previewId,
+                //    this.Title,
+                //    this.Summary ?? string.Empty,
+                //    this.Content,
+                //    $"User: {this.appState.CurrentUser?.Username ?? "Anonymous"}",
+                //    DateTime.Now,
+                //    this.ParseRelatedStocks(),
+                //    Status.Pending)
+                //{
+                //    IsRead = false,
+                //    IsWatchlistRelated = false,
+                //};
 
-                // Build a temporary UserArticle for preview context
-                UserArticle userArticle = new(
-                   previewId,
-                   this.Title,
-                   this.Summary ?? string.Empty,
-                   this.Content,
-                   this.appState.CurrentUser ?? throw new InvalidOperationException("User not found"),
-                   DateTime.Now,
-                   "Preview",
-                   this.SelectedTopic,
-                   this.ParseRelatedStocks());
+                //// Build a temporary UserArticle for preview context
+                //UserArticle userArticle = new(
+                //   previewId,
+                //   this.Title,
+                //   this.Summary ?? string.Empty,
+                //   this.Content,
+                //   this.appState.CurrentUser ?? throw new InvalidOperationException("User not found"),
+                //   DateTime.Now,
+                //   "Preview",
+                //   this.SelectedTopic,
+                //   this.ParseRelatedStocks());
 
                 // Store preview in the service
-                this.newsService.StorePreviewArticle(article, userArticle);
+                //this.newsService.StorePreviewArticle(article, userArticle);
 
                 // Navigate to the preview view
                 NavigationService.Instance.Navigate(
@@ -306,43 +285,43 @@
                     this.IsLoading = false;
                     return;
                 }
-
+                throw new NotImplementedException("Submission functionality is not implemented yet.");
                 // Build the UserArticle to submit
-                UserArticle article = new(
-                    Guid.NewGuid().ToString(),
-                    this.Title,
-                    this.Summary ?? string.Empty,
-                    this.Content,
-                    this.appState.CurrentUser ?? throw new InvalidOperationException("User not found"),
-                    DateTime.Now,
-                    "Preview",
-                    this.SelectedTopic,
-                    this.ParseRelatedStocks());
+                //UserArticle article = new(
+                //    Guid.NewGuid().ToString(),
+                //    this.Title,
+                //    this.Summary ?? string.Empty,
+                //    this.Content,
+                //    this.appState.CurrentUser ?? throw new InvalidOperationException("User not found"),
+                //    DateTime.Now,
+                //    "Preview",
+                //    this.SelectedTopic,
+                //    this.ParseRelatedStocks());
 
-                bool success = this.newsService.SubmitUserArticle(article);
+                //bool success = this.newsService.SubmitUserArticle(article);
 
-                if (success)
-                {
-                    // Show confirmation and clear form once done
-                    this.dispatcherQueue.TryEnqueue(async () =>
-                    {
-                        var dialog = new ContentDialog
-                        {
-                            Title = "Success",
-                            Content = "Your article has been submitted for review.",
-                            CloseButtonText = "OK",
-                            XamlRoot = App.CurrentWindow.Content.XamlRoot,
-                        };
+                //if (success)
+                //{
+                //    // Show confirmation and clear form once done
+                //    this.dispatcherQueue.TryEnqueue(async () =>
+                //    {
+                //        var dialog = new ContentDialog
+                //        {
+                //            Title = "Success",
+                //            Content = "Your article has been submitted for review.",
+                //            CloseButtonText = "OK",
+                //            XamlRoot = App.CurrentWindow.Content.XamlRoot,
+                //        };
 
-                        await dialog.ShowAsync();
-                        this.ClearForm();
-                        NavigationService.Instance.GoBack();
-                    });
-                }
-                else
-                {
-                    ShowErrorDialog("Failed to submit article. Please try again later.");
-                }
+                //        await dialog.ShowAsync();
+                //        this.ClearForm();
+                //        NavigationService.Instance.GoBack();
+                //    });
+                //}
+                //else
+                //{
+                //    ShowErrorDialog("Failed to submit article. Please try again later.");
+                //}
             }
             catch (Exception ex)
             {
@@ -474,19 +453,20 @@
 
         private NewsArticle CreateArticle()
         {
-            return new NewsArticle(
-                articleId: Guid.NewGuid().ToString(),
-                title: this.Title,
-                summary: this.Summary,
-                content: this.Content,
-                source: $"User: {this.appState.CurrentUser?.Username ?? "Anonymous"}",
-                publishedDate: DateTime.Now,
-                relatedStocks: this.ParseRelatedStocks(),
-                status: Status.Pending)
-            {
-                IsRead = false,
-                IsWatchlistRelated = false,
-            };
+            throw new NotImplementedException("Article creation logic is not implemented yet.");
+            //return new NewsArticle(
+            //    articleId: Guid.NewGuid().ToString(),
+            //    title: this.Title,
+            //    summary: this.Summary,
+            //    content: this.Content,
+            //    source: $"User: {this.appState.CurrentUser?.Username ?? "Anonymous"}",
+            //    publishedDate: DateTime.Now,
+            //    relatedStocks: this.ParseRelatedStocks(),
+            //    status: Status.Pending)
+            //{
+            //    IsRead = false,
+            //    IsWatchlistRelated = false,
+            //};
         }
 
         /// <summary>

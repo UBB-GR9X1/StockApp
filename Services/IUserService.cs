@@ -5,7 +5,8 @@
 
     public interface IUserService
     {
-        public User GetUserByCnp(string cnp);
-        public List<User> GetUsers();
+        User GetUserByCnp(string cnp);
+
+        List<User> GetUsers();
     }
 }

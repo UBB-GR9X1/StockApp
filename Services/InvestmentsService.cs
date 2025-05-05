@@ -4,9 +4,7 @@
     using System.Collections.Generic;
     using System.Data;
     using System.Linq;
-    using Src.Data;
     using Src.Model;
-    using Src.Repos;
     using StockApp.Models;
     using StockApp.Repositories;
 
@@ -23,16 +21,16 @@
 
         public void CalculateAndUpdateRiskScore()
         {
-            var allExistentUsers = this.userRepository.GetUsers();
+            var allExistentUsers = this.userRepository.GetAllUsersAsync().Result;
 
             foreach (var currentUser in allExistentUsers)
             {
-                var recentInvestments = GetRecentInvestments(currentUser.Cnp);
+                var recentInvestments = this.GetRecentInvestments(currentUser.CNP);
                 if (recentInvestments != null)
                 {
-                    var riskScoreChange = CalculateRiskScoreChange(currentUser, recentInvestments);
-                    UpdateUserRiskScore(currentUser, riskScoreChange);
-                    this.userRepository.UpdateUserRiskScore(currentUser.Cnp, currentUser.RiskScore);
+                    var riskScoreChange = this.CalculateRiskScoreChange(currentUser, recentInvestments);
+                    this.UpdateUserRiskScore(currentUser, riskScoreChange);
+                    this.userRepository.UpdateUserRiskScoreAsync(currentUser.CNP, currentUser.RiskScore);
                 }
             }
         }
@@ -59,6 +57,7 @@
                 .OrderByDescending(i => i.InvestmentDate)
                 .ToList();
         }
+
         private int CalculateRiskScoreChange(User user, List<Investment> investments)
         {
             int riskScoreChange = 0;
@@ -120,14 +119,15 @@
             var maxRiskScore = 100;
             user.RiskScore = Math.Max(minRiskScore, Math.Min(user.RiskScore, maxRiskScore));
         }
+
         public void CalculateAndUpdateROI()
         {
-            var allExistentUsers = this.userRepository.GetUsers();
+            var allExistentUsers = this.userRepository.GetAllUsersAsync().Result;
 
             foreach (var currentUser in allExistentUsers)
             {
-                CalculateAndSetUserROI(currentUser);
-                this.userRepository.UpdateUserROI(currentUser.Cnp, currentUser.ROI);
+                this.CalculateAndSetUserROI(currentUser);
+                this.userRepository.UpdateUserROIAsync(currentUser.CNP, currentUser.ROI);
             }
         }
 
@@ -161,7 +161,7 @@
 
         public void CreditScoreUpdateInvestmentsBased()
         {
-            var allExistentUsers = this.userRepository.GetUsers();
+            var allExistentUsers = this.userRepository.GetAllUsersAsync().Result;
 
             foreach (var currentUser in allExistentUsers)
             {
@@ -193,13 +193,14 @@
 
                 currentUser.CreditScore = Math.Min(maxCreditScore, Math.Max(minCreditScore, currentUser.CreditScore));
 
-                this.userRepository.UpdateUserCreditScore(currentUser.Cnp, currentUser.CreditScore);
+                this.userRepository.UpdateUserRiskScoreAsync(currentUser.CNP, currentUser.CreditScore);
             }
         }
+
         public List<InvestmentPortfolio> GetPortfolioSummary()
         {
-            UserRepository userRepository = new UserRepository(new DatabaseConnection());
-            List<User> userList = userRepository.GetUsers();
+            UserRepository userRepository = new UserRepository();
+            List<User> userList = userRepository.GetAllUsersAsync().Result;
 
             var portfolios = new List<InvestmentPortfolio>();
 

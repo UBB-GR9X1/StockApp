@@ -17,12 +17,6 @@ namespace StockApp.Pages
         public NewsListPage()
         {
             this.InitializeComponent();
-            this.Loaded += this.OnLoaded;
-        }
-
-        private void OnLoaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
-        {
-            this.ViewModel.Initialize();
         }
 
         private void RefreshContainerRefreshRequested(RefreshContainer sender, RefreshRequestedEventArgs args)

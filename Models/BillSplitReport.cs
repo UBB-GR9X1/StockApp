@@ -5,9 +5,13 @@
     public class BillSplitReport
     {
         public int Id { get; set; }
+
         public string ReportedUserCnp { get; set; }
+
         public string ReportingUserCnp { get; set; }
+
         public DateTime DateOfTransaction { get; set; }
+
         public float BillShare { get; set; }
 
         public BillSplitReport(int id, string reportedCNP, string reporterCNP, DateTime dateTransaction, float billShare)

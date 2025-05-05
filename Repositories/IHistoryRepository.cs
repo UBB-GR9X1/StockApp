@@ -5,6 +5,6 @@
 
     public interface IHistoryRepository
     {
-        public List<CreditScoreHistory> GetHistoryForUser(string userCNP);
+        List<CreditScoreHistory> GetHistoryForUser(string userCNP);
     }
 }

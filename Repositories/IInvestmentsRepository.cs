@@ -5,10 +5,10 @@
 
     public interface IInvestmentsRepository
     {
-        public List<Investment> GetInvestmentsHistory();
+        List<Investment> GetInvestmentsHistory();
 
-        public void AddInvestment(Investment investment);
+        void AddInvestment(Investment investment);
 
-        public void UpdateInvestment(int investmentId, string investorCNP, float amountReturned);
+        void UpdateInvestment(int investmentId, string investorCNP, float amountReturned);
     }
 }

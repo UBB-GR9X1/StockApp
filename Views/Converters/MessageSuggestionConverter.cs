@@ -20,6 +20,7 @@
                     return new SolidColorBrush(Colors.Red);
                 }
             }
+
             return new SolidColorBrush(Colors.Black);
         }
 

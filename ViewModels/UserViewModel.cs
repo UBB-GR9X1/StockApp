@@ -1,17 +1,19 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using StockApp.Models;
-using StockApp.Services;
-
-namespace StockApp.ViewModels
+﻿namespace StockApp.ViewModels
 {
+    using System;
+    using System.Collections.ObjectModel;
+    using System.ComponentModel;
+    using System.Runtime.CompilerServices;
+    using System.Threading.Tasks;
+    using StockApp.Models;
+    using StockApp.Services;
+
     public class UserViewModel : INotifyPropertyChanged
     {
         private IUserService userService;
+
         public ObservableCollection<User> Users { get; set; }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         public UserViewModel(IUserService userServices)

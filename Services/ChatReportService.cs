@@ -5,7 +5,6 @@
     using Src.Data;
     using Src.Helpers;
     using Src.Model;
-    using Src.Repos;
     using StockApp.Models;
     using StockApp.Repositories;
 
@@ -25,10 +24,10 @@
 
         public async Task<bool> PunishUser(ChatReport chatReportToBeSolved)
         {
+            UserRepository userRepo = new UserRepository();
             DatabaseConnection dbConn = new DatabaseConnection();
-            UserRepository userRepo = new UserRepository(dbConn);
 
-            User reportedUser = userRepo.GetUserByCnp(chatReportToBeSolved.ReportedUserCnp);
+            User reportedUser = await userRepo.GetUserByCnpAsync(chatReportToBeSolved.ReportedUserCnp);
 
             int noOffenses = reportedUser.NumberOfOffenses;
             const int MINIMUM_NUMBER_OF_OFFENSES_BEFORE_PUNISHMENT_GROWS_DISTOPIANLY_ABSURD = 3;
@@ -38,19 +37,20 @@
 
             if (noOffenses >= MINIMUM_NUMBER_OF_OFFENSES_BEFORE_PUNISHMENT_GROWS_DISTOPIANLY_ABSURD)
             {
-                userRepo.PenalizeUser(chatReportToBeSolved.ReportedUserCnp, noOffenses * CREDIT_SCORE_DECREASE_AMOUNT_FLAT_RATE);
-                int decrease = reportedUser.CreditScore - CREDIT_SCORE_DECREASE_AMOUNT_FLAT_RATE * noOffenses;
+                await userRepo.PenalizeUserAsync(chatReportToBeSolved.ReportedUserCnp, noOffenses * CREDIT_SCORE_DECREASE_AMOUNT_FLAT_RATE);
+                int decrease = reportedUser.CreditScore - (CREDIT_SCORE_DECREASE_AMOUNT_FLAT_RATE * noOffenses);
                 this.UpdateHistoryForUser(chatReportToBeSolved.ReportedUserCnp, decrease);
                 amount = CREDIT_SCORE_DECREASE_AMOUNT_FLAT_RATE * noOffenses;
             }
             else
             {
-                userRepo.PenalizeUser(chatReportToBeSolved.ReportedUserCnp, CREDIT_SCORE_DECREASE_AMOUNT_FLAT_RATE);
-                int decrease = userRepo.GetUserByCnp(chatReportToBeSolved.ReportedUserCnp).CreditScore - CREDIT_SCORE_DECREASE_AMOUNT_FLAT_RATE;
+                await userRepo.PenalizeUserAsync(chatReportToBeSolved.ReportedUserCnp, CREDIT_SCORE_DECREASE_AMOUNT_FLAT_RATE);
+                int decrease = (await userRepo.GetUserByCnpAsync(chatReportToBeSolved.ReportedUserCnp)).CreditScore - CREDIT_SCORE_DECREASE_AMOUNT_FLAT_RATE;
                 this.UpdateHistoryForUser(chatReportToBeSolved.ReportedUserCnp, decrease);
                 amount = CREDIT_SCORE_DECREASE_AMOUNT_FLAT_RATE;
             }
-            userRepo.IncrementOffensesCount(chatReportToBeSolved.ReportedUserCnp);
+
+            await userRepo.IncrementOffensesCountAsync(chatReportToBeSolved.ReportedUserCnp);
             this.chatReportRepository.DeleteChatReport(chatReportToBeSolved.Id);
             TipsService service = new TipsService(new TipsRepository(dbConn));
             service.GiveTipToUser(chatReportToBeSolved.ReportedUserCnp);
@@ -66,6 +66,7 @@
             this.chatReportRepository.UpdateActivityLog(chatReportToBeSolved.ReportedUserCnp, amount);
             return true;
         }
+
         public async Task<bool> IsMessageOffensive(string messageToBeChecked)
         {
             bool isOffensive = await ProfanityChecker.IsMessageOffensive(messageToBeChecked);

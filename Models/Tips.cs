@@ -10,7 +10,9 @@
     public class Tip
     {
         public int Id { get; set; }
+
         public string CreditScoreBracket { get; set; }
+
         public string TipText { get; set; }
 
         public Tip(int id, string creditScoreBracket, string tipText)

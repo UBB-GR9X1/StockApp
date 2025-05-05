@@ -5,8 +5,8 @@
 
     public interface IActivityRepository
     {
-        public void AddActivity(string userCNP, string activityName, int amount, string details);
+        void AddActivity(string userCNP, string activityName, int amount, string details);
 
-        public List<ActivityLog> GetActivityForUser(string userCNP);
+        List<ActivityLog> GetActivityForUser(string userCNP);
     }
 }

@@ -6,7 +6,7 @@ namespace StockApp.Pages
 
     public sealed partial class TriggeredAlertsPage : Page
     {
-        private readonly AlertRepository _alertRepository;
+        private readonly AlertRepository alertRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TriggeredAlertsPage"/> class.
@@ -14,7 +14,7 @@ namespace StockApp.Pages
         public TriggeredAlertsPage()
         {
             this.InitializeComponent();
-            this._alertRepository = new AlertRepository();
+            this.alertRepository = new AlertRepository();
             LoadAlerts();
         }
 

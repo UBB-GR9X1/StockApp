@@ -4,9 +4,10 @@
 
     public interface ILoanCheckerService
     {
-        public event EventHandler LoansUpdated;
+        event EventHandler LoansUpdated;
 
-        public void Start();
-        public void Stop();
+        void Start();
+
+        void Stop();
     }
 }

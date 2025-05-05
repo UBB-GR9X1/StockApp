@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using Src.Data;
     using Src.Model;
-    using Src.Repos;
     using StockApp.Repositories;
 
     public class MessagesService : IMessagesService
@@ -19,9 +18,9 @@
         public void GiveMessageToUser(string userCNP)
         {
             DatabaseConnection dbConn = new DatabaseConnection();
-            UserRepository userRepository = new UserRepository(dbConn);
+            UserRepository userRepository = new UserRepository();
 
-            int userCreditScore = userRepository.GetUserByCnp(userCNP).CreditScore;
+            int userCreditScore = userRepository.GetUserByCnpAsync(userCNP).Result.CreditScore;
             try
             {
                 if (userCreditScore >= 550)

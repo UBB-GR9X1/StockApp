@@ -16,6 +16,7 @@ namespace StockApp.Views.Components
         {
             this.InitializeComponent();
         }
+
         public void SetTipData(Tip givenTip)
         {
             this.Tip = givenTip;

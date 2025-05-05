@@ -4,7 +4,6 @@ namespace StockApp
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
-    using Src.Data;
     using StockApp.Database;
     using StockApp.Pages;
     using StockApp.Repositories;
@@ -18,6 +17,11 @@ namespace StockApp
     public sealed partial class MainWindow : Window
     {
         private readonly IServiceProvider serviceProvider;
+        private static readonly IUserRepository userRepository = new UserRepository();
+
+        public bool CreateProfileButtonVisibility => userRepository.CurrentUserCNP == null;
+
+        public static bool ProfileButtonVisibility => userRepository.CurrentUserCNP != null;
 
         public MainWindow(IServiceProvider serviceProvider)
         {
@@ -77,6 +81,10 @@ namespace StockApp
                         var profilePage = this.serviceProvider.GetRequiredService<ProfilePage>();
                         this.MainFrame.Content = profilePage;
                         break;
+                    case "CreateProfile":
+                        var createProfilePage = this.serviceProvider.GetRequiredService<CreateProfilePage>();
+                        this.MainFrame.Content = createProfilePage;
+                        break;
                     case "GemStoreWindow":
                         var gemStoreWindow = this.serviceProvider.GetRequiredService<GemStoreWindow>();
                         this.MainFrame.Content = gemStoreWindow;
@@ -87,8 +95,7 @@ namespace StockApp
 
         private void ZodiacFeature(object sender, RoutedEventArgs e)
         {
-            DatabaseConnection dbConn = new DatabaseConnection();
-            UserRepository userRepository = new UserRepository(dbConn);
+            UserRepository userRepository = new UserRepository();
             ZodiacService zodiacService = new ZodiacService(userRepository);
 
             zodiacService.CreditScoreModificationBasedOnJokeAndCoinFlipAsync();

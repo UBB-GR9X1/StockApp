@@ -5,9 +5,12 @@
 
     public interface IHistoryService
     {
-        public List<CreditScoreHistory> GetHistoryByUserCNP(string userCNP);
-        public List<CreditScoreHistory> GetHistoryWeekly(string userCNP);
-        public List<CreditScoreHistory> GetHistoryMonthly(string userCNP);
-        public List<CreditScoreHistory> GetHistoryYearly(string userCNP);
+        List<CreditScoreHistory> GetHistoryByUserCNP(string userCNP);
+
+        List<CreditScoreHistory> GetHistoryWeekly(string userCNP);
+
+        List<CreditScoreHistory> GetHistoryMonthly(string userCNP);
+
+        List<CreditScoreHistory> GetHistoryYearly(string userCNP);
     }
 }

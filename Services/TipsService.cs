@@ -2,9 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-    using Src.Data;
     using Src.Model;
-    using Src.Repos;
     using StockApp.Repositories;
 
     public class TipsService : ITipsService
@@ -18,12 +16,11 @@
 
         public void GiveTipToUser(string userCNP)
         {
-            DatabaseConnection dbConnection = new DatabaseConnection();
-            UserRepository userRepository = new UserRepository(dbConnection);
+            UserRepository userRepository = new UserRepository();
 
             try
             {
-                int userCreditScore = userRepository.GetUserByCnp(userCNP).CreditScore;
+                int userCreditScore = userRepository.GetUserByCnpAsync(userCNP).Result.CreditScore;
                 if (userCreditScore < 300)
                 {
                     this.tipsRepository.GiveUserTipForLowBracket(userCNP);

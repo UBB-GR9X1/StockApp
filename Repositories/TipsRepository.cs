@@ -114,6 +114,7 @@
                     TipText = row["TipText"].ToString()
                 });
             }
+
             return tips;
         }
     }

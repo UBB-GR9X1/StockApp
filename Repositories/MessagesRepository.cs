@@ -145,6 +145,7 @@
                     MessageText = row["Message"].ToString()
                 });
             }
+
             return messages;
         }
     }

@@ -8,7 +8,6 @@ namespace StockApp.Views.Pages
     using OxyPlot.Series;
     using Src.Data;
     using Src.Model;
-    using Src.Repos;
     using StockApp.Models;
     using StockApp.Repositories;
     using StockApp.Services;
@@ -23,7 +22,7 @@ namespace StockApp.Views.Pages
         {
             this.InitializeComponent();
             this.user = selectedUser;
-            this.activityService = new ActivityService(new ActivityRepository(new DatabaseConnection(), new UserRepository(new DatabaseConnection())));
+            this.activityService = new ActivityService(new ActivityRepository(new DatabaseConnection(), new UserRepository()));
             this.historyService = new HistoryService(new HistoryRepository(new DatabaseConnection()));
             this.LoadUserData();
             this.LoadHistory(this.historyService.GetHistoryMonthly(this.user.CNP));
@@ -62,6 +61,7 @@ namespace StockApp.Views.Pages
                 {
                     return;
                 }
+
                 var plotModel = new PlotModel { Title = string.Empty };
 
                 var barSeries = new BarSeries
@@ -95,16 +95,19 @@ namespace StockApp.Views.Pages
                             barColor = OxyColor.FromRgb(255, 0, 0);
                         }
                     }
+
                     barSeries.Items.Add(new BarItem
                     {
                         Value = record.Score,
                         Color = barColor
                     });
                 }
+
                 foreach (var record in history)
                 {
                     barSeries.Items.Add(new BarItem { Value = record.Score });
                 }
+
                 var categoryAxis = new CategoryAxis
                 {
                     Position = AxisPosition.Left

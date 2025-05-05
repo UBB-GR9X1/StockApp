@@ -5,6 +5,6 @@
 
     public interface IActivityService
     {
-        public List<ActivityLog> GetActivityForUser(string userCNP);
+        List<ActivityLog> GetActivityForUser(string userCNP);
     }
 }

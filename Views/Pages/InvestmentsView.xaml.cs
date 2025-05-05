@@ -6,7 +6,6 @@
     using Microsoft.UI.Xaml.Controls;
     using Src.Data;
     using Src.Model;
-    using Src.Repos;
     using StockApp.Repositories;
     using StockApp.Services;
     using StockApp.Views.Components;
@@ -17,11 +16,12 @@
         private InvestmentsRepository investmentsRepository;
         private InvestmentsService investmentsService;
         private UserRepository userRepository;
+
         public InvestmentsView()
         {
             this.dbConnection = new DatabaseConnection();
             this.investmentsRepository = new InvestmentsRepository(this.dbConnection);
-            this.userRepository = new UserRepository(this.dbConnection);
+            this.userRepository = new UserRepository();
             this.investmentsService = new InvestmentsService(this.userRepository, this.investmentsRepository);
 
             this.InitializeComponent();
@@ -43,6 +43,7 @@
             this.investmentsService.CalculateAndUpdateRiskScore();
             this.LoadInvestmentPortofolio();
         }
+
         private void LoadInvestmentPortofolio()
         {
             this.UsersPortofolioContainer.Items.Clear();

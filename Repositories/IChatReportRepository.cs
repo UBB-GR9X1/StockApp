@@ -6,14 +6,14 @@
 
     public interface IChatReportRepository
     {
-        public List<ChatReport> GetChatReports();
+        List<ChatReport> GetChatReports();
 
-        public void DeleteChatReport(int id);
+        void DeleteChatReport(int id);
 
-        public void UpdateScoreHistoryForUser(string userCNP, int newScore);
+        void UpdateScoreHistoryForUser(string userCNP, int newScore);
 
-        public int GetNumberOfGivenTipsForUser(string reportedUserCnp);
+        int GetNumberOfGivenTipsForUser(string reportedUserCnp);
 
-        public void UpdateActivityLog(string reportedUserCnp, int amount);
+        void UpdateActivityLog(string reportedUserCnp, int amount);
     }
 }

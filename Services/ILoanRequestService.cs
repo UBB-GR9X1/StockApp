@@ -6,11 +6,16 @@
 
     public interface ILoanRequestService
     {
-        public string GiveSuggestion(LoanRequest loanRequest);
-        public void SolveLoanRequest(LoanRequest loanRequest);
-        public void DenyLoanRequest(LoanRequest loanRequest);
-        public List<LoanRequest> GetLoanRequests();
-        public List<LoanRequest> GetUnsolvedLoanRequests();
+        string GiveSuggestion(LoanRequest loanRequest);
+
+        void SolveLoanRequest(LoanRequest loanRequest);
+
+        void DenyLoanRequest(LoanRequest loanRequest);
+
+        List<LoanRequest> GetLoanRequests();
+
+        List<LoanRequest> GetUnsolvedLoanRequests();
+
         bool PastUnpaidLoans(User user, LoanService loanService);
     }
 }

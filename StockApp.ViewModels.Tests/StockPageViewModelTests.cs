@@ -16,7 +16,7 @@ namespace StockApp.ViewModels.Tests
         private Mock<IChart> _chart;
         private StockPageViewModel _vm;
 
-        readonly Stock _stk = new Stock("X", "X", "", 0, 0);
+        private readonly Stock _stk = new Stock("X", "X", "", 0, 0);
 
         [TestInitialize]
         public void Init()

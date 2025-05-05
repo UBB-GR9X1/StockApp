@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using Src.Model;
-using StockApp.Services;
-
-namespace StockApp.ViewModels
+﻿namespace StockApp.ViewModels
 {
+    using System;
+    using System.Collections.ObjectModel;
+    using Src.Model;
+    using StockApp.Services;
+
     public class InvestmentsViewModel
     {
         private readonly IInvestmentsService investmentsService;

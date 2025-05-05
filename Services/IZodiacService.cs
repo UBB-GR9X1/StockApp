@@ -4,7 +4,8 @@
 
     public interface IZodiacService
     {
-        public Task CreditScoreModificationBasedOnJokeAndCoinFlipAsync();
-        public void CreditScoreModificationBasedOnAttributeAndGravity();
+        Task CreditScoreModificationBasedOnJokeAndCoinFlipAsync();
+
+        void CreditScoreModificationBasedOnAttributeAndGravity();
     }
 }

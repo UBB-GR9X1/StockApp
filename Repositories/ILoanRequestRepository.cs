@@ -6,12 +6,12 @@
 
     public interface ILoanRequestRepository
     {
-        public List<LoanRequest> GetLoanRequests();
+        List<LoanRequest> GetLoanRequests();
 
-        public List<LoanRequest> GetUnsolvedLoanRequests();
+        List<LoanRequest> GetUnsolvedLoanRequests();
 
-        public void SolveLoanRequest(int loanRequestID);
+        void SolveLoanRequest(int loanRequestID);
 
-        public void DeleteLoanRequest(int loanRequestID);
+        void DeleteLoanRequest(int loanRequestID);
     }
 }

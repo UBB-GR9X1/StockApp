@@ -28,7 +28,7 @@
 
             try
             {
-                User? existingUser = this.userRepository.GetUserByCnp(userCnp);
+                User? existingUser = this.userRepository.GetUserByCnpAsync(userCnp).Result;
                 if (existingUser == null)
                 {
                     throw new ArgumentException("User not found");

@@ -24,9 +24,9 @@
                    <NavigationViewItem Content="News" Tag="NewsListPage"/>
                    <NavigationViewItem Content="Create Stock" Tag="CreateStockPage"/>
                    <NavigationViewItem Content="History" Tag="TransactionLogPage"/>
-                   <NavigationViewItem Content="Create Profile" Tag="CreateProfile" Visibility="{Binding GuestButtonVisibility}"/>
-                   <NavigationViewItem Content="Profile" Tag="ProfilePage" Visibility="{Binding ProfileButtonVisibility}"/>
                    <NavigationViewItem Content="Store" Tag="GemStoreWindow"/>
+                   <NavigationViewItem Content="Create Profile" Tag="CreateProfile" Visibility="{Binding CreateProfileButtonVisibility, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                   <NavigationViewItem Content="Profile" Tag="ProfilePage" Visibility="{Binding ProfileButtonVisibility, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                </NavigationView.MenuItems>
             </NavigationView>
 

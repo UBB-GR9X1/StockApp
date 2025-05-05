@@ -5,9 +5,12 @@
 
     public interface IInvestmentsService
     {
-        public void CalculateAndUpdateRiskScore();
-        public void CalculateAndUpdateROI();
-        public void CreditScoreUpdateInvestmentsBased();
-        public List<InvestmentPortfolio> GetPortfolioSummary();
+        void CalculateAndUpdateRiskScore();
+
+        void CalculateAndUpdateROI();
+
+        void CreditScoreUpdateInvestmentsBased();
+
+        List<InvestmentPortfolio> GetPortfolioSummary();
     }
 }

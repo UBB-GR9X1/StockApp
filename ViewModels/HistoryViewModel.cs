@@ -1,10 +1,10 @@
-﻿using System;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using StockApp.Services;
-
-namespace StockApp.ViewModels
+﻿namespace StockApp.ViewModels
 {
+    using System;
+    using System.ComponentModel;
+    using System.Runtime.CompilerServices;
+    using StockApp.Services;
+
     public class HistoryViewModel : INotifyPropertyChanged
     {
         private IHistoryService historyService;

@@ -17,7 +17,7 @@
     <Compile Remove="StockApp.ViewModels.Tests\**\*.cs" />
 	<Compile Remove="StockApp.Repository.Tests\**\*.cs" />
 	<Compile Remove="StockApp.Service.Tests\**\*.cs" />
-	  
+	<Compile Remove="BankApi\**\*.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Homepage\**" />
@@ -27,6 +27,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Remove="Test\TestPage.xaml" />
+    <None Remove="Views\Pages\CreateProfilePage.xaml" />
   </ItemGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -117,6 +118,9 @@
     <None Update="SqlScripts\ResetDatabase.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Page Update="Views\Pages\CreateProfilePage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
 </Project>

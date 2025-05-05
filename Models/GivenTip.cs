@@ -5,9 +5,13 @@ namespace Src.Model
     public class GivenTip
 	{
 		public int Id { get; set; }
+
 		public string UserCnp { get; set; }
+
 		public int TipID { get; set; }
+
 		public int MessageID { get; set; }
+
 		public DateOnly Date { get; set; }
 
 		public GivenTip(int id, string userCNP, int tipID, int messageID, DateOnly date)
@@ -18,6 +22,7 @@ namespace Src.Model
 			this.MessageID = messageID;
 			this.Date = date;
 		}
+
 		public GivenTip()
 		{
 			this.Id = 0;
