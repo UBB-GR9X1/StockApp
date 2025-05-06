@@ -503,7 +503,7 @@
                 return true;
             }
 
-            var stockNames = ParseStockNames();
+            var stockNames = ParseRelatedStocks();
             var allStocks = await _stocksRepository.GetAllStocksAsync();
             var allStockNames = allStocks.Select(s => s.Name).ToList();
 

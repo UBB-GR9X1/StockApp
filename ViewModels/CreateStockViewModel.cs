@@ -11,6 +11,7 @@ namespace StockApp.ViewModels
     using System.Windows.Input;
     using StockApp.Commands;
     using StockApp.Services;
+    using StockApp.Database;
 
     internal class CreateStockViewModel : INotifyPropertyChanged
     {
@@ -41,7 +42,7 @@ namespace StockApp.ViewModels
         }
 
         public CreateStockViewModel()
-            : this(new CreateStockService())
+            : this(new CreateStockService(new AppDbContext()))
         {
         }
 

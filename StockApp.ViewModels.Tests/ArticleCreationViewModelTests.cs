@@ -33,12 +33,8 @@ namespace StockApp.ViewModels.Tests
                 .Returns(true);
 
             // Set up mock DbContext
-            var options = new DbContextOptionsBuilder<AppDbContext>()
-                .UseInMemoryDatabase(databaseName: "TestDb")
-                .Options;
+            _dbContextMock = new Mock<AppDbContext>();
 
-            _dbContextMock = new Mock<AppDbContext>(options);
-            
             // Mock DbSet for BaseStocks
             var mockSet = new Mock<DbSet<BaseStock>>();
             var baseStocks = new List<BaseStock>();
