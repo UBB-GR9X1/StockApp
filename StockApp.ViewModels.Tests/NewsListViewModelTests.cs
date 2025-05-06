@@ -17,7 +17,6 @@ namespace StockApp.ViewModels.Tests
     {
         private Mock<INewsService> _svcMock;
         private Mock<IDispatcher> _dispMock;
-        private Mock<IAppState> _appStateMock;
         private NewsListViewModel _vm;
 
         private readonly List<NewsArticle> _sampleArticles =
@@ -57,7 +56,6 @@ namespace StockApp.ViewModels.Tests
         {
             _svcMock = new Mock<INewsService>(MockBehavior.Strict);
             _dispMock = new Mock<IDispatcher>(MockBehavior.Strict);
-            _appStateMock = new Mock<IAppState>(MockBehavior.Strict);
 
             _dispMock
                 .Setup(d => d.TryEnqueue(It.IsAny<DispatcherQueueHandler>()))
@@ -78,12 +76,8 @@ namespace StockApp.ViewModels.Tests
                 .Setup(s => s.GetCachedArticles())
                 .Returns(_sampleArticles);
 
-            _appStateMock.Setup(a => a.CurrentUser).Returns((User)null);
-
-            _vm = new NewsListViewModel(
-                _svcMock.Object,
-                _appStateMock.Object
-            );
+            // The NewsListViewModel constructor only takes one parameter: INewsService
+            _vm = new NewsListViewModel(_svcMock.Object);
         }
 
         [TestMethod]

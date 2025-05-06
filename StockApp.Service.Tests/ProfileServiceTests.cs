@@ -20,7 +20,15 @@ namespace StockApp.Service.Tests
             _userRepoMock = new Mock<IUserRepository>();
             _profileRepoMock = new Mock<IProfileRepository>();
 
-            var testUser = new User("123", "Test", "Description", true, "img.png", false, 500);
+            var testUser = new User(
+                cnp: "123",
+                username: "Test",
+                description: "Description",
+                isModerator: true,
+                image: "img.png",
+                isHidden: false,
+                gem_balance: 500
+            );
 
             _profileRepoMock.Setup(r => r.CurrentUser()).Returns(testUser);
 
