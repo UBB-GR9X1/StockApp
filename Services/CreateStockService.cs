@@ -6,15 +6,24 @@
     using StockApp.Exceptions;
     using StockApp.Models;
     using StockApp.Repositories;
+    using System.Threading.Tasks;
+    using StockApp.Database;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="CreateStockService"/> class.
+    /// Service for creating stocks
     /// </summary>
-    /// <param name="stocksRepository"></param>
-    internal class CreateStockService(BaseStocksRepository? stocksRepository = null) : ICreateStockService
+    internal class CreateStockService : ICreateStockService
     {
-        private readonly BaseStocksRepository stocksRepository = stocksRepository ?? new BaseStocksRepository();
+        private readonly IBaseStocksRepository _stocksRepository;
         private readonly Random random = new();
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CreateStockService"/> class.
+        /// </summary>
+        public CreateStockService(AppDbContext dbContext)
+        {
+            _stocksRepository = new BaseStocksRepository(dbContext);
+        }
 
         /// <summary>
         /// Checks if the user is a guest.
@@ -58,10 +67,10 @@
             {
                 var stock = new BaseStock(stockName, stockSymbol, authorCNP);
                 int initialPrice = this.random.Next(50, 501);
-                this.stocksRepository.AddStock(stock, initialPrice);
+                var result = _stocksRepository.AddStockAsync(stock, initialPrice).GetAwaiter().GetResult();
                 return "Stock added successfully with initial value!";
             }
-            catch (DuplicateStockException duplicateStockEx)
+            catch (DuplicateStockException)
             {
                 throw;
             }
@@ -72,6 +81,58 @@
             catch (SqlException sqlIssue)
             {
                 throw new StockPersistenceException("Database error occurred while adding the stock.", sqlIssue);
+            }
+        }
+
+        public async Task<bool> CreateStock(string stockName, string stockSymbol, string authorCnp, out string message)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(stockName))
+                {
+                    message = "Stock name cannot be empty.";
+                    return false;
+                }
+
+                if (string.IsNullOrWhiteSpace(stockSymbol))
+                {
+                    message = "Stock symbol cannot be empty.";
+                    return false;
+                }
+
+                if (string.IsNullOrWhiteSpace(authorCnp))
+                {
+                    message = "Author CNP cannot be empty.";
+                    return false;
+                }
+
+                if (stockName.Length > 100)
+                {
+                    message = "Stock name cannot exceed 100 characters.";
+                    return false;
+                }
+
+                if (stockSymbol.Length > 10)
+                {
+                    message = "Stock symbol cannot exceed 10 characters.";
+                    return false;
+                }
+
+                var stock = new BaseStock(stockName, stockSymbol, authorCnp);
+                await _stocksRepository.AddStockAsync(stock);
+                
+                message = "Stock created successfully!";
+                return true;
+            }
+            catch (DuplicateStockException)
+            {
+                message = $"A stock with the name '{stockName}' already exists.";
+                return false;
+            }
+            catch (Exception ex)
+            {
+                message = $"Error creating stock: {ex.Message}";
+                return false;
             }
         }
     }

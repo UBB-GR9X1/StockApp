@@ -4,6 +4,10 @@
 namespace StockApp
 {
     using System;
+    using System.Net.Http;
+    using Microsoft.AspNetCore.Builder;
+    using Microsoft.AspNetCore.Hosting;
+    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
@@ -32,7 +36,7 @@ namespace StockApp
         /// </summary>
         public App()
         {
-            DatabaseHelper.InitializeDatabase();
+            // Note: We've replaced DatabaseHelper.InitializeDatabase() with EF Core migrations
             this.InitializeComponent();
             this.ConfigureHost();
 
@@ -42,77 +46,96 @@ namespace StockApp
 
         private void ConfigureHost()
         {
-            Host = Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder().ConfigureServices((context, services) =>
-            {
-                var config = new ConfigurationBuilder().AddUserSecrets<App>().AddEnvironmentVariables().Build();
-                services.AddSingleton<IConfiguration>(config);
-                services.AddSingleton(new DatabaseConnection());
-
-                services.AddSingleton<IActivityRepository, ActivityRepository>();
-                services.AddSingleton<IBillSplitReportRepository, BillSplitReportRepository>();
-                services.AddSingleton<IChatReportRepository, ChatReportRepository>();
-                services.AddSingleton<IHistoryRepository, HistoryRepository>();
-                services.AddSingleton<IInvestmentsRepository, InvestmentsRepository>();
-                services.AddSingleton<ILoanRepository, LoanRepository>();
-                services.AddSingleton<ILoanRequestRepository, LoanRequestRepository>();
-                services.AddSingleton<IUserRepository, UserRepository>();
-
-                services.AddSingleton<IActivityService, ActivityService>();
-                services.AddSingleton<IBillSplitReportService, BillSplitReportService>();
-                services.AddSingleton<IChatReportService, ChatReportService>();
-                services.AddSingleton<IHistoryService, HistoryService>();
-                services.AddSingleton<IInvestmentsService, InvestmentsService>();
-                services.AddSingleton<ILoanCheckerService, LoanCheckerService>();
-                services.AddSingleton<ILoanRequestService, LoanRequestService>();
-                services.AddSingleton<ILoanService, LoanService>();
-                services.AddSingleton<IMessagesService, MessagesService>();
-                services.AddSingleton<ITipsService, TipsService>();
-                services.AddSingleton<IUserService, UserService>();
-                services.AddSingleton<IZodiacService, ZodiacService>();
-                services.AddSingleton<MainWindow>();
-
-                services.AddTransient<BillSplitReportComponent>();
-                services.AddTransient<Func<BillSplitReportComponent>>(provider =>
+            Host = Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder()
+                .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    return () => provider.GetRequiredService<BillSplitReportComponent>();
-                });
-                services.AddTransient<BillSplitReportPage>();
-
-                services.AddTransient<ChatReportComponent>();
-                services.AddTransient<Func<ChatReportComponent>>(provider =>
+                    webBuilder.UseStartup<Startup>();
+                })
+                .ConfigureServices((context, services) =>
                 {
-                    return () => provider.GetRequiredService<ChatReportComponent>();
-                });
-                services.AddTransient<ChatReportView>();
+                    var config = new ConfigurationBuilder().AddUserSecrets<App>().AddEnvironmentVariables().Build();
+                    services.AddSingleton<IConfiguration>(config);
+                    services.AddSingleton(new DatabaseConnection());
 
-                services.AddTransient<LoanComponent>();
-                services.AddTransient<Func<LoanComponent>>(provider =>
-                {
-                    return () => provider.GetRequiredService<LoanComponent>();
-                });
-                services.AddTransient<LoansView>();
+                    // Configure EF Core
+                    services.AddDbContext<AppDbContext>(options =>
+                        options.UseSqlServer(ConnectionString));
 
-                services.AddTransient<LoanRequestComponent>();
-                services.AddTransient<Func<LoanRequestComponent>>(provider =>
-                {
-                    return () => provider.GetRequiredService<LoanRequestComponent>();
-                });
-                services.AddTransient<LoanRequestView>();
+                    // Repositories
+                    services.AddScoped<IBaseStocksRepository, BaseStocksRepository>();
+                    services.AddSingleton<IActivityRepository, ActivityRepository>();
+                    services.AddSingleton<IBillSplitReportRepository, BillSplitReportRepository>();
+                    services.AddSingleton<IChatReportRepository, ChatReportRepository>();
+                    services.AddSingleton<IHistoryRepository, HistoryRepository>();
+                    services.AddSingleton<IInvestmentsRepository, InvestmentsRepository>();
+                    services.AddSingleton<ILoanRepository, LoanRepository>();
+                    services.AddSingleton<ILoanRequestRepository, LoanRequestRepository>();
+                    services.AddSingleton<IUserRepository, UserRepository>();
 
-                services.AddTransient<UserInfoComponent>();
-                services.AddTransient<Func<UserInfoComponent>>(provider =>
-                {
-                    return () => provider.GetRequiredService<UserInfoComponent>();
-                });
-                services.AddTransient<UsersView>();
+                    // API Services
+                    services.AddHttpClient<IBaseStocksApiService, BaseStocksApiService>(client =>
+                    {
+                        client.BaseAddress = new Uri("http://localhost:5000/");
+                    });
 
-                services.AddTransient<NewsListPage>();
-                services.AddTransient<CreateStockPage>();
-                services.AddTransient<TransactionLogPage>();
-                services.AddTransient<ProfilePage>();
-                services.AddTransient<GemStoreWindow>();
-                services.AddTransient<CreateProfilePage>();
-            }).Build();
+                    // Other Services
+                    services.AddSingleton<IActivityService, ActivityService>();
+                    services.AddSingleton<IBillSplitReportService, BillSplitReportService>();
+                    services.AddSingleton<IChatReportService, ChatReportService>();
+                    services.AddSingleton<IHistoryService, HistoryService>();
+                    services.AddSingleton<IInvestmentsService, InvestmentsService>();
+                    services.AddSingleton<ILoanCheckerService, LoanCheckerService>();
+                    services.AddSingleton<ILoanRequestService, LoanRequestService>();
+                    services.AddSingleton<ILoanService, LoanService>();
+                    services.AddSingleton<IMessagesService, MessagesService>();
+                    services.AddSingleton<ITipsService, TipsService>();
+                    services.AddSingleton<IUserService, UserService>();
+                    services.AddSingleton<IZodiacService, ZodiacService>();
+                    services.AddSingleton<MainWindow>();
+
+                    // UI Components
+                    services.AddTransient<BillSplitReportComponent>();
+                    services.AddTransient<Func<BillSplitReportComponent>>(provider =>
+                    {
+                        return () => provider.GetRequiredService<BillSplitReportComponent>();
+                    });
+                    services.AddTransient<BillSplitReportPage>();
+
+                    services.AddTransient<ChatReportComponent>();
+                    services.AddTransient<Func<ChatReportComponent>>(provider =>
+                    {
+                        return () => provider.GetRequiredService<ChatReportComponent>();
+                    });
+                    services.AddTransient<ChatReportView>();
+
+                    services.AddTransient<LoanComponent>();
+                    services.AddTransient<Func<LoanComponent>>(provider =>
+                    {
+                        return () => provider.GetRequiredService<LoanComponent>();
+                    });
+                    services.AddTransient<LoansView>();
+
+                    services.AddTransient<LoanRequestComponent>();
+                    services.AddTransient<Func<LoanRequestComponent>>(provider =>
+                    {
+                        return () => provider.GetRequiredService<LoanRequestComponent>();
+                    });
+                    services.AddTransient<LoanRequestView>();
+
+                    services.AddTransient<UserInfoComponent>();
+                    services.AddTransient<Func<UserInfoComponent>>(provider =>
+                    {
+                        return () => provider.GetRequiredService<UserInfoComponent>();
+                    });
+                    services.AddTransient<UsersView>();
+
+                    services.AddTransient<NewsListPage>();
+                    services.AddTransient<CreateStockPage>();
+                    services.AddTransient<TransactionLogPage>();
+                    services.AddTransient<ProfilePage>();
+                    services.AddTransient<GemStoreWindow>();
+                    services.AddTransient<CreateProfilePage>();
+                }).Build();
         }
 
 

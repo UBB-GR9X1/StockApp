@@ -19,9 +19,10 @@
     /// </summary>
     public class ArticleCreationViewModel : ViewModelBase
     {
-        private readonly INewsService newsService;
+        private readonly INewsService _newsService;
+        private readonly IBaseStocksRepository _stocksRepository;
+        private readonly AppDbContext _dbContext;
         private readonly IDispatcher dispatcherQueue;
-        private readonly IBaseStocksRepository stocksRepository;
 
         private string title;
 
@@ -156,11 +157,12 @@
         public ArticleCreationViewModel(
             INewsService newsService,
             IDispatcher dispatcher,
-            IBaseStocksRepository stocksRepo)
+            AppDbContext dbContext)
         {
-            this.newsService = newsService ?? throw new ArgumentNullException(nameof(newsService));
+            _newsService = newsService ?? throw new ArgumentNullException(nameof(newsService));
+            _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            _stocksRepository = new BaseStocksRepository(_dbContext);
             this.dispatcherQueue = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
-            this.stocksRepository = stocksRepo ?? throw new ArgumentNullException(nameof(stocksRepo));
 
             // Initialize commands
             this.BackCommand = new StockNewsRelayCommand(() => NavigationService.Instance.GoBack());
@@ -186,7 +188,7 @@
           : this(
               new NewsService(),
               new DispatcherAdapter(),
-              new BaseStocksRepository())
+              new AppDbContext())
         {
         }
 
@@ -377,7 +379,7 @@
                 return true;
             }
 
-            var allStocks = this.stocksRepository.GetAllStocks()
+            var allStocks = await _stocksRepository.GetAllStocksAsync()
                 ?? throw new InvalidOperationException("Stocks repository returned null");
 
             var invalidStocks = new List<string>();
@@ -491,6 +493,36 @@
                 // If dialog fails, write to debug output
                 System.Diagnostics.Debug.WriteLine($"Error showing error dialog: {ex.Message}");
             }
+        }
+
+        private async Task<bool> ValidateStockNames()
+        {
+            if (string.IsNullOrEmpty(RelatedStocksText))
+            {
+                return true;
+            }
+
+            var stockNames = ParseStockNames();
+            var allStocks = await _stocksRepository.GetAllStocksAsync();
+            var allStockNames = allStocks.Select(s => s.Name).ToList();
+
+            return stockNames.All(name => allStockNames.Contains(name));
+        }
+
+        private bool ShouldEnableButton()
+        {
+            if (string.IsNullOrEmpty(Title) || string.IsNullOrEmpty(Content))
+            {
+                return false;
+            }
+
+            // Check if RelatedStocksText contains comma-separated entries
+            if (!string.IsNullOrEmpty(RelatedStocksText) && RelatedStocksText.Split(',').Length > 5)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

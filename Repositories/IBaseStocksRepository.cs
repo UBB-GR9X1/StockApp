@@ -1,12 +1,19 @@
 ﻿namespace StockApp.Repositories
 {
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using StockApp.Models;
 
     public interface IBaseStocksRepository
     {
-        void AddStock(BaseStock stock, int initialPrice = 100);
+        Task<BaseStock> AddStockAsync(BaseStock stock, int initialPrice = 100);
 
-        List<BaseStock> GetAllStocks();
+        Task<List<BaseStock>> GetAllStocksAsync();
+
+        Task<BaseStock> GetStockByNameAsync(string name);
+
+        Task<bool> DeleteStockAsync(string name);
+
+        Task<BaseStock> UpdateStockAsync(BaseStock stock);
     }
 }

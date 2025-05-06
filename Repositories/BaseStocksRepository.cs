@@ -6,7 +6,9 @@ namespace StockApp.Repositories
 {
     using System;
     using System.Collections.Generic;
-    using Microsoft.Data.SqlClient;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using Microsoft.EntityFrameworkCore;
     using StockApp.Database;
     using StockApp.Exceptions;
     using StockApp.Models;
@@ -16,169 +18,157 @@ namespace StockApp.Repositories
     /// </summary>
     internal class BaseStocksRepository : IBaseStocksRepository
     {
-        private readonly List<BaseStock> stocks = [];
-        private readonly SqlConnection dbConnection = DatabaseHelper.GetConnection();
+        private readonly AppDbContext _dbContext;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BaseStocksRepository"/> class and loads all stocks into memory.
+        /// Initializes a new instance of the <see cref="BaseStocksRepository"/> class.
         /// </summary>
-        public BaseStocksRepository()
+        /// <param name="dbContext">The database context.</param>
+        public BaseStocksRepository(AppDbContext dbContext)
         {
-            this.LoadStocks();
+            _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
         /// <summary>
-        /// Executes a non-query SQL command with optional parameterization and transaction.
-        /// </summary>
-        /// <param name="query">The SQL command text to execute.</param>
-        /// <param name="parameterize">Action to add parameters to the <see cref="SqlCommand"/>.</param>
-        /// <param name="transaction">Optional <see cref="SqlTransaction"/> for transactional execution.</param>
-        private void ExecuteSql(string query, Action<SqlCommand> parameterize, SqlTransaction? transaction = null)
-        {
-            try
-            {
-                using var command = new SqlCommand(query, this.dbConnection, transaction);
-
-                // Inline: apply parameters before execution
-                parameterize?.Invoke(command);
-                command.ExecuteNonQuery();
-            }
-            catch (SqlException sqlEx)
-            {
-                // FIXME: consider more granular error handling based on SQL error codes
-                throw new StockRepositoryException("Database error while executing a stock-related SQL command.", sqlEx);
-            }
-        }
-
-        /// <summary>
-        /// Executes a SQL scalar query and converts the result to the specified type.
-        /// </summary>
-        /// <typeparam name="T">The expected return type.</param>
-        /// <param name="query">The SQL query text to execute.</param>
-        /// <param name="parameterize">Action to add parameters to the <see cref="SqlCommand"/>.</param>
-        /// <param name="transaction">Optional <see cref="SqlTransaction"/> for transactional execution.</param>
-        /// <returns>The scalar result converted to type <typeparamref name="T"/>.</returns>
-        private T ExecuteScalar<T>(string query, Action<SqlCommand> parameterize, SqlTransaction? transaction = null)
-        {
-            try
-            {
-                using var command = new SqlCommand(query, this.dbConnection, transaction);
-
-                // Inline: apply parameters before execution
-                parameterize?.Invoke(command);
-                return (T)Convert.ChangeType(command.ExecuteScalar(), typeof(T));
-            }
-            catch (SqlException sqlEx)
-            {
-                throw new StockRepositoryException("Database error while executing scalar query.", sqlEx);
-            }
-            catch (InvalidCastException castEx)
-            {
-                // FIXME: handle null or unexpected types gracefully
-                throw new StockRepositoryException("Failed to cast result from scalar query.", castEx);
-            }
-        }
-
-        /// <summary>
-        /// Adds a new stock to the database and in-memory collection.
+        /// Adds a new stock to the database.
         /// </summary>
         /// <param name="stock">The <see cref="BaseStock"/> to add.</param>
         /// <param name="initialPrice">Initial price for the stock.</param>
-        public void AddStock(BaseStock stock, int initialPrice = 100)
+        /// <returns>The added stock.</returns>
+        public async Task<BaseStock> AddStockAsync(BaseStock stock, int initialPrice = 100)
         {
-            using var transaction = this.dbConnection.BeginTransaction();
+            if (stock == null)
+            {
+                throw new ArgumentNullException(nameof(stock));
+            }
 
             try
             {
-                // Inline: check for duplicate stock name before insertion
-                const string checkQuery = "SELECT COUNT(*) FROM STOCK WHERE STOCK_NAME = @StockName";
-                int count = this.ExecuteScalar<int>(
-                    checkQuery,
-                    cmd =>
-                    {
-                        cmd.Parameters.AddWithValue("@stockName", stock.Name);
-                    },
-                    transaction);
-
-                if (count > 0)
+                // Check if stock with the same name already exists
+                var existingStock = await _dbContext.BaseStocks.FirstOrDefaultAsync(s => s.Name == stock.Name);
+                
+                if (existingStock != null)
                 {
-                    // Inline: rollback if duplicate found
                     throw new DuplicateStockException(stock.Name);
                 }
 
-                string insertStock = "INSERT INTO STOCK (STOCK_NAME, STOCK_SYMBOL, AUTHOR_CNP) VALUES (@stockName, @stockSymbol, @authorCnp)";
-                this.ExecuteSql(
-                    insertStock,
-                    cmd =>
-                    {
-                        cmd.Parameters.AddWithValue("@stockName", stock.Name);
-                        cmd.Parameters.AddWithValue("@stockSymbol", stock.Symbol);
-                        cmd.Parameters.AddWithValue("@authorCnp", stock.AuthorCNP);
-                    },
-                    transaction);
+                // Add the stock to the context
+                await _dbContext.BaseStocks.AddAsync(stock);
+                
+                // Save changes to the database
+                await _dbContext.SaveChangesAsync();
 
-                string insertValue = "INSERT INTO STOCK_VALUE (STOCK_NAME, PRICE) VALUES (@stockName, @price)";
-                this.ExecuteSql(
-                    insertValue,
-                    cmd =>
-                    {
-                        cmd.Parameters.AddWithValue("@stockName", stock.Name);
-                        cmd.Parameters.AddWithValue("@price", initialPrice);
-                    },
-                    transaction);
+                // TODO: Add initial price to a stock_value table if needed
+                // This would require creating a StockValue entity and DbSet
 
-                transaction.Commit();
-
-                // Inline: update in-memory collection after commit
-                this.stocks.Add(stock);
+                return stock;
             }
-            catch (DuplicateStockException)
+            catch (DbUpdateException ex)
             {
-                transaction.Rollback();
-                throw;
-            }
-            catch (Exception ex)
-            {
-                // Inline: rollback on any unexpected exception
-                transaction.Rollback();
-                throw new StockRepositoryException("Failed to add stock to repository.", ex);
+                throw new StockRepositoryException("Failed to add stock to the database.", ex);
             }
         }
 
         /// <summary>
-        /// Loads all stocks from the database into the in-memory list.
+        /// Gets a stock by its name.
         /// </summary>
-        public void LoadStocks()
+        /// <param name="name">The name of the stock to retrieve.</param>
+        /// <returns>The stock with the specified name.</returns>
+        public async Task<BaseStock> GetStockByNameAsync(string name)
         {
-            const string query = "SELECT STOCK_NAME, STOCK_SYMBOL, AUTHOR_CNP FROM STOCK";
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new ArgumentException("Stock name cannot be null or empty.", nameof(name));
+            }
+
+            var stock = await _dbContext.BaseStocks.FirstOrDefaultAsync(s => s.Name == name);
+            
+            if (stock == null)
+            {
+                throw new StockNotFoundException(name);
+            }
+
+            return stock;
+        }
+
+        /// <summary>
+        /// Retrieves all stocks from the database.
+        /// </summary>
+        /// <returns>A list of all <see cref="BaseStock"/> objects.</returns>
+        public async Task<List<BaseStock>> GetAllStocksAsync()
+        {
+            return await _dbContext.BaseStocks.ToListAsync();
+        }
+
+        /// <summary>
+        /// Updates a stock in the database.
+        /// </summary>
+        /// <param name="stock">The updated stock.</param>
+        /// <returns>The updated stock.</returns>
+        public async Task<BaseStock> UpdateStockAsync(BaseStock stock)
+        {
+            if (stock == null)
+            {
+                throw new ArgumentNullException(nameof(stock));
+            }
 
             try
             {
-                using SqlCommand command = new(query, this.dbConnection);
-                using var reader = command.ExecuteReader();
-                this.stocks.Clear();
-
-                // Inline: map each row to a BaseStock object
-                while (reader.Read())
+                var existingStock = await _dbContext.BaseStocks.FirstOrDefaultAsync(s => s.Name == stock.Name);
+                
+                if (existingStock == null)
                 {
-                    var stock = new BaseStock(
-                        reader["STOCK_NAME"]?.ToString() ?? string.Empty,
-                        reader["STOCK_SYMBOL"]?.ToString() ?? string.Empty,
-                        reader["AUTHOR_CNP"]?.ToString() ?? string.Empty);
-                    this.stocks.Add(stock);
+                    throw new StockNotFoundException(stock.Name);
                 }
+
+                // Update properties
+                existingStock.Symbol = stock.Symbol;
+                existingStock.AuthorCNP = stock.AuthorCNP;
+
+                // Update the entity
+                _dbContext.BaseStocks.Update(existingStock);
+                
+                // Save changes
+                await _dbContext.SaveChangesAsync();
+
+                return existingStock;
             }
-            catch (SqlException ex)
+            catch (DbUpdateException ex)
             {
-                // FIXME: consider retry logic or fallback caching
-                throw new StockRepositoryException("Failed to load stocks from database.", ex);
+                throw new StockRepositoryException($"Failed to update stock '{stock.Name}'.", ex);
             }
         }
 
         /// <summary>
-        /// Retrieves all stocks from the in-memory collection.
+        /// Deletes a stock from the database.
         /// </summary>
-        /// <returns>A list of all <see cref="BaseStock"/> objects.</returns>
-        public List<BaseStock> GetAllStocks() => [.. this.stocks];
+        /// <param name="name">The name of the stock to delete.</param>
+        /// <returns>True if deletion was successful, false otherwise.</returns>
+        public async Task<bool> DeleteStockAsync(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new ArgumentException("Stock name cannot be null or empty.", nameof(name));
+            }
+
+            try
+            {
+                var stock = await _dbContext.BaseStocks.FirstOrDefaultAsync(s => s.Name == name);
+                
+                if (stock == null)
+                {
+                    return false;
+                }
+
+                _dbContext.BaseStocks.Remove(stock);
+                await _dbContext.SaveChangesAsync();
+                
+                return true;
+            }
+            catch (DbUpdateException ex)
+            {
+                throw new StockRepositoryException($"Failed to delete stock '{name}'.", ex);
+            }
+        }
     }
 }
