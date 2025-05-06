@@ -84,55 +84,47 @@
             }
         }
 
-        public async Task<bool> CreateStock(string stockName, string stockSymbol, string authorCnp, out string message)
+        public async Task<(bool success, string message)> CreateStockAsync(string stockName, string stockSymbol, string authorCnp)
         {
             try
             {
                 if (string.IsNullOrWhiteSpace(stockName))
                 {
-                    message = "Stock name cannot be empty.";
-                    return false;
+                    return (false, "Stock name cannot be empty.");
                 }
 
                 if (string.IsNullOrWhiteSpace(stockSymbol))
                 {
-                    message = "Stock symbol cannot be empty.";
-                    return false;
+                    return (false, "Stock symbol cannot be empty.");
                 }
 
                 if (string.IsNullOrWhiteSpace(authorCnp))
                 {
-                    message = "Author CNP cannot be empty.";
-                    return false;
+                    return (false, "Author CNP cannot be empty.");
                 }
 
                 if (stockName.Length > 100)
                 {
-                    message = "Stock name cannot exceed 100 characters.";
-                    return false;
+                    return (false, "Stock name cannot exceed 100 characters.");
                 }
 
                 if (stockSymbol.Length > 10)
                 {
-                    message = "Stock symbol cannot exceed 10 characters.";
-                    return false;
+                    return (false, "Stock symbol cannot exceed 10 characters.");
                 }
 
                 var stock = new BaseStock(stockName, stockSymbol, authorCnp);
                 await _stocksRepository.AddStockAsync(stock);
                 
-                message = "Stock created successfully!";
-                return true;
+                return (true, "Stock created successfully!");
             }
             catch (DuplicateStockException)
             {
-                message = $"A stock with the name '{stockName}' already exists.";
-                return false;
+                return (false, $"A stock with the name '{stockName}' already exists.");
             }
             catch (Exception ex)
             {
-                message = $"Error creating stock: {ex.Message}";
-                return false;
+                return (false, $"Error creating stock: {ex.Message}");
             }
         }
     }

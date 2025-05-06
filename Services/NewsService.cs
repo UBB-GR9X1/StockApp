@@ -8,6 +8,7 @@
     using StockApp.Models;
     using StockApp.Repositories;
     using Microsoft.EntityFrameworkCore;
+    using StockApp.Database;
 
     /// <summary>
     /// Provides business logic for managing news and user-submitted articles.

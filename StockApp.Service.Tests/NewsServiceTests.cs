@@ -1,10 +1,13 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using StockApp.Database;
 using StockApp.Models;
 using StockApp.Repositories;
 using StockApp.Services;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace StockApp.Service.Tests
@@ -13,7 +16,8 @@ namespace StockApp.Service.Tests
     public class NewsServiceTests
     {
         private Mock<NewsRepository> _mockRepo;
-        private Mock<IBaseStocksRepository> _mockStocks;
+        private Mock<AppDbContext> _mockDbContext;
+        private Mock<DbSet<BaseStock>> _mockStockSet;
         private NewsService _service;
 
         [TestInitialize]
@@ -25,19 +29,47 @@ namespace StockApp.Service.Tests
             // Setup for GetAllUserArticles to avoid strict mock exception  
             _mockRepo.As<INewsRepository>().Setup(r => r.GetAllUserArticles()).Returns(new List<UserArticle>());
 
-            _mockStocks = new Mock<IBaseStocksRepository>(MockBehavior.Strict);
-            _service = new NewsService(_mockRepo.Object, _mockStocks.Object);
+            // Setup mock DbContext and DbSet
+            var stockData = new List<BaseStock>();
+            _mockStockSet = CreateMockDbSet(stockData);
+
+            _mockDbContext = new Mock<AppDbContext>();
+            _mockDbContext.Setup(m => m.BaseStocks).Returns(_mockStockSet.Object);
+
+            // Mock INewsRepository implementation for NewsService
+            var mockNewsRepo = new Mock<INewsRepository>();
+            mockNewsRepo.Setup(r => r.GetAllUserArticles()).Returns(new List<UserArticle>());
+            
+            // Create service with DbContext
+            _service = new NewsService(_mockDbContext.Object);
+
+            // Set the newsRepository field using reflection (since it's created internally)
+            var field = typeof(NewsService).GetField("newsRepository", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            field.SetValue(_service, _mockRepo.Object);
+        }
+
+        private static Mock<DbSet<T>> CreateMockDbSet<T>(List<T> data) where T : class
+        {
+            var queryable = data.AsQueryable();
+            var mockSet = new Mock<DbSet<T>>();
+
+            mockSet.As<IQueryable<T>>().Setup(m => m.Provider).Returns(queryable.Provider);
+            mockSet.As<IQueryable<T>>().Setup(m => m.Expression).Returns(queryable.Expression);
+            mockSet.As<IQueryable<T>>().Setup(m => m.ElementType).Returns(queryable.ElementType);
+            mockSet.As<IQueryable<T>>().Setup(m => m.GetEnumerator()).Returns(() => queryable.GetEnumerator());
+
+            return mockSet;
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public async Task GetNewsArticleByIdAsync_Throws_WhenNullId()
+        public void GetNewsArticleById_Throws_WhenNullId()
         {
             _service.GetNewsArticleById(null);
         }
 
         [TestMethod]
-        public async Task GetNewsArticleByIdAsync_ReturnsArticle_WhenFound()
+        public void GetNewsArticleById_ReturnsArticle_WhenFound()
         {
             // Arrange  
             var article = new NewsArticle(articleId: "a1", title: "Test", summary: "Summary", content: "Content", source: "Source", publishedDate: DateTime.Now, relatedStocks: new List<string>(), status: Status.Pending);
@@ -53,7 +85,7 @@ namespace StockApp.Service.Tests
         }
 
         [TestMethod]
-        public async Task MarkArticleAsReadAsync_CallsRepository()
+        public void MarkArticleAsRead_CallsRepository()
         {
             // Arrange
             string articleId = "a2";
@@ -68,7 +100,7 @@ namespace StockApp.Service.Tests
         }
 
         [TestMethod]
-        public async Task GetNewsArticlesAsync_ReturnsArticles()
+        public void GetNewsArticles_ReturnsArticles()
         {
             // Arrange
             var articles = new List<NewsArticle>

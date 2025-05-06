@@ -9,6 +9,11 @@ namespace StockApp.Database
         {
         }
 
+        // Add parameterless constructor for direct instantiation in code
+        public AppDbContext() : base()
+        {
+        }
+
         public DbSet<BaseStock> BaseStocks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -24,6 +29,23 @@ namespace StockApp.Database
                 entity.Property(e => e.Symbol).HasColumnName("STOCK_SYMBOL");
                 entity.Property(e => e.AuthorCNP).HasColumnName("AUTHOR_CNP");
             });
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+                // Use connection string from App.ConnectionString if available, otherwise use a default
+                try
+                {
+                    optionsBuilder.UseSqlServer(App.ConnectionString);
+                }
+                catch
+                {
+                    // Fallback to a local database if ConnectionString is not available
+                    optionsBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=StockApp;Trusted_Connection=True;");
+                }
+            }
         }
     }
 } 

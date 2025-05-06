@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using StockApp.Database;
 using StockApp.Models;
 using StockApp.Repositories;
 using StockApp.Services;
@@ -17,7 +19,7 @@ namespace StockApp.ViewModels.Tests
     {
         private Mock<INewsService> _newsServiceMock;
         private Mock<IDispatcher> _dispatcherMock;
-        private Mock<IBaseStocksRepository> _stocksRepoMock;
+        private Mock<AppDbContext> _dbContextMock;
         private ArticleCreationViewModel _vm;
 
         [TestInitialize]
@@ -30,15 +32,28 @@ namespace StockApp.ViewModels.Tests
                 .Callback<Microsoft.UI.Dispatching.DispatcherQueueHandler>(cb => { })
                 .Returns(true);
 
-            _stocksRepoMock = new Mock<IBaseStocksRepository>();
-            _stocksRepoMock
-                .Setup(r => r.GetAllStocks())
-                .Returns([]);
+            // Set up mock DbContext
+            var options = new DbContextOptionsBuilder<AppDbContext>()
+                .UseInMemoryDatabase(databaseName: "TestDb")
+                .Options;
+
+            _dbContextMock = new Mock<AppDbContext>(options);
+            
+            // Mock DbSet for BaseStocks
+            var mockSet = new Mock<DbSet<BaseStock>>();
+            var baseStocks = new List<BaseStock>();
+            
+            mockSet.As<IQueryable<BaseStock>>().Setup(m => m.Provider).Returns(baseStocks.AsQueryable().Provider);
+            mockSet.As<IQueryable<BaseStock>>().Setup(m => m.Expression).Returns(baseStocks.AsQueryable().Expression);
+            mockSet.As<IQueryable<BaseStock>>().Setup(m => m.ElementType).Returns(baseStocks.AsQueryable().ElementType);
+            mockSet.As<IQueryable<BaseStock>>().Setup(m => m.GetEnumerator()).Returns(baseStocks.GetEnumerator());
+            
+            _dbContextMock.Setup(c => c.BaseStocks).Returns(mockSet.Object);
 
             _vm = new ArticleCreationViewModel(
                 _newsServiceMock.Object,
                 _dispatcherMock.Object,
-                _stocksRepoMock.Object
+                _dbContextMock.Object
             );
         }
 
