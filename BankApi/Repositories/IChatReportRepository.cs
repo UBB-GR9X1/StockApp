@@ -7,23 +7,13 @@
 
     public interface IChatReportRepository
     {
-        //List<ChatReport> GetChatReports();
-
-        //void DeleteChatReport(int id);
-
-        //void UpdateScoreHistoryForUser(string userCNP, int newScore);
-
-        //int GetNumberOfGivenTipsForUser(string reportedUserCnp);
-
-        //void UpdateActivityLog(string reportedUserCnp, int amount);
-
         Task<List<ChatReport>> GetAllChatReportsAsync();
 
         Task<ChatReport?> GetChatReportByIdAsync(int id);
 
-        Task AddChatReportAsync(ChatReport report);
+        Task<bool> AddChatReportAsync(ChatReport report);
 
-        Task DeleteChatReportAsync(int id);
+        Task<bool> DeleteChatReportAsync(int id);
 
         Task<int> GetNumberOfGivenTipsForUserAsync(string userCnp);
 

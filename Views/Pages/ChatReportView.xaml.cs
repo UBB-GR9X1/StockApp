@@ -4,29 +4,32 @@ namespace StockApp.Views.Pages
     using System.Collections.Generic;
     using Microsoft.UI.Xaml.Controls;
     using Src.Model;
-    using StockApp.Services.Api;
+    using StockApp.Services;
     using StockApp.Views.Components;
+    using System.Threading.Tasks;
 
     public sealed partial class ChatReportView : Page
     {
         private readonly Func<ChatReportComponent> componentFactory;
-        private readonly IChatReportApiService chatReportService;
+        private readonly IChatReportService chatReportService;
 
-        public ChatReportView(Func<ChatReportComponent> componentFactory, IChatReportApiService chatReportService)
+        public ChatReportView(Func<ChatReportComponent> componentFactory, IChatReportService chatReportService)
         {
             this.componentFactory = componentFactory;
             this.chatReportService = chatReportService;
+
             this.InitializeComponent();
-            this.LoadChatReports();
+
+            _ = this.LoadChatReportsAsync();
         }
 
-        private async void LoadChatReports()
+        private async Task LoadChatReportsAsync()
         {
             this.ChatReportsContainer.Items.Clear();
 
             try
             {
-                List<ChatReport> chatReports = await this.chatReportService.GetReportsAsync();
+                List<ChatReport> chatReports = await this.chatReportService.GetChatReports();
                 foreach (var report in chatReports)
                 {
                     ChatReportComponent reportComponent = this.componentFactory();
@@ -43,9 +46,9 @@ namespace StockApp.Views.Pages
             }
         }
 
-        private void OnReportSolved(object sender, EventArgs e)
+        private async void OnReportSolved(object sender, EventArgs e)
         {
-            this.LoadChatReports();
+            await this.LoadChatReportsAsync();
         }
     }
 }

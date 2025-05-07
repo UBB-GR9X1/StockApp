@@ -1,4 +1,4 @@
-﻿namespace StockApp.Services.Api
+﻿namespace StockApp.Repositories.Api
 {
     using System;
     using System.Collections.Generic;
@@ -9,21 +9,21 @@
     using StockApp.Models;
     using HttpClient = System.Net.Http.HttpClient;
 
-    public class ChatReportApiService : IChatReportApiService
+    public class ChatReportRepoProxy : IChatReportRepository
     {
         private readonly HttpClient _httpClient;
 
-        public ChatReportApiService(HttpClient httpClient)
+        public ChatReportRepoProxy(HttpClient httpClient)
         {
             _httpClient = httpClient;
         }
 
-        public async Task<List<ChatReport>> GetReportsAsync()
+        public async Task<List<ChatReport>> GetAllChatReportsAsync()
         {
             return await _httpClient.GetFromJsonAsync<List<ChatReport>>("api/ChatReport") ?? new List<ChatReport>();
         }
 
-        public async Task<ChatReport?> GetReportByIdAsync(int id)
+        public async Task<ChatReport?> GetChatReportByIdAsync(int id)
         {
             try
             {
@@ -35,13 +35,13 @@
             }
         }
 
-        public async Task<bool> CreateReportAsync(ChatReport report)
+        public async Task<bool> AddChatReportAsync(ChatReport report)
         {
             var response = await _httpClient.PostAsJsonAsync("api/ChatReport", report);
             return response.IsSuccessStatusCode;
         }
 
-        public async Task<bool> DeleteReportAsync(int id)
+        public async Task<bool> DeleteChatReportAsync(int id)
         {
             var response = await _httpClient.DeleteAsync($"api/ChatReport/{id}");
             return response.IsSuccessStatusCode;
@@ -61,11 +61,38 @@
                 response.EnsureSuccessStatusCode();
                 return true;
             }
-            catch (HttpRequestException)
+            catch (HttpRequestException error)
             {
-                // log error or notify UI
+                Console.WriteLine(error.Message);
                 return false;
             }
+        }
+
+        public async Task<int> GetNumberOfGivenTipsForUserAsync(string userCnp)
+        {
+            try
+            {
+                return await _httpClient.GetFromJsonAsync<int>($"api/ChatReport/tips-count/{userCnp}");
+            }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine($"Error fetching tip count: {ex.Message}");
+                return 0;
+            }
+        }
+
+        public async Task UpdateActivityLogAsync(string userCnp, int amount)
+        {
+            var payload = new { userCnp, amount };
+            var response = await _httpClient.PostAsJsonAsync("api/ChatReport/update-log", payload);
+            response.EnsureSuccessStatusCode();
+        }
+
+        public async Task UpdateScoreHistoryForUserAsync(string userCnp, int newScore)
+        {
+            var payload = new { userCnp, newScore };
+            var response = await _httpClient.PostAsJsonAsync("api/ChatReport/update-score", payload);
+            response.EnsureSuccessStatusCode();
         }
     }
 }

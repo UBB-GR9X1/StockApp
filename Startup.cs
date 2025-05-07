@@ -7,9 +7,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using StockApp.Database;
-using StockApp.Repositories;
+using StockApp.Repositories.Api;
 using StockApp.Services;
-using StockApp.Services.Api;
 
 namespace StockApp
 {
@@ -29,7 +28,7 @@ namespace StockApp
             services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(App.ConnectionString));
 
-            services.AddHttpClient<ChatReportApiService>(client =>
+            services.AddHttpClient<ChatReportRepoProxy>(client =>
             {
                 client.BaseAddress = new Uri("https://localhost:5001/"); // <-- Use your BankApi URL
             });

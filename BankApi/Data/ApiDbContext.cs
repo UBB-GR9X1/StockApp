@@ -1,5 +1,6 @@
 using BankApi.Models;
 using Microsoft.EntityFrameworkCore;
+using Src.Model;
 
 namespace BankApi.Data
 {
@@ -10,6 +11,7 @@ namespace BankApi.Data
         }
 
         public DbSet<BaseStock> BaseStocks { get; set; }
+        public DbSet<ChatReport> ChatReports { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -34,6 +36,18 @@ namespace BankApi.Data
             modelBuilder.Entity<BaseStock>()
                 .Property(s => s.AuthorCNP)
                 .IsRequired();
+
+            modelBuilder.Entity<ChatReport>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.ReportedUserCnp)
+                      .IsRequired()
+                      .HasMaxLength(15);
+
+                entity.Property(e => e.ReportedMessage)
+                      .IsRequired();
+            });
         }
     }
 } 
