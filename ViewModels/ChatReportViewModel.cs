@@ -4,32 +4,36 @@
     using System.Collections.ObjectModel;
     using System.Threading.Tasks;
     using Src.Model;
-    using StockApp.Services.Api;
+    using StockApp.Services;
 
     public class ChatReportsViewModel
     {
-        private readonly IChatReportApiService chatReportService;
+        private readonly IChatReportService chatReportService;
 
         public ObservableCollection<ChatReport> ChatReports { get; set; }
 
-        public ChatReportsViewModel()
+        public ChatReportsViewModel(IChatReportService chatReportService)
         {
+            this.chatReportService = chatReportService;
             this.ChatReports = new ObservableCollection<ChatReport>();
         }
 
-        public async Task LoadChatReports()
+        public async Task LoadChatReportsAsync()
         {
             try
             {
-                var reports = await this.chatReportService.GetReportsAsync();
+                this.ChatReports.Clear();
+
+                var reports = await this.chatReportService.GetChatReports();
+
                 foreach (var report in reports)
                 {
                     this.ChatReports.Add(report);
                 }
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                Console.WriteLine($"Error: {exception.Message}");
+                Console.WriteLine($"Error loading reports: {ex.Message}");
             }
         }
     }

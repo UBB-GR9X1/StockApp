@@ -3,11 +3,26 @@ using System.ComponentModel.DataAnnotations;
 
 namespace BankApi.Models
 {
+    using System.ComponentModel;
+    using System.Runtime.CompilerServices;
+
     /// <summary>
     /// Represents a stock alert with upper and lower price bounds and an on/off toggle.
     /// </summary>
     public class Alert
     {
+        private int alertId;
+        private string stockName = string.Empty;
+        private string name = string.Empty;
+        private decimal upperBound;
+        private decimal lowerBound;
+        private bool toggleOnOff;
+
+        /// <summary>
+        /// Occurs when a property value changes.
+        /// </summary>
+        public event PropertyChangedEventHandler? PropertyChanged;
+
         /// <summary>
         /// Gets or sets the unique identifier for this alert.
         /// </summary>

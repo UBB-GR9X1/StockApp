@@ -10,8 +10,15 @@ namespace BankApi.Data
         }
 
         public DbSet<BaseStock> BaseStocks { get; set; }
+        public DbSet<ChatReport> ChatReports { get; set; }
+
+        public DbSet<GivenTip> GivenTips { get; set; }
+
+        public DbSet<CreditScoreHistory> CreditScoreHistories { get; set; }
         public DbSet<Alert> Alerts { get; set; }
         public DbSet<TriggeredAlert> TriggeredAlerts { get; set; }
+
+        public DbSet<ActivityLog> ActivityLogs { get; set; }
 
         public DbSet<ChatReport> ChatReports { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -37,6 +44,18 @@ namespace BankApi.Data
             modelBuilder.Entity<BaseStock>()
                 .Property(s => s.AuthorCNP)
                 .IsRequired();
+
+            modelBuilder.Entity<ChatReport>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.ReportedUserCnp)
+                      .IsRequired()
+                      .HasMaxLength(15);
+
+                entity.Property(e => e.ReportedMessage)
+                      .IsRequired();
+            });
 
             // Configure Alert entity
             modelBuilder.Entity<Alert>()

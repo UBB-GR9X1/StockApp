@@ -15,6 +15,7 @@ namespace StockApp
     using StockApp.Database;
     using StockApp.Pages;
     using StockApp.Repositories;
+    using StockApp.Repositories.Api;
     using StockApp.Services;
     using StockApp.Views;
     using StockApp.Views.Components;
@@ -79,7 +80,7 @@ namespace StockApp
 
                     services.AddSingleton<IActivityRepository, ActivityRepository>();
                     services.AddSingleton<IBillSplitReportRepository, BillSplitReportRepository>();
-                    services.AddSingleton<IChatReportRepository, ChatReportRepository>();
+                    services.AddSingleton<IChatReportRepository, ChatReportRepoProxy>();
                     services.AddSingleton<IHistoryRepository, HistoryRepository>();
                     services.AddSingleton<IInvestmentsRepository, InvestmentsRepository>();
                     services.AddSingleton<ILoanRepository, LoanRepository>();

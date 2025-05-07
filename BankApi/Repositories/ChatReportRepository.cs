@@ -4,17 +4,15 @@
     using System.Collections.Generic;
     using System.Data;
     using System.Threading.Tasks;
-    using Microsoft.Data.SqlClient;
+    using BankApi.Data;
+    using BankApi.Models;
     using Microsoft.EntityFrameworkCore;
-    using Src.Data;
-    using Src.Model;
-    using StockApp.Database;
 
     public class ChatReportRepository : IChatReportRepository
     {
-        private readonly AppDbContext _context;
+        private readonly ApiDbContext _context;
 
-        public ChatReportRepository(AppDbContext context)
+        public ChatReportRepository(ApiDbContext context)
         {
             _context = context;
         }
@@ -29,20 +27,39 @@
             return await _context.ChatReports.FindAsync(id);
         }
 
-        public async Task AddChatReportAsync(ChatReport report)
+        public async Task<bool> AddChatReportAsync(ChatReport report)
         {
-            _context.ChatReports.Add(report);
-            await _context.SaveChangesAsync();
+            try
+            {
+                _context.ChatReports.Add(report);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return false;
+            }
         }
 
-        public async Task DeleteChatReportAsync(int id)
+        public async Task<bool> DeleteChatReportAsync(int id)
         {
-            var report = await _context.ChatReports.FindAsync(id);
-            if (report == null)
-                throw new Exception($"Chat report with id {id} not found.");
+            try
+            {
+                var report = await _context.ChatReports.FindAsync(id);
+                if (report == null)
+                    throw new Exception($"Chat report with id {id} not found.");
 
-            _context.ChatReports.Remove(report);
-            await _context.SaveChangesAsync();
+                _context.ChatReports.Remove(report);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return false;
+            }
+
         }
 
         public async Task<int> GetNumberOfGivenTipsForUserAsync(string userCnp)

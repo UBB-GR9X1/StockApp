@@ -6,11 +6,10 @@ namespace StockApp.Views.Components
     using Src.Helpers;
     using Src.Model;
     using StockApp.Services;
-    using StockApp.Services.Api;
 
     public sealed partial class ChatReportComponent : Page
     {
-        private readonly IChatReportApiService chatReportService;
+        private readonly IChatReportService chatReportService;
 
         public event EventHandler ReportSolved;
 
@@ -20,13 +19,13 @@ namespace StockApp.Views.Components
 
         public int ReportId { get; set; }
 
-        public ChatReportComponent(IChatReportApiService chatReportService)
+        public ChatReportComponent(IChatReportService chatReportService)
         {
             this.InitializeComponent();
             this.chatReportService = chatReportService;
         }
 
-        private async void PunishReportedUser(object sender, RoutedEventArgs e)
+        private void PunishReportedUser(object sender, RoutedEventArgs e)
         {
             ChatReport chatReport = new ChatReport
             {
@@ -35,7 +34,7 @@ namespace StockApp.Views.Components
                 ReportedMessage = this.ReportedMessage
             };
 
-            await this.chatReportService.PunishUser(chatReport);
+            this.chatReportService.PunishUser(chatReport);
             this.ReportSolved?.Invoke(this, EventArgs.Empty);
         }
 

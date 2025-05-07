@@ -79,9 +79,9 @@ namespace StockApp.Database
                 catch
                 {
                     // Fallback to a local database if ConnectionString is not available
-                    optionsBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=StockApp;Trusted_Connection=True;");
+                    optionsBuilder.UseSqlServer("Data Source=VM;Initial Catalog=StockApp_DB;Integrated Security=True;Encrypt=True;Trust Server Certificate=True");
                 }
             }
         }
     }
-} 
+}
