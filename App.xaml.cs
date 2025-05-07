@@ -5,7 +5,6 @@ namespace StockApp
 {
     using System;
     using System.Net.Http;
-    using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
@@ -17,6 +16,7 @@ namespace StockApp
     using StockApp.Pages;
     using StockApp.Repositories;
     using StockApp.Services;
+    using StockApp.Views;
     using StockApp.Views.Components;
     using StockApp.Views.Pages;
 
@@ -25,7 +25,7 @@ namespace StockApp
     /// </summary>
     public partial class App : Application
     {
-        public static Window? MainWindow { get; private set; } = null!;
+        public static MainWindow? MainAppWindow { get; private set; } = null!;
 
         public static IHost Host { get; private set; }
 
@@ -74,7 +74,7 @@ namespace StockApp
                         var client = httpClientFactory.CreateClient("BankApi");
                         return new BankStocksProxyRepo(client);
                     });
-                    
+
                     services.AddSingleton<IActivityRepository, ActivityRepository>();
                     services.AddSingleton<IBillSplitReportRepository, BillSplitReportRepository>();
                     services.AddSingleton<IChatReportRepository, ChatReportRepository>();
@@ -141,6 +141,7 @@ namespace StockApp
                     services.AddTransient<ProfilePage>();
                     services.AddTransient<GemStoreWindow>();
                     services.AddTransient<CreateProfilePage>();
+                    services.AddTransient<HomepageView>();
                 }).Build();
         }
 
@@ -173,8 +174,8 @@ namespace StockApp
         /// <param name="launchActivatedEventArgs">Details about the launch request and process.</param>
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs launchActivatedEventArgs)
         {
-            MainWindow = Host.Services.GetRequiredService<MainWindow>();
-            MainWindow.Activate();
+            MainAppWindow = Host.Services.GetRequiredService<MainWindow>();
+            MainAppWindow.Activate();
         }
 
         // i found some stupid ass error for the debugger, got it twice and couldn't

@@ -2,10 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Data;
     using System.Threading.Tasks;
     using Microsoft.Data.SqlClient;
-    using Microsoft.Extensions.Configuration;
     using StockApp.Database;
     using StockApp.Exceptions;
     using StockApp.Models;
@@ -454,7 +452,7 @@
                 RiskScore = reader["RiskScore"] is DBNull ? 0 : Convert.ToInt32(reader["RiskScore"]),
                 ROI = reader["Roi"] is DBNull ? 0m : Convert.ToDecimal(reader["Roi"]),
                 CreditScore = reader["CreditScore"] is DBNull ? 0 : Convert.ToInt32(reader["CreditScore"]),
-                Birthday = reader["Birthday"] is DBNull ? default : DateOnly.FromDateTime(Convert.ToDateTime(reader["Birthday"])),
+                Birthday = reader["Birthday"] is DBNull ? default : Convert.ToDateTime(reader["Birthday"]),
                 ZodiacSign = reader["ZodiacSign"].ToString(),
                 ZodiacAttribute = reader["ZodiacAttribute"].ToString(),
                 NumberOfBillSharesPaid = reader["NumberOfBillSharesPaid"] is DBNull ? 0 : Convert.ToInt32(reader["NumberOfBillSharesPaid"]),

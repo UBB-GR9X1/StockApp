@@ -8,6 +8,7 @@ namespace StockApp
     using StockApp.Pages;
     using StockApp.Repositories;
     using StockApp.Services;
+    using StockApp.Views;
     using StockApp.Views.Components;
     using StockApp.Views.Pages;
 
@@ -19,6 +20,7 @@ namespace StockApp
         private readonly IServiceProvider serviceProvider;
         private static readonly IUserRepository userRepository = new UserRepository();
 
+        public Frame MainAppFrame => this.MainFrame;
         public bool CreateProfileButtonVisibility => userRepository.CurrentUserCNP == null;
 
         public static bool ProfileButtonVisibility => userRepository.CurrentUserCNP != null;
@@ -29,7 +31,7 @@ namespace StockApp
             DatabaseHelper.InitializeDatabase();
             this.serviceProvider = serviceProvider;
 
-            this.MainFrame.Content = this.serviceProvider.GetRequiredService<UsersView>();
+            this.MainFrame.Content = this.serviceProvider.GetRequiredService<HomepageView>();
         }
 
         private void NavigationView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
@@ -64,6 +66,10 @@ namespace StockApp
                         break;
                     case "Investments":
                         this.MainFrame.Navigate(typeof(InvestmentsView));
+                        break;
+                    case "HomePage":
+                        var homePage = this.serviceProvider.GetRequiredService<HomepageView>();
+                        this.MainFrame.Content = homePage;
                         break;
                     case "NewsListPage":
                         var newsListPage = this.serviceProvider.GetRequiredService<NewsListPage>();

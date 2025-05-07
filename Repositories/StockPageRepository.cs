@@ -97,6 +97,11 @@
         /// <exception cref="InvalidOperationException">Thrown if the stock is not found.</exception>
         public Stock GetStock(string stockName)
         {
+            if (this.User == null)
+            {
+                throw new Exception("User is not initialized.");
+            }
+
             const string query = @"
                 SELECT s.STOCK_NAME, s.STOCK_SYMBOL, s.AUTHOR_CNP, sv.PRICE, us.QUANTITY
                 FROM STOCK s
@@ -106,7 +111,7 @@
             using SqlConnection connection = DatabaseHelper.GetConnection();
             using var command = new SqlCommand(query, connection);
             command.Parameters.AddWithValue("@name", stockName);
-            command.Parameters.AddWithValue("@cnp", this.User?.CNP);
+            command.Parameters.AddWithValue("@cnp", this.User.CNP);
 
             using var reader = command.ExecuteReader();
             if (reader.Read())
@@ -208,26 +213,42 @@
         private void InitializeUser()
         {
             using SqlConnection connection = DatabaseHelper.GetConnection();
-            using var command = new SqlCommand("SELECT * FROM [USER] WHERE CNP = @cnp", connection);
+            using var command = new SqlCommand(
+                @"
+               SELECT 
+                   Id, Cnp, FirstName, LastName, Email, PhoneNumber, HashedPassword, 
+                   NumberOfOffenses, RiskScore, ROI, CreditScore, Birthday, 
+                   ZodiacSign, ZodiacAttribute, NumberOfBillSharesPaid, Income, Balance
+               FROM Users 
+               WHERE Cnp = @cnp", connection);
             command.Parameters.AddWithValue("@cnp", userRepository.CurrentUserCNP);
 
             using var reader = command.ExecuteReader();
             if (reader.Read())
             {
-                // Inline: construct User model from database row
                 this.User = new User(
-                    Convert.ToInt32(reader["CNP"]),
-                    reader["NAME"].ToString(),
-                    reader["DESCRIPTION"].ToString(),
-                    reader["IS_ADMIN"].ToString(),
-                    reader["PROFILE_PICTURE"].ToString(),
-                    reader["IS_HIDDEN"].ToString(),
-                    reader["GEM_BALANCE"].ToString());
+                    id: reader.GetInt32(reader.GetOrdinal("Id")),
+                    cnp: reader.GetString(reader.GetOrdinal("Cnp")),
+                    firstName: reader.GetString(reader.GetOrdinal("FirstName")),
+                    lastName: reader.GetString(reader.GetOrdinal("LastName")),
+                    email: reader.GetString(reader.GetOrdinal("Email")),
+                    phoneNumber: reader.IsDBNull(reader.GetOrdinal("PhoneNumber")) ? null : reader.GetString(reader.GetOrdinal("PhoneNumber")),
+                    hashedPassword: reader.IsDBNull(reader.GetOrdinal("HashedPassword")) ? null : reader.GetString(reader.GetOrdinal("HashedPassword")),
+                    numberOfOffenses: reader.IsDBNull(reader.GetOrdinal("NumberOfOffenses")) ? null : reader.GetInt32(reader.GetOrdinal("NumberOfOffenses")),
+                    riskScore: reader.IsDBNull(reader.GetOrdinal("RiskScore")) ? null : reader.GetInt32(reader.GetOrdinal("RiskScore")),
+                    roi: reader.IsDBNull(reader.GetOrdinal("ROI")) ? null : reader.GetDecimal(reader.GetOrdinal("ROI")),
+                    creditScore: reader.IsDBNull(reader.GetOrdinal("CreditScore")) ? null : reader.GetInt32(reader.GetOrdinal("CreditScore")),
+                    birthday: reader.IsDBNull(reader.GetOrdinal("Birthday")) ? null : reader.GetDateTime(reader.GetOrdinal("Birthday")).Date,
+                    zodiacSign: reader.IsDBNull(reader.GetOrdinal("ZodiacSign")) ? null : reader.GetString(reader.GetOrdinal("ZodiacSign")),
+                    zodiacAttribute: reader.IsDBNull(reader.GetOrdinal("ZodiacAttribute")) ? null : reader.GetString(reader.GetOrdinal("ZodiacAttribute")),
+                    numberOfBillSharesPaid: reader.GetInt32(reader.GetOrdinal("NumberOfBillSharesPaid")),
+                    income: reader.GetInt32(reader.GetOrdinal("Income")),
+                    balance: reader.GetDecimal(reader.GetOrdinal("Balance"))
+                );
                 this.IsGuest = false;
             }
             else
             {
-                // Inline: no record means guest user
                 this.User = null;
                 this.IsGuest = true;
             }
