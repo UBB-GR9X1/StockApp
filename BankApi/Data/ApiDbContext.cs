@@ -1,6 +1,5 @@
 using BankApi.Models;
 using Microsoft.EntityFrameworkCore;
-using Src.Model;
 
 namespace BankApi.Data
 {
@@ -12,6 +11,12 @@ namespace BankApi.Data
 
         public DbSet<BaseStock> BaseStocks { get; set; }
         public DbSet<ChatReport> ChatReports { get; set; }
+
+        public DbSet<GivenTip> GivenTips { get; set; }
+
+        public DbSet<CreditScoreHistory> CreditScoreHistories { get; set; }
+
+        public DbSet<ActivityLog> ActivityLogs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -50,4 +55,4 @@ namespace BankApi.Data
             });
         }
     }
-} 
+}

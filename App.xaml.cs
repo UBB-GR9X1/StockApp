@@ -5,7 +5,6 @@ namespace StockApp
 {
     using System;
     using System.Net.Http;
-    using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
@@ -16,6 +15,7 @@ namespace StockApp
     using StockApp.Database;
     using StockApp.Pages;
     using StockApp.Repositories;
+    using StockApp.Repositories.Api;
     using StockApp.Services;
     using StockApp.Views.Components;
     using StockApp.Views.Pages;
@@ -74,10 +74,10 @@ namespace StockApp
                         var client = httpClientFactory.CreateClient("BankApi");
                         return new BankStocksProxyRepo(client);
                     });
-                    
+
                     services.AddSingleton<IActivityRepository, ActivityRepository>();
                     services.AddSingleton<IBillSplitReportRepository, BillSplitReportRepository>();
-                    services.AddSingleton<IChatReportRepository, ChatReportRepository>();
+                    services.AddSingleton<IChatReportRepository, ChatReportRepoProxy>();
                     services.AddSingleton<IHistoryRepository, HistoryRepository>();
                     services.AddSingleton<IInvestmentsRepository, InvestmentsRepository>();
                     services.AddSingleton<ILoanRepository, LoanRepository>();

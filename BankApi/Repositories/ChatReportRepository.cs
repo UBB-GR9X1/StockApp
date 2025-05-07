@@ -4,10 +4,9 @@
     using System.Collections.Generic;
     using System.Data;
     using System.Threading.Tasks;
-    using Microsoft.Data.SqlClient;
-    using Microsoft.EntityFrameworkCore;
-    using Src.Model;
     using BankApi.Data;
+    using BankApi.Models;
+    using Microsoft.EntityFrameworkCore;
 
     public class ChatReportRepository : IChatReportRepository
     {
@@ -36,7 +35,8 @@
                 await _context.SaveChangesAsync();
                 return true;
             }
-            catch (Exception ex) { 
+            catch (Exception ex)
+            {
                 Console.WriteLine(ex.ToString());
                 return false;
             }
@@ -59,7 +59,7 @@
                 Console.WriteLine(ex.ToString());
                 return false;
             }
-            
+
         }
 
         public async Task<int> GetNumberOfGivenTipsForUserAsync(string userCnp)

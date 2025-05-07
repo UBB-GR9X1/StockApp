@@ -6,7 +6,6 @@
     using System.Net.Http.Json;
     using System.Threading.Tasks;
     using Src.Model;
-    using StockApp.Models;
     using HttpClient = System.Net.Http.HttpClient;
 
     public class ChatReportRepoProxy : IChatReportRepository
@@ -35,16 +34,16 @@
             }
         }
 
-        public async Task<bool> AddChatReportAsync(ChatReport report)
+        public async Task AddChatReportAsync(ChatReport report) // Fixed return type to match interface
         {
             var response = await _httpClient.PostAsJsonAsync("api/ChatReport", report);
-            return response.IsSuccessStatusCode;
+            response.EnsureSuccessStatusCode();
         }
 
-        public async Task<bool> DeleteChatReportAsync(int id)
+        public async Task DeleteChatReportAsync(int id) // Fixed return type to match interface
         {
             var response = await _httpClient.DeleteAsync($"api/ChatReport/{id}");
-            return response.IsSuccessStatusCode;
+            response.EnsureSuccessStatusCode();
         }
 
         public async Task<bool> DoNotPunishUser(ChatReport chatReport)

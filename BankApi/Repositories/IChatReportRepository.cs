@@ -1,9 +1,8 @@
 ﻿namespace StockApp.Repositories
 {
-    using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Src.Model;
+    using BankApi.Models;
 
     public interface IChatReportRepository
     {

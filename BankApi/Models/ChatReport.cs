@@ -1,20 +1,18 @@
-﻿namespace Src.Model
+﻿
+namespace BankApi.Models
 {
-    using System;
-
+    using System.ComponentModel.DataAnnotations;
     public class ChatReport
     {
+        [Key]
         public int Id { get; set; }
 
-        public string ReportedUserCnp { get; set; }  // foreign key
+        [Required]
+        [MaxLength(50)]
+        required public string ReportedUserCnp { get; set; }
 
-        public string ReportedMessage { get; set; }
-
-        public ChatReport(int id = 0, string reportedUserCNP = "", string reportedMessage = "")
-        {
-            this.Id = id;
-            this.ReportedUserCnp = reportedUserCNP;
-            this.ReportedMessage = reportedMessage;
-        }
+        [Required]
+        [MaxLength(500)]
+        required public string ReportedMessage { get; set; }
     }
 }

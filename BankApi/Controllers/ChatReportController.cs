@@ -1,10 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-//using StockApp.Models;
-using BankApi.Models;
-using StockApp.Repositories;
+﻿using BankApi.Models;
 using BankApi.Repositories;
-using System.Threading.Tasks;
-using Src.Model;
+using Microsoft.AspNetCore.Mvc;
+//using StockApp.Models;
+using StockApp.Repositories;
 
 namespace BankApi.Controllers
 {
