@@ -4,11 +4,11 @@
     using System.Collections.ObjectModel;
     using System.Threading.Tasks;
     using Src.Model;
-    using StockApp.Services;
+    using StockApp.Services.Api;
 
     public class ChatReportsViewModel
     {
-        private readonly IChatReportService chatReportService;
+        private readonly IChatReportApiService chatReportService;
 
         public ObservableCollection<ChatReport> ChatReports { get; set; }
 
@@ -21,7 +21,7 @@
         {
             try
             {
-                var reports = this.chatReportService.GetChatReports();
+                var reports = await this.chatReportService.GetReportsAsync();
                 foreach (var report in reports)
                 {
                     this.ChatReports.Add(report);

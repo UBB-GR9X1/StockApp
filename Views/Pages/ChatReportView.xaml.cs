@@ -4,15 +4,15 @@ namespace StockApp.Views.Pages
     using System.Collections.Generic;
     using Microsoft.UI.Xaml.Controls;
     using Src.Model;
-    using StockApp.Services;
+    using StockApp.Services.Api;
     using StockApp.Views.Components;
 
     public sealed partial class ChatReportView : Page
     {
         private readonly Func<ChatReportComponent> componentFactory;
-        private readonly IChatReportService chatReportService;
+        private readonly IChatReportApiService chatReportService;
 
-        public ChatReportView(Func<ChatReportComponent> componentFactory, IChatReportService chatReportService)
+        public ChatReportView(Func<ChatReportComponent> componentFactory, IChatReportApiService chatReportService)
         {
             this.componentFactory = componentFactory;
             this.chatReportService = chatReportService;
@@ -20,13 +20,13 @@ namespace StockApp.Views.Pages
             this.LoadChatReports();
         }
 
-        private void LoadChatReports()
+        private async void LoadChatReports()
         {
             this.ChatReportsContainer.Items.Clear();
 
             try
             {
-                List<ChatReport> chatReports = this.chatReportService.GetChatReports();
+                List<ChatReport> chatReports = await this.chatReportService.GetReportsAsync();
                 foreach (var report in chatReports)
                 {
                     ChatReportComponent reportComponent = this.componentFactory();
