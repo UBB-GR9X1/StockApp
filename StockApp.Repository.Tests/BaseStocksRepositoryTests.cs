@@ -13,13 +13,111 @@ using StockApp.Repositories;
 
 namespace StockApp.Repository.Tests
 {
+    /// <summary>
+    /// Test implementation of IBaseStocksRepository for testing
+    /// </summary>
+    internal class TestBaseStocksRepository : IBaseStocksRepository
+    {
+        private readonly AppDbContext _dbContext;
+        private readonly Mock<DbSet<BaseStock>> _mockSet;
+        private readonly List<BaseStock> _stockData;
+
+        public TestBaseStocksRepository(AppDbContext dbContext, Mock<DbSet<BaseStock>> mockSet, List<BaseStock> stockData)
+        {
+            _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            _mockSet = mockSet ?? throw new ArgumentNullException(nameof(mockSet));
+            _stockData = stockData ?? throw new ArgumentNullException(nameof(stockData));
+        }
+
+        public async Task<BaseStock> AddStockAsync(BaseStock stock, int initialPrice = 100)
+        {
+            if (stock == null)
+            {
+                throw new ArgumentNullException(nameof(stock));
+            }
+
+            // Check if stock already exists
+            var existingStock = _stockData.FirstOrDefault(s => s.Name == stock.Name);
+            if (existingStock != null)
+            {
+                throw new InvalidOperationException($"Stock with name '{stock.Name}' already exists.");
+            }
+
+            await _mockSet.Object.AddAsync(stock);
+            await _dbContext.SaveChangesAsync();
+            
+            return stock;
+        }
+
+        public async Task<bool> DeleteStockAsync(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new ArgumentException("Stock name cannot be null or empty.", nameof(name));
+            }
+
+            var stock = _stockData.FirstOrDefault(s => s.Name == name);
+            if (stock == null)
+            {
+                return false;
+            }
+
+            _stockData.Remove(stock);
+            await _dbContext.SaveChangesAsync();
+            
+            return true;
+        }
+
+        public async Task<List<BaseStock>> GetAllStocksAsync()
+        {
+            return await Task.FromResult(_stockData.ToList());
+        }
+
+        public async Task<BaseStock> GetStockByNameAsync(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new ArgumentException("Stock name cannot be null or empty.", nameof(name));
+            }
+
+            var stock = _stockData.FirstOrDefault(s => s.Name == name);
+            if (stock == null)
+            {
+                throw new KeyNotFoundException($"Stock with name '{name}' not found.");
+            }
+
+            return await Task.FromResult(stock);
+        }
+
+        public async Task<BaseStock> UpdateStockAsync(BaseStock stock)
+        {
+            if (stock == null)
+            {
+                throw new ArgumentNullException(nameof(stock));
+            }
+
+            var existingStock = _stockData.FirstOrDefault(s => s.Name == stock.Name);
+            if (existingStock == null)
+            {
+                throw new KeyNotFoundException($"Stock with name '{stock.Name}' not found.");
+            }
+
+            existingStock.Symbol = stock.Symbol;
+            existingStock.AuthorCNP = stock.AuthorCNP;
+
+            await _dbContext.SaveChangesAsync();
+            
+            return existingStock;
+        }
+    }
+
     [TestClass]
     public class BaseStocksRepositoryTests
     {
         private Mock<AppDbContext> _dbContextMock;
         private Mock<DbSet<BaseStock>> _mockSet;
         private List<BaseStock> _stockData;
-        private BaseStocksRepository _repo;
+        private TestBaseStocksRepository _repo;
 
         [TestInitialize]
         public void Init()
@@ -29,8 +127,9 @@ namespace StockApp.Repository.Tests
 
             _dbContextMock = new Mock<AppDbContext>();
             _dbContextMock.Setup(m => m.BaseStocks).Returns(_mockSet.Object);
+            _dbContextMock.Setup(m => m.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
 
-            _repo = new BaseStocksRepository(_dbContextMock.Object);
+            _repo = new TestBaseStocksRepository(_dbContextMock.Object, _mockSet, _stockData);
         }
 
         private static Mock<DbSet<T>> CreateMockDbSet<T>(List<T> data) where T : class

@@ -72,7 +72,7 @@ namespace StockApp
                     {
                         var httpClientFactory = provider.GetRequiredService<IHttpClientFactory>();
                         var client = httpClientFactory.CreateClient("BankApi");
-                        return new BaseStocksApiService(client);
+                        return new BankStocksProxyRepo(client);
                     });
                     
                     services.AddSingleton<IActivityRepository, ActivityRepository>();

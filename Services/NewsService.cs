@@ -4,11 +4,14 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using System.Diagnostics;
     using StockApp.Exceptions;
     using StockApp.Models;
     using StockApp.Repositories;
     using Microsoft.EntityFrameworkCore;
+    using Microsoft.Extensions.DependencyInjection;
     using StockApp.Database;
+    using Microsoft.Extensions.Logging;
 
     /// <summary>
     /// Provides business logic for managing news and user-submitted articles.
@@ -24,13 +27,29 @@
         private readonly INewsRepository newsRepository;
         private readonly IBaseStocksRepository stocksRepository;
         private readonly AppDbContext dbContext;
+        private readonly ILogger<NewsService> logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NewsService"/> class
         /// with default repository implementations.
         /// </summary>
-        public NewsService() : this(null)
+        public NewsService()
         {
+            try
+            {
+                var dbContext = new AppDbContext();
+                // Try to get the repository from the service provider
+                if (App.Host != null)
+                {
+                    this.stocksRepository = App.Host.Services.GetService<IBaseStocksRepository>();
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the error but continue with empty collections
+                Debug.WriteLine($"Error initializing NewsService: {ex.Message}");
+                this.stocksRepository = null;
+            }
         }
 
         /// <summary>
@@ -38,20 +57,25 @@
         /// using the specified repositories.
         /// </summary>
         /// <param name="dbContext">The database context.</param>
-        public NewsService(AppDbContext dbContext = null)
+        /// <param name="stocksRepository">The stocks repository.</param>
+        public NewsService(AppDbContext dbContext = null, IBaseStocksRepository stocksRepository = null)
         {
             this.newsRepository = new NewsRepository();
-            if (dbContext != null)
+            this.dbContext = dbContext;
+            this.stocksRepository = stocksRepository;
+
+            if (this.stocksRepository == null && dbContext != null && App.Host != null)
             {
-                this.dbContext = dbContext;
-                this.stocksRepository = new BaseStocksRepository(dbContext);
-            }
-            else
-            {
-                // This is a fallback for existing code that doesn't pass dbContext
-                // Should be removed after refactoring is complete
-                this.dbContext = null;
-                this.stocksRepository = null;
+                try
+                {
+                    // Try to get from service provider if available
+                    this.stocksRepository = App.Host.Services.GetService<IBaseStocksRepository>();
+                }
+                catch
+                {
+                    // Fallback handling
+                    Debug.WriteLine("Could not get IBaseStocksRepository from service provider");
+                }
             }
 
             if (!isInitialized)

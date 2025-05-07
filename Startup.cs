@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using StockApp.Database;
 using StockApp.Repositories;
+using StockApp.Services;
 
 namespace StockApp
 {
@@ -25,8 +26,6 @@ namespace StockApp
             
             services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(App.ConnectionString));
-
-            services.AddScoped<IBaseStocksRepository, BaseStocksRepository>();
 
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen(c =>

@@ -20,6 +20,7 @@ namespace StockApp.ViewModels.Tests
         private Mock<INewsService> _newsServiceMock;
         private Mock<IDispatcher> _dispatcherMock;
         private Mock<AppDbContext> _dbContextMock;
+        private Mock<IBaseStocksRepository> _stocksRepositoryMock;
         private ArticleCreationViewModel _vm;
 
         [TestInitialize]
@@ -46,10 +47,15 @@ namespace StockApp.ViewModels.Tests
             
             _dbContextMock.Setup(c => c.BaseStocks).Returns(mockSet.Object);
 
+            // Set up mock IBaseStocksRepository
+            _stocksRepositoryMock = new Mock<IBaseStocksRepository>();
+            _stocksRepositoryMock.Setup(r => r.GetAllStocksAsync()).ReturnsAsync(new List<BaseStock>());
+
             _vm = new ArticleCreationViewModel(
                 _newsServiceMock.Object,
                 _dispatcherMock.Object,
-                _dbContextMock.Object
+                _dbContextMock.Object,
+                _stocksRepositoryMock.Object
             );
         }
 

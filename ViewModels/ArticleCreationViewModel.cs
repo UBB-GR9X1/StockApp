@@ -6,6 +6,7 @@
     using System.Linq;
     using System.Threading.Tasks;
     using System.Windows.Input;
+    using Microsoft.Extensions.DependencyInjection;
     using Microsoft.UI.Xaml.Controls;
     using StockApp;
     using StockApp.Commands;
@@ -158,11 +159,12 @@
         public ArticleCreationViewModel(
             INewsService newsService,
             IDispatcher dispatcher,
-            AppDbContext dbContext)
+            AppDbContext dbContext,
+            IBaseStocksRepository stocksRepository)
         {
             _newsService = newsService ?? throw new ArgumentNullException(nameof(newsService));
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-            _stocksRepository = new BaseStocksRepository(_dbContext);
+            _stocksRepository = stocksRepository ?? throw new ArgumentNullException(nameof(stocksRepository));
             this.dispatcherQueue = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
 
             // Initialize commands
@@ -189,7 +191,8 @@
           : this(
               new NewsService(),
               new DispatcherAdapter(),
-              new AppDbContext())
+              new AppDbContext(),
+              App.Host.Services.GetRequiredService<IBaseStocksRepository>())
         {
         }
 

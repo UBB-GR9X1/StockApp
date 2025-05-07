@@ -8,6 +8,7 @@
     using StockApp.Repositories;
     using System.Threading.Tasks;
     using StockApp.Database;
+    using Microsoft.Extensions.DependencyInjection;
 
     /// <summary>
     /// Service for creating stocks
@@ -15,14 +16,33 @@
     internal class CreateStockService : ICreateStockService
     {
         private readonly IBaseStocksRepository _stocksRepository;
-        private readonly Random random = new();
+        private readonly Random random = new Random();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateStockService"/> class.
         /// </summary>
+        public CreateStockService(IBaseStocksRepository stocksRepository)
+        {
+            _stocksRepository = stocksRepository ?? throw new ArgumentNullException(nameof(stocksRepository));
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CreateStockService"/> class with a database context.
+        /// </summary>
         public CreateStockService(AppDbContext dbContext)
         {
-            _stocksRepository = new BaseStocksRepository(dbContext);
+            if (App.Host != null)
+            {
+                _stocksRepository = App.Host.Services.GetService<IBaseStocksRepository>();
+                if (_stocksRepository == null)
+                {
+                    throw new InvalidOperationException("Could not resolve IBaseStocksRepository from the service provider");
+                }
+            }
+            else
+            {
+                throw new InvalidOperationException("App.Host is null, cannot resolve dependencies");
+            }
         }
 
         /// <summary>

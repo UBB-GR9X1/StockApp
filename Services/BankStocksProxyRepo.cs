@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using StockApp.Models;
@@ -11,15 +10,15 @@ using StockApp.Repositories;
 namespace StockApp.Services
 {
     /// <summary>
-    /// API client service that implements IBaseStocksRepository to make calls to the BankAPI
+    /// Proxy repository that implements IBaseStocksRepository to make calls to the BankAPI
     /// </summary>
-    public class BaseStocksApiService : IBaseStocksRepository
+    public class BankStocksProxyRepo : IBaseStocksRepository
     {
         private readonly HttpClient _httpClient;
         private readonly string _baseUrl = "https://localhost:7001/api/BaseStocks";
         private readonly JsonSerializerOptions _jsonOptions;
 
-        public BaseStocksApiService(HttpClient httpClient)
+        public BankStocksProxyRepo(HttpClient httpClient)
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _jsonOptions = new JsonSerializerOptions
