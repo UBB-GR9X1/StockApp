@@ -5,6 +5,15 @@
     },
     "StockApp (Unpackaged)": {
       "commandName": "Project"
+    },
+    "StockApp": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": false,
+      "applicationUrl": "https://localhost:7000;http://localhost:5000",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
     }
   }
 }

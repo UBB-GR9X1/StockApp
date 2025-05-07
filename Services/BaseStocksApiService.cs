@@ -6,164 +6,150 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using StockApp.Models;
+using StockApp.Repositories;
 
 namespace StockApp.Services
 {
-    public class BaseStocksApiService : IBaseStocksApiService
+    /// <summary>
+    /// API client service that implements IBaseStocksRepository to make calls to the BankAPI
+    /// </summary>
+    public class BaseStocksApiService : IBaseStocksRepository
     {
         private readonly HttpClient _httpClient;
-        private readonly string _baseUrl;
+        private readonly string _baseUrl = "https://localhost:7001/api/BaseStocks";
         private readonly JsonSerializerOptions _jsonOptions;
 
-        public BaseStocksApiService(HttpClient httpClient, string baseUrl = "api/BaseStocks")
+        public BaseStocksApiService(HttpClient httpClient)
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-            _baseUrl = baseUrl;
             _jsonOptions = new JsonSerializerOptions
             {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                WriteIndented = true
+                PropertyNameCaseInsensitive = true
             };
         }
 
-        public async Task<List<BaseStock>> GetAllStocksAsync()
+        /// <inheritdoc/>
+        public async Task<BaseStock> AddStockAsync(BaseStock stock, int initialPrice = 100)
         {
             try
             {
-                var response = await _httpClient.GetAsync(_baseUrl);
-                response.EnsureSuccessStatusCode();
+                var response = await _httpClient.PostAsJsonAsync(_baseUrl, stock);
                 
-                return await response.Content.ReadFromJsonAsync<List<BaseStock>>() 
-                    ?? new List<BaseStock>();
-            }
-            catch (HttpRequestException ex)
-            {
-                throw new ApiException("Failed to fetch stocks from API", ex);
-            }
-        }
-
-        public async Task<BaseStock> GetStockByNameAsync(string name)
-        {
-            if (string.IsNullOrEmpty(name))
-            {
-                throw new ArgumentException("Stock name cannot be null or empty.", nameof(name));
-            }
-
-            try
-            {
-                var response = await _httpClient.GetAsync($"{_baseUrl}/{name}");
-                response.EnsureSuccessStatusCode();
-                
-                return await response.Content.ReadFromJsonAsync<BaseStock>() 
-                    ?? throw new ApiException($"Failed to deserialize stock '{name}' from API response");
-            }
-            catch (HttpRequestException ex)
-            {
-                throw new ApiException($"Failed to fetch stock '{name}' from API", ex);
-            }
-        }
-
-        public async Task<BaseStock> CreateStockAsync(BaseStock stock, int? initialPrice = null)
-        {
-            if (stock == null)
-            {
-                throw new ArgumentNullException(nameof(stock));
-            }
-
-            try
-            {
-                var dto = new
+                if (response.IsSuccessStatusCode)
                 {
-                    Name = stock.Name,
-                    Symbol = stock.Symbol,
-                    AuthorCNP = stock.AuthorCNP,
-                    InitialPrice = initialPrice
-                };
-
-                var content = new StringContent(
-                    JsonSerializer.Serialize(dto, _jsonOptions),
-                    Encoding.UTF8,
-                    "application/json");
-
-                var response = await _httpClient.PostAsync(_baseUrl, content);
-                response.EnsureSuccessStatusCode();
+                    return await response.Content.ReadFromJsonAsync<BaseStock>(_jsonOptions);
+                }
                 
-                return await response.Content.ReadFromJsonAsync<BaseStock>()
-                    ?? throw new ApiException("Failed to deserialize created stock from API response");
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Failed to add stock. Status code: {response.StatusCode}, Error: {errorContent}");
             }
-            catch (HttpRequestException ex)
+            catch (Exception ex)
             {
-                throw new ApiException("Failed to create stock via API", ex);
+                throw new Exception("Error occurred while adding the stock to the API.", ex);
             }
         }
 
-        public async Task<BaseStock> UpdateStockAsync(BaseStock stock)
-        {
-            if (stock == null)
-            {
-                throw new ArgumentNullException(nameof(stock));
-            }
-
-            try
-            {
-                var dto = new
-                {
-                    Name = stock.Name,
-                    Symbol = stock.Symbol,
-                    AuthorCNP = stock.AuthorCNP
-                };
-
-                var content = new StringContent(
-                    JsonSerializer.Serialize(dto, _jsonOptions),
-                    Encoding.UTF8,
-                    "application/json");
-
-                var response = await _httpClient.PutAsync($"{_baseUrl}/{stock.Name}", content);
-                response.EnsureSuccessStatusCode();
-                
-                return await response.Content.ReadFromJsonAsync<BaseStock>()
-                    ?? throw new ApiException($"Failed to deserialize updated stock '{stock.Name}' from API response");
-            }
-            catch (HttpRequestException ex)
-            {
-                throw new ApiException($"Failed to update stock '{stock.Name}' via API", ex);
-            }
-        }
-
+        /// <inheritdoc/>
         public async Task<bool> DeleteStockAsync(string name)
         {
-            if (string.IsNullOrEmpty(name))
-            {
-                throw new ArgumentException("Stock name cannot be null or empty.", nameof(name));
-            }
-
             try
             {
-                var response = await _httpClient.DeleteAsync($"{_baseUrl}/{name}");
+                var url = $"{_baseUrl}/{Uri.EscapeDataString(name)}";
+                var response = await _httpClient.DeleteAsync(url);
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    return true;
+                }
                 
                 if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
                     return false;
                 }
                 
-                response.EnsureSuccessStatusCode();
-                return true;
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Failed to delete stock. Status code: {response.StatusCode}, Error: {errorContent}");
             }
-            catch (HttpRequestException ex)
+            catch (Exception ex)
             {
-                throw new ApiException($"Failed to delete stock '{name}' via API", ex);
+                throw new Exception($"Error occurred while deleting the stock '{name}' from the API.", ex);
             }
         }
-    }
 
-    public class ApiException : Exception
-    {
-        public ApiException(string message) : base(message)
+        /// <inheritdoc/>
+        public async Task<List<BaseStock>> GetAllStocksAsync()
         {
+            try
+            {
+                var stocks = await _httpClient.GetFromJsonAsync<List<BaseStock>>(_baseUrl, _jsonOptions);
+                return stocks ?? new List<BaseStock>();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error occurred while retrieving stocks from the API.", ex);
+            }
         }
 
-        public ApiException(string message, Exception innerException) : base(message, innerException)
+        /// <inheritdoc/>
+        public async Task<BaseStock> GetStockByNameAsync(string name)
         {
+            try
+            {
+                var url = $"{_baseUrl}/{Uri.EscapeDataString(name)}";
+                var response = await _httpClient.GetAsync(url);
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    return await response.Content.ReadFromJsonAsync<BaseStock>(_jsonOptions);
+                }
+                
+                if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    throw new KeyNotFoundException($"Stock with name '{name}' not found.");
+                }
+                
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Failed to retrieve stock. Status code: {response.StatusCode}, Error: {errorContent}");
+            }
+            catch (KeyNotFoundException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error occurred while retrieving the stock '{name}' from the API.", ex);
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<BaseStock> UpdateStockAsync(BaseStock stock)
+        {
+            try
+            {
+                var url = $"{_baseUrl}/{Uri.EscapeDataString(stock.Name)}";
+                var response = await _httpClient.PutAsJsonAsync(url, stock);
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    return stock;
+                }
+                
+                if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    throw new KeyNotFoundException($"Stock with name '{stock.Name}' not found.");
+                }
+                
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Failed to update stock. Status code: {response.StatusCode}, Error: {errorContent}");
+            }
+            catch (KeyNotFoundException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error occurred while updating the stock '{stock.Name}' in the API.", ex);
+            }
         }
     }
 } 
