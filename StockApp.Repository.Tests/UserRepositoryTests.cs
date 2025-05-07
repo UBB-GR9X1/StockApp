@@ -115,5 +115,33 @@ namespace StockApp.Repository.Tests
             _users.Remove(cnp);
             return Task.CompletedTask;
         }
+
+        public Task PenalizeUserAsync(string userCnp, int amount)
+        {
+            // no-op for tests
+            return Task.CompletedTask;
+        }
+
+        public Task IncrementOffensesCountAsync(string cnp)
+        {
+            // no-op for tests
+            return Task.CompletedTask;
+        }
+
+        public Task UpdateUserCreditScoreAsync(string cnp, int score)
+        {
+            // no-op for tests
+            return Task.CompletedTask;
+        }
+        public Task UpdateUserROIAsync(string cnp, decimal ROI)
+        {
+            // no-op for tests
+            return Task.CompletedTask;
+        }
+        public Task UpdateUserRiskScoreAsync(string cnp, int score)
+        {
+            // no-op for tests
+            return Task.CompletedTask;
+        }
     }
 }
