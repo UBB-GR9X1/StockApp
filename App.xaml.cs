@@ -76,7 +76,6 @@ namespace StockApp
                     });
                     
                     services.AddSingleton<IActivityRepository, ActivityRepository>();
-                    services.AddSingleton<IBillSplitReportRepository, BillSplitReportRepository>();
                     services.AddSingleton<IChatReportRepository, ChatReportRepository>();
                     services.AddSingleton<IHistoryRepository, HistoryRepository>();
                     services.AddSingleton<IInvestmentsRepository, InvestmentsRepository>();
@@ -141,6 +140,42 @@ namespace StockApp
                     services.AddTransient<ProfilePage>();
                     services.AddTransient<GemStoreWindow>();
                     services.AddTransient<CreateProfilePage>();
+
+                    // Register API client
+                    services.AddScoped<BillSplitReportApiService>(provider => 
+                    {
+                        var httpClientFactory = provider.GetRequiredService<IHttpClientFactory>();
+                        var client = httpClientFactory.CreateClient("BankApi");
+                        return new BillSplitReportApiService(client);
+                    });
+
+                    // Register repository (proxy implementation)
+                    services.AddScoped<IBillSplitReportRepository>(provider => 
+                    {
+                        var apiService = provider.GetRequiredService<BillSplitReportApiService>();
+                        return new BillSplitReportProxyRepo(apiService);
+                    });
+
+                    // Make sure UserRepository is registered
+                    services.AddSingleton<IUserRepository, UserRepository>();
+
+                    // Register the service
+                    services.AddScoped<IBillSplitReportService>(provider => 
+                    {
+                        var repository = provider.GetRequiredService<IBillSplitReportRepository>();
+                        var userRepository = provider.GetRequiredService<IUserRepository>();
+                        return new BillSplitReportService(repository, userRepository);
+                    });
+
+                    // Register components
+                    services.AddTransient<BillSplitReportComponent>();
+                    services.AddTransient<Func<BillSplitReportComponent>>(provider => 
+                    {
+                        return () => provider.GetRequiredService<BillSplitReportComponent>();
+                    });
+
+                    // Register page
+                    services.AddTransient<BillSplitReportPage>();
                 }).Build();
         }
 

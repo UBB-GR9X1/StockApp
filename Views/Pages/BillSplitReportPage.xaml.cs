@@ -12,43 +12,46 @@ namespace StockApp.Views.Pages
     public sealed partial class BillSplitReportPage : Page
     {
         private readonly Func<BillSplitReportComponent> componentFactory;
+        private readonly IBillSplitReportService _billSplitReportService;
 
-        public BillSplitReportPage(Func<BillSplitReportComponent> componentFactory)
+        public BillSplitReportPage(Func<BillSplitReportComponent> componentFactory, IBillSplitReportService billSplitReportService)
         {
             this.componentFactory = componentFactory;
+            this._billSplitReportService = billSplitReportService;
             this.InitializeComponent();
-            this.LoadReports();
+            this.LoadReportsAsync();
         }
 
-        private void LoadReports()
+        private async void LoadReportsAsync()
         {
-            this.BillSplitReportsContainer.Items.Clear();
-
-            DatabaseConnection dbConnection = new DatabaseConnection();
-            BillSplitReportRepository billSplitReportRepository = new BillSplitReportRepository(dbConnection);
-            BillSplitReportService billSplitReportService = new BillSplitReportService(billSplitReportRepository);
+            BillSplitReportsContainer.Items.Clear();
 
             try
             {
-                List<BillSplitReport> reports = billSplitReportService.GetBillSplitReports();
+                List<BillSplitReport> reports = await _billSplitReportService.GetBillSplitReportsAsync();
 
                 foreach (var report in reports)
                 {
-                    var reportComponent = this.componentFactory();
+                    var reportComponent = componentFactory();
                     reportComponent.SetReportData(report);
-                    reportComponent.ReportSolved += this.OnReportSolved;
-                    this.BillSplitReportsContainer.Items.Add(reportComponent);
+                    reportComponent.ReportSolved += OnReportSolved;
+                    BillSplitReportsContainer.Items.Add(reportComponent);
+                }
+                
+                if (reports.Count == 0)
+                {
+                    BillSplitReportsContainer.Items.Add("There are no bill split reports that need solving.");
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                this.BillSplitReportsContainer.Items.Add("There are no chat reports that need solving.");
+                BillSplitReportsContainer.Items.Add($"Error loading reports: {ex.Message}");
             }
         }
 
         private void OnReportSolved(object sender, EventArgs e)
         {
-            this.LoadReports();
+            this.LoadReportsAsync();
         }
     }
 }

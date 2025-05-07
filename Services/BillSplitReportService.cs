@@ -2,46 +2,47 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using Src.Model;
     using StockApp.Models;
     using StockApp.Repositories;
 
     public class BillSplitReportService : IBillSplitReportService
     {
-        private readonly IBillSplitReportRepository billSplitReportRepository;
+        private readonly IBillSplitReportRepository _billSplitReportRepository;
+        private readonly IUserRepository _userRepository;
 
-        public BillSplitReportService(IBillSplitReportRepository billSplitReportRepository)
+        public BillSplitReportService(IBillSplitReportRepository billSplitReportRepository, IUserRepository userRepository)
         {
-            this.billSplitReportRepository = billSplitReportRepository;
+            _billSplitReportRepository = billSplitReportRepository;
+            _userRepository = userRepository;
         }
 
-        public List<BillSplitReport> GetBillSplitReports()
+        public async Task<List<BillSplitReport>> GetBillSplitReportsAsync()
         {
-            return this.billSplitReportRepository.GetBillSplitReports();
+            return await _billSplitReportRepository.GetBillSplitReportsAsync();
         }
 
-        public void CreateBillSplitReport(BillSplitReport billSplitReport)
+        public async Task<BillSplitReport> CreateBillSplitReportAsync(BillSplitReport billSplitReport)
         {
-            this.billSplitReportRepository.CreateBillSplitReport(billSplitReport);
+            return await _billSplitReportRepository.CreateBillSplitReportAsync(billSplitReport);
         }
 
-        public int GetDaysOverdue(BillSplitReport billSplitReport)
+        public async Task<int> GetDaysOverdueAsync(BillSplitReport billSplitReport)
         {
-            return this.billSplitReportRepository.GetDaysOverdue(billSplitReport);
+            return await _billSplitReportRepository.GetDaysOverdueAsync(billSplitReport);
         }
 
-        public void SolveBillSplitReport(BillSplitReport billSplitReportToBeSolved)
+        public async Task SolveBillSplitReportAsync(BillSplitReport billSplitReportToBeSolved)
         {
-            int daysPastDue = this.GetDaysOverdue(billSplitReportToBeSolved);
+            int daysPastDue = await GetDaysOverdueAsync(billSplitReportToBeSolved);
 
             float timeFactor = Math.Min(50, (daysPastDue - 1) * 50 / 20.0f);
-
             float amountFactor = Math.Min(50, (billSplitReportToBeSolved.BillShare - 1) * 50 / 999.0f);
-
             float gravityFactor = timeFactor + amountFactor;
 
-            int currentBalance = this.billSplitReportRepository.GetCurrentCreditScore(billSplitReportToBeSolved);
-            decimal transactionsSum = this.billSplitReportRepository.SumTransactionsSinceReport(billSplitReportToBeSolved);
+            int currentBalance = await _billSplitReportRepository.GetCurrentCreditScoreAsync(billSplitReportToBeSolved);
+            decimal transactionsSum = await _billSplitReportRepository.SumTransactionsSinceReportAsync(billSplitReportToBeSolved);
 
             bool couldHavePaidBillShare = currentBalance + transactionsSum >= (decimal)billSplitReportToBeSolved.BillShare;
 
@@ -50,37 +51,44 @@
                 gravityFactor += gravityFactor * 0.1f;
             }
 
-            if (this.billSplitReportRepository.CheckHistoryOfBillShares(billSplitReportToBeSolved))
+            bool historyOfBillShares = await _billSplitReportRepository.CheckHistoryOfBillSharesAsync(billSplitReportToBeSolved);
+            if (!historyOfBillShares)
             {
-                gravityFactor -= gravityFactor * 0.05f;
+                gravityFactor += gravityFactor * 0.2f;
             }
 
-            if (this.billSplitReportRepository.CheckFrequentTransfers(billSplitReportToBeSolved))
+            bool frequentTransfers = await _billSplitReportRepository.CheckFrequentTransfersAsync(billSplitReportToBeSolved);
+            if (frequentTransfers)
             {
-                gravityFactor -= gravityFactor * 0.05f;
+                gravityFactor -= gravityFactor * 0.1f;
             }
 
-            int numberOfOffenses = this.billSplitReportRepository.GetNumberOfOffenses(billSplitReportToBeSolved);
-            gravityFactor += (float)Math.Floor(numberOfOffenses * 0.1f);
+            int numberOfOffenses = await _billSplitReportRepository.GetNumberOfOffensesAsync(billSplitReportToBeSolved);
+            if (numberOfOffenses > 0)
+            {
+                gravityFactor += gravityFactor * (0.1f * numberOfOffenses);
+            }
 
-            int newCreditScore = (int)Math.Floor(currentBalance - 0.2f * gravityFactor);
+            int penalty = (int)Math.Floor(gravityFactor);
+            int newCreditScore = currentBalance - penalty;
 
-            this.billSplitReportRepository.UpdateCreditScore(billSplitReportToBeSolved, newCreditScore);
-            this.billSplitReportRepository.UpdateCreditScoreHistory(billSplitReportToBeSolved, newCreditScore);
+            await _billSplitReportRepository.UpdateCreditScoreAsync(billSplitReportToBeSolved, newCreditScore);
+            await _billSplitReportRepository.UpdateCreditScoreHistoryAsync(billSplitReportToBeSolved, newCreditScore);
+            await _billSplitReportRepository.IncrementNoOfBillSharesPaidAsync(billSplitReportToBeSolved);
 
-            this.billSplitReportRepository.IncrementNoOfBillSharesPaid(billSplitReportToBeSolved);
-
-            this.billSplitReportRepository.DeleteBillSplitReport(billSplitReportToBeSolved.Id);
+            await DeleteBillSplitReportAsync(billSplitReportToBeSolved);
         }
 
-        public void DeleteBillSplitReport(BillSplitReport billSplitReportToBeSolved)
+        public async Task<bool> DeleteBillSplitReportAsync(BillSplitReport billSplitReportToBeSolved)
         {
-            this.billSplitReportRepository.DeleteBillSplitReport(billSplitReportToBeSolved.Id);
+            return await _billSplitReportRepository.DeleteBillSplitReportAsync(billSplitReportToBeSolved.Id);
         }
 
-        public User GetUserByCNP(string cNP)
+        public async Task<User> GetUserByCNPAsync(string cnp)
         {
-            return new User();
+            // This should be implemented to fetch user data
+            // Placeholder implementation for now
+            return await Task.FromResult(new User { CNP = cnp });
         }
     }
 }

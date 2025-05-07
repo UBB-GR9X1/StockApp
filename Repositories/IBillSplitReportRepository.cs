@@ -1,36 +1,38 @@
 ﻿namespace StockApp.Repositories
 {
+    using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using Src.Model;
 
     public interface IBillSplitReportRepository
     {
-        List<BillSplitReport> GetBillSplitReports();
+        Task<List<BillSplitReport>> GetBillSplitReportsAsync();
 
-        void DeleteBillSplitReport(int id);
+        Task<bool> DeleteBillSplitReportAsync(int id);
 
-        void CreateBillSplitReport(BillSplitReport billSplitReport);
+        Task<BillSplitReport> CreateBillSplitReportAsync(BillSplitReport billSplitReport);
 
-        bool CheckLogsForSimilarPayments(BillSplitReport billSplitReport);
+        Task<bool> CheckLogsForSimilarPaymentsAsync(BillSplitReport billSplitReport);
 
-        int GetCurrentBalance(BillSplitReport billSplitReport);
+        Task<int> GetCurrentBalanceAsync(BillSplitReport billSplitReport);
 
-        decimal SumTransactionsSinceReport(BillSplitReport billSplitReport);
+        Task<decimal> SumTransactionsSinceReportAsync(BillSplitReport billSplitReport);
 
-        bool CheckHistoryOfBillShares(BillSplitReport billSplitReport);
+        Task<bool> CheckHistoryOfBillSharesAsync(BillSplitReport billSplitReport);
 
-        bool CheckFrequentTransfers(BillSplitReport billSplitReport);
+        Task<bool> CheckFrequentTransfersAsync(BillSplitReport billSplitReport);
 
-        int GetNumberOfOffenses(BillSplitReport billSplitReport);
+        Task<int> GetNumberOfOffensesAsync(BillSplitReport billSplitReport);
 
-        int GetCurrentCreditScore(BillSplitReport billSplitReport);
+        Task<int> GetCurrentCreditScoreAsync(BillSplitReport billSplitReport);
 
-        void UpdateCreditScore(BillSplitReport billSplitReport, int newCreditScore);
+        Task UpdateCreditScoreAsync(BillSplitReport billSplitReport, int newCreditScore);
 
-        void UpdateCreditScoreHistory(BillSplitReport billSplitReport, int newCreditScore);
+        Task UpdateCreditScoreHistoryAsync(BillSplitReport billSplitReport, int newCreditScore);
 
-        void IncrementNoOfBillSharesPaid(BillSplitReport billSplitReport);
+        Task IncrementNoOfBillSharesPaidAsync(BillSplitReport billSplitReport);
 
-        int GetDaysOverdue(BillSplitReport billSplitReport);
+        Task<int> GetDaysOverdueAsync(BillSplitReport billSplitReport);
     }
 }

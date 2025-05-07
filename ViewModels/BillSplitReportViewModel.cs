@@ -1,36 +1,49 @@
-﻿namespace StockApp.ViewModels
-{
-    using System;
-    using System.Collections.ObjectModel;
-    using System.Threading.Tasks;
-    using Src.Model;
-    using StockApp.Services;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
+using Src.Model;
+using StockApp.Services;
 
-    public class BillSplitReportViewModel
+namespace StockApp.ViewModels
+{
+    public class BillSplitReportViewModel : INotifyPropertyChanged
     {
         private readonly IBillSplitReportService billSplitReportService;
+        private ObservableCollection<BillSplitReport> billSplitReports;
 
-        public ObservableCollection<BillSplitReport> BillSplitReports { get; set; }
-
-        public BillSplitReportViewModel()
+        public BillSplitReportViewModel(IBillSplitReportService billSplitReportService)
         {
-            this.BillSplitReports = new ObservableCollection<BillSplitReport>(this.billSplitReportService.GetBillSplitReports());
+            this.billSplitReportService = billSplitReportService;
+            
+            // Convert the List to ObservableCollection
+            var reports = this.billSplitReportService.GetBillSplitReportsAsync().GetAwaiter().GetResult();
+            this.billSplitReports = new ObservableCollection<BillSplitReport>(reports);
         }
 
-        public async Task LoadBillSplitReports()
+        public ObservableCollection<BillSplitReport> BillSplitReports
         {
-            try
+            get => this.billSplitReports;
+            set
             {
-                var reports = this.billSplitReportService.GetBillSplitReports();
-                foreach (var report in reports)
-                {
-                    this.BillSplitReports.Add(report);
-                }
+                this.billSplitReports = value;
+                this.OnPropertyChanged();
             }
-            catch (Exception exception)
-            {
-                Console.WriteLine($"Error: {exception.Message}");
-            }
+        }
+
+        public async Task RefreshReportsAsync()
+        {
+            var reports = await this.billSplitReportService.GetBillSplitReportsAsync();
+            this.BillSplitReports = new ObservableCollection<BillSplitReport>(reports);
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

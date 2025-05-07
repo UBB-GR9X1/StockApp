@@ -6,10 +6,11 @@ namespace StockApp.Views.Components
     using Src.Model;
     using StockApp.Models;
     using StockApp.Services;
+    using System.Threading.Tasks;
 
     public sealed partial class BillSplitReportComponent : Page
     {
-        private readonly IBillSplitReportService billSplitReportService;
+        private readonly IBillSplitReportService _billSplitReportService;
 
         public event EventHandler ReportSolved;
 
@@ -34,62 +35,102 @@ namespace StockApp.Views.Components
         public BillSplitReportComponent(IBillSplitReportService billSplitReportService)
         {
             this.InitializeComponent();
-            this.billSplitReportService = billSplitReportService;
+            _billSplitReportService = billSplitReportService;
         }
 
         private async void OnSolveClick(object sender, RoutedEventArgs e)
         {
             BillSplitReport billSplitReport = new BillSplitReport
             {
-                Id = this.Id,
-                ReportedUserCnp = this.ReportedUserCNP,
-                ReportingUserCnp = this.ReporterUserCNP,
-                DateOfTransaction = this.DateTransaction,
-                BillShare = this.BillShare
+                Id = Id,
+                ReportedUserCnp = ReportedUserCNP,
+                ReportingUserCnp = ReporterUserCNP,
+                DateOfTransaction = DateTransaction,
+                BillShare = BillShare
             };
 
-            this.billSplitReportService.SolveBillSplitReport(billSplitReport);
-            this.ReportSolved?.Invoke(this, EventArgs.Empty);
+            try
+            {
+                await _billSplitReportService.SolveBillSplitReportAsync(billSplitReport);
+                ReportSolved?.Invoke(this, EventArgs.Empty);
+            }
+            catch (Exception ex)
+            {
+                // Show error message
+                ContentDialog errorDialog = new ContentDialog
+                {
+                    Title = "Error",
+                    Content = $"Failed to solve report: {ex.Message}",
+                    CloseButtonText = "OK",
+                    XamlRoot = Content.XamlRoot
+                };
+
+                await errorDialog.ShowAsync();
+            }
         }
 
-        private void OnDropReportClick(object sender, RoutedEventArgs e)
+        private async void OnDropReportClick(object sender, RoutedEventArgs e)
         {
             BillSplitReport billSplitReport = new BillSplitReport
             {
-                Id = this.Id,
-                ReportedUserCnp = this.ReportedUserCNP,
-                ReportingUserCnp = this.ReporterUserCNP,
-                DateOfTransaction = this.DateTransaction,
-                BillShare = this.BillShare
+                Id = Id,
+                ReportedUserCnp = ReportedUserCNP,
+                ReportingUserCnp = ReporterUserCNP,
+                DateOfTransaction = DateTransaction,
+                BillShare = BillShare
             };
 
-            this.billSplitReportService.DeleteBillSplitReport(billSplitReport);
-            this.ReportSolved?.Invoke(this, EventArgs.Empty);
+            try
+            {
+                await _billSplitReportService.DeleteBillSplitReportAsync(billSplitReport);
+                ReportSolved?.Invoke(this, EventArgs.Empty);
+            }
+            catch (Exception ex)
+            {
+                // Show error message
+                ContentDialog errorDialog = new ContentDialog
+                {
+                    Title = "Error",
+                    Content = $"Failed to delete report: {ex.Message}",
+                    CloseButtonText = "OK",
+                    XamlRoot = Content.XamlRoot
+                };
+
+                await errorDialog.ShowAsync();
+            }
         }
 
-        public void SetReportData(BillSplitReport billSplitReport)
+        public async void SetReportData(BillSplitReport billSplitReport)
         {
-            User reportedUser = this.billSplitReportService.GetUserByCNP(billSplitReport.ReportedUserCnp);
-            User reporterUser = this.billSplitReportService.GetUserByCNP(billSplitReport.ReportingUserCnp);
+            try
+            {
+                User reportedUser = await _billSplitReportService.GetUserByCNPAsync(billSplitReport.ReportedUserCnp);
+                User reporterUser = await _billSplitReportService.GetUserByCNPAsync(billSplitReport.ReportingUserCnp);
 
-            this.Id = billSplitReport.Id;
-            this.ReportedUserCNP = billSplitReport.ReportedUserCnp;
-            this.ReportedUserFirstName = reportedUser.FirstName;
-            this.ReportedUserLastName = reportedUser.LastName;
-            this.ReporterUserCNP = billSplitReport.ReportingUserCnp;
-            this.ReporterUserFirstName = reporterUser.FirstName;
-            this.ReporterUserLastName = reporterUser.LastName;
-            this.DateTransaction = billSplitReport.DateOfTransaction;
-            this.BillShare = billSplitReport.BillShare;
+                Id = billSplitReport.Id;
+                ReportedUserCNP = billSplitReport.ReportedUserCnp;
+                ReportedUserFirstName = reportedUser.FirstName;
+                ReportedUserLastName = reportedUser.LastName;
+                ReporterUserCNP = billSplitReport.ReportingUserCnp;
+                ReporterUserFirstName = reporterUser.FirstName;
+                ReporterUserLastName = reporterUser.LastName;
+                DateTransaction = billSplitReport.DateOfTransaction;
+                BillShare = billSplitReport.BillShare;
 
-            this.IdTextBlock.Text = $"Report ID: {this.Id}";
-            this.ReportedUserCNPTextBlock.Text = $"CNP: {this.ReportedUserCNP}";
-            this.ReportedUserNameTextBlock.Text = $"{reportedUser.FirstName} {reportedUser.LastName}";
-            this.ReporterUserCNPTextBlock.Text = $"CNP: {this.ReporterUserCNP}";
-            this.ReporterUserNameTextBlock.Text = $"{reporterUser.FirstName} {reporterUser.LastName}";
-            this.DateTransactionTextBlock.Text = $"{this.DateTransaction}";
-            this.DaysOverdueTextBlock.Text = $"{this.billSplitReportService.GetDaysOverdue(billSplitReport)} days overdue!";
-            this.BillShareTextBlock.Text = $"Bill share: {this.BillShare}";
+                IdTextBlock.Text = $"Report ID: {Id}";
+                ReportedUserCNPTextBlock.Text = $"CNP: {ReportedUserCNP}";
+                ReportedUserNameTextBlock.Text = $"{reportedUser.FirstName} {reportedUser.LastName}";
+                ReporterUserCNPTextBlock.Text = $"CNP: {ReporterUserCNP}";
+                ReporterUserNameTextBlock.Text = $"{reporterUser.FirstName} {reporterUser.LastName}";
+                DateTransactionTextBlock.Text = $"{DateTransaction}";
+                DaysOverdueTextBlock.Text = $"{await _billSplitReportService.GetDaysOverdueAsync(billSplitReport)} days overdue!";
+                BillShareTextBlock.Text = $"Bill share: {BillShare}";
+            }
+            catch (Exception ex)
+            {
+                // Simple error handling
+                IdTextBlock.Text = $"Error loading report: {ex.Message}";
+            }
         }
     }
 }
