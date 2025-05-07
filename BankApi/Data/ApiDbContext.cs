@@ -19,8 +19,6 @@ namespace BankApi.Data
         public DbSet<TriggeredAlert> TriggeredAlerts { get; set; }
 
         public DbSet<ActivityLog> ActivityLogs { get; set; }
-
-        public DbSet<ChatReport> ChatReports { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

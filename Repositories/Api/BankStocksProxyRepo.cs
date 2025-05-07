@@ -5,9 +5,8 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
 using StockApp.Models;
-using StockApp.Repositories;
 
-namespace StockApp.Services
+namespace StockApp.Repositories.Api
 {
     /// <summary>
     /// Proxy repository that implements IBaseStocksRepository to make calls to the BankAPI
@@ -33,12 +32,12 @@ namespace StockApp.Services
             try
             {
                 var response = await _httpClient.PostAsJsonAsync(_baseUrl, stock);
-                
+
                 if (response.IsSuccessStatusCode)
                 {
                     return await response.Content.ReadFromJsonAsync<BaseStock>(_jsonOptions);
                 }
-                
+
                 var errorContent = await response.Content.ReadAsStringAsync();
                 throw new Exception($"Failed to add stock. Status code: {response.StatusCode}, Error: {errorContent}");
             }
@@ -55,17 +54,17 @@ namespace StockApp.Services
             {
                 var url = $"{_baseUrl}/{Uri.EscapeDataString(name)}";
                 var response = await _httpClient.DeleteAsync(url);
-                
+
                 if (response.IsSuccessStatusCode)
                 {
                     return true;
                 }
-                
+
                 if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
                     return false;
                 }
-                
+
                 var errorContent = await response.Content.ReadAsStringAsync();
                 throw new Exception($"Failed to delete stock. Status code: {response.StatusCode}, Error: {errorContent}");
             }
@@ -96,17 +95,17 @@ namespace StockApp.Services
             {
                 var url = $"{_baseUrl}/{Uri.EscapeDataString(name)}";
                 var response = await _httpClient.GetAsync(url);
-                
+
                 if (response.IsSuccessStatusCode)
                 {
                     return await response.Content.ReadFromJsonAsync<BaseStock>(_jsonOptions);
                 }
-                
+
                 if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
                     throw new KeyNotFoundException($"Stock with name '{name}' not found.");
                 }
-                
+
                 var errorContent = await response.Content.ReadAsStringAsync();
                 throw new Exception($"Failed to retrieve stock. Status code: {response.StatusCode}, Error: {errorContent}");
             }
@@ -127,17 +126,17 @@ namespace StockApp.Services
             {
                 var url = $"{_baseUrl}/{Uri.EscapeDataString(stock.Name)}";
                 var response = await _httpClient.PutAsJsonAsync(url, stock);
-                
+
                 if (response.IsSuccessStatusCode)
                 {
                     return stock;
                 }
-                
+
                 if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
                     throw new KeyNotFoundException($"Stock with name '{stock.Name}' not found.");
                 }
-                
+
                 var errorContent = await response.Content.ReadAsStringAsync();
                 throw new Exception($"Failed to update stock. Status code: {response.StatusCode}, Error: {errorContent}");
             }
@@ -151,4 +150,4 @@ namespace StockApp.Services
             }
         }
     }
-} 
+}
