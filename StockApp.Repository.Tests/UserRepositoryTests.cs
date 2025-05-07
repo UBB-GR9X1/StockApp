@@ -116,31 +116,48 @@ namespace StockApp.Repository.Tests
             return Task.CompletedTask;
         }
 
-        public Task PenalizeUserAsync(string userCnp, int amount)
+        public Task PenalizeUserAsync(string cnp, int penaltyAmount)
         {
-            // no-op for tests
+            if (!_users.TryGetValue(cnp, out var user))
+                throw new KeyNotFoundException($"User with CNP '{cnp}' not found.");
+                
+            user.GemBalance -= penaltyAmount;
             return Task.CompletedTask;
         }
 
         public Task IncrementOffensesCountAsync(string cnp)
         {
-            // no-op for tests
+            if (!_users.TryGetValue(cnp, out var user))
+                throw new KeyNotFoundException($"User with CNP '{cnp}' not found.");
+                
+            user.NumberOfOffenses++;
             return Task.CompletedTask;
         }
 
-        public Task UpdateUserCreditScoreAsync(string cnp, int score)
+        public Task UpdateUserCreditScoreAsync(string cnp, int creditScore)
         {
-            // no-op for tests
+            if (!_users.TryGetValue(cnp, out var user))
+                throw new KeyNotFoundException($"User with CNP '{cnp}' not found.");
+                
+            user.CreditScore = creditScore;
             return Task.CompletedTask;
         }
-        public Task UpdateUserROIAsync(string cnp, decimal ROI)
+
+        public Task UpdateUserROIAsync(string cnp, decimal roi)
         {
-            // no-op for tests
+            if (!_users.TryGetValue(cnp, out var user))
+                throw new KeyNotFoundException($"User with CNP '{cnp}' not found.");
+                
+            user.ROI = roi;
             return Task.CompletedTask;
         }
-        public Task UpdateUserRiskScoreAsync(string cnp, int score)
+
+        public Task UpdateUserRiskScoreAsync(string cnp, int riskScore)
         {
-            // no-op for tests
+            if (!_users.TryGetValue(cnp, out var user))
+                throw new KeyNotFoundException($"User with CNP '{cnp}' not found.");
+                
+            user.RiskScore = riskScore;
             return Task.CompletedTask;
         }
     }

@@ -6,10 +6,6 @@
     {
     }
 
-    public class DuplicateStockException(string stockName) : Exception($"A stock with the name '{stockName}' already exists.")
-    {
-    }
-
     public class HomepageStockPersistenceException(string message, Exception? innerException = null) : Exception(message, innerException)
     {
     }
