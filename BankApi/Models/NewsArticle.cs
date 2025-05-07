@@ -1,8 +1,7 @@
-﻿namespace BankApi.Models.Articles
+﻿namespace BankApi.Models
 {
     using System;
     using System.ComponentModel.DataAnnotations;
-    using BankApi.Models;
 
     /// <summary>
     /// Represents a news article with additional metadata such as source, read status, and category.
@@ -12,22 +11,24 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="NewsArticle"/> class.
         /// </summary>
-        /// <param name="id">The unique identifier of the article.</param>
+        /// <param name="articleId">The unique identifier of the article.</param>
         /// <param name="title">The title of the article.</param>
         /// <param name="summary">A brief summary of the article.</param>
         /// <param name="content">The full content of the article.</param>
         /// <param name="publishedOn">The publication date of the article.</param>
+        /// <param name="status">The status of the article.</param>
         /// <param name="source">The source of the article.</param>
         public NewsArticle(
-            int id,
+            int articleId,
             string title,
             string summary,
             string content,
             DateTime publishedOn,
+            Status status,
             string source)
-            : base(id, title, summary, content, publishedOn)
+            : base(articleId, title, summary, content, publishedOn, status)
         {
-            Source = source;
+            this.Source = source;
         }
 
         /// <summary>

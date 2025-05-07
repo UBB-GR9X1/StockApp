@@ -1,10 +1,10 @@
-﻿namespace BankApi.Models.Articles
+﻿namespace BankApi.Models
 {
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
-    using BankApi.Models;
+    using BankApi.Validators;
 
     /// <summary>
     /// Represents the base article model containing common properties for articles.
@@ -14,23 +14,26 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="BaseArticle"/> class.
         /// </summary>
-        /// <param name="id">The unique identifier for the article.</param>
+        /// <param name="articleId">The unique identifier for the article.</param>
         /// <param name="title">The title of the article.</param>
         /// <param name="summary">A brief summary of the article.</param>
         /// <param name="content">The main content of the article.</param>
         /// <param name="publishedOn">The date and time the article was published.</param>
+        /// <param name="status">The publication status of the article.</param>
         public BaseArticle(
-            int id,
+            int articleId,
             string title,
             string summary,
             string content,
-            DateTime publishedOn)
+            DateTime publishedOn,
+            Status status)
         {
-            Id = id;
-            Title = title;
-            Summary = summary;
-            Content = content;
-            PublishedOn = publishedOn;
+            this.ArticleId = articleId;
+            this.Title = title;
+            this.Summary = summary;
+            this.Content = content;
+            this.PublishedOn = publishedOn;
+            this.Status = status;
         }
 
         /// <summary>
@@ -38,7 +41,7 @@
         /// </summary>
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
+        public int ArticleId { get; set; }
 
         /// <summary>
         /// Gets or sets the title of the article.
@@ -66,6 +69,13 @@
         [Required]
         [DataType(DataType.DateTime)]
         public DateTime PublishedOn { get; set; }
+
+        /// <summary>
+        /// Gets or sets the publication status of the article.
+        /// </summary>
+        [Required]
+        [StatusValidation]
+        public Status Status { get; set; }
 
         /// <summary>
         /// Gets or sets the list of stocks related to the article.
