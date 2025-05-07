@@ -1,87 +1,107 @@
 namespace StockApp
 {
     using System;
-    using System.Collections.Generic;
+    using Microsoft.Extensions.DependencyInjection;
     using Microsoft.UI.Xaml;
-    using Microsoft.UI.Xaml.Navigation;
+    using Microsoft.UI.Xaml.Controls;
     using StockApp.Database;
-    using StockApp.Models;
+    using StockApp.Pages;
+    using StockApp.Repositories;
     using StockApp.Services;
-    using StockApp.Views;
+    using StockApp.Views.Components;
+    using StockApp.Views.Pages;
 
     /// <summary>
     /// An empty window that can be used on its own or navigated to within a Frame.
     /// </summary>
     public sealed partial class MainWindow : Window
     {
-        public MainWindow()
+        private readonly IServiceProvider serviceProvider;
+        private static readonly IUserRepository userRepository = new UserRepository();
+
+        public bool CreateProfileButtonVisibility => userRepository.CurrentUserCNP == null;
+
+        public static bool ProfileButtonVisibility => userRepository.CurrentUserCNP != null;
+
+        public MainWindow(IServiceProvider serviceProvider)
         {
             this.InitializeComponent();
             DatabaseHelper.InitializeDatabase();
+            this.serviceProvider = serviceProvider;
 
-            //CheckAndHandleAlerts();
-
-            //rootFrame.Navigate(typeof(CreateStockPage), null);
-            // rootFrame.Navigate(typeof(ProfilePage), null);
-            // rootFrame.Navigate(typeof(MainPage), null);
-
-            //string stockName = "Tesla";
-            //rootFrame.Navigate(typeof(StockPage.StockPage), stockName);
-
-            // rootFrame.Navigate(typeof(CreateStockPage.MainPage), null);
-
-            this.rootFrame.Navigate(typeof(HomepageView), null);
-            NavigationService.Initialize(new FrameAdapter(this.rootFrame));
-
-            // string stockName = "Tesla";
-
-            // NavigationService.Instance.Initialize(rootFrame);
-            // NavigationService.Instance.Navigate(typeof(StockPage.StockPage), stockName);
-            //rootFrame.Navigate(typeof(StockPage.StockPage), stockName);
-
-            // rootFrame.Navigate(typeof(CreateStockPage.MainPage), null);
-
-            //rootFrame.Navigate(typeof(StocksHomepage.MainPage), null);
-
-            // rootFrame.Navigate(typeof(Test.TestPage), null);
-
-
-            // <news>
-            // NavigationService.Instance.Initialize(rootFrame);
-            // NavigationService.Instance.Navigate(typeof(NewsListView));
-
-            // GEM STORE:
-            //rootFrame.Navigate(typeof(GemStore.GemStoreWindow), null);
-
-            // TRANSACTION LOG:
-            //rootFrame.Navigate(typeof(TransactionLog.TransactionLogPage), null);
-
-            // Alerts
-            //rootFrame.Navigate(typeof(Alerts.AlertWindow), null);
+            this.MainFrame.Content = this.serviceProvider.GetRequiredService<UsersView>();
         }
 
-        //private void CheckAndHandleAlerts()
-        //{
-        //    var alertRepository = new AlertRepository();
-        //    var triggeredAlerts = alertRepository.GetTriggeredAlerts();
-
-        //    if (triggeredAlerts.Count > 0)
-        //    {
-        //        DisplayTriggeredAlerts(triggeredAlerts);
-        //    }
-        //    else
-        //    {
-        //        rootFrame.Navigate(typeof(HomepageView), null);
-        //    }
-        //}
-        private void DisplayTriggeredAlerts(List<TriggeredAlert> triggeredAlerts)
+        private void NavigationView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
         {
-            this.rootFrame.Navigate(typeof(AlertsView), triggeredAlerts);
+            if (args.SelectedItemContainer != null)
+            {
+                string invokedItemTag = args.SelectedItemContainer.Tag.ToString() ?? throw new InvalidOperationException("Tag cannot be null");
+                switch (invokedItemTag)
+                {
+                    case "ChatReports":
+                        var chatReportsPage = this.serviceProvider.GetRequiredService<ChatReportView>();
+                        this.MainFrame.Content = chatReportsPage;
+                        break;
+                    case "LoanRequest":
+                        var loanRequestPage = this.serviceProvider.GetRequiredService<LoanRequestView>();
+                        this.MainFrame.Content = loanRequestPage;
+                        break;
+                    case "Loans":
+                        var loansPage = this.serviceProvider.GetRequiredService<LoansView>();
+                        this.MainFrame.Content = loansPage;
+                        break;
+                    case "UsersList":
+                        var usersView = this.serviceProvider.GetRequiredService<UsersView>();
+                        this.MainFrame.Content = usersView;
+                        break;
+                    case "BillSplitReports":
+                        var billSplitPage = this.serviceProvider.GetRequiredService<BillSplitReportPage>();
+                        this.MainFrame.Content = billSplitPage;
+                        break;
+                    case "Zodiac":
+                        this.ZodiacFeature(sender, null);
+                        break;
+                    case "Investments":
+                        this.MainFrame.Navigate(typeof(InvestmentsView));
+                        break;
+                    case "NewsListPage":
+                        var newsListPage = this.serviceProvider.GetRequiredService<NewsListPage>();
+                        this.MainFrame.Content = newsListPage;
+                        break;
+                    case "CreateStockPage":
+                        var createStockPage = this.serviceProvider.GetRequiredService<CreateStockPage>();
+                        this.MainFrame.Content = createStockPage;
+                        break;
+                    case "TransactionLogPage":
+                        var transactionLogPage = this.serviceProvider.GetRequiredService<TransactionLogPage>();
+                        this.MainFrame.Content = transactionLogPage;
+                        break;
+                    case "ProfilePage":
+                        var profilePage = this.serviceProvider.GetRequiredService<ProfilePage>();
+                        this.MainFrame.Content = profilePage;
+                        break;
+                    case "CreateProfile":
+                        var createProfilePage = this.serviceProvider.GetRequiredService<CreateProfilePage>();
+                        this.MainFrame.Content = createProfilePage;
+                        break;
+                    case "GemStoreWindow":
+                        var gemStoreWindow = this.serviceProvider.GetRequiredService<GemStoreWindow>();
+                        this.MainFrame.Content = gemStoreWindow;
+                        break;
+                }
+            }
         }
 
-        void OnNavigationFailed(object sender, NavigationFailedEventArgs navigationFailedEventArgs)
+        private void ZodiacFeature(object sender, RoutedEventArgs e)
         {
-            throw new Exception("Failed to load Page: " + navigationFailedEventArgs.SourcePageType.FullName);
+            UserRepository userRepository = new UserRepository();
+            ZodiacService zodiacService = new ZodiacService(userRepository);
+
+            zodiacService.CreditScoreModificationBasedOnJokeAndCoinFlipAsync();
+            zodiacService.CreditScoreModificationBasedOnAttributeAndGravity();
+
+            this.MainFrame.Navigate(typeof(ZodiacFeatureView));
         }
     }
 }

@@ -5,7 +5,6 @@
     using System.Linq;
     using System.Threading.Tasks;
     using System.Windows.Input;
-    using Microsoft.UI.Dispatching;
     using Microsoft.UI.Xaml.Controls;
     using StockApp.Commands;
     using StockApp.Models;
@@ -15,7 +14,7 @@
     public class NewsListViewModel : ViewModelBase
     {
         private readonly INewsService newsService;
-        private readonly IAppState appState;
+        private static readonly IUserService UserService = App.Host.Services.GetService(typeof(IUserService)) as IUserService ?? throw new InvalidOperationException("UserService not found");
 
         // properties
         private ObservableCollection<NewsArticle> articles = [];
@@ -199,12 +198,9 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="NewsListViewModel"/> class with specified services.
         /// </summary>
-        public NewsListViewModel(
-            INewsService newsService,
-            IAppState appState)
+        public NewsListViewModel(INewsService newsService)
         {
             this.newsService = newsService ?? throw new ArgumentNullException(nameof(newsService));
-            this.appState = appState ?? throw new ArgumentNullException(nameof(appState));
 
             this.RefreshCommand = new StockNewsRelayCommand(() => this.RefreshArticles());
             this.CreateArticleCommand = new StockNewsRelayCommand(() => NavigateToCreateArticle());
@@ -227,52 +223,8 @@
         /// Initializes a new instance of the <see cref="NewsListViewModel"/> class with default services.
         /// </summary>
         public NewsListViewModel()
-          : this(new NewsService(),
-                 AppState.Instance)
+          : this(new NewsService())
         {
-        }
-
-        // methods
-
-        /// <summary>
-        /// Initializes the view model by loading the current user and articles.
-        /// </summary>
-        // FIXME: Consider changing async void to async Task for better error handling
-        public async void Initialize()
-        {
-            this.IsLoading = true;
-            this.IsEmptyState = false;
-
-            try
-            {
-                // get current user
-                this.GetCurrentUser();
-
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Error initializing NewsListViewModel: {ex.Message}");
-                this.IsEmptyState = true;
-            }
-            finally
-            {
-                this.IsLoading = false;
-            }
-        }
-
-        private void GetCurrentUser()
-        {
-            try
-            {
-                var user = this.newsService.GetCurrentUser();
-                this.CurrentUser = user;
-                this.appState.CurrentUser = (User)user;
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Error getting current user: {ex.Message}");
-                throw;
-            }
         }
 
         public void RefreshArticles()
@@ -446,7 +398,7 @@
                 if (user != null)
                 {
                     this.CurrentUser = user;
-                    this.appState.CurrentUser = (User)user;
+                    //this.appState.CurrentUser = (User)user;
 
                     // success message
                     var dialog = new ContentDialog
@@ -484,7 +436,6 @@
             {
                 this.newsService.Logout();
                 this.CurrentUser = null;
-                this.appState.CurrentUser = null;
 
                 // refresh articles to show non-user-specific content
                 this.RefreshArticles();

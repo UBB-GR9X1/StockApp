@@ -1,8 +1,8 @@
-﻿using System.Collections.ObjectModel;
-using StockApp.Models;
-
-namespace StockApp.Services
+﻿namespace StockApp.Services
 {
+    using System.Collections.ObjectModel;
+    using StockApp.Models;
+
     public interface IHomepageService
     {
         ObservableCollection<HomepageStock> AllStocks { get; }

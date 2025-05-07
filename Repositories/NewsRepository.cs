@@ -1156,10 +1156,10 @@
         /// <returns>A <see cref="UserArticle"/> object.</returns>
         private static UserArticle MapUserArticle(SqlDataReader reader)
         {
-            string AuthorCNP = reader["AUTHOR_CNP"]?.ToString() ?? throw new Exception("Author CNP is null");
+            string authorCNP = reader["AUTHOR_CNP"]?.ToString() ?? throw new Exception("Author CNP is null");
             var author = new User
             {
-                CNP = AuthorCNP,
+                CNP = authorCNP,
                 Username = reader["NAME"]?.ToString() ?? throw new Exception("Author name is null"),
                 Description = reader["DESCRIPTION"]?.ToString() ?? string.Empty,
                 IsHidden = reader["IS_HIDDEN"] != DBNull.Value && (bool)reader["IS_HIDDEN"],

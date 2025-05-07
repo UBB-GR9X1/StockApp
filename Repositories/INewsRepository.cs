@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
-using Microsoft.Data.SqlClient;
-using StockApp.Models;
-
-namespace StockApp.Repositories
+﻿namespace StockApp.Repositories
 {
+    using System.Collections.Generic;
+    using Microsoft.Data.SqlClient;
+    using StockApp.Models;
+
     public interface INewsRepository
     {
         void AddNewsArticle(NewsArticle newsArticle);

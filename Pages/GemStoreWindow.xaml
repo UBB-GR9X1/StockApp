@@ -11,10 +11,6 @@
 
         <!-- Top Section -->
         <Grid Grid.Row="0" Background="#0a1a0a">
-            <!-- Back Button -->
-            <Button Content="&#x2190;" HorizontalAlignment="Left" VerticalAlignment="Center" 
-                    Click="OnBackButtonClicked" Width="70" Height="50" FontSize="30" Margin="10" 
-                    Background="Transparent" Foreground="White"/>
             <!-- Gem Amount -->
             <TextBlock FontSize="25" FontWeight="Bold" Foreground="White" 
                        HorizontalAlignment="Right" VerticalAlignment="Center" Margin="10">

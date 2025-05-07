@@ -14,15 +14,15 @@
     /// <param name="inner">The inner CartesianChart instance to adapt.</param>
     public class ChartAdapter(CartesianChart inner) : IChart
     {
-        private readonly CartesianChart _inner = inner;
+        private readonly CartesianChart inner = inner;
 
         /// <summary>
         /// Gets or sets the series to display on the chart.
         /// </summary>
         public IEnumerable<ISeries> Series
         {
-            get => this._inner.Series;
-            set => this._inner.Series = value;
+            get => this.inner.Series;
+            set => this.inner.Series = value;
         }
 
         /// <summary>
@@ -31,7 +31,7 @@
         public void UpdateLayout()
         {
             // Delegate layout update to the underlying chart
-            this._inner.UpdateLayout();
+            this.inner.UpdateLayout();
         }
     }
 }

@@ -145,9 +145,5 @@ namespace StockApp.Pages
             }
         }
 
-        private void OnBackButtonClicked(object sender, RoutedEventArgs e)
-        {
-            this.Frame.GoBack();
-        }
     }
 }

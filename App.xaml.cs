@@ -4,9 +4,21 @@
 namespace StockApp
 {
     using System;
+    using System.Net.Http;
+    using Microsoft.AspNetCore.Builder;
+    using Microsoft.AspNetCore.Hosting;
+    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Hosting;
     using Microsoft.UI.Xaml;
+    using Src.Data;
     using StockApp.Database;
+    using StockApp.Pages;
+    using StockApp.Repositories;
+    using StockApp.Services;
+    using StockApp.Views.Components;
+    using StockApp.Views.Pages;
 
     /// <summary>
     /// Provides application-specific behavior to supplement the default Application class.
@@ -15,6 +27,8 @@ namespace StockApp
     {
         public static Window? MainWindow { get; private set; } = null!;
 
+        public static IHost Host { get; private set; }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="App"/> class.
         /// Initializes the singleton application object.  This is the first line of authored code
@@ -22,12 +36,114 @@ namespace StockApp
         /// </summary>
         public App()
         {
-            DatabaseHelper.InitializeDatabase();
+            // Note: We've replaced DatabaseHelper.InitializeDatabase() with EF Core migrations
             this.InitializeComponent();
+            this.ConfigureHost();
 
             // explanation before the OnUnhandledException method
-            this.UnhandledException += this.OnUnhandledException;
+            //this.UnhandledException += this.OnUnhandledException;
         }
+
+        private void ConfigureHost()
+        {
+            Host = Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder()
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseStartup<Startup>();
+                })
+                .ConfigureServices((context, services) =>
+                {
+                    var config = new ConfigurationBuilder().AddUserSecrets<App>().AddEnvironmentVariables().Build();
+                    services.AddSingleton<IConfiguration>(config);
+                    services.AddSingleton(new DatabaseConnection());
+
+                    // Configure EF Core
+                    services.AddDbContext<AppDbContext>(options =>
+                        options.UseSqlServer(ConnectionString));
+
+                    // HttpClient for API communication
+                    services.AddHttpClient("BankApi", client =>
+                    {
+                        client.BaseAddress = new Uri("https://localhost:7001/");
+                    });
+
+                    // Repositories
+                    services.AddScoped<IBaseStocksRepository>(provider =>
+                    {
+                        var httpClientFactory = provider.GetRequiredService<IHttpClientFactory>();
+                        var client = httpClientFactory.CreateClient("BankApi");
+                        return new BankStocksProxyRepo(client);
+                    });
+                    
+                    services.AddSingleton<IActivityRepository, ActivityRepository>();
+                    services.AddSingleton<IBillSplitReportRepository, BillSplitReportRepository>();
+                    services.AddSingleton<IChatReportRepository, ChatReportRepository>();
+                    services.AddSingleton<IHistoryRepository, HistoryRepository>();
+                    services.AddSingleton<IInvestmentsRepository, InvestmentsRepository>();
+                    services.AddSingleton<ILoanRepository, LoanRepository>();
+                    services.AddSingleton<ILoanRequestRepository, LoanRequestRepository>();
+                    services.AddSingleton<IUserRepository, UserRepository>();
+
+                    // Other Services
+                    services.AddSingleton<IActivityService, ActivityService>();
+                    services.AddSingleton<IBillSplitReportService, BillSplitReportService>();
+                    services.AddSingleton<IChatReportService, ChatReportService>();
+                    services.AddSingleton<IHistoryService, HistoryService>();
+                    services.AddSingleton<IInvestmentsService, InvestmentsService>();
+                    services.AddSingleton<ILoanCheckerService, LoanCheckerService>();
+                    services.AddSingleton<ILoanRequestService, LoanRequestService>();
+                    services.AddSingleton<ILoanService, LoanService>();
+                    services.AddSingleton<IMessagesService, MessagesService>();
+                    services.AddSingleton<ITipsService, TipsService>();
+                    services.AddSingleton<IUserService, UserService>();
+                    services.AddSingleton<IZodiacService, ZodiacService>();
+                    services.AddSingleton<MainWindow>();
+
+                    // UI Components
+                    services.AddTransient<BillSplitReportComponent>();
+                    services.AddTransient<Func<BillSplitReportComponent>>(provider =>
+                    {
+                        return () => provider.GetRequiredService<BillSplitReportComponent>();
+                    });
+                    services.AddTransient<BillSplitReportPage>();
+
+                    services.AddTransient<ChatReportComponent>();
+                    services.AddTransient<Func<ChatReportComponent>>(provider =>
+                    {
+                        return () => provider.GetRequiredService<ChatReportComponent>();
+                    });
+                    services.AddTransient<ChatReportView>();
+
+                    services.AddTransient<LoanComponent>();
+                    services.AddTransient<Func<LoanComponent>>(provider =>
+                    {
+                        return () => provider.GetRequiredService<LoanComponent>();
+                    });
+                    services.AddTransient<LoansView>();
+
+                    services.AddTransient<LoanRequestComponent>();
+                    services.AddTransient<Func<LoanRequestComponent>>(provider =>
+                    {
+                        return () => provider.GetRequiredService<LoanRequestComponent>();
+                    });
+                    services.AddTransient<LoanRequestView>();
+
+                    services.AddTransient<UserInfoComponent>();
+                    services.AddTransient<Func<UserInfoComponent>>(provider =>
+                    {
+                        return () => provider.GetRequiredService<UserInfoComponent>();
+                    });
+                    services.AddTransient<UsersView>();
+
+                    services.AddTransient<NewsListPage>();
+                    services.AddTransient<CreateStockPage>();
+                    services.AddTransient<TransactionLogPage>();
+                    services.AddTransient<ProfilePage>();
+                    services.AddTransient<GemStoreWindow>();
+                    services.AddTransient<CreateProfilePage>();
+                }).Build();
+        }
+
 
         /// <summary>
         /// Gets or sets the current window of the application.
@@ -57,8 +173,7 @@ namespace StockApp
         /// <param name="launchActivatedEventArgs">Details about the launch request and process.</param>
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs launchActivatedEventArgs)
         {
-            MainWindow = new MainWindow();
-            CurrentWindow = MainWindow;
+            MainWindow = Host.Services.GetRequiredService<MainWindow>();
             MainWindow.Activate();
         }
 

@@ -50,7 +50,7 @@ namespace StockApp.Pages
                 throw new InvalidOperationException("ViewModel is not initialized");
             }
 
-            bool DescriptionEmpty = this.MyDescriptionCheckBox?.IsChecked == true;
+            bool descriptionEmpty = this.MyDescriptionCheckBox?.IsChecked == true;
             bool newHidden = this.MyCheckBox?.IsChecked == true;
             string newUsername = this.UsernameInput?.Text ?? string.Empty;
             string newImage = this.ImageInput?.Text ?? string.Empty;
@@ -80,7 +80,7 @@ namespace StockApp.Pages
                 newUsername = this.viewModelUpdate.GetUsername() ?? throw new InvalidOperationException("Username cannot be null");
             }
 
-            if (DescriptionEmpty)
+            if (descriptionEmpty)
             {
                 newDescription = string.Empty;
             }

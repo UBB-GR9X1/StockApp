@@ -1,7 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using StockApp.Services;
-using StockApp.ViewModels;
 
 namespace StockApp.ViewModels.Tests
 {
@@ -112,7 +111,7 @@ namespace StockApp.ViewModels.Tests
 
             _serviceMock
                 .Setup(s => s.AddStock("Valid", "SY", "1234567890123"))
-                .Returns("Stock added successfully with initial value!");
+                .ReturnsAsync("Stock added successfully with initial value!");
 
             _vm.CreateStockCommand.Execute(null);
 
@@ -131,7 +130,7 @@ namespace StockApp.ViewModels.Tests
 
             _serviceMock
                 .Setup(s => s.AddStock("Valid", "SY", "1234567890123"))
-                .Returns("Error occurred");
+                .ReturnsAsync("Error occurred");
 
             _vm.CreateStockCommand.Execute(null);
 

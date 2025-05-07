@@ -16,6 +16,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockApp.Repository.Tests",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockApp.Service.Tests", "StockApp.Service.Tests\StockApp.Service.Tests.csproj", "{9D16F775-97CC-5028-5862-7753E5756615}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BankApi", "BankApi\BankApi.csproj", "{51430384-0704-28C7-9E09-A76C84059E39}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM64 = Debug|ARM64
@@ -80,6 +82,18 @@ Global
 		{9D16F775-97CC-5028-5862-7753E5756615}.Release|x64.Build.0 = Release|x64
 		{9D16F775-97CC-5028-5862-7753E5756615}.Release|x86.ActiveCfg = Release|x86
 		{9D16F775-97CC-5028-5862-7753E5756615}.Release|x86.Build.0 = Release|x86
+		{51430384-0704-28C7-9E09-A76C84059E39}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{51430384-0704-28C7-9E09-A76C84059E39}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{51430384-0704-28C7-9E09-A76C84059E39}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{51430384-0704-28C7-9E09-A76C84059E39}.Debug|x64.Build.0 = Debug|Any CPU
+		{51430384-0704-28C7-9E09-A76C84059E39}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{51430384-0704-28C7-9E09-A76C84059E39}.Debug|x86.Build.0 = Debug|Any CPU
+		{51430384-0704-28C7-9E09-A76C84059E39}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{51430384-0704-28C7-9E09-A76C84059E39}.Release|ARM64.Build.0 = Release|Any CPU
+		{51430384-0704-28C7-9E09-A76C84059E39}.Release|x64.ActiveCfg = Release|Any CPU
+		{51430384-0704-28C7-9E09-A76C84059E39}.Release|x64.Build.0 = Release|Any CPU
+		{51430384-0704-28C7-9E09-A76C84059E39}.Release|x86.ActiveCfg = Release|Any CPU
+		{51430384-0704-28C7-9E09-A76C84059E39}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

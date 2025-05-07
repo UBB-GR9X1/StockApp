@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using StockApp.Database;
 using StockApp.Models;
 using StockApp.Repositories;
 using StockApp.Services;
@@ -17,8 +19,8 @@ namespace StockApp.ViewModels.Tests
     {
         private Mock<INewsService> _newsServiceMock;
         private Mock<IDispatcher> _dispatcherMock;
-        private Mock<IAppState> _appStateMock;
-        private Mock<IBaseStocksRepository> _stocksRepoMock;
+        private Mock<AppDbContext> _dbContextMock;
+        private Mock<IBaseStocksRepository> _stocksRepositoryMock;
         private ArticleCreationViewModel _vm;
 
         [TestInitialize]
@@ -31,21 +33,29 @@ namespace StockApp.ViewModels.Tests
                 .Callback<Microsoft.UI.Dispatching.DispatcherQueueHandler>(cb => { })
                 .Returns(true);
 
-            _appStateMock = new Mock<IAppState>();
-            _appStateMock
-                .Setup(a => a.CurrentUser)
-                .Returns(new User { CNP = "123" });
+            // Set up mock DbContext
+            _dbContextMock = new Mock<AppDbContext>();
 
-            _stocksRepoMock = new Mock<IBaseStocksRepository>();
-            _stocksRepoMock
-                .Setup(r => r.GetAllStocks())
-                .Returns([]);
+            // Mock DbSet for BaseStocks
+            var mockSet = new Mock<DbSet<BaseStock>>();
+            var baseStocks = new List<BaseStock>();
+            
+            mockSet.As<IQueryable<BaseStock>>().Setup(m => m.Provider).Returns(baseStocks.AsQueryable().Provider);
+            mockSet.As<IQueryable<BaseStock>>().Setup(m => m.Expression).Returns(baseStocks.AsQueryable().Expression);
+            mockSet.As<IQueryable<BaseStock>>().Setup(m => m.ElementType).Returns(baseStocks.AsQueryable().ElementType);
+            mockSet.As<IQueryable<BaseStock>>().Setup(m => m.GetEnumerator()).Returns(baseStocks.GetEnumerator());
+            
+            _dbContextMock.Setup(c => c.BaseStocks).Returns(mockSet.Object);
+
+            // Set up mock IBaseStocksRepository
+            _stocksRepositoryMock = new Mock<IBaseStocksRepository>();
+            _stocksRepositoryMock.Setup(r => r.GetAllStocksAsync()).ReturnsAsync(new List<BaseStock>());
 
             _vm = new ArticleCreationViewModel(
                 _newsServiceMock.Object,
                 _dispatcherMock.Object,
-                _appStateMock.Object,
-                _stocksRepoMock.Object
+                _dbContextMock.Object,
+                _stocksRepositoryMock.Object
             );
         }
 

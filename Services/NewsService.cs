@@ -4,9 +4,14 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using System.Diagnostics;
     using StockApp.Exceptions;
     using StockApp.Models;
     using StockApp.Repositories;
+    using Microsoft.EntityFrameworkCore;
+    using Microsoft.Extensions.DependencyInjection;
+    using StockApp.Database;
+    using Microsoft.Extensions.Logging;
 
     /// <summary>
     /// Provides business logic for managing news and user-submitted articles.
@@ -19,32 +24,64 @@
         private readonly List<NewsArticle> cachedArticles = [];
         private static List<UserArticle> userArticles = [];
         private static bool isInitialized = false;
-        private readonly INewsRepository repository;
+        private readonly INewsRepository newsRepository;
         private readonly IBaseStocksRepository stocksRepository;
+        private readonly AppDbContext dbContext;
+        private readonly ILogger<NewsService> logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NewsService"/> class
         /// with default repository implementations.
         /// </summary>
-        public NewsService() : this(new NewsRepository(), new BaseStocksRepository())
+        public NewsService()
         {
+            try
+            {
+                var dbContext = new AppDbContext();
+                // Try to get the repository from the service provider
+                if (App.Host != null)
+                {
+                    this.stocksRepository = App.Host.Services.GetService<IBaseStocksRepository>();
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the error but continue with empty collections
+                Debug.WriteLine($"Error initializing NewsService: {ex.Message}");
+                this.stocksRepository = null;
+            }
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NewsService"/> class
         /// using the specified repositories.
         /// </summary>
-        /// <param name="repository">The news repository.</param>
-        /// <param name="stocksRepository">The base stocks repository.</param>
-        public NewsService(INewsRepository repository, IBaseStocksRepository stocksRepository)
+        /// <param name="dbContext">The database context.</param>
+        /// <param name="stocksRepository">The stocks repository.</param>
+        public NewsService(AppDbContext dbContext = null, IBaseStocksRepository stocksRepository = null)
         {
-            this.repository = repository;
-            this.stocksRepository = stocksRepository; // FIXME: stocksRepository is never used in this class.
+            this.newsRepository = new NewsRepository();
+            this.dbContext = dbContext;
+            this.stocksRepository = stocksRepository;
+
+            if (this.stocksRepository == null && dbContext != null && App.Host != null)
+            {
+                try
+                {
+                    // Try to get from service provider if available
+                    this.stocksRepository = App.Host.Services.GetService<IBaseStocksRepository>();
+                }
+                catch
+                {
+                    // Fallback handling
+                    Debug.WriteLine("Could not get IBaseStocksRepository from service provider");
+                }
+            }
 
             if (!isInitialized)
             {
                 // Load initial user-submitted articles into memory
-                var initialUserArticles = this.repository.GetAllUserArticles() ?? [];
+                var initialUserArticles = this.newsRepository.GetAllUserArticles() ?? [];
                 userArticles.AddRange(initialUserArticles);
                 isInitialized = true;
             }
@@ -60,7 +97,7 @@
             try
             {
                 // Fetch articles in a background thread
-                var articles = this.repository.GetAllNewsArticles();
+                var articles = this.newsRepository.GetAllNewsArticles();
 
                 // Refresh cache
                 this.cachedArticles.Clear();
@@ -104,7 +141,7 @@
 
             try
             {
-                var article = this.repository.GetNewsArticleById(articleId);
+                var article = this.newsRepository.GetNewsArticleById(articleId);
                 return article ?? throw new KeyNotFoundException($"Article with ID {articleId} not found");
             }
             catch (NewsPersistenceException ex)
@@ -129,7 +166,7 @@
 
             try
             {
-                this.repository.MarkArticleAsRead(articleId);
+                this.newsRepository.MarkArticleAsRead(articleId);
                 return true;
             }
             catch (NewsPersistenceException ex)
@@ -154,7 +191,7 @@
 
             try
             {
-                this.repository.AddNewsArticle(article);
+                this.newsRepository.AddNewsArticle(article);
                 return true;
             }
             catch (NewsPersistenceException ex)
@@ -187,7 +224,7 @@
             try
             {
                 // Reload from repository
-                userArticles = this.repository.GetAllUserArticles();
+                userArticles = this.newsRepository.GetAllUserArticles();
 
                 // Inline: apply status filter
                 if (!string.IsNullOrEmpty(status) && status != "All")
@@ -237,7 +274,7 @@
 
             try
             {
-                this.repository.ApproveUserArticle(articleId);
+                this.newsRepository.ApproveUserArticle(articleId);
                 this.cachedArticles.Clear(); // Invalidate cache after approval
                 return true;
             }
@@ -275,7 +312,7 @@
 
             try
             {
-                this.repository.RejectUserArticle(articleId);
+                this.newsRepository.RejectUserArticle(articleId);
                 this.cachedArticles.Clear(); // Invalidate cache after rejection
                 return true;
             }
@@ -314,8 +351,8 @@
             try
             {
                 // Remove user article and its published counterpart
-                this.repository.DeleteUserArticle(articleId);
-                this.repository.DeleteNewsArticle(articleId);
+                this.newsRepository.DeleteUserArticle(articleId);
+                this.newsRepository.DeleteNewsArticle(articleId);
                 this.cachedArticles.Clear(); // Invalidate cache after deletion
                 return true;
             }
@@ -352,7 +389,7 @@
 
             try
             {
-                this.repository.AddUserArticle(article);
+                this.newsRepository.AddUserArticle(article);
                 this.cachedArticles.Clear(); // Invalidate cache after submission
                 return true;
             }
@@ -407,10 +444,11 @@
 
             if (username == "admin" && password == "admin")
             {
+                throw new Exception("UNIMPLEMENTED FIX THIS");
                 string adminCnp = "6666666666666";
                 try
                 {
-                    this.repository.EnsureUserExists(
+                    this.newsRepository.EnsureUserExists(
                         adminCnp,
                         "admin",
                         "Administrator Account",
@@ -423,14 +461,14 @@
                     System.Diagnostics.Debug.WriteLine($"Error ensuring admin user exists: {ex.Message}");
                 }
 
-                return new User(
-                    adminCnp,
-                    "admin",
-                    "Administrator Account",
-                    true,
-                    "img.jpg",
-                    false,
-                    0);
+                //return new User(
+                //    adminCnp,
+                //    "admin",
+                //    "Administrator Account",
+                //    true,
+                //    "img.jpg",
+                //    false,
+                //    0);
             }
             else if (password == "user")
             {
@@ -483,7 +521,7 @@
             {
                 try
                 {
-                    this.repository.AddRelatedStocksForArticle(articleId, article.RelatedStocks, null, null);
+                    this.newsRepository.AddRelatedStocksForArticle(articleId, article.RelatedStocks, null, null);
                 }
                 catch (NewsPersistenceException ex)
                 {
@@ -562,7 +600,7 @@
         {
             return this.cachedArticles.Count > 0
                 ? this.cachedArticles
-                : this.repository.GetAllNewsArticles();
+                : this.newsRepository.GetAllNewsArticles();
         }
     }
 }

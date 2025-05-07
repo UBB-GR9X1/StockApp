@@ -11,17 +11,6 @@
 
     <Grid x:Name="RootGrid">
 
-        <Button Content="← GO BACK"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Top"
-                Margin="0,20,20,0"
-                Padding="12,6"
-                Background="#B0B0B0"
-                Foreground="Black"
-                FontSize="14"
-                BorderThickness="1"
-                Click="GoBackClick" />
-
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="15">
 
             <TextBlock Text="Create Your Own Stock"

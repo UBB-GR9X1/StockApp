@@ -1,31 +1,36 @@
-﻿namespace StockApp.Services
-{
-    using System;
-    using StockApp.Models;
+using StockApp.Models;
+using System;
 
+namespace StockApp.Services
+{
+    /// <summary>
+    /// Singleton implementation of application state
+    /// </summary>
     public class AppState : IAppState
     {
-        private static readonly Lazy<AppState> instanceValue = new(() => new AppState());
+        private static readonly Lazy<AppState> _instance = new Lazy<AppState>(() => new AppState());
+        
+        private User _currentUser;
 
         /// <summary>
-        /// Singleton instance of the AppState class.
+        /// Gets the singleton instance of AppState
         /// </summary>
-        public static AppState Instance => instanceValue.Value;
+        public static AppState Instance => _instance.Value;
 
         /// <summary>
-        /// Gets or sets the current user of the application.
+        /// Private constructor to enforce singleton pattern
+        /// </summary>
+        private AppState()
+        {
+        }
+
+        /// <summary>
+        /// Gets or sets the current logged-in user
         /// </summary>
         public User CurrentUser
         {
-            get => this.currentUser;
-            set => this.currentUser = value ?? throw new ArgumentNullException(nameof(value));
-        }
-
-        private User currentUser;
-
-        private AppState()
-        {
-            this.CurrentUser = new("1234567890123", "Caramel", "asdf", false, "imagine", false, 123);
+            get => _currentUser;
+            set => _currentUser = value ?? throw new ArgumentNullException(nameof(value), "CurrentUser cannot be null");
         }
     }
-}
+} 
