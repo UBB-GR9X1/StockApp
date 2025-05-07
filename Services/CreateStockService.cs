@@ -2,13 +2,13 @@
 {
     using System;
     using System.Text.RegularExpressions;
+    using System.Threading.Tasks;
     using Microsoft.Data.SqlClient;
+    using Microsoft.Extensions.DependencyInjection;
+    using StockApp.Database;
     using StockApp.Exceptions;
     using StockApp.Models;
     using StockApp.Repositories;
-    using System.Threading.Tasks;
-    using StockApp.Database;
-    using Microsoft.Extensions.DependencyInjection;
 
     /// <summary>
     /// Service for creating stocks
@@ -64,7 +64,7 @@
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="StockPersistenceException"></exception>
-        public string AddStock(string stockName, string stockSymbol, string authorCNP)
+        public async Task<string> AddStock(string stockName, string stockSymbol, string authorCNP)
         {
             if (string.IsNullOrWhiteSpace(stockName) ||
                 string.IsNullOrWhiteSpace(stockSymbol) ||
@@ -87,7 +87,7 @@
             {
                 var stock = new BaseStock(stockName, stockSymbol, authorCNP);
                 int initialPrice = this.random.Next(50, 501);
-                var result = _stocksRepository.AddStockAsync(stock, initialPrice).GetAwaiter().GetResult();
+                var result = await _stocksRepository.AddStockAsync(stock, initialPrice);
                 return "Stock added successfully with initial value!";
             }
             catch (DuplicateStockException)
@@ -135,7 +135,7 @@
 
                 var stock = new BaseStock(stockName, stockSymbol, authorCnp);
                 await _stocksRepository.AddStockAsync(stock);
-                
+
                 return (true, "Stock created successfully!");
             }
             catch (DuplicateStockException)
