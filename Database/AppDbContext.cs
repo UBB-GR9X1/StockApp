@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Src.Model;
 using StockApp.Models;
 
 namespace StockApp.Database
@@ -13,6 +14,8 @@ namespace StockApp.Database
         public AppDbContext() : base()
         {
         }
+
+        public DbSet<ChatReport> ChatReports { get; set; }
 
         public DbSet<BaseStock> BaseStocks { get; set; }
 
@@ -29,6 +32,19 @@ namespace StockApp.Database
                 entity.Property(e => e.Symbol).HasColumnName("STOCK_SYMBOL");
                 entity.Property(e => e.AuthorCNP).HasColumnName("AUTHOR_CNP");
             });
+
+            modelBuilder.Entity<ChatReport>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.ReportedUserCnp)
+                      .IsRequired()
+                      .HasMaxLength(15);
+
+                entity.Property(e => e.ReportedMessage)
+                      .IsRequired();
+            });
+
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
