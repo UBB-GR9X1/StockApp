@@ -1,3 +1,4 @@
+using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +9,7 @@ using Microsoft.OpenApi.Models;
 using StockApp.Database;
 using StockApp.Repositories;
 using StockApp.Services;
+using StockApp.Services.Api;
 
 namespace StockApp
 {
@@ -26,6 +28,11 @@ namespace StockApp
             
             services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(App.ConnectionString));
+
+            services.AddHttpClient<ChatReportApiService>(client =>
+            {
+                client.BaseAddress = new Uri("https://localhost:5001/"); // <-- Use your BankApi URL
+            });
 
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen(c =>

@@ -94,7 +94,7 @@
                 _context.CreditScoreHistories.Add(new CreditScoreHistory
                 {
                     UserCnp = userCnp,
-                    Date = DateOnly.FromDateTime(DateTime.Today),
+                    Date = today,
                     Score = newScore
                 });
             }
