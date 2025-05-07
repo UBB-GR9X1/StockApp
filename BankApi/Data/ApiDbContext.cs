@@ -10,7 +10,10 @@ namespace BankApi.Data
         }
 
         public DbSet<BaseStock> BaseStocks { get; set; }
+        public DbSet<Alert> Alerts { get; set; }
+        public DbSet<TriggeredAlert> TriggeredAlerts { get; set; }
 
+        public DbSet<ChatReport> ChatReports { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -34,6 +37,14 @@ namespace BankApi.Data
             modelBuilder.Entity<BaseStock>()
                 .Property(s => s.AuthorCNP)
                 .IsRequired();
+
+            // Configure Alert entity
+            modelBuilder.Entity<Alert>()
+                .HasIndex(a => a.StockName);
+
+            // Configure TriggeredAlert entity
+            modelBuilder.Entity<TriggeredAlert>()
+                .HasIndex(ta => ta.StockName);
         }
     }
-} 
+}

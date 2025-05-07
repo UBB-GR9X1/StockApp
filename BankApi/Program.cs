@@ -15,6 +15,7 @@ builder.Services.AddDbContext<ApiDbContext>(options =>
 // Register repository
 builder.Services.AddScoped<IRepository, Repository>();
 builder.Services.AddScoped<IChatReportRepository, ChatReportRepository>();
+builder.Services.AddScoped<IAlertRepository, AlertRepository>();
 
 // Add CORS
 builder.Services.AddCors(options =>

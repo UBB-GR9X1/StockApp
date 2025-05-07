@@ -75,6 +75,8 @@ namespace StockApp
                         return new BankStocksProxyRepo(client);
                     });
 
+                    services.AddScoped<IAlertRepository, AlertProxyRepo>();
+
                     services.AddSingleton<IActivityRepository, ActivityRepository>();
                     services.AddSingleton<IBillSplitReportRepository, BillSplitReportRepository>();
                     services.AddSingleton<IChatReportRepository, ChatReportRepository>();

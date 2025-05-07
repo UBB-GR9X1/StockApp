@@ -1,9 +1,10 @@
-﻿namespace StockApp.Repositories
-{
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using StockApp.Models;
+// BankApi/Repositories/IAlertRepository.cs
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using BankApi.Models;
 
+namespace BankApi.Repositories
+{
     /// <summary>
     /// Interface for repository operations on <see cref="Alert"/> entities.
     /// </summary>
@@ -67,6 +68,7 @@
         /// </summary>
         /// <param name="stockName">Name of the stock.</param>
         /// <param name="currentPrice">Current price of the stock.</param>
-        Task TriggerAlertAsync(string stockName, decimal currentPrice);
+        /// <returns>The triggered alert if created, otherwise null.</returns>
+        Task<TriggeredAlert?> TriggerAlertAsync(string stockName, decimal currentPrice);
     }
 }

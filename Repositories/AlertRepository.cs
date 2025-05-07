@@ -11,7 +11,7 @@
     /// <summary>
     /// Repository for managing <see cref="Alert"/> entities and their triggered instances in the database.
     /// </summary>
-    public class AlertRepository
+    public class AlertRepository : IAlertRepository
     {
         // Connection pulled from helper for executing commands
         private readonly SqlConnection dbConnection = DatabaseHelper.GetConnection();
