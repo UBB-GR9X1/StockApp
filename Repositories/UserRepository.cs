@@ -2,10 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Data;
     using System.Threading.Tasks;
     using Microsoft.Data.SqlClient;
-    using Microsoft.Extensions.Configuration;
     using StockApp.Database;
     using StockApp.Exceptions;
     using StockApp.Models;
@@ -254,7 +252,6 @@
                 using var connection = DatabaseHelper.GetConnection();
                 var command = new SqlCommand("SELECT * FROM [USER]", connection);
 
-                await connection.OpenAsync();
                 using var reader = await command.ExecuteReaderAsync();
                 while (await reader.ReadAsync())
                 {
