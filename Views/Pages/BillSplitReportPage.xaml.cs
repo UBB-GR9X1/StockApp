@@ -2,53 +2,92 @@ namespace StockApp.Views.Pages
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using Microsoft.UI.Xaml.Controls;
-    using Src.Data;
     using Src.Model;
     using StockApp.Repositories;
     using StockApp.Services;
     using StockApp.Views.Components;
+    using Microsoft.UI.Xaml;
+    using Microsoft.UI.Xaml.Navigation;
+    using StockApp.ViewModels;
 
     public sealed partial class BillSplitReportPage : Page
     {
-        private readonly Func<BillSplitReportComponent> componentFactory;
+        private readonly IBillSplitReportRepository repository;
+        private readonly BillSplitReportViewModel viewModel;
+        private readonly Func<BillSplitReportComponent> billSplitReportComponentFactory;
+        private readonly IUserRepository userRepository;
 
-        public BillSplitReportPage(Func<BillSplitReportComponent> componentFactory)
+        public BillSplitReportPage(
+            IBillSplitReportRepository repository,
+            BillSplitReportViewModel viewModel,
+            Func<BillSplitReportComponent> billSplitReportComponentFactory,
+            IUserRepository userRepository)
         {
-            this.componentFactory = componentFactory;
+            this.repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            this.viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
+            this.billSplitReportComponentFactory = billSplitReportComponentFactory ?? throw new ArgumentNullException(nameof(billSplitReportComponentFactory));
+            this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             this.InitializeComponent();
-            this.LoadReports();
         }
 
-        private void LoadReports()
+        protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
+            base.OnNavigatedTo(e);
+            await viewModel.LoadBillSplitReportsAsync();
+            
+            // Clear existing items and add reports
             this.BillSplitReportsContainer.Items.Clear();
-
-            DatabaseConnection dbConnection = new DatabaseConnection();
-            BillSplitReportRepository billSplitReportRepository = new BillSplitReportRepository(dbConnection);
-            BillSplitReportService billSplitReportService = new BillSplitReportService(billSplitReportRepository);
-
-            try
+            foreach (var report in viewModel.BillSplitReports)
             {
-                List<BillSplitReport> reports = billSplitReportService.GetBillSplitReports();
+                var component = billSplitReportComponentFactory();
+                component.SetReportData(report, this.userRepository);
+                component.ReportSolved += async (s, args) => await viewModel.LoadBillSplitReportsAsync();
+                this.BillSplitReportsContainer.Items.Add(component);
+            }
+        }
 
-                foreach (var report in reports)
+        private async void DeleteButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.DataContext is BillSplitReport report)
+            {
+                try
                 {
-                    var reportComponent = this.componentFactory();
-                    reportComponent.SetReportData(report);
-                    reportComponent.ReportSolved += this.OnReportSolved;
-                    this.BillSplitReportsContainer.Items.Add(reportComponent);
+                    await repository.DeleteReportAsync(report.Id);
+                    await viewModel.LoadBillSplitReportsAsync();
+                    // Refresh the UI
+                    this.OnNavigatedTo(null);
+                }
+                catch (Exception ex)
+                {
+                    ShowError($"Error deleting report: {ex.Message}");
                 }
             }
-            catch (Exception)
+        }
+
+        private async void CreateButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
             {
-                this.BillSplitReportsContainer.Items.Add("There are no chat reports that need solving.");
+                var component = billSplitReportComponentFactory();
+                component.XamlRoot = this.XamlRoot;
+                await component.ShowCreateDialogAsync();
+                await viewModel.LoadBillSplitReportsAsync();
+                // Refresh the UI
+                this.OnNavigatedTo(null);
+            }
+            catch (Exception ex)
+            {
+                ShowError($"Error creating report: {ex.Message}");
             }
         }
 
-        private void OnReportSolved(object sender, EventArgs e)
+        private void ShowError(string message)
         {
-            this.LoadReports();
+            // Simple error handling, you could enhance this with a proper error display
+            System.Diagnostics.Debug.WriteLine(message);
+            // You could use ContentDialog to display errors to the user
         }
     }
 }

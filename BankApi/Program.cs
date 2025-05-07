@@ -12,7 +12,8 @@ builder.Services.AddDbContext<ApiDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Register repository
-builder.Services.AddScoped<IRepository, Repository>();
+builder.Services.AddScoped<IBaseStocksRepository, BaseStocksRepository>();
+builder.Services.AddScoped<IBillSplitReportRepository, BillSplitReportRepository>();
 
 // Add CORS
 builder.Services.AddCors(options =>

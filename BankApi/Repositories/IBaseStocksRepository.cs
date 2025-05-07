@@ -4,7 +4,7 @@ using BankApi.Models;
 
 namespace BankApi.Repositories
 {
-    public interface IRepository
+    public interface IBaseStocksRepository
     {
         Task<BaseStock> AddStockAsync(BaseStock stock, int initialPrice = 100);
 

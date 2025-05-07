@@ -4,24 +4,27 @@
     using System.Collections.ObjectModel;
     using System.Threading.Tasks;
     using Src.Model;
-    using StockApp.Services;
+    using StockApp.Repositories;
 
     public class BillSplitReportViewModel
     {
-        private readonly IBillSplitReportService billSplitReportService;
+        private readonly IBillSplitReportRepository repository;
 
         public ObservableCollection<BillSplitReport> BillSplitReports { get; set; }
 
-        public BillSplitReportViewModel()
+        public BillSplitReportViewModel(IBillSplitReportRepository repository)
         {
-            this.BillSplitReports = new ObservableCollection<BillSplitReport>(this.billSplitReportService.GetBillSplitReports());
+            this.repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            this.BillSplitReports = new ObservableCollection<BillSplitReport>();
+            LoadBillSplitReportsAsync().ConfigureAwait(false);
         }
 
-        public async Task LoadBillSplitReports()
+        public async Task LoadBillSplitReportsAsync()
         {
             try
             {
-                var reports = this.billSplitReportService.GetBillSplitReports();
+                this.BillSplitReports.Clear();
+                var reports = await this.repository.GetAllReportsAsync();
                 foreach (var report in reports)
                 {
                     this.BillSplitReports.Add(report);
@@ -29,7 +32,7 @@
             }
             catch (Exception exception)
             {
-                Console.WriteLine($"Error: {exception.Message}");
+                System.Diagnostics.Debug.WriteLine($"Error: {exception.Message}");
             }
         }
     }

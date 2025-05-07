@@ -10,6 +10,7 @@ namespace BankApi.Data
         }
 
         public DbSet<BaseStock> BaseStocks { get; set; }
+        public DbSet<BillSplitReport> BillSplitReports { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -33,6 +34,26 @@ namespace BankApi.Data
 
             modelBuilder.Entity<BaseStock>()
                 .Property(s => s.AuthorCNP)
+                .IsRequired();
+
+            // Configure BillSplitReport entity
+            modelBuilder.Entity<BillSplitReport>()
+                .HasKey(b => b.Id);
+
+            modelBuilder.Entity<BillSplitReport>()
+                .Property(b => b.ReportedUserCnp)
+                .IsRequired();
+
+            modelBuilder.Entity<BillSplitReport>()
+                .Property(b => b.ReportingUserCnp)
+                .IsRequired();
+
+            modelBuilder.Entity<BillSplitReport>()
+                .Property(b => b.DateOfTransaction)
+                .IsRequired();
+
+            modelBuilder.Entity<BillSplitReport>()
+                .Property(b => b.BillShare)
                 .IsRequired();
         }
     }

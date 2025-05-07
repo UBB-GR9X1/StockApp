@@ -9,39 +9,50 @@
     using StockApp.Exceptions;
     using StockApp.Models;
     using StockApp.Repositories;
+    using System.Diagnostics;
 
     /// <summary>
     /// Service for creating stocks
     /// </summary>
     internal class CreateStockService : ICreateStockService
     {
-        private readonly IBaseStocksRepository _stocksRepository;
+        private readonly IBaseStocksApiService _apiService;
+        private readonly IUserRepository _userRepository;
         private readonly Random random = new Random();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateStockService"/> class.
         /// </summary>
-        public CreateStockService(IBaseStocksRepository stocksRepository)
+        public CreateStockService(IBaseStocksApiService apiService, IUserRepository userRepository)
         {
-            _stocksRepository = stocksRepository ?? throw new ArgumentNullException(nameof(stocksRepository));
+            _apiService = apiService ?? throw new ArgumentNullException(nameof(apiService));
+            _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CreateStockService"/> class with a database context.
+        /// Initializes a new instance of the <see cref="CreateStockService"/> class.
         /// </summary>
-        public CreateStockService(AppDbContext dbContext)
+        public CreateStockService()
         {
-            if (App.Host != null)
+            try
             {
-                _stocksRepository = App.Host.Services.GetService<IBaseStocksRepository>();
-                if (_stocksRepository == null)
+                _apiService = App.Host.Services.GetService<IBaseStocksApiService>();
+                _userRepository = App.Host.Services.GetService<IUserRepository>();
+                
+                if (_apiService == null)
                 {
-                    throw new InvalidOperationException("Could not resolve IBaseStocksRepository from the service provider");
+                    throw new InvalidOperationException("Could not resolve IBaseStocksApiService from the service provider");
+                }
+                
+                if (_userRepository == null)
+                {
+                    throw new InvalidOperationException("Could not resolve IUserRepository from the service provider");
                 }
             }
-            else
+            catch (Exception ex)
             {
-                throw new InvalidOperationException("App.Host is null, cannot resolve dependencies");
+                Debug.WriteLine($"Error initializing CreateStockService: {ex.Message}");
+                throw;
             }
         }
 
@@ -51,8 +62,17 @@
         /// <returns></returns>
         public bool CheckIfUserIsGuest()
         {
-            HomepageStocksRepository homepageStocksRepository = new();
-            return homepageStocksRepository.IsGuestUser(homepageStocksRepository.GetUserCnp());
+            // If CNP is empty or has the default guest value, the user is a guest
+            var cnp = GetUserCnp();
+            return string.IsNullOrEmpty(cnp) || cnp == "0000000000000";
+        }
+
+        /// <summary>
+        /// Gets the current user's CNP
+        /// </summary>
+        private string GetUserCnp()
+        {
+            return _userRepository.CurrentUserCNP;
         }
 
         /// <summary>
@@ -85,10 +105,18 @@
 
             try
             {
-                var stock = new BaseStock(stockName, stockSymbol, authorCNP);
                 int initialPrice = this.random.Next(50, 501);
-                var result = await _stocksRepository.AddStockAsync(stock, initialPrice);
-                return "Stock added successfully with initial value!";
+                var stock = new BaseStock(stockName, stockSymbol, authorCNP);
+                bool result = await _apiService.AddStockAsync(stock, initialPrice);
+                
+                if (result)
+                {
+                    return "Stock added successfully with initial value!";
+                }
+                else
+                {
+                    return "Failed to add stock.";
+                }
             }
             catch (DuplicateStockException)
             {
@@ -120,7 +148,8 @@
 
                 if (string.IsNullOrWhiteSpace(authorCnp))
                 {
-                    return (false, "Author CNP cannot be empty.");
+                    // If no CNP provided, use current user's CNP
+                    authorCnp = GetUserCnp();
                 }
 
                 if (stockName.Length > 100)
@@ -134,9 +163,11 @@
                 }
 
                 var stock = new BaseStock(stockName, stockSymbol, authorCnp);
-                await _stocksRepository.AddStockAsync(stock);
+                bool success = await _apiService.AddStockAsync(stock);
 
-                return (true, "Stock created successfully!");
+                return success 
+                    ? (true, "Stock created successfully!") 
+                    : (false, "Failed to create stock.");
             }
             catch (DuplicateStockException)
             {

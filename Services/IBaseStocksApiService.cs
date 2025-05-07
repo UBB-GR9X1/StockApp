@@ -8,8 +8,8 @@ namespace StockApp.Services
     {
         Task<List<BaseStock>> GetAllStocksAsync();
         Task<BaseStock> GetStockByNameAsync(string name);
-        Task<BaseStock> CreateStockAsync(BaseStock stock, int? initialPrice = null);
-        Task<BaseStock> UpdateStockAsync(BaseStock stock);
+        Task<bool> AddStockAsync(BaseStock stock, int initialPrice = 100);
+        Task<bool> UpdateStockAsync(BaseStock stock);
         Task<bool> DeleteStockAsync(string name);
     }
 } 
