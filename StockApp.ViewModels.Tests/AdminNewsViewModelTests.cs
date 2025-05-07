@@ -52,7 +52,7 @@ namespace StockApp.ViewModels.Tests
                     "User Article Title",
                     "User Article Summary",
                     "User Article Content",
-                    new User("testUser"),
+                    new User(cnp: "testUser"),
                     DateTime.Now,
                     "Pending",
                     "Finance",

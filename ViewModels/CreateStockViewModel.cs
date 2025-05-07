@@ -10,6 +10,7 @@ namespace StockApp.ViewModels
     using System.Text.RegularExpressions;
     using System.Windows.Input;
     using StockApp.Commands;
+    using StockApp.Database;
     using StockApp.Services;
 
     internal class CreateStockViewModel : INotifyPropertyChanged
@@ -41,7 +42,7 @@ namespace StockApp.ViewModels
         }
 
         public CreateStockViewModel()
-            : this(new CreateStockService())
+            : this(new CreateStockService(new AppDbContext()))
         {
         }
 
@@ -211,14 +212,14 @@ namespace StockApp.ViewModels
 
         private bool CanCreateStock(object? obj) => this.isAdmin && this.IsInputValid;
 
-        private void CreateStock(object obj)
+        private async void CreateStock(object obj)
         {
             if (!this.CanCreateStock(null))
             {
                 return;
             }
 
-            this.Message = this.stockService.AddStock(this.StockName, this.StockSymbol, this.AuthorCnp);
+            this.Message = await this.stockService.AddStock(this.StockName, this.StockSymbol, this.AuthorCnp);
 
             if (this.Message == "Stock added successfully with initial value!")
             {
