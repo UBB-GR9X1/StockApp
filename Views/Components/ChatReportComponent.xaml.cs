@@ -6,10 +6,11 @@ namespace StockApp.Views.Components
     using Src.Helpers;
     using Src.Model;
     using StockApp.Services;
+    using StockApp.Services.Api;
 
     public sealed partial class ChatReportComponent : Page
     {
-        private readonly IChatReportService chatReportService;
+        private readonly IChatReportApiService chatReportService;
 
         public event EventHandler ReportSolved;
 
@@ -19,7 +20,7 @@ namespace StockApp.Views.Components
 
         public int ReportId { get; set; }
 
-        public ChatReportComponent(IChatReportService chatReportService)
+        public ChatReportComponent(IChatReportApiService chatReportService)
         {
             this.InitializeComponent();
             this.chatReportService = chatReportService;

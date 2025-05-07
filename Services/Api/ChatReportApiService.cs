@@ -7,8 +7,9 @@
     using System.Threading.Tasks;
     using Src.Model;
     using StockApp.Models;
+    using HttpClient = System.Net.Http.HttpClient;
 
-    public class ChatReportApiService
+    public class ChatReportApiService : IChatReportApiService
     {
         private readonly HttpClient _httpClient;
 
@@ -44,6 +45,27 @@
         {
             var response = await _httpClient.DeleteAsync($"api/ChatReport/{id}");
             return response.IsSuccessStatusCode;
+        }
+
+        public async Task<bool> DoNotPunishUser(ChatReport chatReport)
+        {
+            var response = await _httpClient.PostAsJsonAsync("api/ChatReport/do-not-punish", chatReport);
+            return response.IsSuccessStatusCode;
+        }
+
+        public async Task<bool> PunishUser(ChatReport chatReport)
+        {
+            try
+            {
+                var response = await _httpClient.PostAsJsonAsync("api/ChatReport/punish", chatReport);
+                response.EnsureSuccessStatusCode();
+                return true;
+            }
+            catch (HttpRequestException)
+            {
+                // log error or notify UI
+                return false;
+            }
         }
     }
 }
