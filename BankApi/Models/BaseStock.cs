@@ -33,5 +33,7 @@ namespace BankApi.Models
         [Required]
         [MaxLength(13)]
         public string AuthorCNP { get; set; } = string.Empty;
+
+        public List<NewsArticleStock> AssociatedNewsArticles = [];
     }
 }

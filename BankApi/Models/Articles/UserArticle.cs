@@ -14,7 +14,15 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="UserArticle"/> class.
         /// </summary>
-        /// <param name="id">The unique identifier of the article.</param>
+        public UserArticle()
+        {
+            Topic = string.Empty;
+            Status = Status.Pending;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UserArticle"/> class.
+        /// </summary>
         /// <param name="title">The title of the article.</param>
         /// <param name="summary">A brief summary of the article.</param>
         /// <param name="content">The content of the article.</param>
@@ -23,7 +31,6 @@
         /// <param name="topic">The topic of the article.</param>
         /// <param name="status">The publication status of the article.</param>
         public UserArticle(
-            int id,
             string title,
             string summary,
             string content,
@@ -31,18 +38,12 @@
             int authorId,
             string topic,
             Status status = Status.Pending)
-            : base(id, title, summary, content, publishedOn)
+            : base(title, summary, content, publishedOn)
         {
             AuthorId = authorId;
             Topic = topic;
             Status = status;
         }
-
-        /// <summary>
-        /// Gets or sets the unique identifier of the author.
-        /// </summary>
-        [ForeignKey(nameof(AuthorId))]
-        public int AuthorId { get; set; }
 
         /// <summary>
         /// Gets or sets the topic of the article.
@@ -59,8 +60,15 @@
         public Status Status { get; set; }
 
         /// <summary>
+        /// Gets or sets the unique identifier of the author.
+        /// </summary>
+        [Required]
+        public int AuthorId { get; set; }
+
+        /// <summary>
         /// Gets or sets the author of the article.
         /// </summary>
+        [ForeignKey(nameof(AuthorId))]
         public User Author { get; set; } = new();
     }
 }

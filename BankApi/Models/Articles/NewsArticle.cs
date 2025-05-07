@@ -12,20 +12,26 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="NewsArticle"/> class.
         /// </summary>
-        /// <param name="id">The unique identifier of the article.</param>
+        public NewsArticle()
+        {
+            Source = string.Empty;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NewsArticle"/> class.
+        /// </summary>
         /// <param name="title">The title of the article.</param>
         /// <param name="summary">A brief summary of the article.</param>
         /// <param name="content">The full content of the article.</param>
         /// <param name="publishedOn">The publication date of the article.</param>
         /// <param name="source">The source of the article.</param>
         public NewsArticle(
-            int id,
             string title,
             string summary,
             string content,
             DateTime publishedOn,
             string source)
-            : base(id, title, summary, content, publishedOn)
+            : base(title, summary, content, publishedOn)
         {
             Source = source;
         }
