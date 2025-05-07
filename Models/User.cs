@@ -23,7 +23,7 @@
         int? riskScore = null,
         decimal? roi = null,
         int? creditScore = null,
-        DateOnly? birthday = null,
+        DateTime? birthday = null,
         string? zodiacSign = null,
         string? zodiacAttribute = null,
         int? numberOfBillSharesPaid = null,
@@ -118,7 +118,7 @@
         /// <summary>
         /// Gets or sets the user's birthday.
         /// </summary>
-        public DateOnly Birthday { get; set; } = birthday ?? new DateOnly();
+        public DateTime Birthday { get; set; } = birthday ?? default(DateTime);
 
         /// <summary>
         /// Gets or sets the user's zodiac sign.

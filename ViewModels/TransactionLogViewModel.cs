@@ -4,10 +4,7 @@
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.ComponentModel;
-    using System.IO;
     using System.Linq;
-    using System.Threading.Tasks;
-    using System.Windows.Forms;
     using System.Windows.Input;
     using Microsoft.UI.Xaml.Controls;
     using StockApp.Models;
@@ -284,7 +281,7 @@
             };
 
             // We create another window when launching the app because bad coding practices so we get this beauty :D
-            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
+            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainAppWindow);
             WinRT.Interop.InitializeWithWindow.Initialize(saveFileDialog, hwnd);
 
             // Show the save file dialog

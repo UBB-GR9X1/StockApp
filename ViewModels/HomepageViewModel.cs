@@ -5,13 +5,10 @@
     using System.ComponentModel;
     using System.Runtime.CompilerServices;
     using System.Windows.Input;
-    using Catel.Services;
     using Microsoft.UI.Xaml;
     using StockApp.Commands;
     using StockApp.Models;
-    using StockApp.Pages;
     using StockApp.Services;
-    using NavigationService = Services.NavigationService;
 
     /// <summary>
     /// ViewModel for the homepage, managing stock display, filtering, sorting, and navigation.
@@ -43,7 +40,6 @@
             // Initialize Commands
             this.FavoriteCommand = new RelayCommand(obj => this.ToggleFavorite(obj as HomepageStock));
             this.CreateProfileCommand = new RelayCommand(_ => this.CreateUserProfile());
-            this.NavigateCommand = new RelayCommand(param => NavigateToPage(param));
             this.SearchCommand = new RelayCommand(_ => this.ApplyFilter());
             this.SortCommand = new RelayCommand(_ => this.ApplySort());
         }
@@ -67,11 +63,6 @@
         /// Gets the command to create a new user profile.
         /// </summary>
         public ICommand CreateProfileCommand { get; }
-
-        /// <summary>
-        /// Gets the command to navigate to a different page.
-        /// </summary>
-        public ICommand NavigateCommand { get; }
 
         /// <summary>
         /// Gets the command to apply the current search filter.
@@ -258,38 +249,6 @@
             }
 
             this.LoadStocks();
-        }
-
-        /// <summary>
-        /// Navigates to a page identified by the given parameter.
-        /// </summary>
-        /// <param name="parameter">The page name or parameter to navigate to.</param>
-        /// <exception cref="ArgumentException">Thrown if the page name is unrecognized.</exception>
-        public static void NavigateToPage(object parameter)
-        {
-            if (parameter is string pageName)
-            {
-                switch (pageName)
-                {
-                    case "NewsListPage":
-                        NavigationService.Instance.Navigate(typeof(NewsListPage), parameter);
-                        break;
-                    case "CreateStockPage":
-                        NavigationService.Instance.Navigate(typeof(CreateStockPage), parameter);
-                        break;
-                    case "TransactionLogPage":
-                        NavigationService.Instance.Navigate(typeof(TransactionLogPage), parameter);
-                        break;
-                    case "ProfilePage":
-                        NavigationService.Instance.Navigate(typeof(ProfilePage), parameter);
-                        break;
-                    case "GemStoreWindow":
-                        NavigationService.Instance.Navigate(typeof(GemStoreWindow), parameter);
-                        break;
-                    default:
-                        throw new ArgumentException($"Unknown page: {pageName}", nameof(pageName));
-                }
-            }
         }
 
         /// <summary>

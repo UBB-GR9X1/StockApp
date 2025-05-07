@@ -20,7 +20,7 @@
         private string lastName = string.Empty;
         private string email = string.Empty;
         private string phoneNumber = string.Empty;
-        private DateOnly birthday = new();
+        private DateTime birthday = new();
         private string cnp = string.Empty;
         private string zodiacSign = string.Empty;
         private string zodiacAttribute = string.Empty;
@@ -76,7 +76,7 @@
             set => this.SetProperty(ref this.phoneNumber, value);
         }
 
-        public DateOnly Birthday
+        public DateTime Birthday
         {
             get => this.birthday;
             set => this.SetProperty(ref this.birthday, value);

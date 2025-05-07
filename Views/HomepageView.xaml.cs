@@ -4,7 +4,6 @@
     using Microsoft.UI.Xaml.Controls;
     using StockApp.Models;
     using StockApp.Pages;
-    using StockApp.Services;
     using StockApp.ViewModels;
 
     public sealed partial class HomepageView : Page
@@ -35,9 +34,11 @@
             {
                 throw new InvalidOperationException("Clicked item is not a valid stock");
             }
-
-            NavigationService.Initialize(new FrameAdapter(this.Frame));
-            NavigationService.Instance.Navigate(typeof(StockPage), selectedStock.StockDetails);
+            // Navigate to the stock page using the selected stock's name
+            if (App.MainAppWindow != null)
+            {
+                App.MainAppWindow.MainAppFrame.Navigate(typeof(StockPage), selectedStock.StockDetails);
+            }
         }
     }
 }
