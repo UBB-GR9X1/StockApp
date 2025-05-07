@@ -6,9 +6,14 @@ namespace StockApp.Repositories
 {
     public interface IHistoryRepository
     {
-        List<CreditScoreHistory> GetHistoryForUser(string userCNP);
-        Task<List<CreditScoreHistory>> GetHistoryForUserAsync(string userCNP);
-        Task<CreditScoreHistory> AddHistoryEntryAsync(CreditScoreHistory history);
-        Task<bool> DeleteHistoryEntryAsync(int id);
+        List<CreditScoreHistory> GetAllHistory();
+        CreditScoreHistory GetHistoryById(int id);
+        void AddHistory(CreditScoreHistory history);
+        void UpdateHistory(CreditScoreHistory history);
+        void DeleteHistory(int id);
+        List<CreditScoreHistory> GetHistoryForUser(string userCnp);
+        List<CreditScoreHistory> GetHistoryWeekly(string userCnp);
+        List<CreditScoreHistory> GetHistoryMonthly(string userCnp);
+        List<CreditScoreHistory> GetHistoryYearly(string userCnp);
     }
 }
