@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using Microsoft.Data.SqlClient;
     using StockApp.Database;
     using StockApp.Exceptions;
@@ -10,8 +11,8 @@
 
     public class NewsRepository : INewsRepository
     {
-        private static readonly object LockObject = new();
-        private static bool IsInitialized = false;
+        private static readonly Lock LockObject = new();
+        private static bool isInitialized = false;
 
         private readonly DatabaseHelper databaseHelper = DatabaseHelper.Instance;
         private readonly List<NewsArticle> newsArticles = [];
@@ -29,7 +30,7 @@
         {
             lock (LockObject)
             {
-                if (IsInitialized)
+                if (isInitialized)
                 {
                     System.Diagnostics.Debug.WriteLine("NewsRepository already initialized");
                     return;
@@ -51,7 +52,7 @@
                     this.LoadUserArticles();
                     System.Diagnostics.Debug.WriteLine($"Loaded {this.userArticles.Count} user articles");
 
-                    IsInitialized = true;
+                    isInitialized = true;
                     System.Diagnostics.Debug.WriteLine("NewsRepository initialization completed successfully");
                 }
                 catch (SqlException ex)
@@ -83,8 +84,10 @@
             {
                 using var connection = DatabaseHelper.GetConnection();
                 using SqlCommand command = new("SELECT COUNT(*) FROM NEWS_ARTICLE", connection);
+
                 command.CommandTimeout = 30;
                 int count = Convert.ToInt32(command.ExecuteScalar());
+
                 return count > 0;
             }
             catch (SqlException ex)
@@ -116,9 +119,19 @@
             try
             {
                 using var connection = DatabaseHelper.GetConnection();
-                string checkQuery = "IF NOT EXISTS (SELECT 1 FROM [USER] WHERE CNP = @cnp) " +
-                                    "INSERT INTO [USER] (CNP, NAME, DESCRIPTION, IS_HIDDEN, IS_ADMIN, PROFILE_PICTURE, GEM_BALANCE) " +
-                                    "VALUES (@cnp, @name, @description, @isHidden, @isAdmin, @profilePicture, @gemBalance)";
+                string checkQuery = @"
+                    IF NOT EXISTS (
+                        SELECT 1
+                        FROM [USER]
+                        WHERE CNP = @cnp
+                    )
+                    BEGIN
+                        INSERT INTO [USER] (
+                            CNP, NAME, DESCRIPTION, IS_HIDDEN, IS_ADMIN, PROFILE_PICTURE, GEM_BALANCE
+                        ) VALUES (
+                            @cnp, @name, @description, @isHidden, @isAdmin, @profilePicture, @gemBalance
+                        )
+                    END";
 
                 using SqlCommand command = new(checkQuery, connection);
                 command.Parameters.AddWithValue("@cnp", cnp);
