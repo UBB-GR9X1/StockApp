@@ -13,10 +13,10 @@ namespace BankApi.Controllers
     [Route("api/[controller]")]
     public class BaseStocksController : ControllerBase
     {
-        private readonly IRepository _repository;
+        private readonly IBaseStocksRepository _repository;
         private readonly ILogger<BaseStocksController> _logger;
 
-        public BaseStocksController(IRepository repository, ILogger<BaseStocksController> logger)
+        public BaseStocksController(IBaseStocksRepository repository, ILogger<BaseStocksController> logger)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));

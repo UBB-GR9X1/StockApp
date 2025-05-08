@@ -1,36 +1,130 @@
-﻿namespace StockApp.ViewModels
-{
-    using System;
-    using System.Collections.ObjectModel;
-    using System.Threading.Tasks;
-    using Src.Model;
-    using StockApp.Services;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
+using Src.Model;
+using StockApp.Models;
+using StockApp.Repositories;
+using StockApp.Services;
 
+namespace StockApp.ViewModels
+{
     public class BillSplitReportViewModel
     {
-        private readonly IBillSplitReportService billSplitReportService;
+        private readonly IBillSplitReportService _billSplitReportService;
+        private readonly IUserService _userService;
+        private readonly IUserRepository _userRepository;
 
-        public ObservableCollection<BillSplitReport> BillSplitReports { get; set; }
+        public ObservableCollection<BillSplitReport> BillSplitReports { get; private set; }
 
-        public BillSplitReportViewModel()
+        public event EventHandler? ReportUpdated;
+
+        public BillSplitReportViewModel(
+            IBillSplitReportService billSplitReportService,
+            IUserService userService,
+            IUserRepository userRepository)
         {
-            this.BillSplitReports = new ObservableCollection<BillSplitReport>(this.billSplitReportService.GetBillSplitReports());
+            this._billSplitReportService = billSplitReportService
+                                      ?? throw new ArgumentNullException(nameof(billSplitReportService));
+            this._userService = userService ?? throw new ArgumentNullException(nameof(userService));
+            this._userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+
+            this.BillSplitReports = [];
         }
 
-        public async Task LoadBillSplitReports()
+        /* ───────────────  Public API  ─────────────── */
+
+        public async Task LoadBillSplitReportsAsync()
         {
             try
             {
-                var reports = this.billSplitReportService.GetBillSplitReports();
-                foreach (var report in reports)
+                this.BillSplitReports.Clear();
+
+                var reports = await this._billSplitReportService
+                                    .GetBillSplitReportsAsync();
+
+                foreach (var r in reports)
                 {
-                    this.BillSplitReports.Add(report);
+                    this.BillSplitReports.Add(r);
                 }
+
+                this.OnReportUpdated();
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                Console.WriteLine($"Error: {exception.Message}");
+                System.Diagnostics.Debug.WriteLine($"Error loading reports: {ex.Message}");
+                throw;
             }
         }
+
+        public async Task<User> GetUserByCnpAsync(string cnp)
+        {
+            try
+            {
+                return await this._userRepository.GetUserByCnpAsync(cnp)
+                                            .ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error getting user: {ex.Message}");
+                return new User { FirstName = "Unknown", LastName = "User", CNP = cnp };
+            }
+        }
+
+        public async Task DeleteReportAsync(BillSplitReport report)
+        {
+            try
+            {
+                await this._billSplitReportService
+                      .DeleteBillSplitReportAsync(report)
+                      .ConfigureAwait(false);
+
+                await this.LoadBillSplitReportsAsync().ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error deleting report: {ex.Message}");
+                throw;
+            }
+        }
+
+        public async Task<BillSplitReport> AddReportAsync(BillSplitReport report)
+        {
+            try
+            {
+                var added = await this._billSplitReportService
+                             .CreateBillSplitReportAsync(report)
+                             .ConfigureAwait(false);
+
+                await this.LoadBillSplitReportsAsync().ConfigureAwait(false);
+                return added;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error adding report: {ex.Message}");
+                throw;
+            }
+        }
+
+        public async Task<BillSplitReport> UpdateReportAsync(BillSplitReport report)
+        {
+            try
+            {
+                var updated = await this._billSplitReportService
+                               .UpdateBillSplitReportAsync(report)
+                               .ConfigureAwait(false);
+
+                await this.LoadBillSplitReportsAsync().ConfigureAwait(false);
+                return updated;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error updating report: {ex.Message}");
+                throw;
+            }
+        }
+
+        /* ───────────────  Helpers  ─────────────── */
+
+        private void OnReportUpdated() => this.ReportUpdated?.Invoke(this, EventArgs.Empty);
     }
 }

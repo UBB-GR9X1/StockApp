@@ -22,7 +22,7 @@
     public class ArticleCreationViewModel : ViewModelBase
     {
         private readonly INewsService _newsService;
-        private readonly IBaseStocksRepository _stocksRepository;
+        private readonly IBaseStocksService _stocksService;
         private readonly AppDbContext _dbContext;
         private readonly IDispatcher dispatcherQueue;
 
@@ -155,16 +155,16 @@
         /// <param name="newsService">Service for news operations.</param>
         /// <param name="dispatcher">Dispatcher for UI thread invocation.</param>
         /// <param name="appState">Global application state.</param>
-        /// <param name="stocksRepo">Repository for base stock data.</param>
+        /// <param name="stocksService">Service for base stock data.</param>
         public ArticleCreationViewModel(
             INewsService newsService,
             IDispatcher dispatcher,
             AppDbContext dbContext,
-            IBaseStocksRepository stocksRepository)
+            IBaseStocksService stocksService)
         {
             _newsService = newsService ?? throw new ArgumentNullException(nameof(newsService));
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-            _stocksRepository = stocksRepository ?? throw new ArgumentNullException(nameof(stocksRepository));
+            _stocksService = stocksService ?? throw new ArgumentNullException(nameof(stocksService));
             this.dispatcherQueue = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
 
             // Initialize commands
@@ -192,7 +192,7 @@
               new NewsService(),
               new DispatcherAdapter(),
               new AppDbContext(),
-              App.Host.Services.GetRequiredService<IBaseStocksRepository>())
+              App.Host.Services.GetRequiredService<IBaseStocksService>())
         {
         }
 
@@ -383,8 +383,8 @@
                 return true;
             }
 
-            var allStocks = await _stocksRepository.GetAllStocksAsync()
-                ?? throw new InvalidOperationException("Stocks repository returned null");
+            var allStocks = await _stocksService.GetAllStocksAsync()
+                ?? throw new InvalidOperationException("Stocks service returned null");
 
             var invalidStocks = new List<string>();
 
@@ -507,7 +507,7 @@
             }
 
             var stockNames = ParseRelatedStocks();
-            var allStocks = await _stocksRepository.GetAllStocksAsync();
+            var allStocks = await _stocksService.GetAllStocksAsync();
             var allStockNames = allStocks.Select(s => s.Name).ToList();
 
             return stockNames.All(name => allStockNames.Contains(name));

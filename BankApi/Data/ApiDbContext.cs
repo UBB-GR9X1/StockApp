@@ -18,6 +18,8 @@ namespace BankApi.Data
         public DbSet<GemStore> GemStores { get; set; }
         public DbSet<ActivityLog> ActivityLogs { get; set; }
         public DbSet<HomepageStock> HomepageStocks { get; set; } = null!;
+        public DbSet<BillSplitReport> BillSplitReports { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -117,6 +119,26 @@ namespace BankApi.Data
                 entity.Property(e => e.IsGuest).IsRequired();
                 entity.Property(e => e.LastUpdated).IsRequired();
             });
+
+            // Configure BillSplitReport entity
+            modelBuilder.Entity<BillSplitReport>()
+                .HasKey(b => b.Id);
+
+            modelBuilder.Entity<BillSplitReport>()
+                .Property(b => b.ReportedUserCnp)
+                .IsRequired();
+
+            modelBuilder.Entity<BillSplitReport>()
+                .Property(b => b.ReportingUserCnp)
+                .IsRequired();
+
+            modelBuilder.Entity<BillSplitReport>()
+                .Property(b => b.DateOfTransaction)
+                .IsRequired();
+
+            modelBuilder.Entity<BillSplitReport>()
+                .Property(b => b.BillShare)
+                .IsRequired();
         }
     }
 }

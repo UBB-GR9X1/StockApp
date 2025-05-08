@@ -8,12 +8,12 @@ using Microsoft.Extensions.Logging;
 
 namespace BankApi.Repositories
 {
-    public class Repository : IRepository
+    public class BaseStocksRepository : IBaseStocksRepository
     {
         private readonly ApiDbContext _dbContext;
-        private readonly ILogger<Repository> _logger;
+        private readonly ILogger<BaseStocksRepository> _logger;
 
-        public Repository(ApiDbContext dbContext, ILogger<Repository> logger)
+        public BaseStocksRepository(ApiDbContext dbContext, ILogger<BaseStocksRepository> logger)
         {
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));

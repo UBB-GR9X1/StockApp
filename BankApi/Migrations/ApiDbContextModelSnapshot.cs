@@ -124,6 +124,35 @@ namespace BankApi.Migrations
                     b.ToTable("BaseStocks");
                 });
 
+            modelBuilder.Entity("BankApi.Models.BillSplitReport", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("BillShare")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("DateOfTransaction")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ReportedUserCnp")
+                        .IsRequired()
+                        .HasMaxLength(13)
+                        .HasColumnType("nvarchar(13)");
+
+                    b.Property<string>("ReportingUserCnp")
+                        .IsRequired()
+                        .HasMaxLength(13)
+                        .HasColumnType("nvarchar(13)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BillSplitReports");
+                });
+
             modelBuilder.Entity("BankApi.Models.ChatReport", b =>
                 {
                     b.Property<int>("Id")

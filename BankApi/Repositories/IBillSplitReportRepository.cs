@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using Src.Model;
+using BankApi.Models;
 
-namespace StockApp.Repositories
+namespace BankApi.Repositories
 {
     public interface IBillSplitReportRepository
     {
@@ -11,7 +11,12 @@ namespace StockApp.Repositories
         Task<BillSplitReport> AddReportAsync(BillSplitReport report);
         Task<BillSplitReport> UpdateReportAsync(BillSplitReport report);
         Task<bool> DeleteReportAsync(int id);
-
+        
+        // Additional business logic methods
+        Task<int> GetCurrentBalanceAsync(string userCnp);
+        Task<float> SumTransactionsSinceReportAsync(string userCnp, System.DateTime sinceDate);
+        Task<int> GetCurrentCreditScoreAsync(string userCnp);
+        Task UpdateCreditScoreAsync(string userCnp, int newCreditScore);
         Task IncrementBillSharesPaidAsync(string userCnp);
     }
-}
+} 

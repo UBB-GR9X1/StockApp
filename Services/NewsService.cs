@@ -25,7 +25,7 @@
         private static List<UserArticle> userArticles = [];
         private static bool isInitialized = false;
         private readonly INewsRepository newsRepository;
-        private readonly IBaseStocksRepository stocksRepository;
+        private readonly IBaseStocksService stocksService;
         private readonly AppDbContext dbContext;
         private readonly ILogger<NewsService> logger;
 
@@ -41,14 +41,14 @@
                 // Try to get the repository from the service provider
                 if (App.Host != null)
                 {
-                    this.stocksRepository = App.Host.Services.GetService<IBaseStocksRepository>();
+                    this.stocksService = App.Host.Services.GetService<IBaseStocksService>();
                 }
             }
             catch (Exception ex)
             {
                 // Log the error but continue with empty collections
                 Debug.WriteLine($"Error initializing NewsService: {ex.Message}");
-                this.stocksRepository = null;
+                this.stocksService = null;
             }
         }
 
@@ -57,24 +57,24 @@
         /// using the specified repositories.
         /// </summary>
         /// <param name="dbContext">The database context.</param>
-        /// <param name="stocksRepository">The stocks repository.</param>
-        public NewsService(AppDbContext dbContext = null, IBaseStocksRepository stocksRepository = null)
+        /// <param name="stocksService">The stocks service.</param>
+        public NewsService(AppDbContext dbContext = null, IBaseStocksService stocksService = null)
         {
             this.newsRepository = new NewsRepository();
             this.dbContext = dbContext;
-            this.stocksRepository = stocksRepository;
+            this.stocksService = stocksService ?? App.Host.Services.GetService<IBaseStocksService>();
 
-            if (this.stocksRepository == null && dbContext != null && App.Host != null)
+            if (this.stocksService == null && dbContext != null && App.Host != null)
             {
                 try
                 {
                     // Try to get from service provider if available
-                    this.stocksRepository = App.Host.Services.GetService<IBaseStocksRepository>();
+                    this.stocksService = App.Host.Services.GetService<IBaseStocksService>();
                 }
                 catch
                 {
                     // Fallback handling
-                    Debug.WriteLine("Could not get IBaseStocksRepository from service provider");
+                    Debug.WriteLine("Could not get IBaseStocksApiService from service provider");
                 }
             }
 

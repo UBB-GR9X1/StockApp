@@ -12,6 +12,7 @@ namespace StockApp.ViewModels
     using StockApp.Commands;
     using StockApp.Database;
     using StockApp.Services;
+    using StockApp.Repositories;
 
     internal class CreateStockViewModel : INotifyPropertyChanged
     {
@@ -42,7 +43,8 @@ namespace StockApp.ViewModels
         }
 
         public CreateStockViewModel()
-            : this(new CreateStockService(new AppDbContext()))
+            : this(new CreateStockService(App.Host.Services.GetService(typeof(IBaseStocksService)) as IBaseStocksService, 
+                                        App.Host.Services.GetService(typeof(IUserRepository)) as IUserRepository))
         {
         }
 

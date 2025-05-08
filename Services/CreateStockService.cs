@@ -1,6 +1,7 @@
 ﻿namespace StockApp.Services
 {
     using System;
+    using System.Diagnostics;
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
     using Microsoft.Data.SqlClient;
@@ -15,56 +16,49 @@
     /// </summary>
     internal class CreateStockService : ICreateStockService
     {
-        private readonly IBaseStocksRepository _stocksRepository;
-        private readonly Random random = new Random();
+        private readonly IBaseStocksService _stocksService;
+        private readonly IUserRepository _userRepository;
+        private readonly Random random = new();
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CreateStockService"/> class.
-        /// </summary>
-        public CreateStockService(IBaseStocksRepository stocksRepository)
+        public CreateStockService(IBaseStocksService stocksService,
+                                  IUserRepository userRepository)
         {
-            _stocksRepository = stocksRepository ?? throw new ArgumentNullException(nameof(stocksRepository));
+            _stocksService = stocksService ?? throw new ArgumentNullException(nameof(stocksService));
+            _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CreateStockService"/> class with a database context.
-        /// </summary>
-        public CreateStockService(AppDbContext dbContext)
+        /// <summary>Parameter-less ctor used by DI fallback.</summary>
+        public CreateStockService()
         {
-            if (App.Host != null)
+            try
             {
-                _stocksRepository = App.Host.Services.GetService<IBaseStocksRepository>();
-                if (_stocksRepository == null)
-                {
-                    throw new InvalidOperationException("Could not resolve IBaseStocksRepository from the service provider");
-                }
+                _stocksService = App.Host.Services.GetService<IBaseStocksService>()
+                               ?? throw new InvalidOperationException("Could not resolve IBaseStocksService.");
+                _userRepository = App.Host.Services.GetService<IUserRepository>()
+                               ?? throw new InvalidOperationException("Could not resolve IUserRepository.");
             }
-            else
+            catch (Exception ex)
             {
-                throw new InvalidOperationException("App.Host is null, cannot resolve dependencies");
+                Debug.WriteLine($"Error initializing CreateStockService: {ex.Message}");
+                throw;
             }
         }
 
-        /// <summary>
-        /// Checks if the user is a guest.
-        /// </summary>
-        /// <returns></returns>
+        /*────────────────────────── Helpers ─────────────────────────*/
+
         public bool CheckIfUserIsGuest()
         {
-            HomepageStocksRepository homepageStocksRepository = new();
-            return homepageStocksRepository.IsGuestUser(homepageStocksRepository.GetUserCnp());
+            var cnp = GetUserCnp();
+            return string.IsNullOrEmpty(cnp) || cnp == "0000000000000";
         }
 
-        /// <summary>
-        /// Adds a new stock to the repository.
-        /// </summary>
-        /// <param name="stockName"></param>
-        /// <param name="stockSymbol"></param>
-        /// <param name="authorCNP"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentException"></exception>
-        /// <exception cref="StockPersistenceException"></exception>
-        public async Task<string> AddStock(string stockName, string stockSymbol, string authorCNP)
+        private string GetUserCnp() => _userRepository.CurrentUserCNP;
+
+        /*──────────────────────  Public API  ──────────────────────*/
+
+        public async Task<string> AddStock(string stockName,
+                                           string stockSymbol,
+                                           string authorCNP)
         {
             if (string.IsNullOrWhiteSpace(stockName) ||
                 string.IsNullOrWhiteSpace(stockSymbol) ||
@@ -74,67 +68,58 @@
             }
 
             if (!Regex.IsMatch(stockSymbol, @"^[A-Z]{1,5}$"))
-            {
                 throw new ArgumentException("Stock symbol must consist of 1 to 5 uppercase letters.");
-            }
 
             if (!Regex.IsMatch(authorCNP, @"^\d{13}$"))
-            {
                 throw new ArgumentException("Author CNP must be exactly 13 digits.");
-            }
 
             try
             {
+                int initialPrice = random.Next(50, 501);
                 var stock = new BaseStock(stockName, stockSymbol, authorCNP);
-                int initialPrice = this.random.Next(50, 501);
-                var result = await _stocksRepository.AddStockAsync(stock, initialPrice);
+
+                /* FIX: AddStockAsync now returns Task, not bool */
+                await _stocksService.AddStockAsync(stock, initialPrice);
+
                 return "Stock added successfully with initial value!";
             }
             catch (DuplicateStockException)
             {
                 throw;
             }
-            catch (InvalidOperationException operationFailure)
+            catch (InvalidOperationException opEx)
             {
-                throw new StockPersistenceException("Failed to add stock due to a persistence operation error.", operationFailure);
+                throw new StockPersistenceException("Failed to add stock due to a persistence operation error.", opEx);
             }
-            catch (SqlException sqlIssue)
+            catch (SqlException sqlEx)
             {
-                throw new StockPersistenceException("Database error occurred while adding the stock.", sqlIssue);
+                throw new StockPersistenceException("Database error occurred while adding the stock.", sqlEx);
             }
         }
 
-        public async Task<(bool success, string message)> CreateStockAsync(string stockName, string stockSymbol, string authorCnp)
+        public async Task<(bool success, string message)> CreateStockAsync(string stockName,
+                                                                          string stockSymbol,
+                                                                          string authorCnp)
         {
             try
             {
                 if (string.IsNullOrWhiteSpace(stockName))
-                {
                     return (false, "Stock name cannot be empty.");
-                }
-
                 if (string.IsNullOrWhiteSpace(stockSymbol))
-                {
                     return (false, "Stock symbol cannot be empty.");
-                }
 
                 if (string.IsNullOrWhiteSpace(authorCnp))
-                {
-                    return (false, "Author CNP cannot be empty.");
-                }
+                    authorCnp = GetUserCnp();
 
                 if (stockName.Length > 100)
-                {
                     return (false, "Stock name cannot exceed 100 characters.");
-                }
-
                 if (stockSymbol.Length > 10)
-                {
                     return (false, "Stock symbol cannot exceed 10 characters.");
-                }
 
                 var stock = new BaseStock(stockName, stockSymbol, authorCnp);
-                await _stocksRepository.AddStockAsync(stock);
+
+                /* FIX: AddStockAsync now returns Task, assume success if no exception */
+                await _stocksService.AddStockAsync(stock);
 
                 return (true, "Stock created successfully!");
             }
