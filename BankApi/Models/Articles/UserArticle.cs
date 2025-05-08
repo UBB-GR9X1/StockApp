@@ -5,6 +5,7 @@
     using System.ComponentModel.DataAnnotations.Schema;
     using BankApi.Models;
     using BankApi.Validators;
+    using StockApp.Models;
 
     /// <summary>
     /// Represents an article created by a user.

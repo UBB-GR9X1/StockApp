@@ -14,6 +14,8 @@ namespace BankApi.Data
 
         public DbSet<UserArticle> UserArticles { get; set; }
 
+        public DbSet<NewsArticleStock> NewsArticleStocks { get; set; }
+
         private static void ConfigureBaseArticleEntity<TEntity>(ModelBuilder modelBuilder) where TEntity : BaseArticle
         {
             modelBuilder.Entity<TEntity>()
