@@ -1,22 +1,18 @@
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Runtime.CompilerServices;
 
-    using System.ComponentModel;
-    using System.Runtime.CompilerServices;
-
-    /// <summary>
-    /// Represents a tip that has been marked as given to another user.
-    /// </summary>
-    public class GivenTip
+    public class GivenTip : INotifyPropertyChanged
     {
         private int id;
-        private int tipId;
-        private string givenToUser = string.Empty;
+        private string userCnp = string.Empty;
+        private int tipID;
+        private int? messageID;
+        private DateOnly date;
+        private Tip tip = new();
 
-        /// <inheritdoc/>
-        public event PropertyChangedEventHandler? PropertyChanged;
-
-        /// <summary>
-        /// Gets or sets the unique identifier for this given tip.
-        /// </summary>
+        [Key]
         public int Id
         {
             get => this.id;
@@ -25,45 +21,80 @@
                 if (this.id != value)
                 {
                     this.id = value;
-                    this.OnPropertyChanged();
+                    OnPropertyChanged();
                 }
             }
         }
 
-        /// <summary>
-        /// Gets or sets the ID of the tip being given.
-        /// </summary>
-        public int TipId
+        [Required]
+        [MaxLength(13)]
+        public string UserCnp
         {
-            get => this.tipId;
+            get => this.userCnp;
             set
             {
-                if (this.tipId != value)
+                if (this.userCnp != value)
                 {
-                    this.tipId = value;
-                    this.OnPropertyChanged();
+                    this.userCnp = value;
+                    OnPropertyChanged();
                 }
             }
         }
 
-        /// <summary>
-        /// Gets or sets the name of the user who received the tip.
-        /// </summary>
-        public string GivenToUser
+        public int TipID
         {
-            get => this.givenToUser;
+            get => this.tipID;
             set
             {
-                if (this.givenToUser != value)
+                if (this.tipID != value)
                 {
-                    this.givenToUser = value;
-                    this.OnPropertyChanged();
+                    this.tipID = value;
+                    OnPropertyChanged();
                 }
             }
         }
 
-        private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        [ForeignKey("TipID")]
+        public Tip Tip
         {
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            get => this.tip;
+            set
+            {
+                if (this.tip != value)
+                {
+                    this.tip = value;
+                    OnPropertyChanged();
+                }
+            }
         }
+
+        public int? MessageID
+        {
+            get => this.messageID;
+            set
+            {
+                if (this.messageID != value)
+                {
+                    this.messageID = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public DateOnly Date
+        {
+            get => this.date;
+            set
+            {
+                if (this.date != value)
+                {
+                    this.date = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+        private void OnPropertyChanged([CallerMemberName] string? name = null) =>
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }

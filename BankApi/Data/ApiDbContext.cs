@@ -12,6 +12,7 @@ namespace BankApi.Data
         public DbSet<BaseStock> BaseStocks { get; set; }
         public DbSet<ChatReport> ChatReports { get; set; }
 
+        public DbSet<Tip> Tips { get; set; }
         public DbSet<GivenTip> GivenTips { get; set; }
 
         public DbSet<CreditScoreHistory> CreditScoreHistories { get; set; }
@@ -82,6 +83,37 @@ namespace BankApi.Data
                 entity.Property(e => e.CreatedAt)
                     .IsRequired()
                     .HasDefaultValueSql("GETUTCDATE()");
+            });
+            // Configure Tip
+            modelBuilder.Entity<Tip>(entity =>
+            {
+                entity.HasKey(t => t.Id);
+                entity.Property(t => t.CreditScoreBracket)
+                      .IsRequired()
+                      .HasMaxLength(100);
+
+                entity.Property(t => t.TipText)
+                      .IsRequired()
+                      .HasMaxLength(500);
+            });
+
+            // Configure GivenTip
+            modelBuilder.Entity<GivenTip>(entity =>
+            {
+                entity.HasKey(gt => gt.Id);
+
+                entity.Property(gt => gt.UserCnp)
+                      .IsRequired()
+                      .HasMaxLength(20);
+
+                entity.Property(gt => gt.Date)
+                      .HasColumnType("date"); // SQL Server DateOnly
+
+                // Tip relationship (foreign key)
+                entity.HasOne(gt => gt.Tip)
+                      .WithMany()  // Tip doesn't need navigation back to GivenTips
+                      .HasForeignKey(gt => gt.TipID)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }
