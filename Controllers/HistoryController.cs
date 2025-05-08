@@ -1,12 +1,12 @@
-using System;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc;
-using StockApp.Models;
-using StockApp.Repositories;
-using StockApp.Exceptions;
-
 namespace StockApp.Controllers
 {
+    using System;
+    using System.Collections.Generic;
+    using Microsoft.AspNetCore.Mvc;
+    using StockApp.Exceptions;
+    using StockApp.Models;
+    using StockApp.Repositories;
+
     [ApiController]
     [Route("api/[controller]")]
     public class HistoryController : ControllerBase

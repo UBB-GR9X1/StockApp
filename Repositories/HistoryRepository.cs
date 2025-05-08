@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using StockApp.Database;
-using StockApp.Exceptions;
-using StockApp.Models;
-
-namespace StockApp.Repositories
+﻿namespace StockApp.Repositories
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using Microsoft.EntityFrameworkCore;
+    using StockApp.Database;
+    using StockApp.Exceptions;
+    using StockApp.Models;
+
     public class HistoryRepository : IHistoryRepository
     {
         private readonly AppDbContext _context;

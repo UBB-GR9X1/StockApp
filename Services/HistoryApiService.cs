@@ -1,11 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Net.Http.Json;
-using StockApp.Models;
-
 namespace StockApp.Services
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Net.Http;
+    using System.Net.Http.Json;
+    using StockApp.Models;
+
     public class HistoryApiService
     {
         private readonly HttpClient _httpClient;

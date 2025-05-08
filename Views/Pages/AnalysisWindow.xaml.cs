@@ -3,17 +3,12 @@ namespace StockApp.Views.Pages
     using System;
     using System.Collections.Generic;
     using Microsoft.UI.Xaml;
+    using Microsoft.UI.Xaml.Controls;
     using OxyPlot;
     using OxyPlot.Axes;
     using OxyPlot.Series;
-    using StockApp.Database;
     using StockApp.Models;
-    using StockApp.Repositories;
     using StockApp.Services;
-    using System.Net.Http;
-    using Src.Data;
-    using System.Threading.Tasks;
-    using Microsoft.UI.Xaml.Controls;
 
     public sealed partial class AnalysisWindow : Window
     {
@@ -28,7 +23,7 @@ namespace StockApp.Views.Pages
             this.user = selectedUser;
             this.activityService = activityService ?? throw new ArgumentNullException(nameof(activityService));
             this.historyService = historyService ?? throw new ArgumentNullException(nameof(historyService));
-            
+
             this.LoadUserData();
             this.LoadHistory(this.historyService.GetHistoryMonthly(this.user.CNP));
             this.LoadUserActivitiesAsync();

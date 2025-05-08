@@ -4,7 +4,6 @@
 namespace StockApp
 {
     using System;
-    using System.Net.Http;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
@@ -69,30 +68,7 @@ namespace StockApp
                     });
 
                     // Repositories
-                    services.AddScoped<IBaseStocksRepository>(provider =>
-                    {
-                        var httpClientFactory = provider.GetRequiredService<IHttpClientFactory>();
-                        var client = httpClientFactory.CreateClient("BankApi");
-                        return new BankStocksProxyRepo(client);
-                    });
-
                     services.AddScoped<IAlertRepository, AlertProxyRepo>();
-
-                    // Register API client
-                    services.AddScoped<ActivityApiService>(provider =>
-                    {
-                        var httpClientFactory = provider.GetRequiredService<IHttpClientFactory>();
-                        var client = httpClientFactory.CreateClient("BankApi");
-                        return new ActivityApiService(client);
-                    });
-
-
-                    // Register the service
-                    services.AddScoped<IActivityService>(provider =>
-                    {
-                        var apiService = provider.GetRequiredService<ActivityApiService>();
-                        return apiService;
-                    });
 
                     services.AddSingleton<IBillSplitReportRepository, BillSplitReportRepository>();
                     services.AddSingleton<IChatReportRepository, ChatReportRepoProxy>();
@@ -101,6 +77,7 @@ namespace StockApp
                     services.AddSingleton<ILoanRepository, LoanRepository>();
                     services.AddSingleton<ILoanRequestRepository, LoanRequestRepository>();
                     services.AddSingleton<IUserRepository, UserRepository>();
+                    services.AddSingleton<IActivityRepo, ActivityProxyRepo>();
 
                     // Other Services
                     services.AddSingleton<IBillSplitReportService, BillSplitReportService>();
@@ -114,6 +91,7 @@ namespace StockApp
                     services.AddSingleton<ITipsService, TipsService>();
                     services.AddSingleton<IUserService, UserService>();
                     services.AddSingleton<IZodiacService, ZodiacService>();
+                    services.AddSingleton<IActivityService, ActivityService>();
                     services.AddSingleton<MainWindow>();
 
                     // UI Components
@@ -153,7 +131,6 @@ namespace StockApp
                     services.AddTransient<UsersView>();
 
                     // Register services for UserInfoComponent
-                    services.AddTransient<IActivityService, ActivityApiService>();
                     services.AddTransient<IHistoryService, HistoryService>();
 
                     services.AddTransient<NewsListPage>();

@@ -1,9 +1,9 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using StockApp.Models;
-
 namespace StockApp.Services
 {
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using StockApp.Models;
+
     public interface IBaseStocksApiService
     {
         Task<List<BaseStock>> GetAllStocksAsync();

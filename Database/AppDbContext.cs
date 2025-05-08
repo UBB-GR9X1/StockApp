@@ -1,9 +1,9 @@
-using Microsoft.EntityFrameworkCore;
-using Src.Model;
-using StockApp.Models;
-
 namespace StockApp.Database
 {
+    using Microsoft.EntityFrameworkCore;
+    using Src.Model;
+    using StockApp.Models;
+
     public class AppDbContext : DbContext
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)

@@ -1,15 +1,15 @@
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
-using StockApp.Exceptions;
-using StockApp.Models;
-using StockApp.Repositories;
-
 namespace StockApp.Controllers
 {
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
+    using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.Mvc;
+    using StockApp.Exceptions;
+    using StockApp.Models;
+    using StockApp.Repositories;
+
     [Route("api/[controller]")]
     [ApiController]
     public class BaseStocksController : ControllerBase

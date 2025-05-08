@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using StockApp.Models;
-
-namespace StockApp.Services
+﻿namespace StockApp.Services
 {
+    using System.Collections.Generic;
+    using StockApp.Models;
+
     public interface IHistoryService
     {
         List<CreditScoreHistory> GetAllHistory();

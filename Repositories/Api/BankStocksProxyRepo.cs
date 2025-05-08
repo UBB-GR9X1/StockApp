@@ -1,13 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Text.Json;
-using System.Threading.Tasks;
-using StockApp.Models;
-
 namespace StockApp.Repositories.Api
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Net.Http;
+    using System.Net.Http.Json;
+    using System.Text.Json;
+    using System.Threading.Tasks;
+    using StockApp.Models;
+
     /// <summary>
     /// Proxy repository that implements IBaseStocksRepository to make calls to the BankAPI
     /// </summary>

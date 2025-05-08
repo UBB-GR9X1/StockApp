@@ -1,15 +1,15 @@
 // StockApp/Services/AlertProxyRepo.cs
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Text.Json;
-using System.Threading.Tasks;
-using StockApp.Models;
-using StockApp.Repositories;
-
 namespace StockApp.Services
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Net.Http;
+    using System.Net.Http.Json;
+    using System.Text.Json;
+    using System.Threading.Tasks;
+    using StockApp.Models;
+    using StockApp.Repositories;
+
     /// <summary>
     /// Proxy repository that implements IAlertRepository to make calls to the BankAPI
     /// </summary>
@@ -34,12 +34,12 @@ namespace StockApp.Services
             try
             {
                 var response = await _httpClient.PostAsJsonAsync(_baseUrl, alert);
-                
+
                 if (response.IsSuccessStatusCode)
                 {
                     return await response.Content.ReadFromJsonAsync<Alert>(_jsonOptions);
                 }
-                
+
                 var errorContent = await response.Content.ReadAsStringAsync();
                 throw new Exception($"Failed to add alert. Status code: {response.StatusCode}, Error: {errorContent}");
             }
@@ -56,17 +56,17 @@ namespace StockApp.Services
             {
                 var url = $"{_baseUrl}/{alertId}";
                 var response = await _httpClient.DeleteAsync(url);
-                
+
                 if (response.IsSuccessStatusCode)
                 {
                     return true;
                 }
-                
+
                 if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
                     return false;
                 }
-                
+
                 var errorContent = await response.Content.ReadAsStringAsync();
                 throw new Exception($"Failed to delete alert. Status code: {response.StatusCode}, Error: {errorContent}");
             }
@@ -97,17 +97,17 @@ namespace StockApp.Services
             {
                 var url = $"{_baseUrl}/{alertId}";
                 var response = await _httpClient.GetAsync(url);
-                
+
                 if (response.IsSuccessStatusCode)
                 {
                     return await response.Content.ReadFromJsonAsync<Alert>(_jsonOptions);
                 }
-                
+
                 if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
                     throw new KeyNotFoundException($"Alert with ID {alertId} not found.");
                 }
-                
+
                 var errorContent = await response.Content.ReadAsStringAsync();
                 throw new Exception($"Failed to retrieve alert. Status code: {response.StatusCode}, Error: {errorContent}");
             }
@@ -128,17 +128,17 @@ namespace StockApp.Services
             {
                 var url = $"{_baseUrl}/{alert.AlertId}";
                 var response = await _httpClient.PutAsJsonAsync(url, alert);
-                
+
                 if (response.IsSuccessStatusCode)
                 {
                     return alert;
                 }
-                
+
                 if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
                     throw new KeyNotFoundException($"Alert with ID {alert.AlertId} not found.");
                 }
-                
+
                 var errorContent = await response.Content.ReadAsStringAsync();
                 throw new Exception($"Failed to update alert. Status code: {response.StatusCode}, Error: {errorContent}");
             }
@@ -174,7 +174,7 @@ namespace StockApp.Services
             {
                 var url = $"{_baseUrl}/triggered";
                 var response = await _httpClient.DeleteAsync(url);
-                
+
                 if (!response.IsSuccessStatusCode)
                 {
                     var errorContent = await response.Content.ReadAsStringAsync();
@@ -199,13 +199,13 @@ namespace StockApp.Services
                 };
 
                 var response = await _httpClient.PostAsJsonAsync($"{_baseUrl}/trigger", triggerRequest);
-                
+
                 if (response.IsSuccessStatusCode)
                 {
                     var result = await response.Content.ReadFromJsonAsync<dynamic>(_jsonOptions);
                     return result != null && result.Message == null; // If there's no message, an alert was triggered
                 }
-                
+
                 return false;
             }
             catch

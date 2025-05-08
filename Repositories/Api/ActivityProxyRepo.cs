@@ -1,17 +1,17 @@
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Threading.Tasks;
-using Src.Model;
-
-namespace StockApp.Services
+namespace StockApp.Repositories.Api
 {
-    public class ActivityApiService : IActivityService
+    using System;
+    using System.Collections.Generic;
+    using System.Net.Http;
+    using System.Net.Http.Json;
+    using System.Threading.Tasks;
+    using StockApp.Models;
+
+    public class ActivityProxyRepo : IActivityRepo
     {
         private readonly HttpClient _httpClient;
 
-        public ActivityApiService(HttpClient httpClient)
+        public ActivityProxyRepo(HttpClient httpClient)
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         }
@@ -29,27 +29,19 @@ namespace StockApp.Services
             }
         }
 
-        public async Task<ActivityLog> AddActivity(string userCnp, string activityName, int amount, string details)
+        public async Task<ActivityLog> AddActivity(ActivityLog activityLog)
         {
             try
             {
-                var activity = new ActivityLog
-                {
-                    UserCnp = userCnp,
-                    ActivityName = activityName,
-                    LastModifiedAmount = amount,
-                    ActivityDetails = details
-                };
-
-                var response = await _httpClient.PostAsJsonAsync("api/Activity", activity);
+                var response = await _httpClient.PostAsJsonAsync("api/Activity", activityLog);
                 response.EnsureSuccessStatusCode();
 
-                return await response.Content.ReadFromJsonAsync<ActivityLog>() 
+                return await response.Content.ReadFromJsonAsync<ActivityLog>()
                     ?? throw new Exception("Failed to deserialize response");
             }
             catch (HttpRequestException ex)
             {
-                throw new Exception($"Error adding activity for user {userCnp}", ex);
+                throw new Exception($"Error adding activity for user {activityLog.UserCnp}", ex);
             }
         }
 
@@ -92,4 +84,4 @@ namespace StockApp.Services
             }
         }
     }
-} 
+}
