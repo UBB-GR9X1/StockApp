@@ -1,6 +1,4 @@
-using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BankApi.Models
 {
@@ -21,6 +19,6 @@ namespace BankApi.Models
         public DateTime DateOfTransaction { get; set; }
 
         [Required]
-        public float BillShare { get; set; }
+        public decimal BillShare { get; set; }
     }
-} 
+}

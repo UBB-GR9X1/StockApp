@@ -112,17 +112,13 @@ namespace StockApp
 
                     // UI Components
                     services.AddTransient<BillSplitReportViewModel>();
+                    services.AddTransient<BillSplitReportViewModel>();
                     services.AddTransient<BillSplitReportComponent>();
                     services.AddTransient<Func<BillSplitReportComponent>>(provider =>
                     {
                         return () => provider.GetRequiredService<BillSplitReportComponent>();
                     });
-                    services.AddTransient<BillSplitReportPage>(provider =>
-                    {
-                        var viewModel = provider.GetRequiredService<BillSplitReportViewModel>();
-                        var componentFactory = provider.GetRequiredService<Func<BillSplitReportComponent>>();
-                        return new BillSplitReportPage(viewModel, componentFactory);
-                    });
+                    services.AddTransient<BillSplitReportPage>();
 
                     services.AddTransient<ChatReportComponent>();
                     services.AddTransient<Func<ChatReportComponent>>(provider =>

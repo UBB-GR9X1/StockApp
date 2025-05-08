@@ -14,7 +14,7 @@ namespace StockApp.ViewModels
         private readonly IUserService _userService;
         private readonly IUserRepository _userRepository;
 
-        public ObservableCollection<BillSplitReport> BillSplitReports { get; }
+        public ObservableCollection<BillSplitReport> BillSplitReports { get; private set; }
 
         public event EventHandler? ReportUpdated;
 
@@ -23,14 +23,12 @@ namespace StockApp.ViewModels
             IUserService userService,
             IUserRepository userRepository)
         {
-            _billSplitReportService = billSplitReportService
+            this._billSplitReportService = billSplitReportService
                                       ?? throw new ArgumentNullException(nameof(billSplitReportService));
-            _userService = userService ?? throw new ArgumentNullException(nameof(userService));
-            _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+            this._userService = userService ?? throw new ArgumentNullException(nameof(userService));
+            this._userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 
-            BillSplitReports = new ObservableCollection<BillSplitReport>();
-
-            _ = LoadBillSplitReportsAsync();   // fire-and-forget; errors logged inside
+            this.BillSplitReports = [];
         }
 
         /* ───────────────  Public API  ─────────────── */
@@ -39,19 +37,22 @@ namespace StockApp.ViewModels
         {
             try
             {
-                BillSplitReports.Clear();
+                this.BillSplitReports.Clear();
 
-                var reports = await _billSplitReportService
-                                    .GetBillSplitReportsAsync()
-                                    .ConfigureAwait(false);
+                var reports = await this._billSplitReportService
+                                    .GetBillSplitReportsAsync();
 
-                foreach (var r in reports) BillSplitReports.Add(r);
+                foreach (var r in reports)
+                {
+                    this.BillSplitReports.Add(r);
+                }
 
-                OnReportUpdated();
+                this.OnReportUpdated();
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error loading reports: {ex.Message}");
+                throw;
             }
         }
 
@@ -59,7 +60,7 @@ namespace StockApp.ViewModels
         {
             try
             {
-                return await _userRepository.GetUserByCnpAsync(cnp)
+                return await this._userRepository.GetUserByCnpAsync(cnp)
                                             .ConfigureAwait(false);
             }
             catch (Exception ex)
@@ -73,11 +74,11 @@ namespace StockApp.ViewModels
         {
             try
             {
-                await _billSplitReportService
+                await this._billSplitReportService
                       .DeleteBillSplitReportAsync(report)
                       .ConfigureAwait(false);
 
-                await LoadBillSplitReportsAsync().ConfigureAwait(false);
+                await this.LoadBillSplitReportsAsync().ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -90,11 +91,11 @@ namespace StockApp.ViewModels
         {
             try
             {
-                var added = await _billSplitReportService
+                var added = await this._billSplitReportService
                              .CreateBillSplitReportAsync(report)
                              .ConfigureAwait(false);
 
-                await LoadBillSplitReportsAsync().ConfigureAwait(false);
+                await this.LoadBillSplitReportsAsync().ConfigureAwait(false);
                 return added;
             }
             catch (Exception ex)
@@ -108,11 +109,11 @@ namespace StockApp.ViewModels
         {
             try
             {
-                var updated = await _billSplitReportService
+                var updated = await this._billSplitReportService
                                .UpdateBillSplitReportAsync(report)
                                .ConfigureAwait(false);
 
-                await LoadBillSplitReportsAsync().ConfigureAwait(false);
+                await this.LoadBillSplitReportsAsync().ConfigureAwait(false);
                 return updated;
             }
             catch (Exception ex)
@@ -124,6 +125,6 @@ namespace StockApp.ViewModels
 
         /* ───────────────  Helpers  ─────────────── */
 
-        private void OnReportUpdated() => ReportUpdated?.Invoke(this, EventArgs.Empty);
+        private void OnReportUpdated() => this.ReportUpdated?.Invoke(this, EventArgs.Empty);
     }
 }
