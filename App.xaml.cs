@@ -78,7 +78,28 @@ namespace StockApp
 
                     services.AddScoped<IAlertRepository, AlertProxyRepo>();
 
-                    services.AddSingleton<IActivityRepository, ActivityRepository>();
+                    // Register API client
+                    services.AddScoped<ActivityApiService>(provider =>
+                    {
+                        var httpClientFactory = provider.GetRequiredService<IHttpClientFactory>();
+                        var client = httpClientFactory.CreateClient("BankApi");
+                        return new ActivityApiService(client);
+                    });
+
+                    // Register repository (proxy implementation)
+                    services.AddScoped<IActivityRepository>(provider =>
+                    {
+                        var apiService = provider.GetRequiredService<ActivityApiService>();
+                        return new ActivityProxyRepo(apiService);
+                    });
+
+                    // Register the service
+                    services.AddScoped<IActivityService>(provider =>
+                    {
+                        var apiService = provider.GetRequiredService<ActivityApiService>();
+                        return apiService;
+                    });
+
                     services.AddSingleton<IBillSplitReportRepository, BillSplitReportRepository>();
                     services.AddSingleton<IChatReportRepository, ChatReportRepoProxy>();
                     services.AddSingleton<IHistoryRepository, HistoryRepository>();
@@ -88,7 +109,6 @@ namespace StockApp
                     services.AddSingleton<IUserRepository, UserRepository>();
 
                     // Other Services
-                    services.AddSingleton<IActivityService, ActivityService>();
                     services.AddSingleton<IBillSplitReportService, BillSplitReportService>();
                     services.AddSingleton<IChatReportService, ChatReportService>();
                     services.AddSingleton<IHistoryService, HistoryService>();
@@ -137,6 +157,10 @@ namespace StockApp
                         return () => provider.GetRequiredService<UserInfoComponent>();
                     });
                     services.AddTransient<UsersView>();
+
+                    // Register services for UserInfoComponent
+                    services.AddTransient<IActivityService, ActivityApiService>();
+                    services.AddTransient<IHistoryService, HistoryService>();
 
                     services.AddTransient<NewsListPage>();
                     services.AddTransient<CreateStockPage>();

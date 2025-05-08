@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using Src.Model;
+using BankApi.Models;
 
-namespace StockApp.Repositories
+namespace BankApi.Repositories
 {
     public interface IActivityRepository
     {
@@ -12,4 +12,4 @@ namespace StockApp.Repositories
         Task<ActivityLog> GetActivityByIdAsync(int id);
         Task<bool> DeleteActivityAsync(int id);
     }
-}
+} 

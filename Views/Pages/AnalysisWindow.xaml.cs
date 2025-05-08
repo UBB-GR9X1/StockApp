@@ -12,29 +12,26 @@ namespace StockApp.Views.Pages
     using StockApp.Services;
     using System.Net.Http;
     using Src.Data;
+    using System.Threading.Tasks;
+    using Microsoft.UI.Xaml.Controls;
 
     public sealed partial class AnalysisWindow : Window
     {
         private User user;
         private readonly IActivityService activityService;
         private readonly IHistoryService historyService;
+        private bool isLoading;
 
-        public AnalysisWindow(User selectedUser)
+        public AnalysisWindow(User selectedUser, IActivityService activityService, IHistoryService historyService)
         {
             this.InitializeComponent();
             this.user = selectedUser;
-            
-            // Create HTTP client for HistoryApiService
-            var httpClient = new HttpClient();
-            var historyApiService = new HistoryApiService(httpClient, "http://localhost:5000");
-            
-            // Initialize services with correct dependencies
-            this.activityService = new ActivityService(new ActivityRepository(new DatabaseConnection(), new UserRepository()));
-            this.historyService = new HistoryService(historyApiService);
+            this.activityService = activityService ?? throw new ArgumentNullException(nameof(activityService));
+            this.historyService = historyService ?? throw new ArgumentNullException(nameof(historyService));
             
             this.LoadUserData();
             this.LoadHistory(this.historyService.GetHistoryMonthly(this.user.CNP));
-            this.LoadUserActivities();
+            this.LoadUserActivitiesAsync();
         }
 
         public void LoadUserData()
@@ -47,17 +44,30 @@ namespace StockApp.Views.Pages
             this.PhoneNumberTextBlock.Text = $"Phone number: {this.user.PhoneNumber}";
         }
 
-        public void LoadUserActivities()
+        public async void LoadUserActivitiesAsync()
         {
+            if (isLoading) return;
+
             try
             {
-                var activities = this.activityService.GetActivityForUser(this.user.CNP);
-
+                isLoading = true;
+                var activities = await this.activityService.GetActivityForUser(this.user.CNP);
                 this.ActivityListView.ItemsSource = activities;
             }
             catch (Exception exception)
             {
-                Console.WriteLine($"Error loading activities: {exception.Message}");
+                var dialog = new ContentDialog
+                {
+                    Title = "Error",
+                    Content = $"Error loading activities: {exception.Message}",
+                    CloseButtonText = "OK",
+                    XamlRoot = this.Content.XamlRoot
+                };
+                await dialog.ShowAsync();
+            }
+            finally
+            {
+                isLoading = false;
             }
         }
 
@@ -104,76 +114,65 @@ namespace StockApp.Views.Pages
                         }
                     }
 
-                    barSeries.Items.Add(new BarItem
-                    {
-                        Value = record.Score,
-                        Color = barColor
-                    });
+                    barSeries.Items.Add(new BarItem(record.Score, i) { Color = barColor });
                 }
 
-                foreach (var record in history)
-                {
-                    barSeries.Items.Add(new BarItem { Value = record.Score });
-                }
+                plotModel.Series.Add(barSeries);
 
                 var categoryAxis = new CategoryAxis
                 {
-                    Position = AxisPosition.Left
+                    Position = AxisPosition.Bottom,
+                    Title = "Time"
                 };
-                foreach (var record in history)
+
+                for (int i = 0; i < history.Count; i++)
                 {
-                    categoryAxis.Labels.Add(record.Date.ToString("MM/dd"));
+                    categoryAxis.Labels.Add(history[i].Date.ToString("MM/dd/yyyy"));
                 }
 
                 plotModel.Axes.Add(categoryAxis);
-                plotModel.Series.Add(barSeries);
+
+                var valueAxis = new LinearAxis
+                {
+                    Position = AxisPosition.Left,
+                    Title = "Score",
+                    Minimum = 0,
+                    Maximum = 100
+                };
+
+                plotModel.Axes.Add(valueAxis);
 
                 this.CreditScorePlotView.Model = plotModel;
-                this.CreditScorePlotView.InvalidatePlot(true);
             }
             catch (Exception exception)
             {
-                Console.WriteLine($"Error loading credit score history: {exception.Message}");
+                var dialog = new ContentDialog
+                {
+                    Title = "Error",
+                    Content = $"Error loading history: {exception.Message}",
+                    CloseButtonText = "OK",
+                    XamlRoot = this.Content.XamlRoot
+                };
+                _ = dialog.ShowAsync();
             }
         }
 
-        private async void OnMonthlyClick(object sender, RoutedEventArgs e)
+        private void OnWeeklyClick(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                var history = this.historyService.GetHistoryMonthly(this.user.CNP);
-                this.LoadHistory(history);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error loading credit score history: {ex.Message}");
-            }
+            var history = this.historyService.GetHistoryWeekly(this.user.CNP);
+            this.LoadHistory(history);
         }
 
-        private async void OnYearlyClick(object sender, RoutedEventArgs e)
+        private void OnMonthlyClick(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                var history = this.historyService.GetHistoryYearly(this.user.CNP);
-                this.LoadHistory(history);
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine($"Error loading credit score history: {exception.Message}");
-            }
+            var history = this.historyService.GetHistoryMonthly(this.user.CNP);
+            this.LoadHistory(history);
         }
 
-        private async void OnWeeklyClick(object sender, RoutedEventArgs e)
+        private void OnYearlyClick(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                var history = this.historyService.GetHistoryWeekly(this.user.CNP);
-                this.LoadHistory(history);
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine($"Error loading credit score history: {exception.Message}");
-            }
+            var history = this.historyService.GetHistoryYearly(this.user.CNP);
+            this.LoadHistory(history);
         }
     }
 }

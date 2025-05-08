@@ -62,6 +62,27 @@ namespace BankApi.Data
             // Configure TriggeredAlert entity
             modelBuilder.Entity<TriggeredAlert>()
                 .HasIndex(ta => ta.StockName);
+
+            // Configure ActivityLog entity
+            modelBuilder.Entity<ActivityLog>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.UserCnp)
+                    .IsRequired()
+                    .HasMaxLength(13);
+
+                entity.Property(e => e.ActivityName)
+                    .IsRequired()
+                    .HasMaxLength(100);
+
+                entity.Property(e => e.LastModifiedAmount)
+                    .IsRequired();
+
+                entity.Property(e => e.CreatedAt)
+                    .IsRequired()
+                    .HasDefaultValueSql("GETUTCDATE()");
+            });
         }
     }
 }

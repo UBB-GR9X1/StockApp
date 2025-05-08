@@ -12,10 +12,11 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<ApiDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Register repository
+// Register repositories
 builder.Services.AddScoped<IRepository, Repository>();
 builder.Services.AddScoped<IChatReportRepository, ChatReportRepository>();
 builder.Services.AddScoped<IAlertRepository, AlertRepository>();
+builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
 
 // Add CORS
 builder.Services.AddCors(options =>
