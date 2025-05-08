@@ -1,11 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using BankApi.Models;
 using BankApi.Repositories;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace BankApi.Controllers
 {
@@ -83,9 +78,9 @@ namespace BankApi.Controllers
                 }
 
                 var createdStock = await _repository.AddStockAsync(stock);
-                
-                return CreatedAtAction(nameof(GetStockByName), 
-                    new { name = createdStock.Name }, 
+
+                return CreatedAtAction(nameof(GetStockByName),
+                    new { name = createdStock.Name },
                     createdStock);
             }
             catch (InvalidOperationException ex) when (ex.Message.Contains("already exists"))
@@ -150,12 +145,12 @@ namespace BankApi.Controllers
             try
             {
                 var success = await _repository.DeleteStockAsync(name);
-                
+
                 if (!success)
                 {
                     return NotFound($"Stock with name '{name}' not found");
                 }
-                
+
                 return NoContent();
             }
             catch (Exception ex)
@@ -165,4 +160,4 @@ namespace BankApi.Controllers
             }
         }
     }
-} 
+}

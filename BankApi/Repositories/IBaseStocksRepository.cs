@@ -1,10 +1,10 @@
-namespace StockApp.Services
+namespace BankApi.Repositories
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using StockApp.Models;
+    using BankApi.Models;
 
-    public interface IBaseStocksApiService
+    public interface IBaseStocksRepository
     {
         Task<BaseStock> AddStockAsync(BaseStock stock, int initialPrice = 100);
 
@@ -16,4 +16,4 @@ namespace StockApp.Services
 
         Task<BaseStock> UpdateStockAsync(BaseStock stock);
     }
-} 
+}

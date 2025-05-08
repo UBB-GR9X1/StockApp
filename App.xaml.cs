@@ -75,7 +75,7 @@ namespace StockApp
                     // Repositories
                     services.AddScoped<IAlertRepository, AlertProxyRepo>();
 
-                    services.AddSingleton<IBillSplitReportRepository, BillSplitReportRepository>();
+                    services.AddSingleton<IBillSplitReportRepository, BillSplitReportProxyRepository>();
                     services.AddSingleton<IChatReportRepository, ChatReportRepoProxy>();
                     services.AddSingleton<IHistoryRepository, HistoryRepository>();
                     services.AddSingleton<IInvestmentsRepository, InvestmentsRepository>();
@@ -96,7 +96,10 @@ namespace StockApp
                     services.AddScoped<IBaseStocksService, BaseStocksService>();
 
                     // Register BillSplitReport API service
-                    services.AddHttpClient<IBillSplitReportRepository, BillSplitReportProxyRepository>((provider, client) =>
+                    services.AddHttpClient<IBillSplitReportRepository, BillSplitReportProxyRepository>((client) =>
+                    {
+                        client.BaseAddress = new Uri("https://localhost:7001/");
+                    });
                     services.AddHttpClient<IAlertRepository, AlertProxyRepo>(client =>
                     {
                         client.BaseAddress = new Uri("https://localhost:7001/");
@@ -108,8 +111,7 @@ namespace StockApp
                     });
 
                     // Legacy repositories
-                    services.AddSingleton<IActivityRepository, ActivityRepository>();
-                    services.AddSingleton<IChatReportRepository, ChatReportRepository>();
+                    services.AddSingleton<IChatReportRepository, ChatReportRepoProxy>();
                     services.AddSingleton<IHistoryRepository, HistoryRepository>();
                     services.AddSingleton<IInvestmentsRepository, InvestmentsRepository>();
                     services.AddSingleton<ILoanRepository, LoanRepository>();

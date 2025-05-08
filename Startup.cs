@@ -10,7 +10,6 @@ namespace StockApp
     using Microsoft.OpenApi.Models;
     using StockApp.Database;
     using StockApp.Repositories.Api;
-    using StockApp.Services;
 
     public class Startup
     {
@@ -24,7 +23,7 @@ namespace StockApp
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            
+
             services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(App.ConnectionString));
 
@@ -36,9 +35,9 @@ namespace StockApp
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo 
-                { 
-                    Title = "StockApp API", 
+                c.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "StockApp API",
                     Version = "v1",
                     Description = "API for managing stock data in StockApp"
                 });
@@ -67,4 +66,4 @@ namespace StockApp
             });
         }
     }
-} 
+}
