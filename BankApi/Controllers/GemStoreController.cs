@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Mvc;
+using StockApp.Database;
+using StockApp.Models;
+using StockApp.Repositories;
 using System;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using StockApp.Repositories;
 
-namespace StockApp.Controllers
+namespace BankApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
@@ -44,12 +46,12 @@ namespace StockApp.Controllers
             }
         }
 
-        [HttpPut("balance")]
-        public async Task<IActionResult> UpdateUserGemBalance([FromBody] UpdateBalanceRequest request)
+        [HttpPut("balance/{cnp}")]
+        public async Task<ActionResult> UpdateUserGemBalance(string cnp, [FromBody] int newBalance)
         {
             try
             {
-                await _gemStoreRepository.UpdateUserGemBalanceAsync(request.Cnp, request.NewBalance);
+                await _gemStoreRepository.UpdateUserGemBalanceAsync(cnp, newBalance);
                 return Ok();
             }
             catch (Exception ex)
@@ -58,7 +60,7 @@ namespace StockApp.Controllers
             }
         }
 
-        [HttpGet("guest/{cnp}")]
+        [HttpGet("isguest/{cnp}")]
         public async Task<ActionResult<bool>> IsGuest(string cnp)
         {
             try
@@ -71,11 +73,5 @@ namespace StockApp.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-    }
-
-    public class UpdateBalanceRequest
-    {
-        public string Cnp { get; set; } = string.Empty;
-        public int NewBalance { get; set; }
     }
 } 

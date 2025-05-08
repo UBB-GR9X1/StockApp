@@ -2,11 +2,14 @@ using BankApi.Data;
 using BankApi.Repositories;
 using Microsoft.EntityFrameworkCore;
 using StockApp.Repositories;
+using BankApi.Database;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
 builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 // Configure DbContext
 builder.Services.AddDbContext<ApiDbContext>(options =>
@@ -17,6 +20,9 @@ builder.Services.AddScoped<IRepository, Repository>();
 builder.Services.AddScoped<IChatReportRepository, ChatReportRepository>();
 builder.Services.AddScoped<IAlertRepository, AlertRepository>();
 builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
+
+// Add GemStore repositories
+builder.Services.AddScoped<IGemStoreRepository, GemStoreRepository>();
 
 // Add CORS
 builder.Services.AddCors(options =>
@@ -44,7 +50,8 @@ if (app.Environment.IsDevelopment())
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
-    app.UseDeveloperExceptionPage();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();

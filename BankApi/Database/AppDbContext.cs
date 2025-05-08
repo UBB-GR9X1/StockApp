@@ -1,27 +1,28 @@
-﻿namespace BankApi.Database
-{
-    using Microsoft.EntityFrameworkCore;
-    using BankApi.Models;
+﻿using BankApi.Models;
+using Microsoft.EntityFrameworkCore;
 
+namespace BankApi.Database
+{
     public class AppDbContext : DbContext
     {
-        public AppDbContext(DbContextOptions<AppDbContext> options)
-            : base(options)
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
         }
 
-        public DbSet<HomepageStock> HomepageStocks { get; set; }
-        //public DbSet<User> Users { get; set; } // if User was already there
+        public DbSet<GemStore> GemStores { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<HomepageStock>(entity =>
+            modelBuilder.Entity<GemStore>(entity =>
             {
-                entity.HasKey(e => e.Id);
-                entity.Property(e => e.Symbol).IsRequired();
-                entity.Property(e => e.CompanyName).IsRequired();
+                entity.ToTable("GemStore");
+                entity.HasKey(e => e.Cnp);
+                entity.Property(e => e.Cnp).IsRequired().HasMaxLength(13);
+                entity.Property(e => e.GemBalance).IsRequired();
+                entity.Property(e => e.IsGuest).IsRequired();
+                entity.Property(e => e.LastUpdated).IsRequired();
             });
         }
     }
