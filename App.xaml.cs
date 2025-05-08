@@ -108,6 +108,7 @@ namespace StockApp
                     services.AddSingleton<IZodiacService, ZodiacService>();
                     services.AddSingleton<IActivityService, ActivityService>();
                     services.AddSingleton<IStoreService, StoreService>();
+                    services.AddSingleton<IProfileService, ProfileService>();
                     services.AddSingleton<MainWindow>();
 
                     // UI Components
@@ -159,6 +160,7 @@ namespace StockApp
                     services.AddTransient<ProfilePage>();
                     services.AddTransient<GemStoreWindow>();
                     services.AddTransient<CreateProfilePage>();
+                    services.AddTransient<ProfilePageViewModel>();
                     services.AddTransient<HomepageView>();
                 }).Build();
         }

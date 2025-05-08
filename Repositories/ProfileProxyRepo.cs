@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Threading.Tasks;
 using StockApp.Models;
 
 namespace StockApp.Repositories
@@ -18,24 +19,19 @@ namespace StockApp.Repositories
             _httpClient.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
         }
 
-        public User CurrentUser()
+        public async Task<string> GenerateUsernameAsync()
         {
-            throw new NotImplementedException("This method should be handled by the UserService");
+            var response = await _httpClient.GetAsync($"{BaseUrl}/username/random");
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<string>() ?? throw new Exception("Failed to generate username");
         }
 
-        public string GenerateUsername()
+        public async Task<User> GetUserProfileAsync(string authorCnp)
         {
-            var response = _httpClient.GetAsync($"{BaseUrl}/username/random").Result;
+            var response = await _httpClient.GetAsync($"{BaseUrl}/{authorCnp}");
             response.EnsureSuccessStatusCode();
-            return response.Content.ReadFromJsonAsync<string>().Result ?? throw new Exception("Failed to generate username");
-        }
+            var profile = await response.Content.ReadFromJsonAsync<ApiProfile>() ?? throw new Exception("Failed to get profile");
 
-        public User GetUserProfile(string authorCnp)
-        {
-            var response = _httpClient.GetAsync($"{BaseUrl}/{authorCnp}").Result;
-            response.EnsureSuccessStatusCode();
-            var profile = response.Content.ReadFromJsonAsync<ApiProfile>().Result ?? throw new Exception("Failed to get profile");
-            
             return new User(
                 cnp: profile.Cnp,
                 username: profile.Name,
@@ -46,7 +42,7 @@ namespace StockApp.Repositories
                 gem_balance: profile.GemBalance);
         }
 
-        public void UpdateMyUser(string newUsername, string newImage, string newDescription, bool newHidden)
+        public async Task UpdateMyUserAsync(string newUsername, string newImage, string newDescription, bool newHidden)
         {
             var profile = new ApiProfile
             {
@@ -57,24 +53,24 @@ namespace StockApp.Repositories
                 IsHidden = newHidden
             };
 
-            var response = _httpClient.PutAsJsonAsync($"{BaseUrl}/{profile.Cnp}", profile).Result;
+            var response = await _httpClient.PutAsJsonAsync($"{BaseUrl}/{profile.Cnp}", profile);
             response.EnsureSuccessStatusCode();
         }
 
-        public void UpdateRepoIsAdmin(bool isAdmin)
+        public async Task UpdateRepoIsAdminAsync(bool isAdmin)
         {
             var cnp = _httpClient.DefaultRequestHeaders.GetValues("X-User-CNP").First();
-            var response = _httpClient.PutAsJsonAsync($"{BaseUrl}/{cnp}/admin", isAdmin).Result;
+            var response = await _httpClient.PutAsJsonAsync($"{BaseUrl}/{cnp}/admin", isAdmin);
             response.EnsureSuccessStatusCode();
         }
 
-        public List<Stock> UserStocks()
+        public async Task<List<Stock>> UserStocksAsync()
         {
             var cnp = _httpClient.DefaultRequestHeaders.GetValues("X-User-CNP").First();
-            var response = _httpClient.GetAsync($"{BaseUrl}/{cnp}/stocks").Result;
+            var response = await _httpClient.GetAsync($"{BaseUrl}/{cnp}/stocks");
             response.EnsureSuccessStatusCode();
-            var apiStocks = response.Content.ReadFromJsonAsync<List<ApiStock>>().Result ?? new List<ApiStock>();
-            
+            var apiStocks = await response.Content.ReadFromJsonAsync<List<ApiStock>>() ?? new List<ApiStock>();
+
             return apiStocks.Select(s => new Stock(
                 name: s.Name,
                 symbol: s.Symbol,
@@ -87,29 +83,42 @@ namespace StockApp.Repositories
         private class ApiProfile
         {
             public string Cnp { get; set; } = string.Empty;
+
             public string Name { get; set; } = string.Empty;
+
             public string? ProfilePicture { get; set; }
+
             public string? Description { get; set; }
+
             public bool IsHidden { get; set; }
+
             public bool IsAdmin { get; set; }
+
             public int GemBalance { get; set; }
+
             public DateTime LastUpdated { get; set; }
         }
 
         private class ApiStock
         {
             public string Name { get; set; } = string.Empty;
+
             public string Symbol { get; set; } = string.Empty;
+
             public int CurrentPrice { get; set; }
+
             public string AuthorCnp { get; set; } = string.Empty;
+
             public List<ApiUserStock> UserStocks { get; set; } = new();
         }
 
         private class ApiUserStock
         {
             public string UserCnp { get; set; } = string.Empty;
+
             public string StockName { get; set; } = string.Empty;
+
             public int Quantity { get; set; }
         }
     }
-} 
+}

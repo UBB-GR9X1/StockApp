@@ -1,20 +1,19 @@
 ﻿namespace StockApp.Repositories
 {
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using StockApp.Models;
 
     public interface IProfileRepository
     {
-        User CurrentUser();
+        Task<string> GenerateUsernameAsync();
 
-        string GenerateUsername();
+        Task<User> GetUserProfileAsync(string authorCNP);
 
-        User GetUserProfile(string authorCNP);
+        Task UpdateMyUserAsync(string newUsername, string newImage, string newDescription, bool newHidden);
 
-        void UpdateMyUser(string newUsername, string newImage, string newDescription, bool newHidden);
+        Task UpdateRepoIsAdminAsync(bool isAdmin);
 
-        void UpdateRepoIsAdmin(bool isAdmin);
-
-        List<Stock> UserStocks();
+        Task<List<Stock>> UserStocksAsync();
     }
 }
