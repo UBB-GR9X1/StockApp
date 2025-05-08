@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BankApi.Models
 {
@@ -13,7 +12,7 @@ namespace BankApi.Models
         public string UserCnp { get; set; } = string.Empty;
 
         [Required]
-        public DateOnly Date { get; set; }
+        public DateTime Date { get; set; }
 
         [Required]
         [Range(0, 1000)]
@@ -23,7 +22,7 @@ namespace BankApi.Models
         {
         }
 
-        public CreditScoreHistory(int id, string userCnp, DateOnly date, int creditScore)
+        public CreditScoreHistory(int id, string userCnp, DateTime date, int creditScore)
         {
             Id = id;
             UserCnp = userCnp;

@@ -84,7 +84,7 @@ namespace BankApi.Repositories
             if (string.IsNullOrWhiteSpace(userCnp))
                 throw new ArgumentException("User CNP cannot be empty", nameof(userCnp));
 
-            var oneWeekAgo = DateOnly.FromDateTime(DateTime.Now.AddDays(-7));
+            var oneWeekAgo = DateTime.Now.AddDays(-7);
             return await _context.CreditScoreHistories
                 .Where(h => h.UserCnp == userCnp && h.Date >= oneWeekAgo)
                 .OrderByDescending(h => h.Date)
@@ -96,7 +96,7 @@ namespace BankApi.Repositories
             if (string.IsNullOrWhiteSpace(userCnp))
                 throw new ArgumentException("User CNP cannot be empty", nameof(userCnp));
 
-            var oneMonthAgo = DateOnly.FromDateTime(DateTime.Now.AddMonths(-1));
+            var oneMonthAgo = DateTime.Now.AddMonths(-1);
             return await _context.CreditScoreHistories
                 .Where(h => h.UserCnp == userCnp && h.Date >= oneMonthAgo)
                 .OrderByDescending(h => h.Date)
@@ -108,11 +108,11 @@ namespace BankApi.Repositories
             if (string.IsNullOrWhiteSpace(userCnp))
                 throw new ArgumentException("User CNP cannot be empty", nameof(userCnp));
 
-            var oneYearAgo = DateOnly.FromDateTime(DateTime.Now.AddYears(-1));
+            var oneYearAgo = DateTime.Now.AddYears(-1);
             return await _context.CreditScoreHistories
                 .Where(h => h.UserCnp == userCnp && h.Date >= oneYearAgo)
                 .OrderByDescending(h => h.Date)
                 .ToListAsync();
         }
     }
-} 
+}
