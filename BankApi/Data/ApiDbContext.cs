@@ -18,6 +18,7 @@ namespace BankApi.Data
         public DbSet<Alert> Alerts { get; set; }
         public DbSet<TriggeredAlert> TriggeredAlerts { get; set; }
 
+        public DbSet<TransactionLogTransaction> TransactionLogTransactions { get; set; }
         public DbSet<ActivityLog> ActivityLogs { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -82,6 +83,40 @@ namespace BankApi.Data
                 entity.Property(e => e.CreatedAt)
                     .IsRequired()
                     .HasDefaultValueSql("GETUTCDATE()");
+            });
+
+            modelBuilder.Entity<TransactionLogTransaction>(entity =>
+            {
+                entity.ToTable("TransactionLogTransactions");
+
+                entity.HasKey(e => new { e.Author, e.Date });
+
+                entity.Property(e => e.Author).IsRequired();
+                entity.ToTable(t => t.HasCheckConstraint("CK_Transaction_AuthorCNP_Length", "LEN(AuthorCNP) = 13"));
+
+                entity.Property(e => e.StockSymbol)
+                      .IsRequired()
+                      .HasMaxLength(10); 
+
+                entity.Property(e => e.StockName)
+                      .IsRequired()
+                      .HasMaxLength(100);
+
+                entity.Property(e => e.Type)
+                      .IsRequired()
+                      .HasMaxLength(4); 
+
+                entity.Property(e => e.Amount)
+                      .IsRequired();
+
+                entity.Property(e => e.PricePerStock)
+                      .IsRequired();
+
+                entity.Property(e => e.Date)
+                      .IsRequired()
+                      .HasColumnType("datetime");
+                
+
             });
         }
     }
