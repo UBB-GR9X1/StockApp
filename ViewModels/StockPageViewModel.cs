@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Linq;
+    using System.Net.Http;
     using System.Threading.Tasks;
     using Catel.Services;
     using LiveChartsCore;
@@ -20,7 +21,7 @@
     /// <summary>
     /// ViewModel managing data and operations for the stock detail page.
     /// </summary>
-    public class StockPageViewModel : INotifyPropertyChanged
+    public class StockPageViewModel : INotifyPropertyChanged, IDisposable
     {
         private string stockName;
         private string stockSymbol;
@@ -31,6 +32,7 @@
         private string guestVisibility = "Visible";
         private int userGems = 0;
         private string userGemsText = "0 ❇️ Gems";
+        private bool isLoading = false;
 
         private readonly ITextBlock priceLabel;
         private readonly ITextBlock increaseLabel;
@@ -64,7 +66,6 @@
             this.isGuest = this.stockPageService.IsGuest();
             this.stockName = this.stockPageService.GetStockName();
             this.stockSymbol = this.stockPageService.GetStockSymbol();
-            this.UpdateStockValue();
             this.isFavorite = this.stockPageService.GetFavorite();
         }
 
@@ -83,7 +84,7 @@
             TextBlock ownedStocks,
             CartesianChart stockChart)
             : this(
-                  new StockPageService(),
+                  new StockPageApiService(new HttpClient(), "http://localhost:5000"),
                   selectedStock,
                   new TextBlockAdapter(priceLabel),
                   new TextBlockAdapter(increaseLabel),
@@ -93,45 +94,92 @@
         }
 
         /// <summary>
-        /// Updates all displayed stock values, including price, change percentage, owned count, and chart.
+        /// Initializes the view model asynchronously.
         /// </summary>
-        public void UpdateStockValue()
+        public async Task InitializeAsync()
         {
-            if (!this.stockPageService.IsGuest())
+            try
             {
-                this.userGems = this.stockPageService.GetUserBalance();
-                this.ownedStocks.Text = "Owned: " + this.stockPageService.GetOwnedStocks().ToString();
+                IsLoading = true;
+                await UpdateStockValueAsync();
             }
-
-            List<int> stockHistory = this.stockPageService.GetStockHistory();
-            this.priceLabel.Text = stockHistory.Last().ToString() + " ❇️ Gems";
-            if (stockHistory.Count > 1)
+            catch (Exception ex)
             {
-                int increasePerc = (stockHistory.Last() - stockHistory[^2]) * 100 / stockHistory[^2];
-                this.increaseLabel.Text = increasePerc + "%";
-                if (increasePerc > 0)
+                // Log the error or handle it appropriately
+                throw new Exception("Failed to initialize stock page", ex);
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
+        /// <summary>
+        /// Updates all displayed stock values asynchronously.
+        /// </summary>
+        public async Task UpdateStockValueAsync()
+        {
+            try
+            {
+                IsLoading = true;
+                if (!this.stockPageService.IsGuest())
                 {
-                    this.increaseLabel.Foreground = new SolidColorBrush(Colors.Green);
+                    this.userGems = await this.stockPageService.GetUserBalanceAsync();
+                    this.ownedStocks.Text = "Owned: " + (await this.stockPageService.GetOwnedStocksAsync()).ToString();
                 }
-                else
+
+                List<int> stockHistory = await this.stockPageService.GetStockHistoryAsync();
+                if (stockHistory == null || !stockHistory.Any())
                 {
-                    this.increaseLabel.Foreground = new SolidColorBrush(Colors.IndianRed);
+                    this.priceLabel.Text = "No data available";
+                    this.increaseLabel.Text = "N/A";
+                    return;
+                }
+
+                this.priceLabel.Text = stockHistory.Last().ToString() + " ❇️ Gems";
+                if (stockHistory.Count > 1)
+                {
+                    int increasePerc = (stockHistory.Last() - stockHistory[^2]) * 100 / stockHistory[^2];
+                    this.increaseLabel.Text = increasePerc + "%";
+                    this.increaseLabel.Foreground = new SolidColorBrush(increasePerc > 0 ? Colors.Green : Colors.IndianRed);
+                }
+
+                this.stockChart.UpdateLayout();
+                this.stockChart.Series = new ISeries[]
+                {
+                    new LineSeries<int>
+                    {
+                        Values = stockHistory.TakeLast(30).ToArray(),
+                        Fill = null,
+                        Stroke = new SolidColorPaint(SKColor.Parse("#4169E1"), 5),
+                        GeometryStroke = new SolidColorPaint(SKColor.Parse("#4169E1"), 5),
+                    },
+                };
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to update stock value", ex);
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the view model is currently loading data.
+        /// </summary>
+        public bool IsLoading
+        {
+            get => this.isLoading;
+            set
+            {
+                if (this.isLoading != value)
+                {
+                    this.isLoading = value;
+                    this.OnPropertyChanged(nameof(this.IsLoading));
                 }
             }
-
-            this.stockChart.UpdateLayout();
-            this.stockChart.Series = new ISeries[]
-            {
-                new LineSeries<int>
-                {
-                    Values = stockHistory.TakeLast(30).ToArray(),
-                    Fill = null,
-                    Stroke = new SolidColorPaint(SKColor.Parse("#4169E1"), 5), // FIXME: make stroke color configurable
-                    GeometryStroke = new SolidColorPaint(SKColor.Parse("#4169E1"), 5),
-                },
-            };
-
-            // TODO: handle case where stockHistory is empty to prevent exceptions
         }
 
         /// <summary>
@@ -213,11 +261,24 @@
         public event PropertyChangedEventHandler PropertyChanged;
 
         /// <summary>
-        /// Toggles the favorite state of the stock.
+        /// Toggles the favorite state of the stock asynchronously.
         /// </summary>
-        public void ToggleFavorite()
+        public async Task ToggleFavoriteAsync()
         {
-            this.IsFavorite = !this.IsFavorite;
+            try
+            {
+                IsLoading = true;
+                this.IsFavorite = !this.IsFavorite;
+                await this.stockPageService.ToggleFavoriteAsync(this.IsFavorite);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to toggle favorite status", ex);
+            }
+            finally
+            {
+                IsLoading = false;
+            }
         }
 
         /// <summary>
@@ -275,36 +336,81 @@
         }
 
         /// <summary>
-        /// Attempts to buy a specified quantity of the stock.
+        /// Buys the specified quantity of stocks asynchronously.
         /// </summary>
-        /// <param name="quantity">The number of shares to buy.</param>
-        /// <returns><c>true</c> if the purchase succeeded; otherwise, <c>false</c>.</returns>
-        public bool BuyStock(int quantity)
+        public async Task<bool> BuyStockAsync(int quantity)
         {
-            bool res = this.stockPageService.BuyStock(quantity);
-            this.UpdateStockValue();
-            return res;
+            if (quantity <= 0)
+            {
+                throw new ArgumentException("Quantity must be greater than 0", nameof(quantity));
+            }
+
+            try
+            {
+                IsLoading = true;
+                return await this.stockPageService.BuyStockAsync(quantity);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to buy stock", ex);
+            }
+            finally
+            {
+                IsLoading = false;
+            }
         }
 
         /// <summary>
-        /// Attempts to sell a specified quantity of the stock.
+        /// Sells the specified quantity of stocks asynchronously.
         /// </summary>
-        /// <param name="quantity">The number of shares to sell.</param>
-        /// <returns><c>true</c> if the sale succeeded; otherwise, <c>false</c>.</returns>
-        public bool SellStock(int quantity)
+        public async Task<bool> SellStockAsync(int quantity)
         {
-            bool res = this.stockPageService.SellStock(quantity);
-            this.UpdateStockValue();
-            return res;
+            if (quantity <= 0)
+            {
+                throw new ArgumentException("Quantity must be greater than 0", nameof(quantity));
+            }
+
+            try
+            {
+                IsLoading = true;
+                return await this.stockPageService.SellStockAsync(quantity);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to sell stock", ex);
+            }
+            finally
+            {
+                IsLoading = false;
+            }
         }
 
         /// <summary>
-        /// Gets the author (owner) of the stock.
+        /// Gets the stock author asynchronously.
         /// </summary>
-        /// <returns>A <see cref="User"/> object representing the author.</returns>
-        public async Task<User> GetStockAuthor()
+        public async Task<User> GetStockAuthorAsync()
         {
-            return await this.stockPageService.GetStockAuthor();
+            try
+            {
+                IsLoading = true;
+                return await this.stockPageService.GetStockAuthorAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to get stock author", ex);
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
+        /// <summary>
+        /// Disposes of the view model resources.
+        /// </summary>
+        public void Dispose()
+        {
+            // Clean up any resources if needed
         }
 
         /// <summary>

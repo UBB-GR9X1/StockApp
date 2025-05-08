@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="StockApp.Views.Pages.StockPageView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:StockApp.Views.Pages"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:lvc="using:LiveChartsCore.SkiaSharpView.WinUI"
+    mc:Ignorable="d">
+
+    <Grid Padding="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="10">
+            <TextBlock Text="{x:Bind ViewModel.StockName}" Style="{StaticResource TitleLargeTextBlockStyle}"/>
+            <TextBlock Text="{x:Bind ViewModel.StockSymbol}" Style="{StaticResource SubtitleTextBlockStyle}"/>
+            <Button x:Name="FavoriteButton" 
+                    Click="FavoriteButton_Click"
+                    Background="{x:Bind ViewModel.FavoriteButtonColor}"
+                    Visibility="{x:Bind ViewModel.GuestVisibility}">
+                <FontIcon Glyph="&#xE735;"/>
+            </Button>
+        </StackPanel>
+
+        <!-- Price Info -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="20" Margin="0,20,0,0">
+            <TextBlock x:Name="PriceLabel" Style="{StaticResource BodyLargeTextBlockStyle}"/>
+            <TextBlock x:Name="IncreaseLabel" Style="{StaticResource BodyLargeTextBlockStyle}"/>
+            <TextBlock x:Name="OwnedStocks" Style="{StaticResource BodyLargeTextBlockStyle}" 
+                       Visibility="{x:Bind ViewModel.GuestVisibility}"/>
+        </StackPanel>
+
+        <!-- Chart -->
+        <lvc:CartesianChart x:Name="StockChart" Grid.Row="2" Margin="0,20,0,0"/>
+
+        <!-- Trading Controls -->
+        <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="10" 
+                    Visibility="{x:Bind ViewModel.GuestVisibility}">
+            <NumberBox x:Name="QuantityBox" 
+                      Header="Quantity"
+                      Minimum="1"
+                      Value="1"
+                      Width="100"/>
+            <Button Content="Buy" Click="BuyButton_Click"/>
+            <Button Content="Sell" Click="SellButton_Click"/>
+            <TextBlock Text="{x:Bind ViewModel.UserGemsText}" 
+                       Style="{StaticResource BodyTextBlockStyle}"
+                       VerticalAlignment="Center"/>
+        </StackPanel>
+    </Grid>
+</Page> 

@@ -12,7 +12,7 @@
 
         int GetOwnedStocks();
 
-        Task<User> GetStockAuthor();
+        User GetStockAuthor();
 
         List<int> GetStockHistory();
 
@@ -30,5 +30,12 @@
 
         void ToggleFavorite(bool state);
 
+        Task<int> GetUserBalanceAsync();
+        Task<int> GetOwnedStocksAsync();
+        Task<List<int>> GetStockHistoryAsync();
+        Task<User> GetStockAuthorAsync();
+        Task<bool> BuyStockAsync(int quantity);
+        Task<bool> SellStockAsync(int quantity);
+        Task ToggleFavoriteAsync(bool state);
     }
 }

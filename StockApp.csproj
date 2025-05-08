@@ -93,6 +93,9 @@
 
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="BankApi\BankApi.csproj" />
+  </ItemGroup>
+  <ItemGroup>
     <Page Update="Test\TestPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
