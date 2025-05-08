@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using StockApp.Database;
-using StockApp.Models;
-using StockApp.Repositories;
+using BankApi.Database;
+using BankApi.Models;
+using BankApi.Repositories;
 using System;
 using System.Threading.Tasks;
 

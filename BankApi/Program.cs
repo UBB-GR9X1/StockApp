@@ -1,8 +1,7 @@
-using BankApi.Data;
+using BankApi.Database;
 using BankApi.Repositories;
 using Microsoft.EntityFrameworkCore;
 using StockApp.Repositories;
-using BankApi.Database;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +11,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // Configure DbContext
-builder.Services.AddDbContext<ApiDbContext>(options =>
+builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Register repositories
@@ -42,7 +41,7 @@ if (app.Environment.IsDevelopment())
 {
     using (var scope = app.Services.CreateScope())
     {
-        var dbContext = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         dbContext.Database.Migrate(); // This will apply any pending migrations
     }
 }
