@@ -1,58 +1,30 @@
-﻿using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-using System.Runtime.CompilerServices;
+﻿namespace BankApi.Models
+{
+    using System.ComponentModel.DataAnnotations;
 
-    public class Tip : INotifyPropertyChanged
+    /// <summary>
+    /// Represents a tip that can be given to a user based on their credit score bracket.
+    /// </summary>
+    public class Tip
     {
-        private int id;
-        private string creditScoreBracket = string.Empty;
-        private string tipText = string.Empty;
-
+        /// <summary>
+        /// Gets or sets the unique identifier for this tip.
+        /// </summary>
         [Key]
-        public int Id
-        {
-            get => this.id;
-            set
-            {
-                if (this.id != value)
-                {
-                    this.id = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
+        public int Id { get; set; }
 
+        /// <summary>
+        /// Gets or sets the credit score bracket for this tip.
+        /// </summary>
         [Required]
-        [MaxLength(100)]
-        public string CreditScoreBracket
-        {
-            get => this.creditScoreBracket;
-            set
-            {
-                if (this.creditScoreBracket != value)
-                {
-                    this.creditScoreBracket = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
+        [MaxLength(50)]
+        public string CreditScoreBracket { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Gets or sets the text of the tip.
+        /// </summary>
         [Required]
-        [MaxLength(1000)]
-        public string TipText
-        {
-            get => this.tipText;
-            set
-            {
-                if (this.tipText != value)
-                {
-                    this.tipText = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-        private void OnPropertyChanged([CallerMemberName] string? name = null) =>
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        [MaxLength(500)]
+        public string TipText { get; set; } = string.Empty;
     }
+}

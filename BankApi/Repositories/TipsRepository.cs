@@ -1,3 +1,4 @@
+using BankApi.Data;
 using BankApi.Repositories;
 using Microsoft.EntityFrameworkCore;
 using BankApi.Data;
@@ -14,6 +15,7 @@ namespace BankApi.Repositories
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
+        // Fetch all tips for a given user
         public async Task<List<Tip>> GetTipsForUserAsync(string userCnp)
         {
             if (string.IsNullOrWhiteSpace(userCnp))
@@ -26,6 +28,7 @@ namespace BankApi.Repositories
                 .ToListAsync();
         }
 
+        // Provide a tip to a user based on credit score bracket
         public async Task<GivenTip> GiveTipToUserAsync(string userCnp, string creditScoreBracket)
         {
             if (string.IsNullOrWhiteSpace(userCnp))
@@ -45,7 +48,7 @@ namespace BankApi.Repositories
             var givenTip = new GivenTip
             {
                 UserCnp = userCnp,
-                TipID = randomTip.Id,
+                TipId = randomTip.Id,
                 Date = DateOnly.FromDateTime(DateTime.Today),
                 Tip = randomTip
             };
@@ -56,12 +59,15 @@ namespace BankApi.Repositories
             return givenTip;
         }
 
+        // Provide low-credit bracket tip
         public Task<GivenTip> GiveLowBracketTipAsync(string userCnp) =>
             GiveTipToUserAsync(userCnp, "Low-credit");
 
+        // Provide medium-credit bracket tip
         public Task<GivenTip> GiveMediumBracketTipAsync(string userCnp) =>
             GiveTipToUserAsync(userCnp, "Medium-credit");
 
+        // Provide high-credit bracket tip
         public Task<GivenTip> GiveHighBracketTipAsync(string userCnp) =>
             GiveTipToUserAsync(userCnp, "High-credit");
     }

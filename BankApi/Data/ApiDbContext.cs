@@ -11,15 +11,18 @@ namespace BankApi.Data
 
         public DbSet<BaseStock> BaseStocks { get; set; }
         public DbSet<ChatReport> ChatReports { get; set; }
-
-        public DbSet<Tip> Tips { get; set; }
-        public DbSet<GivenTip> GivenTips { get; set; }
-
         public DbSet<CreditScoreHistory> CreditScoreHistories { get; set; }
         public DbSet<Alert> Alerts { get; set; }
         public DbSet<TriggeredAlert> TriggeredAlerts { get; set; }
-
         public DbSet<ActivityLog> ActivityLogs { get; set; }
+        public DbSet<HomepageStock> HomepageStocks { get; set; } = null!;
+        public DbSet<BillSplitReport> BillSplitReports { get; set; }
+
+
+        // Add DbSet properties for Tip and GivenTip
+        public DbSet<Tip> Tips { get; set; }
+        public DbSet<GivenTip> GivenTips { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -44,6 +47,7 @@ namespace BankApi.Data
                 .Property(s => s.AuthorCNP)
                 .IsRequired();
 
+            // Configure ChatReport entity
             modelBuilder.Entity<ChatReport>(entity =>
             {
                 entity.HasKey(e => e.Id);
@@ -84,37 +88,38 @@ namespace BankApi.Data
                     .IsRequired()
                     .HasDefaultValueSql("GETUTCDATE()");
             });
-            // Configure Tip
-            modelBuilder.Entity<Tip>(entity =>
-            {
-                entity.HasKey(t => t.Id);
-                entity.Property(t => t.CreditScoreBracket)
-                      .IsRequired()
-                      .HasMaxLength(100);
 
-                entity.Property(t => t.TipText)
-                      .IsRequired()
-                      .HasMaxLength(500);
-            });
+            // Configure Tip entity
+            modelBuilder.Entity<Tip>()
+                .HasKey(t => t.Id);
 
-            // Configure GivenTip
-            modelBuilder.Entity<GivenTip>(entity =>
-            {
-                entity.HasKey(gt => gt.Id);
+            modelBuilder.Entity<Tip>()
+                .Property(t => t.CreditScoreBracket)
+                .IsRequired()
+                .HasMaxLength(50);
 
-                entity.Property(gt => gt.UserCnp)
-                      .IsRequired()
-                      .HasMaxLength(20);
+            modelBuilder.Entity<Tip>()
+                .Property(t => t.TipText)
+                .IsRequired()
+                .HasMaxLength(500);
 
-                entity.Property(gt => gt.Date)
-                      .HasColumnType("date"); // SQL Server DateOnly
+            // Configure GivenTip entity
+            modelBuilder.Entity<GivenTip>()
+                .HasKey(gt => gt.Id);
 
-                // Tip relationship (foreign key)
-                entity.HasOne(gt => gt.Tip)
-                      .WithMany()  // Tip doesn't need navigation back to GivenTips
-                      .HasForeignKey(gt => gt.TipID)
-                      .OnDelete(DeleteBehavior.Cascade);
-            });
+            modelBuilder.Entity<GivenTip>()
+                .HasOne(gt => gt.Tip)  // Foreign key relationship to Tip
+                .WithMany()             // A given tip can reference a single tip
+                .HasForeignKey(gt => gt.TipId);
+
+            modelBuilder.Entity<GivenTip>()
+                .Property(gt => gt.UserCnp)
+                .IsRequired()
+                .HasMaxLength(13);
+
+            modelBuilder.Entity<GivenTip>()
+                .Property(gt => gt.Date)
+                .IsRequired();
         }
     }
 }

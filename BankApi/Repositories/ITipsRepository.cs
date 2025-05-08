@@ -2,7 +2,6 @@ using BankApi.Models;
 
 namespace BankApi.Repositories
 {
-
     public interface ITipsRepository
     {
         Task<List<Tip>> GetTipsForUserAsync(string userCnp);

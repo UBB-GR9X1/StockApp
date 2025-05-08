@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using Src.Model;
     using StockApp.Repositories;
+    using StockApp.Models;
 
     public class TipsService : ITipsService
     {

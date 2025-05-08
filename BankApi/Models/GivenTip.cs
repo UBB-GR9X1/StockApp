@@ -1,100 +1,41 @@
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Runtime.CompilerServices;
-
-    public class GivenTip : INotifyPropertyChanged
+namespace BankApi.Models
+{
+    using System;
+    using System.ComponentModel.DataAnnotations;
+ 
+    /// <summary>
+    /// Represents a given tip that a user has received.
+    /// </summary>
+    public class GivenTip
     {
-        private int id;
-        private string userCnp = string.Empty;
-        private int tipID;
-        private int? messageID;
-        private DateOnly date;
-        private Tip tip = new();
-
+        /// <summary>
+        /// Gets or sets the unique identifier for this given tip.
+        /// </summary>
         [Key]
-        public int Id
-        {
-            get => this.id;
-            set
-            {
-                if (this.id != value)
-                {
-                    this.id = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
+        public int Id { get; set; }
 
+        /// <summary>
+        /// Gets or sets the CNP (personal identification number) of the user who received the tip.
+        /// </summary>
         [Required]
-        [MaxLength(13)]
-        public string UserCnp
-        {
-            get => this.userCnp;
-            set
-            {
-                if (this.userCnp != value)
-                {
-                    this.userCnp = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
+        [MaxLength(13)] // Assuming CNP is a 13-digit number
+        public string UserCnp { get; set; } = string.Empty;
 
-        public int TipID
-        {
-            get => this.tipID;
-            set
-            {
-                if (this.tipID != value)
-                {
-                    this.tipID = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
+        /// <summary>
+        /// Gets or sets the date when the tip was given.
+        /// </summary>
+        public DateOnly Date { get; set; } = DateOnly.FromDateTime(DateTime.Now);
 
-        [ForeignKey("TipID")]
-        public Tip Tip
-        {
-            get => this.tip;
-            set
-            {
-                if (this.tip != value)
-                {
-                    this.tip = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
+        /// <summary>
+        /// Gets or sets the unique identifier of the tip that was given to the user.
+        /// </summary>
+        [Required]
+        public int TipId { get; set; }
+       
 
-        public int? MessageID
-        {
-            get => this.messageID;
-            set
-            {
-                if (this.messageID != value)
-                {
-                    this.messageID = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public DateOnly Date
-        {
-            get => this.date;
-            set
-            {
-                if (this.date != value)
-                {
-                    this.date = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-        private void OnPropertyChanged([CallerMemberName] string? name = null) =>
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        /// <summary>
+        /// Navigation property to the related Tip.
+        /// </summary>
+        public virtual Tip Tip { get; set; }
     }
+}

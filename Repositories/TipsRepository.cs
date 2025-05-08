@@ -6,6 +6,7 @@
     using Microsoft.Data.SqlClient;
     using Src.Data;
     using Src.Model;
+    using StockApp.Models;
 
     public class TipsRepository
     {

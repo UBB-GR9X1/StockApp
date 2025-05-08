@@ -1,15 +1,14 @@
-namespace StockApp.Models
+﻿namespace StockApp.Models
 {
     using System;
     using System.ComponentModel;
     using System.Runtime.CompilerServices;
 
-    public class GivenTip : INotifyPropertyChanged
+    public class Tip : INotifyPropertyChanged
     {
         private int id;
-        private string userCnp = string.Empty;
-        private DateOnly date;
-        private Tip tip;
+        private string creditScoreBracket = string.Empty;
+        private string tipText = string.Empty;
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -26,40 +25,27 @@ namespace StockApp.Models
             }
         }
 
-        public string UserCnp
+        public string CreditScoreBracket
         {
-            get => this.userCnp;
+            get => this.creditScoreBracket;
             set
             {
-                if (this.userCnp != value)
+                if (this.creditScoreBracket != value)
                 {
-                    this.userCnp = value;
+                    this.creditScoreBracket = value;
                     this.OnPropertyChanged();
                 }
             }
         }
 
-        public DateOnly Date
+        public string TipText
         {
-            get => this.date;
+            get => this.tipText;
             set
             {
-                if (this.date != value)
+                if (this.tipText != value)
                 {
-                    this.date = value;
-                    this.OnPropertyChanged();
-                }
-            }
-        }
-
-        public Tip Tip
-        {
-            get => this.tip;
-            set
-            {
-                if (this.tip != value)
-                {
-                    this.tip = value;
+                    this.tipText = value;
                     this.OnPropertyChanged();
                 }
             }

@@ -4,6 +4,7 @@ namespace StockApp.Views.Components
 {
     using Microsoft.UI.Xaml.Controls;
     using Src.Model;
+    using StockApp.Models;
 
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
