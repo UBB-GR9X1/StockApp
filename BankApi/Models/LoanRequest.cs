@@ -25,14 +25,5 @@ namespace BankApi.Models
         [MaxLength(100)]
         public string Status { get; set; }
 
-        public LoanRequest(int requestId, string userCnp, float amount, DateTime applicationDate, DateTime repaymentDate, string status)
-        {
-            this.Id = requestId;
-            this.UserCnp = userCnp;
-            this.Amount = amount;
-            this.ApplicationDate = applicationDate;
-            this.RepaymentDate = repaymentDate;
-            this.Status = status;
-        }
     }
 }
