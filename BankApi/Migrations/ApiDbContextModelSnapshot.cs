@@ -219,6 +219,67 @@ namespace BankApi.Migrations
 
                     b.ToTable("TriggeredAlerts");
                 });
+
+            modelBuilder.Entity("BankApi.Models.StockPage", b =>
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
+
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                b.Property<string>("AuthorCNP")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(450)");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("datetime2")
+                    .HasDefaultValueSql("GETUTCDATE()");
+
+                b.Property<decimal>("CurrentPrice")
+                    .HasColumnType("decimal(18,2)");
+
+                b.Property<int>("Quantity")
+                    .HasColumnType("int");
+
+                b.Property<string>("StockName")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(450)");
+
+                b.Property<string>("StockSymbol")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
+
+                b.Property<DateTime?>("UpdatedAt")
+                    .HasColumnType("datetime2");
+
+                b.HasKey("Id");
+
+                b.HasIndex("AuthorCNP");
+
+                b.HasIndex("StockName");
+
+                b.ToTable("StockPages");
+            });
+
+            modelBuilder.Entity("BankApi.Models.StockPage", b =>
+            {
+                b.HasOne("BankApi.Models.User", "Author")
+                    .WithMany()
+                    .HasForeignKey("AuthorCNP")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
+
+                b.HasOne("BankApi.Models.Stock", "Stock")
+                    .WithMany()
+                    .HasForeignKey("StockName")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+
+                b.Navigation("Author");
+                b.Navigation("Stock");
+            });
 #pragma warning restore 612, 618
         }
     }

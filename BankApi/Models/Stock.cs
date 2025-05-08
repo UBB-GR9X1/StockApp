@@ -1,4 +1,9 @@
-﻿namespace BankApi.Models
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace BankApi.Models
 {
     /// <summary>
     /// Represents a stock holding, including its name, symbol, author, price per share, and quantity.
@@ -9,27 +14,38 @@
     /// <param name="price">The purchase price of each share.</param>
     /// <param name="quantity">The number of shares held.</param>
     public class Stock
-        : BaseStock
     {
-        public Stock(string name, string symbol, string authorCNP, int price, int quantity)
+        public Stock()
         {
-            base.Name = name;
-            base.Symbol = symbol;
-            base.AuthorCNP = authorCNP;
-            this.Price = price;
-            this.Quantity = quantity;
+            StockValues = new List<StockValue>();
+            UserStocks = new List<UserStock>();
+            FavoriteStocks = new List<FavoriteStock>();
         }
 
+        public Stock(string stockName, string stockSymbol, string authorCNP, int currentPrice, int quantity)
+            : this()
+        {
+            StockName = stockName;
+            StockSymbol = stockSymbol;
+            AuthorCNP = authorCNP;
+            CurrentPrice = currentPrice;
+            Quantity = quantity;
+        }
 
-        /// <summary>
-        /// Gets or sets the purchase price of each share.
-        /// </summary>
+        [Key]
+        public string StockName { get; set; }
+        public string StockSymbol { get; set; }
+        public string AuthorCNP { get; set; }
+        public int CurrentPrice { get; set; }
         public int Price { get; set; }
-
-        /// <summary>
-        /// Gets or sets the number of shares held.
-        /// </summary>
         public int Quantity { get; set; }
+        
+        [ForeignKey("AuthorCNP")]
+        public User Author { get; set; }
+        
+        public ICollection<StockValue> StockValues { get; set; }
+        public ICollection<UserStock> UserStocks { get; set; }
+        public ICollection<FavoriteStock> FavoriteStocks { get; set; }
 
         /// <summary>
         /// Returns a string that represents the current stock,
@@ -37,7 +53,33 @@
         /// </summary>
         public override string ToString()
         {
-            return $"{this.Name} ({this.Symbol}) - x{this.Quantity} at {this.Price}";
+            return $"{StockName} ({StockSymbol}) - x{Quantity} at {CurrentPrice}";
         }
+    }
+
+    public class StockValue
+    {
+        [Key]
+        public int Id { get; set; }
+        public string StockName { get; set; }
+        public int Price { get; set; }
+        public DateTime Timestamp { get; set; }
+        
+        [ForeignKey("StockName")]
+        public Stock Stock { get; set; }
+    }
+
+    public class FavoriteStock
+    {
+        [Key]
+        public int Id { get; set; }
+        public string UserCNP { get; set; }
+        public string StockName { get; set; }
+        
+        [ForeignKey("UserCNP")]
+        public User User { get; set; }
+        
+        [ForeignKey("StockName")]
+        public Stock Stock { get; set; }
     }
 }

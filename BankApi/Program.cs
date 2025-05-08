@@ -12,11 +12,16 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<ApiDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Register repositories
-builder.Services.AddScoped<IRepository, Repository>();
-builder.Services.AddScoped<IChatReportRepository, ChatReportRepository>();
-builder.Services.AddScoped<IAlertRepository, AlertRepository>();
-builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
+// Only register repositories when not running migrations
+if (!args.Contains("--ef"))
+{
+    // Register repositories
+    builder.Services.AddScoped<IRepository, Repository>();
+    builder.Services.AddScoped<IChatReportRepository, ChatReportRepository>();
+    builder.Services.AddScoped<IAlertRepository, AlertRepository>();
+    builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
+    builder.Services.AddScoped<IStockPageRepository, StockPageRepository>();
+}
 
 // Add CORS
 builder.Services.AddCors(options =>
