@@ -64,11 +64,11 @@ namespace StockApp
 
                     // Repositories
                     services.AddScoped<IAlertRepository, AlertProxyRepo>();
+                    services.AddScoped<IInvestmentsRepository, InvestmentsProxyRepository>();
 
                     services.AddSingleton<IBillSplitReportRepository, BillSplitReportRepository>();
                     services.AddSingleton<IChatReportRepository, ChatReportRepoProxy>();
                     services.AddSingleton<IHistoryRepository, HistoryRepository>();
-                    services.AddSingleton<IInvestmentsRepository, InvestmentsRepository>();
                     services.AddSingleton<ILoanRepository, LoanRepository>();
                     services.AddSingleton<ILoanRequestRepository, LoanRequestRepository>();
                     services.AddSingleton<IUserRepository, UserRepository>();
@@ -92,12 +92,17 @@ namespace StockApp
                         client.BaseAddress = new Uri("https://localhost:7001/");
                     });
 
+                    services.AddHttpClient<IInvestmentsRepository, InvestmentsProxyRepository>(client =>
+                    {
+                        client.BaseAddress = new Uri("https://localhost:7001/");
+                    });
+
 
                     // Other Services
                     services.AddSingleton<IBillSplitReportService, BillSplitReportService>();
                     services.AddSingleton<IChatReportService, ChatReportService>();
                     services.AddSingleton<IHistoryService, HistoryService>();
-                    services.AddSingleton<IInvestmentsService, InvestmentsService>();
+                    services.AddSingleton<IInvestmentsService, InvestmentsApiService>();
                     services.AddSingleton<ILoanCheckerService, LoanCheckerService>();
                     services.AddSingleton<ILoanRequestService, LoanRequestService>();
                     services.AddSingleton<ILoanService, LoanService>();

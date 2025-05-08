@@ -18,6 +18,7 @@ namespace BankApi.Data
         public DbSet<GemStore> GemStores { get; set; }
         public DbSet<ActivityLog> ActivityLogs { get; set; }
         public DbSet<HomepageStock> HomepageStocks { get; set; } = null!;
+        public DbSet<Investment> Investments { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -116,6 +117,16 @@ namespace BankApi.Data
                 entity.Property(e => e.GemBalance).IsRequired();
                 entity.Property(e => e.IsGuest).IsRequired();
                 entity.Property(e => e.LastUpdated).IsRequired();
+            });
+
+            modelBuilder.Entity<Investment>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.InvestorCnp).IsRequired().HasMaxLength(13);
+                entity.Property(e => e.Details).IsRequired();
+                entity.Property(e => e.AmountInvested).HasPrecision(18, 2);
+                entity.Property(e => e.AmountReturned).HasPrecision(18, 2);
+                entity.Property(e => e.InvestmentDate).IsRequired();
             });
         }
     }
