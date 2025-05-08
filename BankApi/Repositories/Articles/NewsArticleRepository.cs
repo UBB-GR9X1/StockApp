@@ -42,7 +42,7 @@
             await _context.SaveChangesAsync();
         }
 
-        public async Task AddRelatedStockAsync(int articleId, List<int> stockIds)
+        public async Task AddRelatedStocksAsync(int articleId, List<int> stockIds)
         {
             await _context.NewsArticleStocks.AddRangeAsync(stockIds.Select(stockId => new Models.NewsArticleStock(articleId, stockId)));
             await _context.SaveChangesAsync();

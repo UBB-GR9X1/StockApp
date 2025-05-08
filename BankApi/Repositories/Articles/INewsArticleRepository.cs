@@ -14,7 +14,7 @@
 
         Task AddNewsArticleAsync(NewsArticle article);
 
-        Task AddRelatedStockAsync(int articleId, List<int> stockIds);
+        Task AddRelatedStocksAsync(int articleId, List<int> stockIds);
 
         Task UpdateNewsArticleAsync(NewsArticle newsArticle);
 
