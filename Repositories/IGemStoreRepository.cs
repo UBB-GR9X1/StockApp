@@ -8,12 +8,12 @@
 
     public interface IGemStoreRepository
     {
-        string GetCnp();
+        Task<string> GetCnpAsync();
 
-        int GetUserGemBalance(string cnp);
+        Task<int> GetUserGemBalanceAsync(string cnp);
 
-        void UpdateUserGemBalance(string cnp, int newBalance);
+        Task UpdateUserGemBalanceAsync(string cnp, int newBalance);
 
-        bool IsGuest(string cnp);
+        Task<bool> IsGuestAsync(string cnp);
     }
 }

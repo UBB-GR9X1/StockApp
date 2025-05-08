@@ -20,6 +20,7 @@ namespace StockApp.Database
         public DbSet<BaseStock> BaseStocks { get; set; }
         public DbSet<Alert> Alerts { get; set; } = null!;
         public DbSet<CreditScoreHistory> CreditScoreHistories { get; set; } = null!;
+        public DbSet<GemStore> GemStores { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -65,6 +66,15 @@ namespace StockApp.Database
                       .IsRequired();
             });
 
+            modelBuilder.Entity<GemStore>(entity =>
+            {
+                entity.ToTable("GemStore");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Cnp).IsRequired().HasMaxLength(13);
+                entity.Property(e => e.GemBalance).IsRequired();
+                entity.Property(e => e.IsGuest).IsRequired();
+                entity.Property(e => e.LastUpdated).IsRequired();
+            });
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
