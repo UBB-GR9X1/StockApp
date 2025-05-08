@@ -65,7 +65,8 @@ namespace StockApp
                         this.ZodiacFeature(sender, null);
                         break;
                     case "Investments":
-                        this.MainFrame.Navigate(typeof(InvestmentsView));
+                        var investmentsView = this.serviceProvider.GetRequiredService<InvestmentsView>();
+                        this.MainFrame.Content = investmentsView;
                         break;
                     case "HomePage":
                         var homePage = this.serviceProvider.GetRequiredService<HomepageView>();

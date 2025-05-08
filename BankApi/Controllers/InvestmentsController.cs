@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using BankApi.Models;
 using BankApi.Repositories;
 using Microsoft.AspNetCore.Mvc;
@@ -49,7 +47,7 @@ namespace BankApi.Controllers
         }
 
         [HttpPut("{investmentId}")]
-        public ActionResult UpdateInvestment(int investmentId, [FromQuery] string investorCNP, [FromQuery] float amountReturned)
+        public ActionResult UpdateInvestment(int investmentId, [FromQuery] string investorCNP, [FromQuery] decimal amountReturned)
         {
             if (investmentId <= 0)
                 return BadRequest("Invalid investment ID.");
@@ -68,4 +66,4 @@ namespace BankApi.Controllers
             }
         }
     }
-} 
+}

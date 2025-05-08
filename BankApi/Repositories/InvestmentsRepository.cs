@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using BankApi.Data;
 using BankApi.Models;
 using Microsoft.EntityFrameworkCore;
@@ -31,7 +27,7 @@ namespace BankApi.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateInvestment(int investmentId, string investorCNP, float amountReturned)
+        public async Task UpdateInvestment(int investmentId, string investorCNP, decimal amountReturned)
         {
             var investment = await _context.Investments.FirstOrDefaultAsync(i => i.Id == investmentId && i.InvestorCnp == investorCNP);
             if (investment == null)
@@ -44,4 +40,4 @@ namespace BankApi.Repositories
             await _context.SaveChangesAsync();
         }
     }
-} 
+}
