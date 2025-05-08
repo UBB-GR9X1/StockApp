@@ -176,6 +176,14 @@ namespace BankApi.Data
                 entity.Property(e => e.StockName).IsRequired().HasMaxLength(100);
                 entity.Property(e => e.Quantity).IsRequired();
             });
+
+            modelBuilder.Entity<CreditScoreHistory>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.UserCnp).IsRequired().HasMaxLength(13);
+                entity.Property(e => e.Date).IsRequired();
+                entity.Property(e => e.Score).IsRequired();
+            });
         }
     }
 }

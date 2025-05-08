@@ -4,6 +4,7 @@ using BankApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BankApi.Migrations
 {
     [DbContext(typeof(ApiDbContext))]
-    partial class ApiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250508223352_makeCreditHistoryDateTime")]
+    partial class makeCreditHistoryDateTime
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -122,35 +125,6 @@ namespace BankApi.Migrations
                         .IsUnique();
 
                     b.ToTable("BaseStocks");
-                });
-
-            modelBuilder.Entity("BankApi.Models.BillSplitReport", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("BillShare")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime>("DateOfTransaction")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ReportedUserCnp")
-                        .IsRequired()
-                        .HasMaxLength(13)
-                        .HasColumnType("nvarchar(13)");
-
-                    b.Property<string>("ReportingUserCnp")
-                        .IsRequired()
-                        .HasMaxLength(13)
-                        .HasColumnType("nvarchar(13)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("BillSplitReports");
                 });
 
             modelBuilder.Entity("BankApi.Models.ChatReport", b =>
@@ -285,39 +259,6 @@ namespace BankApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("HomepageStocks");
-                });
-
-            modelBuilder.Entity("BankApi.Models.Investment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("AmountInvested")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("AmountReturned")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Details")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("InvestmentDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("InvestorCnp")
-                        .IsRequired()
-                        .HasMaxLength(13)
-                        .HasColumnType("nvarchar(13)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Investments");
                 });
 
             modelBuilder.Entity("BankApi.Models.TriggeredAlert", b =>

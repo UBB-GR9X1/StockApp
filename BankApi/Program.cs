@@ -26,6 +26,7 @@ builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
 builder.Services.AddScoped<IInvestmentsRepository, InvestmentsRepository>();
 builder.Services.AddScoped<IBaseStocksRepository, BaseStocksRepository>();
 builder.Services.AddScoped<IBillSplitReportRepository, BillSplitReportRepository>();
+builder.Services.AddScoped<IHistoryRepository, HistoryRepository>();
 
 // Add CORS
 builder.Services.AddCors(options =>
