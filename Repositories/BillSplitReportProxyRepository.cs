@@ -5,20 +5,19 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Src.Model;
-using StockApp.Repositories;
 
 namespace StockApp.Repositories
 {
     /// <summary>
     /// Proxy repository that implements IBillSplitReportRepository to make calls to the BankAPI
     /// </summary>
-    public class BillSplitReportRepositoryProxy : IBillSplitReportRepository
+    public class BillSplitReportProxyRepository : IBillSplitReportRepository
     {
         private readonly HttpClient _httpClient;
         private readonly string _baseUrl = "api/BillSplitReport";
         private readonly JsonSerializerOptions _jsonOptions;
 
-        public BillSplitReportRepositoryProxy(HttpClient httpClient)
+        public BillSplitReportProxyRepository(HttpClient httpClient)
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _jsonOptions = new JsonSerializerOptions
@@ -49,17 +48,17 @@ namespace StockApp.Repositories
             {
                 var url = $"{_baseUrl}/{id}";
                 var response = await _httpClient.GetAsync(url);
-                
+
                 if (response.IsSuccessStatusCode)
                 {
                     return await response.Content.ReadFromJsonAsync<BillSplitReport>(_jsonOptions);
                 }
-                
+
                 if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
                     throw new KeyNotFoundException($"Bill split report with ID {id} not found.");
                 }
-                
+
                 var errorContent = await response.Content.ReadAsStringAsync();
                 throw new Exception($"Failed to retrieve bill split report. Status code: {response.StatusCode}, Error: {errorContent}");
             }
@@ -80,12 +79,12 @@ namespace StockApp.Repositories
             try
             {
                 var response = await _httpClient.PostAsJsonAsync(_baseUrl, report);
-                
+
                 if (response.IsSuccessStatusCode)
                 {
                     return await response.Content.ReadFromJsonAsync<BillSplitReport>(_jsonOptions);
                 }
-                
+
                 var errorContent = await response.Content.ReadAsStringAsync();
                 throw new Exception($"Failed to add bill split report. Status code: {response.StatusCode}, Error: {errorContent}");
             }
@@ -103,17 +102,17 @@ namespace StockApp.Repositories
             {
                 var url = $"{_baseUrl}/{report.Id}";
                 var response = await _httpClient.PutAsJsonAsync(url, report);
-                
+
                 if (response.IsSuccessStatusCode)
                 {
                     return await response.Content.ReadFromJsonAsync<BillSplitReport>(_jsonOptions);
                 }
-                
+
                 if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
                     throw new KeyNotFoundException($"Bill split report with ID {report.Id} not found.");
                 }
-                
+
                 var errorContent = await response.Content.ReadAsStringAsync();
                 throw new Exception($"Failed to update bill split report. Status code: {response.StatusCode}, Error: {errorContent}");
             }
@@ -135,17 +134,17 @@ namespace StockApp.Repositories
             {
                 var url = $"{_baseUrl}/{id}";
                 var response = await _httpClient.DeleteAsync(url);
-                
+
                 if (response.IsSuccessStatusCode)
                 {
                     return true;
                 }
-                
+
                 if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
                     return false;
                 }
-                
+
                 var errorContent = await response.Content.ReadAsStringAsync();
                 throw new Exception($"Failed to delete bill split report. Status code: {response.StatusCode}, Error: {errorContent}");
             }
@@ -208,7 +207,7 @@ namespace StockApp.Repositories
             {
                 var url = $"{_baseUrl}/creditscore/{userCnp}";
                 var response = await _httpClient.PutAsJsonAsync(url, newCreditScore);
-                
+
                 if (!response.IsSuccessStatusCode)
                 {
                     var errorContent = await response.Content.ReadAsStringAsync();
@@ -229,7 +228,7 @@ namespace StockApp.Repositories
             {
                 var url = $"{_baseUrl}/incrementpaid/{userCnp}";
                 var response = await _httpClient.PostAsync(url, null);
-                
+
                 if (!response.IsSuccessStatusCode)
                 {
                     var errorContent = await response.Content.ReadAsStringAsync();
@@ -243,4 +242,4 @@ namespace StockApp.Repositories
             }
         }
     }
-} 
+}

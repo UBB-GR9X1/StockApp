@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
     using Catel;
     using Microsoft.Data.SqlClient;
     using StockApp.Database;
@@ -17,8 +18,7 @@
         /// <summary>
         /// Gets the in-memory list of transaction logs.
         /// </summary>
-        // FIXME: The list initializer "[]" may not compile in C#. Consider using "new List<TransactionLogTransaction>()" instead.
-        public List<TransactionLogTransaction> Transactions { get; private set; } = [];
+        public List<TransactionLogTransaction> Transactions { get; private set; } = new List<TransactionLogTransaction>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TransactionRepository"/> class
@@ -28,9 +28,9 @@
         {
             // Query to select transaction records along with their stock symbols
             string query = @"
-            SELECT t.*, s.STOCK_SYMBOL
-            FROM USERS_TRANSACTION t
-            JOIN STOCK s ON t.STOCK_NAME = s.STOCK_NAME";
+                SELECT t.*, s.STOCK_SYMBOL
+                FROM USERS_TRANSACTION t
+                JOIN STOCK s ON t.STOCK_NAME = s.STOCK_NAME";
 
             using SqlConnection connection = DatabaseHelper.GetConnection();
             using SqlCommand command = new(query, connection);
@@ -71,13 +71,13 @@
         public List<TransactionLogTransaction> GetByFilterCriteria(TransactionFilterCriteria criteria)
         {
             // Use LINQ to apply all filter predicates in one query
-            return [.. this.Transactions.Where(transaction =>
+            return this.Transactions.Where(transaction =>
                 (string.IsNullOrEmpty(criteria.StockName) || transaction.StockName.ContainsIgnoreCase(criteria.StockName)) &&
                 (string.IsNullOrEmpty(criteria.Type) || transaction.Type.Equals(criteria.Type)) &&
                 (!criteria.MinTotalValue.HasValue || transaction.TotalValue >= criteria.MinTotalValue) &&
                 (!criteria.MaxTotalValue.HasValue || transaction.TotalValue <= criteria.MaxTotalValue) &&
                 (!criteria.StartDate.HasValue || transaction.Date >= criteria.StartDate) &&
-                (!criteria.EndDate.HasValue || transaction.Date <= criteria.EndDate))];
+                (!criteria.EndDate.HasValue || transaction.Date <= criteria.EndDate)).ToList();
         }
 
         /// <summary>
@@ -89,10 +89,9 @@
         /// </exception>
         public void AddTransaction(TransactionLogTransaction transaction)
         {
-
             string insertQuery = @"
-                INSERT INTO USERS_TRANSACTION (STOCK_NAME, TYPE, QUANTITY, PRICE, DATE, USER_CNP)
-                VALUES (@stockName, @type, @quantity, @price, @date, @userCnp)";
+                    INSERT INTO USERS_TRANSACTION (STOCK_NAME, TYPE, QUANTITY, PRICE, DATE, USER_CNP)
+                    VALUES (@stockName, @type, @quantity, @price, @date, @userCnp)";
 
             using SqlConnection connection = DatabaseHelper.GetConnection();
 
@@ -134,5 +133,48 @@
             // Add the new transaction to the in-memory list
             this.Transactions.Add(transaction);
         }
+
+        public async Task<List<TransactionLogTransaction>> GetTransactionsSinceAsync(DateTime dateOfTransaction, string userId)
+        {
+            string query = @"
+                SELECT t.*, s.STOCK_SYMBOL
+                FROM USERS_TRANSACTION t    
+                JOIN STOCK s ON t.STOCK_NAME = s.STOCK_NAME
+                WHERE t.DATE >= @dateOfTransaction AND t.USER_CNP = @userId";
+
+            using SqlConnection connection = DatabaseHelper.GetConnection();
+            using SqlCommand command = new(query, connection);
+            command.Parameters.AddWithValue("@dateOfTransaction", dateOfTransaction);
+            command.Parameters.AddWithValue("@userId", userId);
+            using SqlDataReader reader = await command.ExecuteReaderAsync();
+            List<TransactionLogTransaction> transactions = new List<TransactionLogTransaction>();
+            while (await reader.ReadAsync())
+            {
+                string stockName = reader["STOCK_NAME"].ToString();
+                string stockSymbol = reader["STOCK_SYMBOL"].ToString();
+
+                bool isBuy = Convert.ToBoolean(reader["TYPE"]);
+                string stockType = isBuy ? "BUY" : "SELL";
+
+                int amount = Convert.ToInt32(reader["QUANTITY"]);
+                int pricePerStock = Convert.ToInt32(reader["PRICE"]);
+                DateTime date = DateTime.Parse(reader["DATE"].ToString());
+                string author = reader["USER_CNP"].ToString();
+
+                transactions.Add(
+                    new TransactionLogTransaction(
+                        stockSymbol,
+                        stockName,
+                        stockType,
+                        amount,
+                        pricePerStock,
+                        date,
+                        author));
+            }
+
+            return transactions;
+        }
     }
+
 }
+

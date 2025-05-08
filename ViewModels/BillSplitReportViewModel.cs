@@ -5,12 +5,12 @@
     using System.Threading.Tasks;
     using Src.Model;
     using StockApp.Models;
-    using StockApp.Services;
     using StockApp.Repositories;
+    using StockApp.Services;
 
     public class BillSplitReportViewModel
     {
-        private readonly IBillSplitReportApiService apiService;
+        private readonly IBillSplitReportService billSplitReportService;
         private readonly IUserService userService;
         private readonly IUserRepository userRepository;
 
@@ -19,11 +19,11 @@
         public event EventHandler ReportUpdated;
 
         public BillSplitReportViewModel(
-            IBillSplitReportApiService apiService, 
+            IBillSplitReportService apiService,
             IUserService userService,
             IUserRepository userRepository)
         {
-            this.apiService = apiService ?? throw new ArgumentNullException(nameof(apiService));
+            this.billSplitReportService = apiService ?? throw new ArgumentNullException(nameof(apiService));
             this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
             this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             this.BillSplitReports = new ObservableCollection<BillSplitReport>();
@@ -35,7 +35,7 @@
             try
             {
                 this.BillSplitReports.Clear();
-                var reports = await this.apiService.GetAllReportsAsync();
+                var reports = await this.billSplitReportService.GetAllReportsAsync();
                 foreach (var report in reports)
                 {
                     this.BillSplitReports.Add(report);
@@ -70,7 +70,7 @@
         {
             try
             {
-                var result = await this.apiService.DeleteReportAsync(id);
+                var result = await this.billSplitReportService.DeleteReportAsync(id);
                 await LoadBillSplitReportsAsync();
                 return result;
             }
@@ -85,7 +85,7 @@
         {
             try
             {
-                var result = await this.apiService.CreateReportAsync(report);
+                var result = await this.billSplitReportService.CreateReportAsync(report);
                 await LoadBillSplitReportsAsync();
                 return result;
             }
@@ -100,7 +100,7 @@
         {
             try
             {
-                var result = await this.apiService.UpdateReportAsync(report);
+                var result = await this.billSplitReportService.UpdateReportAsync(report);
                 await LoadBillSplitReportsAsync();
                 return result;
             }

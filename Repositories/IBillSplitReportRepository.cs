@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Src.Model;
 
@@ -12,12 +11,7 @@ namespace StockApp.Repositories
         Task<BillSplitReport> AddReportAsync(BillSplitReport report);
         Task<BillSplitReport> UpdateReportAsync(BillSplitReport report);
         Task<bool> DeleteReportAsync(int id);
-        
-        // Additional business logic methods
-        Task<int> GetCurrentBalanceAsync(string userCnp);
-        Task<float> SumTransactionsSinceReportAsync(string userCnp, DateTime sinceDate);
-        Task<int> GetCurrentCreditScoreAsync(string userCnp);
-        Task UpdateCreditScoreAsync(string userCnp, int newCreditScore);
+
         Task IncrementBillSharesPaidAsync(string userCnp);
     }
 }

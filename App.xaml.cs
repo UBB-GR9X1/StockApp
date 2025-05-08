@@ -5,7 +5,6 @@ namespace StockApp
 {
     using System;
     using System.Collections.Generic;
-    using System.Net.Http;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
@@ -21,7 +20,6 @@ namespace StockApp
     using StockApp.Views;
     using StockApp.Views.Components;
     using StockApp.Views.Pages;
-    using System.IO;
 
     /// <summary>
     /// Provides application-specific behavior to supplement the default Application class.
@@ -81,22 +79,13 @@ namespace StockApp
 
                     // Register the API services
                     services.AddScoped<IBaseStocksApiService, BaseStocksApiService>();
-                    
+
                     // Register BillSplitReport API service
-                    services.AddHttpClient<IBillSplitReportApiService, BillSplitReportApiService>((provider, client) => 
+                    services.AddHttpClient<IBillSplitReportRepository, BillSplitReportProxyRepository>((provider, client) =>
                     {
                         client.BaseAddress = new Uri(config["ApiBaseUrl"]);
                     });
-                    
-                    // Register BillSplitReportViewModel with dependencies on the service layer
-                    services.AddTransient<BillSplitReportViewModel>(provider => 
-                    {
-                        var apiService = provider.GetRequiredService<IBillSplitReportApiService>();
-                        var userService = provider.GetRequiredService<IUserService>();
-                        var userRepository = provider.GetRequiredService<IUserRepository>();
-                        return new BillSplitReportViewModel(apiService, userService, userRepository);
-                    });
-                    
+
                     // Legacy repositories
                     services.AddSingleton<IActivityRepository, ActivityRepository>();
                     services.AddSingleton<IChatReportRepository, ChatReportRepository>();
@@ -121,6 +110,7 @@ namespace StockApp
                     services.AddSingleton<MainWindow>();
 
                     // UI Components
+                    services.AddTransient<BillSplitReportViewModel>();
                     services.AddTransient<BillSplitReportComponent>();
                     services.AddTransient<Func<BillSplitReportComponent>>(provider =>
                     {
