@@ -12,7 +12,7 @@
     /// Initializes a new instance of the <see cref="ApiService"/> class.
     /// </remarks>
     /// <param name="httpClient">The HTTP client used to send requests.</param>
-    internal class ApiService(HttpClient httpClient)
+    public class ApiService(HttpClient httpClient)
     {
         /// <summary>
         /// Occurs when an error happens during an API call.
@@ -52,7 +52,7 @@
             }
             catch (Exception ex)
             {
-                this.OnError?.Invoke(this, ex.Message);
+                this.OnError?.Invoke(this, $"Error calling endpoint \"{endpoint}\": {ex.Message}");
                 return default;
             }
             finally
@@ -77,7 +77,7 @@
             }
             catch (Exception ex)
             {
-                this.OnError?.Invoke(this, ex.Message);
+                this.OnError?.Invoke(this, $"Error calling endpoint \"{endpoint}\": {ex.Message}");
             }
             finally
             {
@@ -103,7 +103,7 @@
             }
             catch (Exception ex)
             {
-                this.OnError?.Invoke(this, ex.Message);
+                this.OnError?.Invoke(this, $"Error calling endpoint \"{endpoint}\": {ex.Message}");
             }
             finally
             {
@@ -126,7 +126,7 @@
             }
             catch (Exception ex)
             {
-                this.OnError?.Invoke(this, ex.Message);
+                this.OnError?.Invoke(this, $"Error calling endpoint \"{endpoint}\": {ex.Message}");
             }
             finally
             {

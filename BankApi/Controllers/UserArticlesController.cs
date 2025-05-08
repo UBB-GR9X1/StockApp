@@ -54,19 +54,19 @@
         public async Task<ActionResult<IEnumerable<UserArticle>>> GetUserArticlesByStatus(string status)
         {
             Status actualStatus;
-            if (status == "pending")
+            if (status == "Pending")
             {
                 actualStatus = Status.Pending;
             }
-            else if (status == "rejected")
+            else if (status == "Rejected")
             {
                 actualStatus = Status.Rejected;
             }
-            else if (status == "accepted")
+            else if (status == "Accepted")
             {
                 actualStatus = Status.Approved;
             }
-            else if (status == "all")
+            else if (status == "All")
             {
                 actualStatus = Status.All;
             }

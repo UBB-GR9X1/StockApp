@@ -13,7 +13,7 @@
     /// </remarks>
     /// <param name="api">The API service used for HTTP requests.</param>
     /// <param name="baseUrl">The base URL of the API.</param>
-    internal class NewsArticlesApiService(ApiService api, string baseUrl)
+    public class NewsArticlesApiService(ApiService api, string baseUrl)
     {
         private readonly string routerUrl = $"{baseUrl}/api/NewsArticles";
 
@@ -34,7 +34,7 @@
         /// </summary>
         /// <returns>A list of all news articles.</returns>
         public async Task<List<NewsArticle>> GetAllNewsArticlesAsync() =>
-            await api.GetAsync<List<NewsArticle>>($"{this.routerUrl}") ?? [];
+            await api.GetAsync<List<NewsArticle>>(this.routerUrl) ?? [];
 
         /// <summary>
         /// Retrieves news articles by category asynchronously.
@@ -66,7 +66,7 @@
         /// <param name="article">The news article to create.</param>
         /// <returns>Nothing.</returns>
         public async Task CreateNewsArticleAsync(NewsArticle article) =>
-            await api.PostAsync($"{this.routerUrl}", article);
+            await api.PostAsync(this.routerUrl, article);
 
         /// <summary>
         /// Adds related stocks to a news article asynchronously.
