@@ -1,92 +1,103 @@
-﻿using StockApp.Database;
-using System;
-using Microsoft.Data.SqlClient;
+﻿using System.Runtime.CompilerServices;
 
-namespace GemStore.Repositories
+[assembly: InternalsVisibleTo("StockApp.Repository.Tests")]
+
+namespace StockApp.Repositories
 {
-    internal class GemStoreRepository
-    {
-        private SqlConnection dbConnection = DatabaseHelper.Instance.GetConnection();
+    using System;
+    using Microsoft.Data.SqlClient;
+    using StockApp.Database;
 
-        public string GetCNP()
+    /// <summary>
+    /// Repository for retrieving and updating user gem balances and CNP values.
+    /// </summary>
+    internal class GemStoreRepository : IGemStoreRepository
+    {
+        private readonly IDbExecutor dbConnection;
+        private readonly string cnp;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GemStoreRepository"/> class with the default SQL executor.
+        /// </summary>
+        public GemStoreRepository()
+            : this(new SqlDbExecutor(DatabaseHelper.GetConnection()))
         {
-            string cnpQuery = "SELECT CNP FROM HARDCODED_CNPS";
-            using (var cnpCommand = new SqlCommand(cnpQuery, dbConnection))
-            {
-                var result = cnpCommand.ExecuteScalar();
-                return result != null ? result.ToString() : string.Empty;
-            }
+            var userRepo = new UserRepository();
+            this.cnp = userRepo.CurrentUserCNP;
         }
 
-        public int GetUserGemBalance(string cnp)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GemStoreRepository"/> class with the specified database executor.
+        /// </summary>
+        /// <param name="executor">Executor used to run SQL commands.</param>
+        internal GemStoreRepository(IDbExecutor executor)
+        {
+            this.dbConnection = executor ?? throw new ArgumentNullException(nameof(executor));
+
+            var userRepo = new UserRepository();
+            this.cnp = userRepo.CurrentUserCNP;
+        }
+
+        /// <summary>
+        /// Retrieves the CNP for the current user.
+        /// </summary>
+        /// <returns>The CNP string, or empty if not found.</returns>
+        public string GetCnp()
+        {
+            return new UserRepository().CurrentUserCNP;
+        }
+
+        /// <summary>
+        /// Retrieves the current gem balance for the specified user.
+        /// </summary>
+        /// <param name="userCnp">User identifier (CNP).</param>
+        /// <returns>User's gem balance as an integer.</returns>
+        public int GetUserGemBalance(string userCnp)
         {
             string checkQuery = "SELECT GEM_BALANCE FROM [USER] WHERE CNP = @CNP";
-            using (var checkCommand = new SqlCommand(checkQuery, dbConnection))
+
+            var result = this.dbConnection.ExecuteScalar(checkQuery, cmd =>
             {
-                checkCommand.Parameters.AddWithValue("@CNP", cnp);
-                var result = checkCommand.ExecuteScalar();
-                return result != null ? Convert.ToInt32(result) : 0;
-            }
+                cmd.Parameters.AddWithValue("@CNP", userCnp);
+            });
+
+            // FIXME: consider throwing an exception if the user is not found
+            return result != null ? Convert.ToInt32(result) : 0;
         }
 
-        public void UpdateUserGemBalance(string cnp, int newBalance)
+        /// <summary>
+        /// Updates the gem balance for a given user.
+        /// </summary>
+        /// <param name="userCnp">User identifier (CNP).</param>
+        /// <param name="newBalance">New gem balance to set.</param>
+        public void UpdateUserGemBalance(string userCnp, int newBalance)
         {
             string updateQuery = "UPDATE [USER] SET GEM_BALANCE = @NewBalance WHERE CNP = @CNP";
-            using (var updateCommand = new SqlCommand(updateQuery, dbConnection))
+
+            this.dbConnection.ExecuteNonQuery(updateQuery, cmd =>
             {
-                updateCommand.Parameters.AddWithValue("@NewBalance", newBalance);
-                updateCommand.Parameters.AddWithValue("@CNP", cnp);
-                updateCommand.ExecuteNonQuery();
-            }
+                cmd.Parameters.AddWithValue("@NewBalance", newBalance);
+                cmd.Parameters.AddWithValue("@CNP", userCnp);
+            });
         }
 
-        public bool IsGuest(string cnp)
+        /// <summary>
+        /// Determines if the specified user is considered a guest (no record in the database).
+        /// </summary>
+        /// <param name="userCnp">User identifier (CNP).</param>
+        /// <returns><c>true</c> if no user record exists; otherwise, <c>false</c>.</returns>
+        public bool IsGuest(string userCnp)
         {
             string checkQuery = "SELECT COUNT(*) FROM [USER] WHERE CNP = @CNP";
-            using (var checkCommand = new SqlCommand(checkQuery, dbConnection))
+
+            var result = this.dbConnection.ExecuteScalar(checkQuery, cmd =>
             {
-                checkCommand.Parameters.AddWithValue("@CNP", cnp);
-                int count = Convert.ToInt32(checkCommand.ExecuteScalar());
-                return count == 0; // not found = guest
-            }
+                cmd.Parameters.AddWithValue("@CNP", userCnp);
+            });
+
+            // TODO: consider caching the result to avoid constant database hits
+            var count = result != null ? Convert.ToInt32(result) : 0;
+            return count == 0;
         }
     }
-
-    //public void PopulateHardcodedCnps()
-    //{
-    //    string[] cnps = new string[] { "1234567890123"};
-    //    string insertQuery = "INSERT INTO HARDCODED_CNPS (CNP) VALUES (@CNP)";
-    //    using (var insertCommand = new SqlCommand(insertQuery, dbConnection))
-    //    {
-    //        foreach (var cnp in cnps)
-    //        {
-    //            insertCommand.Parameters.Clear();
-    //            insertCommand.Parameters.AddWithValue("@CNP", cnp);
-    //            insertCommand.ExecuteNonQuery();
-    //        }
-    //    }
-    //}
-
-    //public void PopulateUserTable()
-    //{
-    //    var users = new[]
-    //    {
-    //        new { CNP = "1234567890123", Name = "Emma Popescu", GemBalance = 1000 },
-    //        new { CNP = "1234567890124", Name = "Diana Ionescu", GemBalance = 1500 },
-    //        new { CNP = "1234567890125", Name = "Oana Georgescu", GemBalance = 200 }
-    //    };
-
-    //    string insertQuery = "INSERT INTO [USER] (CNP, NAME, GEM_BALANCE) VALUES (@CNP, @Name, @GemBalance)";
-    //    using (var insertCommand = new SqlCommand(insertQuery, dbConnection))
-    //    {
-    //        foreach (var user in users)
-    //        {
-    //            insertCommand.Parameters.Clear();
-    //            insertCommand.Parameters.AddWithValue("@CNP", user.CNP);
-    //            insertCommand.Parameters.AddWithValue("@Name", user.Name);
-    //            insertCommand.Parameters.AddWithValue("@GemBalance", user.GemBalance);
-    //            insertCommand.ExecuteNonQuery();
-    //        }
-    //    }
-    //}
 }
