@@ -9,30 +9,14 @@
     public class StoreService : IStoreService
     {
         private readonly IGemStoreRepository _repository;
+        private readonly IUserRepository _userRepository;
 
-        public StoreService(IGemStoreRepository repository)
+        public StoreService(IGemStoreRepository repository, IUserRepository userRepository)
         {
+            _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
         }
 
-        /// <summary>
-        /// Retrieves the CNP for the current user.
-        /// </summary>
-        /// <returns></returns>
-        public async Task<string> GetCnpAsync()
-        {
-            return await _repository.GetCnpAsync();
-        }
-
-        /// <summary>
-        /// Checks if the user is a guest.
-        /// </summary>
-        /// <param name="cnp"></param>
-        /// <returns></returns>
-        public async Task<bool> IsGuestAsync(string cnp)
-        {
-            return await _repository.IsGuestAsync(cnp);
-        }
 
         /// <summary>
         /// Retrieves the current gem balance for the specified user.
@@ -65,7 +49,7 @@
         /// <exception cref="GemTransactionFailedException"></exception>
         public async Task<string> BuyGems(string userCNP, GemDeal deal, string selectedAccountId)
         {
-            if (await IsGuestAsync(userCNP))
+            if (_userRepository.IsGuest)
             {
                 throw new GuestUserOperationException("Guests cannot buy gems.");
             }
@@ -94,7 +78,7 @@
         /// <exception cref="GemTransactionFailedException"></exception>
         public async Task<string> SellGems(string cnp, int gemAmount, string selectedAccountId)
         {
-            if (await IsGuestAsync(cnp))
+            if (_userRepository.IsGuest)
             {
                 throw new GuestUserOperationException("Guests cannot sell gems.");
             }

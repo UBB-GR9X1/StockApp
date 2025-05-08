@@ -8,6 +8,12 @@
     {
         User GetUserByCnp(string cnp);
 
+        Task<User> GetCurrentUserAsync();
+
+        string GetCurrentUserCNP();
+
+        bool IsGuest();
+
         Task<List<User>> GetUsers();
     }
 }

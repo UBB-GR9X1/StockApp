@@ -16,6 +16,7 @@ namespace StockApp
     using StockApp.Repositories;
     using StockApp.Repositories.Api;
     using StockApp.Services;
+    using StockApp.ViewModels;
     using StockApp.Views;
     using StockApp.Views.Components;
     using StockApp.Views.Pages;
@@ -72,6 +73,7 @@ namespace StockApp
                     services.AddSingleton<ILoanRequestRepository, LoanRequestRepository>();
                     services.AddSingleton<IUserRepository, UserRepository>();
                     services.AddSingleton<IActivityRepo, ActivityProxyRepo>();
+                    services.AddSingleton<IGemStoreRepository, GemStoreProxyRepo>();
 
 
                     // HttpClient for API communication
@@ -104,6 +106,7 @@ namespace StockApp
                     services.AddSingleton<IUserService, UserService>();
                     services.AddSingleton<IZodiacService, ZodiacService>();
                     services.AddSingleton<IActivityService, ActivityService>();
+                    services.AddSingleton<IStoreService, StoreService>();
                     services.AddSingleton<MainWindow>();
 
                     // UI Components
@@ -141,6 +144,10 @@ namespace StockApp
                         return () => provider.GetRequiredService<UserInfoComponent>();
                     });
                     services.AddTransient<UsersView>();
+
+                    // ViewModels
+
+                    services.AddTransient<StoreViewModel>();
 
                     // Register services for UserInfoComponent
                     services.AddTransient<IHistoryService, HistoryService>();

@@ -16,13 +16,6 @@ namespace StockApp.Repositories
             _httpClient.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
         }
 
-        public async Task<string> GetCnpAsync()
-        {
-            var response = await _httpClient.GetAsync($"{BaseUrl}/cnp");
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadAsStringAsync();
-        }
-
         public async Task<int> GetUserGemBalanceAsync(string cnp)
         {
             var response = await _httpClient.GetAsync($"{BaseUrl}/balance/{cnp}");
@@ -36,11 +29,5 @@ namespace StockApp.Repositories
             response.EnsureSuccessStatusCode();
         }
 
-        public async Task<bool> IsGuestAsync(string cnp)
-        {
-            var response = await _httpClient.GetAsync($"{BaseUrl}/isguest/{cnp}");
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<bool>();
-        }
     }
-} 
+}

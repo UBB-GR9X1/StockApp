@@ -11,14 +11,14 @@ namespace BankApi.Data
 
         public DbSet<BaseStock> BaseStocks { get; set; }
         public DbSet<ChatReport> ChatReports { get; set; }
-
         public DbSet<GivenTip> GivenTips { get; set; }
-
         public DbSet<CreditScoreHistory> CreditScoreHistories { get; set; }
         public DbSet<Alert> Alerts { get; set; }
         public DbSet<TriggeredAlert> TriggeredAlerts { get; set; }
-
+        public DbSet<GemStore> GemStores { get; set; }
         public DbSet<ActivityLog> ActivityLogs { get; set; }
+
+        public DbSet<HomepageStock> HomepageStocks { get; set; } = null!;
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -82,6 +82,16 @@ namespace BankApi.Data
                 entity.Property(e => e.CreatedAt)
                     .IsRequired()
                     .HasDefaultValueSql("GETUTCDATE()");
+            });
+
+            modelBuilder.Entity<GemStore>(entity =>
+            {
+                entity.ToTable("GemStore");
+                entity.HasKey(e => e.Cnp);
+                entity.Property(e => e.Cnp).IsRequired().HasMaxLength(13);
+                entity.Property(e => e.GemBalance).IsRequired();
+                entity.Property(e => e.IsGuest).IsRequired();
+                entity.Property(e => e.LastUpdated).IsRequired();
             });
         }
     }

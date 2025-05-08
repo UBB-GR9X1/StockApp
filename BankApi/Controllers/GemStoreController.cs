@@ -1,9 +1,5 @@
-using Microsoft.AspNetCore.Mvc;
-using BankApi.Database;
-using BankApi.Models;
 using BankApi.Repositories;
-using System;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BankApi.Controllers
 {
@@ -16,20 +12,6 @@ namespace BankApi.Controllers
         public GemStoreController(IGemStoreRepository gemStoreRepository)
         {
             _gemStoreRepository = gemStoreRepository ?? throw new ArgumentNullException(nameof(gemStoreRepository));
-        }
-
-        [HttpGet("cnp")]
-        public async Task<ActionResult<string>> GetCnp()
-        {
-            try
-            {
-                var cnp = await _gemStoreRepository.GetCnpAsync();
-                return Ok(cnp);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
         }
 
         [HttpGet("balance/{cnp}")]
@@ -59,19 +41,5 @@ namespace BankApi.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-
-        [HttpGet("isguest/{cnp}")]
-        public async Task<ActionResult<bool>> IsGuest(string cnp)
-        {
-            try
-            {
-                var isGuest = await _gemStoreRepository.IsGuestAsync(cnp);
-                return Ok(isGuest);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
     }
-} 
+}

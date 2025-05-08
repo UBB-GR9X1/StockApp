@@ -9,7 +9,6 @@
     using System.Threading.Tasks;
     using StockApp.Models;
     using StockApp.Services;
-    using StockApp.Repositories;
 
     /// <summary>
     /// ViewModel for the store page, managing gem deals and user gem balance.
@@ -17,11 +16,10 @@
     public class StoreViewModel : INotifyPropertyChanged
     {
         private readonly IStoreService _storeService;
-        private readonly IGemStoreRepository _gemStoreRepository;
+        private readonly IUserService _userService;
         private readonly bool _testMode = false; // Set to true for testing without the database
 
         private int _userGems;
-        private string _currentUserCnp = string.Empty;
         private ObservableCollection<GemDeal> _availableDeals = [];
         private List<GemDeal> _possibleDeals = [];
 
@@ -35,10 +33,10 @@
         /// </summary>
         /// <param name="storeService">Service used to retrieve and update store data.</param>
         /// <param name="gemStoreRepository">Repository for gem store operations.</param>
-        public StoreViewModel(IStoreService storeService, IGemStoreRepository gemStoreRepository)
+        public StoreViewModel(IStoreService storeService, IUserService userService)
         {
             _storeService = storeService ?? throw new ArgumentNullException(nameof(storeService));
-            _gemStoreRepository = gemStoreRepository ?? throw new ArgumentNullException(nameof(gemStoreRepository));
+            _userService = userService ?? throw new ArgumentNullException(nameof(userService));
             InitializeAsync();
         }
 
@@ -47,25 +45,10 @@
         /// </summary>
         private async void InitializeAsync()
         {
-            _currentUserCnp = await _storeService.GetCnpAsync();
             await LoadUserDataAsync();
             LoadGemDeals();
             LoadPossibleDeals();
             await GenerateRandomDealsAsync();
-        }
-
-        /// <summary>
-        /// Determines whether the current user is a guest.
-        /// </summary>
-        /// <returns><c>true</c> if the user is a guest; otherwise, <c>false</c>.</returns>
-        public async Task<bool> IsGuestAsync()
-        {
-            if (_testMode)
-            {
-                return false;
-            }
-
-            return await _storeService.IsGuestAsync(_currentUserCnp);
         }
 
         /// <summary>
@@ -80,6 +63,11 @@
                 OnPropertyChanged();
             }
         }
+
+        /// <summary>
+        /// Gets a value indicating whether the user is a guest.
+        /// </summary>
+        public bool IsGuest => this._userService.IsGuest();
 
         /// <summary>
         /// Gets or sets the collection of available gem deals.
@@ -106,14 +94,13 @@
             }
             else
             {
-                bool guest = await _storeService.IsGuestAsync(_currentUserCnp);
-                if (guest)
+                if (this._userService.IsGuest())
                 {
                     UserGems = 0;
                 }
                 else
                 {
-                    UserGems = await _storeService.GetUserGemBalanceAsync(_currentUserCnp);
+                    UserGems = await _storeService.GetUserGemBalanceAsync(this._userService.GetCurrentUserCNP());
                 }
             }
         }
@@ -145,7 +132,7 @@
                 return $"(TEST) Bought {deal.GemAmount} gems.";
             }
 
-            var result = await _storeService.BuyGems(_currentUserCnp, deal, selectedBankAccount);
+            var result = await _storeService.BuyGems(this._userService.GetCurrentUserCNP(), deal, selectedBankAccount);
             if (result.StartsWith("Successfully"))
             {
                 UserGems += deal.GemAmount;
@@ -192,7 +179,7 @@
                 return $"(TEST) Sold {amount} gems for {amount / 100.0}€.";
             }
 
-            var result = await _storeService.SellGems(_currentUserCnp, amount, selectedBankAccount);
+            var result = await _storeService.SellGems(this._userService.GetCurrentUserCNP(), amount, selectedBankAccount);
             if (result.StartsWith("Successfully"))
             {
                 UserGems -= amount;

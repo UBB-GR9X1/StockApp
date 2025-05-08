@@ -5,10 +5,6 @@
 
     public interface IStoreService
     {
-        Task<string> GetCnpAsync();
-
-        Task<bool> IsGuestAsync(string cnp);
-
         Task<int> GetUserGemBalanceAsync(string cnp);
 
         Task UpdateUserGemBalanceAsync(string cnp, int newBalance);

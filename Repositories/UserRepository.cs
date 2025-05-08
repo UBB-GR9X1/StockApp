@@ -19,6 +19,11 @@
                     ?? throw new InvalidOperationException("DefaultUserCNP is not set in appsettings.json");
 
         /// <summary>
+        /// Gets a value indicating whether the current user is a guest (not logged in).
+        /// </summary>
+        public bool IsGuest => string.IsNullOrWhiteSpace(this.CurrentUserCNP);
+
+        /// <summary>
         /// Creates a new user in the database.
         /// </summary>
         /// <param name="user">The user entity to create.</param>

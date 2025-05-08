@@ -5,9 +5,6 @@ namespace StockApp.Pages
     using Microsoft.UI.Xaml.Controls;
     using StockApp.Models;
     using StockApp.ViewModels;
-    using StockApp.Services;
-    using StockApp.Repositories;
-    using System.Net.Http;
 
     public sealed partial class GemStoreWindow : Page
     {
@@ -16,21 +13,16 @@ namespace StockApp.Pages
         /// <summary>
         /// Initializes a new instance of the <see cref="GemStoreWindow"/> class.
         /// </summary>
-        public GemStoreWindow()
+        public GemStoreWindow(StoreViewModel storeViewModel)
         {
-            this.InitializeComponent();
-            
-            // Create dependencies
-            var gemStoreRepository = new GemStoreProxyRepo(new HttpClient());
-            var storeService = new StoreService(gemStoreRepository);
-            
-            _viewModel = new StoreViewModel(storeService, gemStoreRepository);
+            _viewModel = storeViewModel ?? throw new ArgumentNullException(nameof(storeViewModel));
             this.DataContext = _viewModel;
+            this.InitializeComponent();
         }
 
         private async void OnBuyClicked(object sender, RoutedEventArgs e)
         {
-            if (await _viewModel.IsGuestAsync())
+            if (_viewModel.IsGuest)
             {
                 this.ShowErrorDialog("Guests are not allowed to buy gems.");
                 return;
@@ -102,7 +94,7 @@ namespace StockApp.Pages
 
         private async void OnSellClicked(object sender, RoutedEventArgs e)
         {
-            if (await _viewModel.IsGuestAsync())
+            if (_viewModel.IsGuest)
             {
                 this.ShowErrorDialog("Guests are not allowed to sell gems.");
                 return;

@@ -39,5 +39,26 @@
 
             await this.userRepository.CreateUserAsync(user);
         }
+
+        public string GetCurrentUserCNP()
+        {
+            return this.userRepository.CurrentUserCNP;
+        }
+
+        public bool IsGuest()
+        {
+            return this.userRepository.IsGuest;
+        }
+
+        public async Task<User> GetCurrentUserAsync()
+        {
+            var cnp = this.userRepository.CurrentUserCNP;
+            if (string.IsNullOrWhiteSpace(cnp))
+            {
+                throw new ArgumentException("CNP cannot be empty");
+            }
+
+            return await this.userRepository.GetUserByCnpAsync(cnp);
+        }
     }
 }
