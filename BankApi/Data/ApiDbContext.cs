@@ -18,6 +18,9 @@ namespace BankApi.Data
         public DbSet<GemStore> GemStores { get; set; }
         public DbSet<ActivityLog> ActivityLogs { get; set; }
         public DbSet<HomepageStock> HomepageStocks { get; set; } = null!;
+        public DbSet<Profile> Profiles { get; set; }
+        public DbSet<UserStock> UserStocks { get; set; }
+
         public DbSet<Investment> Investments { get; set; }
         public DbSet<BillSplitReport> BillSplitReports { get; set; }
 
@@ -121,6 +124,20 @@ namespace BankApi.Data
                 entity.Property(e => e.LastUpdated).IsRequired();
             });
 
+            modelBuilder.Entity<Profile>(entity =>
+            {
+                entity.ToTable("Profiles");
+                entity.HasKey(e => e.Cnp);
+                entity.Property(e => e.Cnp).IsRequired().HasMaxLength(13);
+                entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.ProfilePicture).HasMaxLength(500);
+                entity.Property(e => e.Description).HasMaxLength(1000);
+                entity.Property(e => e.IsHidden).IsRequired();
+                entity.Property(e => e.IsAdmin).IsRequired();
+                entity.Property(e => e.GemBalance).IsRequired();
+                entity.Property(e => e.LastUpdated).IsRequired();
+            });
+
             modelBuilder.Entity<Investment>(entity =>
             {
                 entity.HasKey(e => e.Id);
@@ -150,6 +167,15 @@ namespace BankApi.Data
             modelBuilder.Entity<BillSplitReport>()
                 .Property(b => b.BillShare)
                 .IsRequired();
+
+            modelBuilder.Entity<UserStock>(entity =>
+            {
+                entity.ToTable("UserStocks");
+                entity.HasKey(e => new { e.UserCnp, e.StockName });
+                entity.Property(e => e.UserCnp).IsRequired().HasMaxLength(13);
+                entity.Property(e => e.StockName).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.Quantity).IsRequired();
+            });
         }
     }
 }

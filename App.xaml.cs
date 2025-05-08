@@ -84,6 +84,7 @@ namespace StockApp
                     services.AddSingleton<IUserRepository, UserRepository>();
                     services.AddSingleton<IActivityRepo, ActivityProxyRepo>();
                     services.AddSingleton<IGemStoreRepository, GemStoreProxyRepo>();
+                    services.AddSingleton<IProfileRepository, ProfileProxyRepo>();
 
 
                     // HttpClient for API communication
@@ -137,6 +138,7 @@ namespace StockApp
                     services.AddSingleton<IZodiacService, ZodiacService>();
                     services.AddSingleton<IActivityService, ActivityService>();
                     services.AddSingleton<IStoreService, StoreService>();
+                    services.AddSingleton<IProfileService, ProfileService>();
                     services.AddSingleton<MainWindow>();
 
                     // UI Components
@@ -190,6 +192,7 @@ namespace StockApp
                     services.AddTransient<ProfilePage>();
                     services.AddTransient<GemStoreWindow>();
                     services.AddTransient<CreateProfilePage>();
+                    services.AddTransient<ProfilePageViewModel>();
                     services.AddTransient<HomepageView>();
                     services.AddTransient<InvestmentsViewModel>();
                     services.AddTransient<InvestmentsView>();
