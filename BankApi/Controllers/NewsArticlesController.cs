@@ -111,7 +111,7 @@
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<IEnumerable<NewsArticle>>> GetNewsArticleById(int articleId)
+        public async Task<ActionResult<NewsArticle>> GetNewsArticleById(int articleId)
         {
             try
             {
@@ -135,7 +135,7 @@
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<NewsArticle>> CreateNewsArticle([FromBody] NewsArticle article)
+        public async Task<ActionResult> CreateNewsArticle([FromBody] NewsArticle article)
         {
             if (article == null || string.IsNullOrWhiteSpace(article.Title))
             {
