@@ -9,59 +9,64 @@
     using StockApp.Repositories;
     using StockApp.Services;
     using StockApp.Views.Components;
+    using StockApp.ViewModels;
 
     public sealed partial class InvestmentsView : Page
     {
-        private DatabaseConnection dbConnection;
-        private InvestmentsRepository investmentsRepository;
-        private InvestmentsService investmentsService;
-        private UserRepository userRepository;
+        private readonly InvestmentsViewModel _viewModel;
 
-        public InvestmentsView()
+        public InvestmentsView(InvestmentsViewModel viewModel)
         {
-            this.dbConnection = new DatabaseConnection();
-            this.investmentsRepository = new InvestmentsRepository(this.dbConnection);
-            this.userRepository = new UserRepository();
-            this.investmentsService = new InvestmentsService(this.userRepository, this.investmentsRepository);
-
-            this.InitializeComponent();
-            this.LoadInvestmentPortofolio();
+            InitializeComponent();
+            _viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
+            DataContext = _viewModel;
         }
 
         private async void UpdateCreditScoreCommand(object sender, RoutedEventArgs e)
         {
-            this.investmentsService.CreditScoreUpdateInvestmentsBased();
+            try
+            {
+                await _viewModel.CreditScoreUpdateInvestmentsBasedAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error updating credit score: {ex.Message}");
+            }
         }
 
         private async void CalculateROICommand(object sender, RoutedEventArgs e)
         {
-            this.investmentsService.CalculateAndUpdateROI();
+            try
+            {
+                await _viewModel.CalculateAndUpdateROIAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error calculating ROI: {ex.Message}");
+            }
         }
 
         private async void CalculateRiskScoreCommand(object sender, RoutedEventArgs e)
         {
-            this.investmentsService.CalculateAndUpdateRiskScore();
-            this.LoadInvestmentPortofolio();
-        }
-
-        private void LoadInvestmentPortofolio()
-        {
-            this.UsersPortofolioContainer.Items.Clear();
             try
             {
-                List<InvestmentPortfolio> usersInvestmentPortofolioo = this.investmentsService.GetPortfolioSummary();
-
-                foreach (var userPortofolio in usersInvestmentPortofolioo)
-                {
-                    InvestmentComponent investmentComponent = new InvestmentComponent();
-                    investmentComponent.SetPortfolioSummary(userPortofolio);
-
-                    this.UsersPortofolioContainer.Items.Add(investmentComponent);
-                }
+                await _viewModel.CalculateAndUpdateRiskScoreAsync();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                this.UsersPortofolioContainer.Items.Add("There are no user investments.");
+                Console.WriteLine($"Error calculating risk score: {ex.Message}");
+            }
+        }
+
+        private async void LoadInvestmentPortofolio(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                await _viewModel.LoadPortfolioSummaryAsync(null);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading investment portfolio: {ex.Message}");
             }
         }
     }

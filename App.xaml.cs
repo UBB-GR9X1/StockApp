@@ -74,11 +74,11 @@ namespace StockApp
 
                     // Repositories
                     services.AddScoped<IAlertRepository, AlertProxyRepo>();
+                    services.AddScoped<IInvestmentsRepository, InvestmentsProxyRepository>();
 
                     services.AddSingleton<IBillSplitReportRepository, BillSplitReportProxyRepository>();
                     services.AddSingleton<IChatReportRepository, ChatReportRepoProxy>();
                     services.AddSingleton<IHistoryRepository, HistoryRepository>();
-                    services.AddSingleton<IInvestmentsRepository, InvestmentsRepository>();
                     services.AddSingleton<ILoanRepository, LoanRepository>();
                     services.AddSingleton<ILoanRequestRepository, LoanRequestRepository>();
                     services.AddSingleton<IUserRepository, UserRepository>();
@@ -117,6 +117,11 @@ namespace StockApp
                     services.AddSingleton<ILoanRepository, LoanRepository>();
                     services.AddSingleton<ILoanRequestRepository, LoanRequestRepository>();
                     services.AddSingleton<IUserRepository, UserRepository>();
+                    services.AddHttpClient<IInvestmentsRepository, InvestmentsProxyRepository>(client =>
+                    {
+                        client.BaseAddress = new Uri("https://localhost:7001/");
+                    });
+
 
                     // Other Services
                     services.AddSingleton<IBillSplitReportService, BillSplitReportService>();
@@ -186,6 +191,8 @@ namespace StockApp
                     services.AddTransient<GemStoreWindow>();
                     services.AddTransient<CreateProfilePage>();
                     services.AddTransient<HomepageView>();
+                    services.AddTransient<InvestmentsViewModel>();
+                    services.AddTransient<InvestmentsView>();
                 }).Build();
         }
 

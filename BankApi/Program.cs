@@ -12,13 +12,17 @@ builder.Services.AddSwaggerGen();
 
 // Configure DbContext
 builder.Services.AddDbContext<ApiDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), sqlServerOptionsAction: sqlOptions =>
+    {
+        sqlOptions.EnableRetryOnFailure();
+    }));
 
 // Register repositories
 builder.Services.AddScoped<IChatReportRepository, ChatReportRepository>();
 builder.Services.AddScoped<IAlertRepository, AlertRepository>();
 builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
 builder.Services.AddScoped<IGemStoreRepository, GemStoreRepository>();
+builder.Services.AddScoped<IInvestmentsRepository, InvestmentsRepository>();
 builder.Services.AddScoped<IBaseStocksRepository, BaseStocksRepository>();
 builder.Services.AddScoped<IBillSplitReportRepository, BillSplitReportRepository>();
 

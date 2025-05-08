@@ -1,16 +1,23 @@
 ﻿namespace StockApp.Services
 {
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using Src.Model;
 
     public interface IInvestmentsService
     {
-        void CalculateAndUpdateRiskScore();
+        Task CalculateAndUpdateRiskScoreAsync();
 
-        void CalculateAndUpdateROI();
+        Task CalculateAndUpdateROIAsync();
 
-        void CreditScoreUpdateInvestmentsBased();
+        Task CreditScoreUpdateInvestmentsBasedAsync();
 
-        List<InvestmentPortfolio> GetPortfolioSummary();
+        Task<List<InvestmentPortfolio>> GetPortfolioSummaryAsync();
+
+        Task<List<Investment>> GetInvestmentsHistoryAsync();
+
+        Task AddInvestmentAsync(Investment investment);
+
+        Task UpdateInvestmentAsync(int investmentId, string investorCNP, float amountReturned);
     }
 }

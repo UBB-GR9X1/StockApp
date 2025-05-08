@@ -10,13 +10,13 @@ namespace BankApi.Models
 
         public string Details { get; set; }
 
-        public float AmountInvested { get; set; }
+        public decimal AmountInvested { get; set; }
 
-        public float AmountReturned { get; set; }
+        public decimal AmountReturned { get; set; }
 
         public DateTime InvestmentDate { get; set; }
 
-        public Investment(int id, string investorCnp, string details, float amountInvested, float amountReturned, DateTime investmentDate)
+        public Investment(int id, string investorCnp, string details, decimal amountInvested, decimal amountReturned, DateTime investmentDate)
         {
             this.Id = id;
             this.InvestorCnp = investorCnp;
