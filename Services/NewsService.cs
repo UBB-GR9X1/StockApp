@@ -2,29 +2,32 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Threading.Tasks;
-    using System.Diagnostics;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Logging;
+    using StockApp.Database;
     using StockApp.Exceptions;
     using StockApp.Models;
+    using StockApp.Models.Articles;
     using StockApp.Repositories;
-    using Microsoft.EntityFrameworkCore;
-    using Microsoft.Extensions.DependencyInjection;
-    using StockApp.Database;
-    using Microsoft.Extensions.Logging;
 
     /// <summary>
     /// Provides business logic for managing news and user-submitted articles.
     /// </summary>
     public class NewsService : INewsService
     {
-        private static readonly IUserRepository UserRepo = new UserRepository();
-        private static readonly Dictionary<string, NewsArticle> previewArticles = [];
-        private static readonly Dictionary<string, UserArticle> previewUserArticles = [];
-        private readonly List<NewsArticle> cachedArticles = [];
+        private readonly NewsArticlesApiService newsArticlesApi;
+        private readonly UserArticlesApiService userArticlesApi;
+
+        private static readonly Dictionary<int, NewsArticle> PreviewArticles = [];
+        private static readonly Dictionary<int, UserArticle> PreviewUserArticles = [];
+
         private static List<UserArticle> userArticles = [];
         private static bool isInitialized = false;
-        private readonly INewsRepository newsRepository;
+
+        private readonly List<NewsArticle> cachedArticles = [];
         private readonly IBaseStocksRepository stocksRepository;
         private readonly AppDbContext dbContext;
         private readonly ILogger<NewsService> logger;
@@ -58,13 +61,13 @@
         /// </summary>
         /// <param name="dbContext">The database context.</param>
         /// <param name="stocksRepository">The stocks repository.</param>
-        public NewsService(AppDbContext dbContext = null, IBaseStocksRepository stocksRepository = null)
+        public NewsService(NewsArticlesApiService newsArticlesApi, UserArticlesApiService userArticlesApi, IBaseStocksRepository stocksRepository = null)
         {
-            this.newsRepository = new NewsRepository();
-            this.dbContext = dbContext;
+            this.newsArticlesApi = newsArticlesApi;
+            this.userArticlesApi = userArticlesApi;
             this.stocksRepository = stocksRepository;
 
-            if (this.stocksRepository == null && dbContext != null && App.Host != null)
+            if (this.stocksRepository == null && App.Host != null)
             {
                 try
                 {
@@ -81,10 +84,15 @@
             if (!isInitialized)
             {
                 // Load initial user-submitted articles into memory
-                var initialUserArticles = this.newsRepository.GetAllUserArticles() ?? [];
-                userArticles.AddRange(initialUserArticles);
+                _ = this.LoadUserArticles();
                 isInitialized = true;
             }
+        }
+
+        private async Task LoadUserArticles()
+        {
+            var initialUserArticles = await this.userArticlesApi.GetAllUserArticlesAsync();
+            userArticles.AddRange(initialUserArticles);
         }
 
         /// <summary>
@@ -92,12 +100,12 @@
         /// </summary>
         /// <returns>A list of <see cref="NewsArticle"/> instances.</returns>
         /// <exception cref="NewsPersistenceException">Thrown if retrieval fails.</exception>
-        public List<NewsArticle> GetNewsArticles()
+        public async Task<List<NewsArticle>> GetNewsArticles()
         {
             try
             {
                 // Fetch articles in a background thread
-                var articles = this.newsRepository.GetAllNewsArticles();
+                var articles = await this.newsArticlesApi.GetAllNewsArticlesAsync();
 
                 // Refresh cache
                 this.cachedArticles.Clear();
@@ -106,7 +114,8 @@
                 // Inline: For each article, populate its related stocks
                 foreach (var article in articles)
                 {
-                    article.RelatedStocks = NewsRepository.GetRelatedStocksForArticle(article.ArticleId);
+                    // FIX: NEEDS CALL TO THE STOCK API
+                    //article.RelatedStocks = NewsRepository.GetRelatedStocksForArticle(article.ArticleId);
                 }
 
                 return articles;
@@ -126,22 +135,17 @@
         /// <exception cref="ArgumentNullException">If <paramref name="articleId"/> is null or empty.</exception>
         /// <exception cref="KeyNotFoundException">If no article matches the ID.</exception>
         /// <exception cref="NewsPersistenceException">If retrieval fails.</exception>
-        public NewsArticle GetNewsArticleById(string articleId)
+        public async Task<NewsArticle> GetNewsArticleById(int articleId)
         {
-            if (string.IsNullOrWhiteSpace(articleId))
-            {
-                throw new ArgumentNullException(nameof(articleId));
-            }
-
             // Return from preview cache if available
-            if (previewArticles.TryGetValue(articleId, out var previewArticle))
+            if (PreviewArticles.TryGetValue(articleId, out var previewArticle))
             {
                 return previewArticle;
             }
 
             try
             {
-                var article = this.newsRepository.GetNewsArticleById(articleId);
+                var article = await this.newsArticlesApi.GetNewsArticleByIdAsync(articleId);
                 return article ?? throw new KeyNotFoundException($"Article with ID {articleId} not found");
             }
             catch (NewsPersistenceException ex)
@@ -157,16 +161,11 @@
         /// <returns>True if successful.</returns>
         /// <exception cref="ArgumentNullException">If <paramref name="articleId"/> is null or empty.</exception>
         /// <exception cref="NewsPersistenceException">If marking fails.</exception>
-        public bool MarkArticleAsRead(string articleId)
+        public async Task<bool> MarkArticleAsRead(int articleId)
         {
-            if (string.IsNullOrWhiteSpace(articleId))
-            {
-                throw new ArgumentNullException(nameof(articleId));
-            }
-
             try
             {
-                this.newsRepository.MarkArticleAsRead(articleId);
+                await this.newsArticlesApi.MarkNewsArticleAsReadAsync(articleId);
                 return true;
             }
             catch (NewsPersistenceException ex)
@@ -182,7 +181,7 @@
         /// <returns>True if creation succeeded.</returns>
         /// <exception cref="UnauthorizedAccessException">If no user is logged in.</exception>
         /// <exception cref="NewsPersistenceException">If creation fails.</exception>
-        public bool CreateArticle(NewsArticle article)
+        public async Task<bool> CreateArticle(NewsArticle article)
         {
             if (UserRepo.CurrentUserCNP == null)
             {
@@ -191,7 +190,7 @@
 
             try
             {
-                this.newsRepository.AddNewsArticle(article);
+                await this.newsArticlesApi.CreateNewsArticleAsync(article);
                 return true;
             }
             catch (NewsPersistenceException ex)
@@ -208,7 +207,7 @@
         /// <returns>A list of <see cref="UserArticle"/> instances.</returns>
         /// <exception cref="UnauthorizedAccessException">If current user is not an admin.</exception>
         /// <exception cref="NewsPersistenceException">If loading fails.</exception>
-        public List<UserArticle> GetUserArticles(string status = null, string topic = null)
+        public async Task<List<UserArticle>> GetUserArticles(Status status = Status.Pending, string? topic = null)
         {
             if (UserRepo.CurrentUserCNP == null)
             {
@@ -224,10 +223,10 @@
             try
             {
                 // Reload from repository
-                userArticles = this.newsRepository.GetAllUserArticles();
+                userArticles = await this.userArticlesApi.GetAllUserArticlesAsync();
 
                 // Inline: apply status filter
-                if (!string.IsNullOrEmpty(status) && status != "All")
+                if (status != Status.All)
                 {
                     userArticles = [.. userArticles.Where(a => a.Status == status)];
                 }
@@ -254,7 +253,7 @@
         /// <exception cref="UnauthorizedAccessException">If current user is not an admin.</exception>
         /// <exception cref="ArgumentNullException">If <paramref name="articleId"/> is null or empty.</exception>
         /// <exception cref="NewsPersistenceException">If approval fails.</exception>
-        public bool ApproveUserArticle(string articleId)
+        public async Task<bool> ApproveUserArticle(int articleId)
         {
             if (UserRepo.CurrentUserCNP == null)
             {
@@ -267,14 +266,9 @@
                 throw new UnauthorizedAccessException("User must be an admin to access user articles");
             }
 
-            if (string.IsNullOrWhiteSpace(articleId))
-            {
-                throw new ArgumentNullException(nameof(articleId));
-            }
-
             try
             {
-                this.newsRepository.ApproveUserArticle(articleId);
+                await this.userArticlesApi.ApproveUserArticleAsync(articleId);
                 this.cachedArticles.Clear(); // Invalidate cache after approval
                 return true;
             }
@@ -292,7 +286,7 @@
         /// <exception cref="UnauthorizedAccessException">If current user is not an admin.</exception>
         /// <exception cref="ArgumentNullException">If <paramref name="articleId"/> is null or empty.</exception>
         /// <exception cref="NewsPersistenceException">If rejection fails.</exception>
-        public bool RejectUserArticle(string articleId)
+        public async Task<bool> RejectUserArticle(int articleId)
         {
             if (UserRepo.CurrentUserCNP == null)
             {
@@ -305,14 +299,9 @@
                 throw new UnauthorizedAccessException("User must be an admin to access user articles");
             }
 
-            if (string.IsNullOrWhiteSpace(articleId))
-            {
-                throw new ArgumentNullException(nameof(articleId));
-            }
-
             try
             {
-                this.newsRepository.RejectUserArticle(articleId);
+                await this.userArticlesApi.RejectUserArticleAsync(articleId);
                 this.cachedArticles.Clear(); // Invalidate cache after rejection
                 return true;
             }
@@ -330,7 +319,7 @@
         /// <exception cref="UnauthorizedAccessException">If current user is not an admin.</exception>
         /// <exception cref="ArgumentNullException">If <paramref name="articleId"/> is null or empty.</exception>
         /// <exception cref="NewsPersistenceException">If deletion fails.</exception>
-        public bool DeleteUserArticle(string articleId)
+        public async Task<bool> DeleteUserArticle(int articleId)
         {
             if (UserRepo.CurrentUserCNP == null)
             {
@@ -343,16 +332,11 @@
                 throw new UnauthorizedAccessException("User must be an admin to access user articles");
             }
 
-            if (string.IsNullOrWhiteSpace(articleId))
-            {
-                throw new ArgumentNullException(nameof(articleId));
-            }
-
             try
             {
                 // Remove user article and its published counterpart
-                this.newsRepository.DeleteUserArticle(articleId);
-                this.newsRepository.DeleteNewsArticle(articleId);
+                await this.newsArticlesApi.DeleteNewsArticleAsync(articleId);
+                await this.userArticlesApi.DeleteUserArticleAsync(articleId);
                 this.cachedArticles.Clear(); // Invalidate cache after deletion
                 return true;
             }
@@ -369,7 +353,7 @@
         /// <returns>True if submission succeeded.</returns>
         /// <exception cref="UnauthorizedAccessException">If no user is logged in.</exception>
         /// <exception cref="NewsPersistenceException">If submission fails.</exception>
-        public bool SubmitUserArticle(UserArticle article)
+        public async Task<bool> SubmitUserArticle(UserArticle article)
         {
             if (UserRepo.CurrentUserCNP == null)
             {
@@ -383,13 +367,13 @@
             }
 
             // Inline: set author and metadata
-            article.Author = user;
-            article.SubmissionDate = DateTime.Now;
-            article.Status = "Pending";
+            article.AuthorId = user.Id;
+            article.PublishedOn = DateTime.Now;
+            article.Status = Status.Pending;
 
             try
             {
-                this.newsRepository.AddUserArticle(article);
+                await this.userArticlesApi.AddUserArticleAsync(article);
                 this.cachedArticles.Clear(); // Invalidate cache after submission
                 return true;
             }
@@ -430,6 +414,9 @@
         /// <exception cref="UnauthorizedAccessException">If credentials are invalid.</exception>
         public async Task<User> LoginAsync(string username, string password)
         {
+            // WTF IS THIS DOING HERE????
+            // Not even toughing this, i give up.
+
             if (string.IsNullOrWhiteSpace(username))
             {
                 throw new ArgumentNullException(nameof(username));
@@ -490,8 +477,8 @@
         /// </summary>
         public void Logout()
         {
-            previewArticles.Clear();
-            previewUserArticles.Clear();
+            PreviewArticles.Clear();
+            PreviewUserArticles.Clear();
         }
 
         /// <summary>
@@ -503,30 +490,26 @@
         /// Strips any "preview:" prefix from <c>ArticleId</c> before storage.
         /// </remarks>
         /// <exception cref="NewsPersistenceException">If persisting related stocks fails.</exception>
-        public void StorePreviewArticle(NewsArticle article, UserArticle userArticle)
+        public async Task StorePreviewArticle(NewsArticle article, UserArticle userArticle)
         {
-            // Inline: normalize ID by removing "preview:" prefix if present
-            string articleId = article.ArticleId.StartsWith("preview:") ? article.ArticleId[8..] : article.ArticleId;
-            article.ArticleId = articleId;
-
             // Inline: copy related stocks list if provided
             article.RelatedStocks = userArticle.RelatedStocks != null
                 ? [.. userArticle.RelatedStocks]
                 : [];
 
-            previewArticles[articleId] = article;
-            previewUserArticles[articleId] = userArticle;
+            PreviewArticles[article.Id] = article;
+            PreviewUserArticles[article.Id] = userArticle;
 
             if (article.RelatedStocks?.Count > 0)
             {
                 try
                 {
-                    this.newsRepository.AddRelatedStocksForArticle(articleId, article.RelatedStocks, null, null);
+                    await this.newsArticlesApi.AddRelatedStocksAsync(article.Id, [..article.RelatedStocks.Select(stock => stock.Id)]);
                 }
                 catch (NewsPersistenceException ex)
                 {
                     throw new NewsPersistenceException(
-                        $"Failed to persist related stocks for preview article '{articleId}'.", ex);
+                        $"Failed to persist related stocks for preview article '{article.Id}'.", ex);
                 }
             }
         }
@@ -536,15 +519,15 @@
         /// </summary>
         /// <param name="articleId">The ID of the preview article.</param>
         /// <returns>The <see cref="UserArticle"/> if found; otherwise null.</returns>
-        public UserArticle GetUserArticleForPreview(string articleId)
+        public UserArticle GetUserArticleForPreview(int articleId)
         {
-            if (previewUserArticles.TryGetValue(articleId, out var previewArticle))
+            if (PreviewUserArticles.TryGetValue(articleId, out var previewArticle))
             {
                 return previewArticle;
             }
 
             // Inline: fallback to main list
-            return userArticles.FirstOrDefault(a => a.ArticleId == articleId);
+            return userArticles.FirstOrDefault(a => a.Id == articleId);
         }
 
         /// <summary>
@@ -553,29 +536,27 @@
         /// <param name="articleId">The ID of the article.</param>
         /// <returns>A list of related stock symbols.</returns>
         /// <exception cref="NewsPersistenceException">If retrieval fails.</exception>
-        public List<string> GetRelatedStocksForArticle(string articleId)
+        public List<string> GetRelatedStocksForArticle(int articleId)
         {
-            // Inline: normalize ID
-            string actualId = articleId.StartsWith("preview:") ? articleId[8..] : articleId;
-
             // Return preview stocks if available
-            if (previewUserArticles.TryGetValue(actualId, out var previewUserArticle) &&
+            if (PreviewUserArticles.TryGetValue(articleId, out var previewUserArticle) &&
                 previewUserArticle.RelatedStocks != null &&
                 previewUserArticle.RelatedStocks.Any())
             {
-                return previewUserArticle.RelatedStocks;
+                return [..previewUserArticle.RelatedStocks.Select(stock => stock.Name)];
             }
 
             try
             {
-                var stocks = NewsRepository.GetRelatedStocksForArticle(actualId);
+                // NEEDS CALL TO THE STOCK API, NOT THE ARTICLE SERVICE OR REPO FFS!!!!!!
+                var stocks = NewsRepository.GetRelatedStocksForArticle(articleId);
                 System.Diagnostics.Debug.WriteLine($"GetRelatedStocksForArticle: Found {stocks.Count} stocks");
                 return stocks;
             }
             catch (NewsPersistenceException ex)
             {
                 throw new NewsPersistenceException(
-                    $"Failed to retrieve related stocks for article '{actualId}'.", ex);
+                    $"Failed to retrieve related stocks for article '{articleId}'.", ex);
             }
         }
 
@@ -596,11 +577,11 @@
         /// Gets the current cache of news articles, or fetches from repository if empty.
         /// </summary>
         /// <returns>A list of <see cref="NewsArticle"/>.</returns>
-        public List<NewsArticle> GetCachedArticles()
+        public async Task<List<NewsArticle>> GetCachedArticles()
         {
             return this.cachedArticles.Count > 0
                 ? this.cachedArticles
-                : this.newsRepository.GetAllNewsArticles();
+                : await this.newsArticlesApi.GetAllNewsArticlesAsync();
         }
     }
 }

@@ -5,6 +5,8 @@
     /// </summary>
     public class BaseStock
     {
+        public int Id { get; set; }
+
         /// <summary>
         /// Gets or sets the display name of the stock.
         /// </summary>
@@ -33,8 +35,9 @@
         /// <param name="name">The display name of the stock.</param>
         /// <param name="symbol">The trading symbol of the stock.</param>
         /// <param name="authorCnp">The CNP identifier of the author who created this entry.</param>
-        public BaseStock(string name, string symbol, string authorCnp)
+        public BaseStock(int id, string name, string symbol, string authorCnp)
         {
+            Id = id;
             Name = name;
             Symbol = symbol;
             AuthorCNP = authorCnp;

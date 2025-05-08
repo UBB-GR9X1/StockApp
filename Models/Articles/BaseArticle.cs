@@ -61,5 +61,7 @@
         /// Gets or sets the date and time the article was published.  
         /// </summary>  
         public DateTime PublishedOn { get; set; }
+
+        public List<BaseStock> RelatedStocks { get; set; } = [];
     }
 }

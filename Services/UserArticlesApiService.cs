@@ -42,7 +42,7 @@
         /// </summary>
         /// <param name="status">The status of the articles to retrieve.</param>
         /// <returns>A list of user articles with the specified status.</returns>
-        public async Task<List<UserArticle>> GetUserArticlesByStatus(Status status) =>
+        public async Task<List<UserArticle>> GetUserArticlesByStatusAsync(Status status) =>
             await api.GetAsync<List<UserArticle>>($"{this.routerUrl}/status/{status}") ?? [];
 
         /// <summary>
@@ -50,7 +50,7 @@
         /// </summary>
         /// <param name="topic">The topic of the articles to retrieve.</param>
         /// <returns>A list of user articles with the specified topic.</returns>
-        public async Task<List<UserArticle>> GetUserArticlesByTopic(string topic) =>
+        public async Task<List<UserArticle>> GetUserArticlesByTopicAsync(string topic) =>
             await api.GetAsync<List<UserArticle>>($"{this.routerUrl}/topic/{topic}") ?? [];
 
         /// <summary>
@@ -58,7 +58,7 @@
         /// </summary>
         /// <param name="articleId">The ID of the article to retrieve.</param>
         /// <returns>The user article with the specified ID, or null if not found.</returns>
-        public async Task<UserArticle?> GetUserArticleById(int articleId) =>
+        public async Task<UserArticle?> GetUserArticleByIdAsync(int articleId) =>
             await api.GetAsync<UserArticle?>($"{this.routerUrl}/{articleId}");
 
         /// <summary>
@@ -66,7 +66,7 @@
         /// </summary>
         /// <param name="article">The user article to add.</param>
         /// <returns>Nothing.</returns>
-        public async Task AddUserArticle(UserArticle article) =>
+        public async Task AddUserArticleAsync(UserArticle article) =>
             await api.PostAsync(this.routerUrl, article);
 
         /// <summary>
@@ -74,7 +74,7 @@
         /// </summary>
         /// <param name="articleId">The ID of the article to approve.</param>
         /// <returns>Nothing.</returns>
-        public async Task ApproveUserArticle(int articleId) =>
+        public async Task ApproveUserArticleAsync(int articleId) =>
             await api.PutAsync($"{this.routerUrl}/{articleId}/approve");
 
         /// <summary>
@@ -82,7 +82,7 @@
         /// </summary>
         /// <param name="articleId">The ID of the article to reject.</param>
         /// <returns>Nothing.</returns>
-        public async Task RejectUserArticle(int articleId) =>
+        public async Task RejectUserArticleAsync(int articleId) =>
             await api.PutAsync($"{this.routerUrl}/{articleId}/reject");
 
         /// <summary>
@@ -90,7 +90,7 @@
         /// </summary>
         /// <param name="article">The user article to update.</param>
         /// <returns>Nothing.</returns>
-        public async Task UpdateUserArticle(UserArticle article) =>
+        public async Task UpdateUserArticleAsync(UserArticle article) =>
             await api.PutAsync($"{this.routerUrl}/{article.Id}", article);
 
         /// <summary>
@@ -98,7 +98,7 @@
         /// </summary>
         /// <param name="articleId">The ID of the article to delete.</param>
         /// <returns>Nothing.</returns>
-        public async Task DeleteUserArticle(int articleId) =>
+        public async Task DeleteUserArticleAsync(int articleId) =>
             await api.DeleteAsync($"{this.routerUrl}/{articleId}");
     }
 }

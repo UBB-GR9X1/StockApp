@@ -3,26 +3,27 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using StockApp.Models;
+    using StockApp.Models.Articles;
 
     public interface INewsService
     {
-        List<NewsArticle> GetNewsArticles();
+        Task<List<NewsArticle>> GetNewsArticles();
 
-        NewsArticle GetNewsArticleById(string articleId);
+        Task<NewsArticle> GetNewsArticleById(int articleId);
 
-        bool MarkArticleAsRead(string articleId);
+        Task<bool> MarkArticleAsRead(int articleId);
 
-        bool CreateArticle(NewsArticle article);
+        Task<bool> CreateArticle(NewsArticle article);
 
-        List<UserArticle> GetUserArticles(string status = null, string topic = null);
+        Task<List<UserArticle>> GetUserArticles(Status status = Status.Pending, string? topic = null);
 
-        bool ApproveUserArticle(string articleId);
+        Task<bool> ApproveUserArticle(int articleId);
 
-        bool RejectUserArticle(string articleId);
+        Task<bool> RejectUserArticle(int articleId);
 
-        bool DeleteUserArticle(string articleId);
+        Task<bool> DeleteUserArticle(int articleId);
 
-        bool SubmitUserArticle(UserArticle article);
+        Task<bool> SubmitUserArticle(UserArticle article);
 
         User GetCurrentUser();
 
@@ -30,14 +31,14 @@
 
         void Logout();
 
-        void StorePreviewArticle(NewsArticle article, UserArticle userArticle);
+        Task StorePreviewArticle(NewsArticle article, UserArticle userArticle);
 
-        UserArticle GetUserArticleForPreview(string articleId);
+        UserArticle GetUserArticleForPreview(int articleId);
 
-        List<string> GetRelatedStocksForArticle(string articleId);
+        List<string> GetRelatedStocksForArticle(int articleId);
 
         void UpdateCachedArticles(List<NewsArticle> articles);
 
-        List<NewsArticle> GetCachedArticles();
+        Task<List<NewsArticle>> GetCachedArticles();
     }
 }

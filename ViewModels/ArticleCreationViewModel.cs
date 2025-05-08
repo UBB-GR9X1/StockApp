@@ -15,6 +15,7 @@
     using StockApp.Services;
     using StockApp.Views;
     using StockApp.Database;
+    using StockApp.Models.Articles;
 
     /// <summary>
     /// ViewModel for creating, previewing, and submitting user‐authored news articles.
