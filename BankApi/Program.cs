@@ -20,6 +20,7 @@ builder.Services.AddScoped<IChatReportRepository, ChatReportRepository>();
 builder.Services.AddScoped<IAlertRepository, AlertRepository>();
 builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
 builder.Services.AddScoped<IGemStoreRepository, GemStoreRepository>();
+builder.Services.AddScoped<IHistoryRepository, HistoryRepository>();
 
 // Add CORS
 builder.Services.AddCors(options =>
