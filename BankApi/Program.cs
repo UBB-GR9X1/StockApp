@@ -1,25 +1,18 @@
 using BankApi.Data;
 using BankApi.Repositories;
 using Microsoft.EntityFrameworkCore;
-using StockApp.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
 builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
 // Configure DbContext
 builder.Services.AddDbContext<ApiDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Register repositories
+// Register repository
 builder.Services.AddScoped<IRepository, Repository>();
-builder.Services.AddScoped<IChatReportRepository, ChatReportRepository>();
-builder.Services.AddScoped<IAlertRepository, AlertRepository>();
-builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
-builder.Services.AddScoped<IGemStoreRepository, GemStoreRepository>();
 
 // Add CORS
 builder.Services.AddCors(options =>
@@ -47,8 +40,7 @@ if (app.Environment.IsDevelopment())
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseDeveloperExceptionPage();
 }
 
 app.UseHttpsRedirection();

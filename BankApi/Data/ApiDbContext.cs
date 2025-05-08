@@ -1,5 +1,6 @@
 using BankApi.Models;
 using Microsoft.EntityFrameworkCore;
+//using StockApp.Models; // IMPORTANT: Added StockApp.Models because HomepageStock is from StockApp.Models
 
 namespace BankApi.Data
 {
@@ -9,6 +10,7 @@ namespace BankApi.Data
         {
         }
 
+        // DbSets
         public DbSet<BaseStock> BaseStocks { get; set; }
         public DbSet<ChatReport> ChatReports { get; set; }
         public DbSet<GivenTip> GivenTips { get; set; }
@@ -18,47 +20,53 @@ namespace BankApi.Data
         public DbSet<GemStore> GemStores { get; set; }
         public DbSet<ActivityLog> ActivityLogs { get; set; }
         public DbSet<HomepageStock> HomepageStocks { get; set; } = null!;
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // Configure BaseStock entity
-            modelBuilder.Entity<BaseStock>()
-                .HasKey(s => s.Id);
+            // BaseStock configuration
+            modelBuilder.Entity<BaseStock>(entity =>
+            {
+                entity.HasKey(s => s.Id);
 
-            modelBuilder.Entity<BaseStock>()
-                .HasIndex(s => s.Name)
-                .IsUnique();
+                entity.HasIndex(s => s.Name)
+                      .IsUnique();
 
-            modelBuilder.Entity<BaseStock>()
-                .Property(s => s.Name)
-                .IsRequired();
+                entity.Property(s => s.Name)
+                      .IsRequired();
 
-            modelBuilder.Entity<BaseStock>()
-                .Property(s => s.Symbol)
-                .IsRequired();
+                entity.Property(s => s.Symbol)
+                      .IsRequired();
 
-            modelBuilder.Entity<BaseStock>()
-                .Property(s => s.AuthorCNP)
-                .IsRequired();
+                entity.Property(s => s.AuthorCNP)
+                      .IsRequired();
+            });
 
+            // HomepageStock configuration
             modelBuilder.Entity<HomepageStock>(entity =>
             {
                 entity.HasKey(e => e.Id);
+
                 entity.Property(e => e.Symbol)
                       .IsRequired()
                       .HasMaxLength(10);
+
                 entity.Property(e => e.CompanyName)
                       .IsRequired()
                       .HasMaxLength(100);
+
                 entity.Property(e => e.Price)
-                      .HasPrecision(18, 2); // Adjust precision and scale as needed
+                      .HasPrecision(18, 2);
+
                 entity.Property(e => e.Change)
-                      .HasPrecision(18, 2); // Adjust precision and scale as needed
+                      .HasPrecision(18, 2);
+
                 entity.Property(e => e.PercentChange)
-                      .HasPrecision(18, 2); // Adjust precision and scale as needed
+                      .HasPrecision(18, 2);
             });
 
+            // ChatReport configuration
             modelBuilder.Entity<ChatReport>(entity =>
             {
                 entity.HasKey(e => e.Id);
@@ -71,7 +79,7 @@ namespace BankApi.Data
                       .IsRequired();
             });
 
-            // Configure Alert entity
+            // Alert configuration
             modelBuilder.Entity<Alert>(entity =>
             {
                 entity.HasIndex(a => a.StockName);
@@ -83,11 +91,13 @@ namespace BankApi.Data
                       .HasPrecision(18, 4);
             });
 
-            // Configure TriggeredAlert entity
-            modelBuilder.Entity<TriggeredAlert>()
-                .HasIndex(ta => ta.StockName);
+            // TriggeredAlert configuration
+            modelBuilder.Entity<TriggeredAlert>(entity =>
+            {
+                entity.HasIndex(ta => ta.StockName);
+            });
 
-            // Configure ActivityLog entity
+            // ActivityLog configuration
             modelBuilder.Entity<ActivityLog>(entity =>
             {
                 entity.HasKey(e => e.Id);
@@ -108,14 +118,25 @@ namespace BankApi.Data
                     .HasDefaultValueSql("GETUTCDATE()");
             });
 
+            // GemStore configuration
             modelBuilder.Entity<GemStore>(entity =>
             {
                 entity.ToTable("GemStores");
+
                 entity.HasKey(e => e.Cnp);
-                entity.Property(e => e.Cnp).IsRequired().HasMaxLength(13);
-                entity.Property(e => e.GemBalance).IsRequired();
-                entity.Property(e => e.IsGuest).IsRequired();
-                entity.Property(e => e.LastUpdated).IsRequired();
+
+                entity.Property(e => e.Cnp)
+                    .IsRequired()
+                    .HasMaxLength(13);
+
+                entity.Property(e => e.GemBalance)
+                    .IsRequired();
+
+                entity.Property(e => e.IsGuest)
+                    .IsRequired();
+
+                entity.Property(e => e.LastUpdated)
+                    .IsRequired();
             });
         }
     }
