@@ -1,14 +1,14 @@
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Src.Model;
+
 namespace StockApp.Services
 {
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using Src.Model;
-
     public interface IBillSplitReportService
     {
         Task<List<BillSplitReport>> GetBillSplitReportsAsync();
 
-        Task CreateBillSplitReportAsync(BillSplitReport billSplitReport);
+        Task<BillSplitReport> CreateBillSplitReportAsync(BillSplitReport billSplitReport);
 
         Task<int> GetDaysOverdueAsync(BillSplitReport billSplitReport);
 
@@ -16,5 +16,6 @@ namespace StockApp.Services
 
         Task DeleteBillSplitReportAsync(BillSplitReport billSplitReportToBeSolved);
 
+        Task<BillSplitReport> UpdateBillSplitReportAsync(BillSplitReport billSplitReport);
     }
 }

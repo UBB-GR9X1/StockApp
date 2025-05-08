@@ -63,7 +63,7 @@ namespace StockApp.Views.Components
             try
             {
                 // Solve = delete in this implementation
-                await viewModel.DeleteReportAsync(billSplitReport.Id);
+                await viewModel.DeleteReportAsync(billSplitReport);
                 this.ReportSolved?.Invoke(this, EventArgs.Empty);
             }
             catch (Exception ex)
@@ -94,7 +94,7 @@ namespace StockApp.Views.Components
 
             try
             {
-                await viewModel.DeleteReportAsync(billSplitReport.Id);
+                await viewModel.DeleteReportAsync(billSplitReport);
                 this.ReportSolved?.Invoke(this, EventArgs.Empty);
             }
             catch (Exception ex)

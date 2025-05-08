@@ -45,7 +45,7 @@ namespace StockApp.Views.Pages
             {
                 try
                 {
-                    await viewModel.DeleteReportAsync(report.Id);
+                    await viewModel.DeleteReportAsync(report);
                     // The view will be updated via the ReportUpdated event in the ViewModel
                 }
                 catch (Exception ex)

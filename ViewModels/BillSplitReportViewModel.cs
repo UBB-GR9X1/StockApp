@@ -1,50 +1,57 @@
-﻿namespace StockApp.ViewModels
-{
-    using System;
-    using System.Collections.ObjectModel;
-    using System.Threading.Tasks;
-    using Src.Model;
-    using StockApp.Models;
-    using StockApp.Repositories;
-    using StockApp.Services;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
+using Src.Model;
+using StockApp.Models;
+using StockApp.Repositories;
+using StockApp.Services;
 
+namespace StockApp.ViewModels
+{
     public class BillSplitReportViewModel
     {
-        private readonly IBillSplitReportService billSplitReportService;
-        private readonly IUserService userService;
-        private readonly IUserRepository userRepository;
+        private readonly IBillSplitReportService _billSplitReportService;
+        private readonly IUserService _userService;
+        private readonly IUserRepository _userRepository;
 
-        public ObservableCollection<BillSplitReport> BillSplitReports { get; set; }
+        public ObservableCollection<BillSplitReport> BillSplitReports { get; }
 
-        public event EventHandler ReportUpdated;
+        public event EventHandler? ReportUpdated;
 
         public BillSplitReportViewModel(
-            IBillSplitReportService apiService,
+            IBillSplitReportService billSplitReportService,
             IUserService userService,
             IUserRepository userRepository)
         {
-            this.billSplitReportService = apiService ?? throw new ArgumentNullException(nameof(apiService));
-            this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
-            this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-            this.BillSplitReports = new ObservableCollection<BillSplitReport>();
-            LoadBillSplitReportsAsync().ConfigureAwait(false);
+            _billSplitReportService = billSplitReportService
+                                      ?? throw new ArgumentNullException(nameof(billSplitReportService));
+            _userService = userService ?? throw new ArgumentNullException(nameof(userService));
+            _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+
+            BillSplitReports = new ObservableCollection<BillSplitReport>();
+
+            _ = LoadBillSplitReportsAsync();   // fire-and-forget; errors logged inside
         }
+
+        /* ───────────────  Public API  ─────────────── */
 
         public async Task LoadBillSplitReportsAsync()
         {
             try
             {
-                this.BillSplitReports.Clear();
-                var reports = await this.billSplitReportService.GetAllReportsAsync();
-                foreach (var report in reports)
-                {
-                    this.BillSplitReports.Add(report);
-                }
+                BillSplitReports.Clear();
+
+                var reports = await _billSplitReportService
+                                    .GetBillSplitReportsAsync()
+                                    .ConfigureAwait(false);
+
+                foreach (var r in reports) BillSplitReports.Add(r);
+
                 OnReportUpdated();
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error: {exception.Message}");
+                System.Diagnostics.Debug.WriteLine($"Error loading reports: {ex.Message}");
             }
         }
 
@@ -52,27 +59,25 @@
         {
             try
             {
-                return await this.userRepository.GetUserByCnpAsync(cnp);
+                return await _userRepository.GetUserByCnpAsync(cnp)
+                                            .ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error getting user by CNP: {ex.Message}");
-                return new User
-                {
-                    FirstName = "Unknown",
-                    LastName = "User",
-                    CNP = cnp
-                };
+                System.Diagnostics.Debug.WriteLine($"Error getting user: {ex.Message}");
+                return new User { FirstName = "Unknown", LastName = "User", CNP = cnp };
             }
         }
 
-        public async Task<bool> DeleteReportAsync(int id)
+        public async Task DeleteReportAsync(BillSplitReport report)
         {
             try
             {
-                var result = await this.billSplitReportService.DeleteReportAsync(id);
-                await LoadBillSplitReportsAsync();
-                return result;
+                await _billSplitReportService
+                      .DeleteBillSplitReportAsync(report)
+                      .ConfigureAwait(false);
+
+                await LoadBillSplitReportsAsync().ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -85,9 +90,12 @@
         {
             try
             {
-                var result = await this.billSplitReportService.CreateReportAsync(report);
-                await LoadBillSplitReportsAsync();
-                return result;
+                var added = await _billSplitReportService
+                             .CreateBillSplitReportAsync(report)
+                             .ConfigureAwait(false);
+
+                await LoadBillSplitReportsAsync().ConfigureAwait(false);
+                return added;
             }
             catch (Exception ex)
             {
@@ -96,13 +104,16 @@
             }
         }
 
-        public async Task<bool> UpdateReportAsync(BillSplitReport report)
+        public async Task<BillSplitReport> UpdateReportAsync(BillSplitReport report)
         {
             try
             {
-                var result = await this.billSplitReportService.UpdateReportAsync(report);
-                await LoadBillSplitReportsAsync();
-                return result;
+                var updated = await _billSplitReportService
+                               .UpdateBillSplitReportAsync(report)
+                               .ConfigureAwait(false);
+
+                await LoadBillSplitReportsAsync().ConfigureAwait(false);
+                return updated;
             }
             catch (Exception ex)
             {
@@ -111,9 +122,8 @@
             }
         }
 
-        private void OnReportUpdated()
-        {
-            ReportUpdated?.Invoke(this, EventArgs.Empty);
-        }
+        /* ───────────────  Helpers  ─────────────── */
+
+        private void OnReportUpdated() => ReportUpdated?.Invoke(this, EventArgs.Empty);
     }
 }
