@@ -1,34 +1,25 @@
 namespace StockApp.Views.Pages
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading.Tasks;
     using Microsoft.UI.Xaml.Controls;
     using Src.Model;
-    using StockApp.Repositories;
-    using StockApp.Services;
+    using StockApp.ViewModels;
     using StockApp.Views.Components;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Navigation;
-    using StockApp.ViewModels;
 
     public sealed partial class BillSplitReportPage : Page
     {
-        private readonly IBillSplitReportRepository repository;
         private readonly BillSplitReportViewModel viewModel;
         private readonly Func<BillSplitReportComponent> billSplitReportComponentFactory;
-        private readonly IUserRepository userRepository;
 
         public BillSplitReportPage(
-            IBillSplitReportRepository repository,
             BillSplitReportViewModel viewModel,
-            Func<BillSplitReportComponent> billSplitReportComponentFactory,
-            IUserRepository userRepository)
+            Func<BillSplitReportComponent> billSplitReportComponentFactory)
         {
-            this.repository = repository ?? throw new ArgumentNullException(nameof(repository));
             this.viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
             this.billSplitReportComponentFactory = billSplitReportComponentFactory ?? throw new ArgumentNullException(nameof(billSplitReportComponentFactory));
-            this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             this.InitializeComponent();
         }
 
@@ -42,7 +33,7 @@ namespace StockApp.Views.Pages
             foreach (var report in viewModel.BillSplitReports)
             {
                 var component = billSplitReportComponentFactory();
-                component.SetReportData(report, this.userRepository);
+                await component.SetReportDataAsync(report);
                 component.ReportSolved += async (s, args) => await viewModel.LoadBillSplitReportsAsync();
                 this.BillSplitReportsContainer.Items.Add(component);
             }
@@ -54,10 +45,8 @@ namespace StockApp.Views.Pages
             {
                 try
                 {
-                    await repository.DeleteReportAsync(report.Id);
-                    await viewModel.LoadBillSplitReportsAsync();
-                    // Refresh the UI
-                    this.OnNavigatedTo(null);
+                    await viewModel.DeleteReportAsync(report.Id);
+                    // The view will be updated via the ReportUpdated event in the ViewModel
                 }
                 catch (Exception ex)
                 {
@@ -73,9 +62,7 @@ namespace StockApp.Views.Pages
                 var component = billSplitReportComponentFactory();
                 component.XamlRoot = this.XamlRoot;
                 await component.ShowCreateDialogAsync();
-                await viewModel.LoadBillSplitReportsAsync();
-                // Refresh the UI
-                this.OnNavigatedTo(null);
+                // The ViewModel will update the UI when the report is created
             }
             catch (Exception ex)
             {

@@ -82,17 +82,19 @@ namespace StockApp
                     // Register the API services
                     services.AddScoped<IBaseStocksApiService, BaseStocksApiService>();
                     
-                    // Register BillSplitReport repository proxy
-                    services.AddHttpClient<IBillSplitReportRepository, BillSplitReportRepositoryProxy>((provider, client) => 
+                    // Register BillSplitReport API service
+                    services.AddHttpClient<IBillSplitReportApiService, BillSplitReportApiService>((provider, client) => 
                     {
                         client.BaseAddress = new Uri(config["ApiBaseUrl"]);
                     });
                     
-                    // Register BillSplitReportViewModel with direct dependency on the repository
+                    // Register BillSplitReportViewModel with dependencies on the service layer
                     services.AddTransient<BillSplitReportViewModel>(provider => 
                     {
-                        var repository = provider.GetRequiredService<IBillSplitReportRepository>();
-                        return new BillSplitReportViewModel(repository);
+                        var apiService = provider.GetRequiredService<IBillSplitReportApiService>();
+                        var userService = provider.GetRequiredService<IUserService>();
+                        var userRepository = provider.GetRequiredService<IUserRepository>();
+                        return new BillSplitReportViewModel(apiService, userService, userRepository);
                     });
                     
                     // Legacy repositories
@@ -126,11 +128,9 @@ namespace StockApp
                     });
                     services.AddTransient<BillSplitReportPage>(provider =>
                     {
-                        var repository = provider.GetRequiredService<IBillSplitReportRepository>();
                         var viewModel = provider.GetRequiredService<BillSplitReportViewModel>();
                         var componentFactory = provider.GetRequiredService<Func<BillSplitReportComponent>>();
-                        var userRepository = provider.GetRequiredService<IUserRepository>();
-                        return new BillSplitReportPage(repository, viewModel, componentFactory, userRepository);
+                        return new BillSplitReportPage(viewModel, componentFactory);
                     });
 
                     services.AddTransient<ChatReportComponent>();

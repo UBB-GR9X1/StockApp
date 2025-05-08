@@ -3,41 +3,33 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Src.Model;
 using StockApp.Models;
-using StockApp.Repositories;
+using StockApp.ViewModels;
 using System.Threading.Tasks;
 
 namespace StockApp.Views.Components
 {
     public sealed partial class BillSplitReportComponent : Page
     {
-        private readonly IBillSplitReportRepository repository;
-        private IUserRepository userRepository;
+        private readonly BillSplitReportViewModel viewModel;
 
         public event EventHandler ReportSolved;
         public XamlRoot XamlRoot { get; set; }
 
         public int Id { get; set; }
-
         public string ReportedUserCNP { get; set; }
-
         public string ReportedUserFirstName { get; set; }
-
         public string ReportedUserLastName { get; set; }
-
         public string ReporterUserCNP { get; set; }
-
         public string ReporterUserFirstName { get; set; }
-
         public string ReporterUserLastName { get; set; }
-
         public DateTime DateTransaction { get; set; }
-
         private float BillShare { get; set; }
 
-        public BillSplitReportComponent(IBillSplitReportRepository repository)
+        public BillSplitReportComponent(BillSplitReportViewModel viewModel)
         {
             this.InitializeComponent();
-            this.repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            this.viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
+            this.viewModel.ReportUpdated += (s, e) => this.ReportSolved?.Invoke(this, EventArgs.Empty);
         }
 
         public async Task ShowCreateDialogAsync()
@@ -71,7 +63,7 @@ namespace StockApp.Views.Components
             try
             {
                 // Solve = delete in this implementation
-                await repository.DeleteReportAsync(billSplitReport.Id);
+                await viewModel.DeleteReportAsync(billSplitReport.Id);
                 this.ReportSolved?.Invoke(this, EventArgs.Empty);
             }
             catch (Exception ex)
@@ -102,7 +94,7 @@ namespace StockApp.Views.Components
 
             try
             {
-                await repository.DeleteReportAsync(billSplitReport.Id);
+                await viewModel.DeleteReportAsync(billSplitReport.Id);
                 this.ReportSolved?.Invoke(this, EventArgs.Empty);
             }
             catch (Exception ex)
@@ -120,46 +112,14 @@ namespace StockApp.Views.Components
             }
         }
 
-        public void SetReportData(BillSplitReport billSplitReport, IUserRepository userRepository)
+        public async Task SetReportDataAsync(BillSplitReport billSplitReport)
         {
-            this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-            
-            // Try to get user details, but handle missing users gracefully
-            User reportedUser = null;
-            User reporterUser = null;
-            
             try
             {
-                reportedUser = this.userRepository.GetUserByCnpAsync(billSplitReport.ReportedUserCnp).GetAwaiter().GetResult();
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Error getting reported user: {ex.Message}");
-                reportedUser = new User
-                {
-                    FirstName = "Unknown",
-                    LastName = "User",
-                    CNP = billSplitReport.ReportedUserCnp
-                };
-            }
-            
-            try
-            {
-                reporterUser = this.userRepository.GetUserByCnpAsync(billSplitReport.ReportingUserCnp).GetAwaiter().GetResult();
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Error getting reporter user: {ex.Message}");
-                reporterUser = new User
-                {
-                    FirstName = "Unknown",
-                    LastName = "User",
-                    CNP = billSplitReport.ReportingUserCnp
-                };
-            }
+                // Get user details using the ViewModel
+                User reportedUser = await viewModel.GetUserByCnpAsync(billSplitReport.ReportedUserCnp);
+                User reporterUser = await viewModel.GetUserByCnpAsync(billSplitReport.ReportingUserCnp);
 
-            try
-            {
                 this.Id = billSplitReport.Id;
                 this.ReportedUserCNP = billSplitReport.ReportedUserCnp;
                 this.ReportedUserFirstName = reportedUser.FirstName;
