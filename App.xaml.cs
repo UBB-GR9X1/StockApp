@@ -78,7 +78,7 @@ namespace StockApp
                     });
 
                     // Register the API services
-                    services.AddScoped<IBaseStocksApiService, BaseStocksApiService>();
+                    services.AddScoped<IBaseStocksService, BaseStocksService>();
 
                     // Register BillSplitReport API service
                     services.AddHttpClient<IBillSplitReportRepository, BillSplitReportProxyRepository>((provider, client) =>
@@ -97,6 +97,7 @@ namespace StockApp
 
                     // Other Services
                     services.AddSingleton<IActivityService, ActivityService>();
+                    services.AddSingleton<IBillSplitReportService, BillSplitReportService>();
                     services.AddSingleton<IChatReportService, ChatReportService>();
                     services.AddSingleton<IHistoryService, HistoryService>();
                     services.AddSingleton<IInvestmentsService, InvestmentsService>();

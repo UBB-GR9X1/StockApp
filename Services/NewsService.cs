@@ -25,7 +25,7 @@
         private static List<UserArticle> userArticles = [];
         private static bool isInitialized = false;
         private readonly INewsRepository newsRepository;
-        private readonly IBaseStocksApiService stocksService;
+        private readonly IBaseStocksService stocksService;
         private readonly AppDbContext dbContext;
         private readonly ILogger<NewsService> logger;
 
@@ -41,7 +41,7 @@
                 // Try to get the repository from the service provider
                 if (App.Host != null)
                 {
-                    this.stocksService = App.Host.Services.GetService<IBaseStocksApiService>();
+                    this.stocksService = App.Host.Services.GetService<IBaseStocksService>();
                 }
             }
             catch (Exception ex)
@@ -58,18 +58,18 @@
         /// </summary>
         /// <param name="dbContext">The database context.</param>
         /// <param name="stocksService">The stocks service.</param>
-        public NewsService(AppDbContext dbContext = null, IBaseStocksApiService stocksService = null)
+        public NewsService(AppDbContext dbContext = null, IBaseStocksService stocksService = null)
         {
             this.newsRepository = new NewsRepository();
             this.dbContext = dbContext;
-            this.stocksService = stocksService ?? App.Host.Services.GetService<IBaseStocksApiService>();
+            this.stocksService = stocksService ?? App.Host.Services.GetService<IBaseStocksService>();
 
             if (this.stocksService == null && dbContext != null && App.Host != null)
             {
                 try
                 {
                     // Try to get from service provider if available
-                    this.stocksService = App.Host.Services.GetService<IBaseStocksApiService>();
+                    this.stocksService = App.Host.Services.GetService<IBaseStocksService>();
                 }
                 catch
                 {

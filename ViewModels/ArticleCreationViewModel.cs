@@ -22,7 +22,7 @@
     public class ArticleCreationViewModel : ViewModelBase
     {
         private readonly INewsService _newsService;
-        private readonly IBaseStocksApiService _stocksService;
+        private readonly IBaseStocksService _stocksService;
         private readonly AppDbContext _dbContext;
         private readonly IDispatcher dispatcherQueue;
 
@@ -160,7 +160,7 @@
             INewsService newsService,
             IDispatcher dispatcher,
             AppDbContext dbContext,
-            IBaseStocksApiService stocksService)
+            IBaseStocksService stocksService)
         {
             _newsService = newsService ?? throw new ArgumentNullException(nameof(newsService));
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
@@ -192,7 +192,7 @@
               new NewsService(),
               new DispatcherAdapter(),
               new AppDbContext(),
-              App.Host.Services.GetRequiredService<IBaseStocksApiService>())
+              App.Host.Services.GetRequiredService<IBaseStocksService>())
         {
         }
 

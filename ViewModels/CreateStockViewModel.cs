@@ -43,7 +43,7 @@ namespace StockApp.ViewModels
         }
 
         public CreateStockViewModel()
-            : this(new CreateStockService(App.Host.Services.GetService(typeof(IBaseStocksApiService)) as IBaseStocksApiService, 
+            : this(new CreateStockService(App.Host.Services.GetService(typeof(IBaseStocksService)) as IBaseStocksService, 
                                         App.Host.Services.GetService(typeof(IUserRepository)) as IUserRepository))
         {
         }
