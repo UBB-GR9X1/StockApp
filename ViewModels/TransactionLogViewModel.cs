@@ -241,10 +241,7 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="TransactionLogViewModel"/> class with default repository and service.
         /// </summary>
-        public TransactionLogViewModel()
-            : this(new TransactionLogService(new TransactionRepository()))
-        {
-        }
+
 
         /// <summary>
         /// Reloads the transaction list based on current filters and sorting.
@@ -356,7 +353,7 @@
         /// <summary>
         /// Loads and filters transactions from the service and applies sorting.
         /// </summary>
-        public void LoadTransactions()
+        public async void LoadTransactions()
         {
             if (this.service == null)
             {
@@ -399,33 +396,32 @@
 
             filterCriteria.Validate(); // Inline: ensure criteria consistency
 
-            var transactions = this.service.GetFilteredTransactions(filterCriteria)
+            // Await the asynchronous call to get the transactions
+            var transactions = await this.service.GetFilteredTransactions(filterCriteria)
                 ?? throw new InvalidOperationException("Transaction service returned null");
 
-            var transactionsSorted = transactions.OrderBy<TransactionLogTransaction, object>(t =>
+            // Apply sorting
+            var transactionsSorted = sortBy switch
             {
-                return sortBy switch
-                {
-                    "Date" => t.Date,
-                    "Stock Name" => t.StockName,
-                    "Total Value" => t.TotalValue,
-                    _ => throw new InvalidOperationException($"Invalid sort type: {sortBy}"),
-                };
-            });
+                "Date" => sortOrder == "DESC"
+                    ? transactions.OrderByDescending(t => t.Date)
+                    : transactions.OrderBy(t => t.Date),
 
-            if (sortOrder == "DESC")
+                "Stock Name" => sortOrder == "DESC"
+                    ? transactions.OrderByDescending(t => t.StockName)
+                    : transactions.OrderBy(t => t.StockName),
+
+                "Total Value" => sortOrder == "DESC"
+                    ? transactions.OrderByDescending(t => t.TotalValue)
+                    : transactions.OrderBy(t => t.TotalValue),
+
+                _ => throw new InvalidOperationException($"Invalid sort type: {sortBy}"),
+            };
+
+            // Add sorted transactions to the ObservableCollection
+            foreach (var transaction in transactionsSorted)
             {
-                foreach (var transaction in transactionsSorted.Reverse())
-                {
-                    this.Transactions.Add(transaction);
-                }
-            }
-            else
-            {
-                foreach (var transaction in transactionsSorted)
-                {
-                    this.Transactions.Add(transaction);
-                }
+                this.Transactions.Add(transaction);
             }
         }
 
@@ -436,6 +432,11 @@
         protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string propertyName = null)
         {
             this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public TransactionLogViewModel()
+        {
+
         }
     }
 }

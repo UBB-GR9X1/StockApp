@@ -20,7 +20,7 @@
         public TransactionLogPage()
         {
             this.InitializeComponent();
-            this.viewModel = new(new TransactionLogService(new TransactionRepository()));
+            //this.viewModel = new TransactionLogViewModel();
 
             // Set the DataContext for binding to the ViewModel
             this.DataContext = this.viewModel;

@@ -12,7 +12,7 @@
     /// <summary>
     /// Repository for managing transactions in the application.
     /// </summary>
-    public class TransactionRepository : ITransactionRepository
+    public class TransactionRepository
     {
         /// <summary>
         /// Gets the in-memory list of transaction logs.

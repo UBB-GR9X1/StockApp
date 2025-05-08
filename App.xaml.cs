@@ -16,6 +16,7 @@ namespace StockApp
     using StockApp.Repositories;
     using StockApp.Repositories.Api;
     using StockApp.Services;
+    using StockApp.ViewModels;
     using StockApp.Views;
     using StockApp.Views.Components;
     using StockApp.Views.Pages;
@@ -63,7 +64,11 @@ namespace StockApp
 
                     // Repositories
                     services.AddScoped<IAlertRepository, AlertProxyRepo>();
+                    services.AddScoped<ITransactionRepository, TransactionProxyRepository>();
+                    services.AddScoped<ITransactionLogService, TransactionLogService>();
+                    services.AddScoped<TransactionLogViewModel>();
 
+                    services.AddSingleton<ITransactionRepository, TransactionProxyRepository>();
                     services.AddSingleton<IBillSplitReportRepository, BillSplitReportRepository>();
                     services.AddSingleton<IChatReportRepository, ChatReportRepoProxy>();
                     services.AddSingleton<IHistoryRepository, HistoryRepository>();
@@ -89,8 +94,10 @@ namespace StockApp
                     {
                         client.BaseAddress = new Uri("https://localhost:7001/");
                     });
-
-
+                    services.AddHttpClient<ITransactionRepository, TransactionProxyRepository>(client =>
+                    {
+                        client.BaseAddress = new Uri("https://localhost:7001/");
+                    });
                     // Other Services
                     services.AddSingleton<IBillSplitReportService, BillSplitReportService>();
                     services.AddSingleton<IChatReportService, ChatReportService>();
