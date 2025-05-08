@@ -50,7 +50,7 @@
                             <TextBlock Text="{x:Bind Change}" Foreground="{x:Bind ChangeColor}" Width="200" />
                             <Button Content="★"
                                     Width="100"
-                                    Command="{Binding FavoriteCommand}"
+                                    Command="{Binding DataContext.FavoriteCommand, ElementName=FavoritesList}"
                                     CommandParameter="{x:Bind StockDetails}"
                                     IsEnabled="{Binding DataContext.CanModifyFavorites, ElementName=FavoritesList}" />
                         </StackPanel>

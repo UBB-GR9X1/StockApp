@@ -11,16 +11,17 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="HomepageView"/> class.
         /// </summary>
-        public HomepageView()
+        public HomepageView(HomepageViewModel homepageViewModel)
         {
             this.InitializeComponent();
-            this.DataContext = this.ViewModel;
+            this.DataContext = homepageViewModel;
+            this.ViewModel = homepageViewModel;
         }
 
         /// <summary>
         /// Gets the view model for the homepage view.
         /// </summary>
-        public HomepageViewModel ViewModel { get; } = new();
+        public HomepageViewModel ViewModel { get; }
 
         /// <summary>
         /// Handles the click event for the stock item in the homepage.
@@ -35,9 +36,11 @@
                 throw new InvalidOperationException("Clicked item is not a valid stock");
             }
             // Navigate to the stock page using the selected stock's name
-            if (App.MainAppWindow != null)
+            if (App.MainAppWindow != null && App.MainAppWindow.MainAppFrame.Content is Page currentPage)
             {
-                App.MainAppWindow.MainAppFrame.Navigate(typeof(StockPage), selectedStock.StockDetails);
+                StockDetailsDTO stockDetailsDTO =
+                    new StockDetailsDTO(selectedStock.StockDetails, currentPage);
+                App.MainAppWindow.MainAppFrame.Navigate(typeof(StockPage), stockDetailsDTO);
             }
         }
     }

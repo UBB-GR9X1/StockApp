@@ -186,6 +186,7 @@ namespace StockApp
                     services.AddTransient<GemStoreWindow>();
                     services.AddTransient<CreateProfilePage>();
                     services.AddTransient<HomepageView>();
+                    services.AddTransient<HomepageViewModel>();
                 }).Build();
         }
 
