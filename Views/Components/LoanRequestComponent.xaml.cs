@@ -37,7 +37,7 @@ namespace StockApp.Views.Components
         private async void OnDenyClick(object sender, RoutedEventArgs e)
         {
             LoanRequest loanRequest = new LoanRequest(this.RequestID, this.RequestingUserCNP, this.RequestedAmount, this.ApplicationDate, this.RepaymentDate, this.State);
-            this.loanRequestService.DenyLoanRequest(loanRequest);
+            this.loanRequestService.DeleteLoanRequest(loanRequest);
             this.LoanRequestSolved?.Invoke(this, EventArgs.Empty);
         }
 

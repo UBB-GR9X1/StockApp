@@ -81,7 +81,7 @@ namespace StockApp
                     services.AddSingleton<IHistoryRepository, HistoryRepository>();
                     services.AddSingleton<IInvestmentsRepository, InvestmentsRepository>();
                     services.AddSingleton<ILoanRepository, LoanRepository>();
-                    services.AddSingleton<ILoanRequestRepository, LoanRequestRepository>();
+                    services.AddSingleton<ILoanRequestRepository, LoanRequestProxyRepo>();
                     services.AddSingleton<IUserRepository, UserRepository>();
 
                     // Other Services

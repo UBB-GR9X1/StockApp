@@ -3,36 +3,61 @@
     using System;
     using System.Collections.ObjectModel;
     using System.Threading.Tasks;
-    using Src.Data;
     using Src.Model;
-    using StockApp.Repositories;
     using StockApp.Services;
 
     public class LoanRequestViewModel
     {
-        private readonly LoanRequestService loanRequestService;
+        private readonly ILoanRequestService _loanRequestService;
 
         public ObservableCollection<LoanRequest> LoanRequests { get; set; }
+        public bool IsLoading { get; private set; }
+        public string ErrorMessage { get; private set; }
 
-        public LoanRequestViewModel()
+        public LoanRequestViewModel(ILoanRequestService loanRequestService)
         {
-            this.loanRequestService = new LoanRequestService(new LoanRequestRepository(new DatabaseConnection()));
-            this.LoanRequests = new ObservableCollection<LoanRequest>();
+            _loanRequestService = loanRequestService ?? throw new ArgumentNullException(nameof(loanRequestService));
+            LoanRequests = new ObservableCollection<LoanRequest>();
         }
 
-        public async Task LoadLoanRequests()
+        public async Task LoadLoanRequestsAsync()
         {
+            IsLoading = true;
+            ErrorMessage = string.Empty;
+            LoanRequests.Clear();
+
             try
             {
-                var requests = this.loanRequestService.GetLoanRequests();
+                var requests = await _loanRequestService.GetLoanRequests();
                 foreach (var request in requests)
                 {
-                    this.LoanRequests.Add(request);
+                    LoanRequests.Add(request);
                 }
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                Console.WriteLine($"Error: {exception.Message}");
+                ErrorMessage = $"Failed to load loan requests: {ex.Message}";
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
+        public async Task<string> GetSuggestionAsync(LoanRequest loanRequest)
+        {
+            if (loanRequest == null)
+            {
+                return "Invalid loan request.";
+            }
+
+            try
+            {
+                return await Task.Run(() => _loanRequestService.GiveSuggestion(loanRequest));
+            }
+            catch (Exception ex)
+            {
+                return $"Failed to get suggestion: {ex.Message}";
             }
         }
     }

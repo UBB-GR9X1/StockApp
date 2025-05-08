@@ -18,6 +18,8 @@ namespace BankApi.Data
 
         public DbSet<ActivityLog> ActivityLogs { get; set; }
 
+        public DbSet<LoanRequest> LoanRequests { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -52,6 +54,29 @@ namespace BankApi.Data
 
                 entity.Property(e => e.ReportedMessage)
                       .IsRequired();
+            });
+
+            modelBuilder.Entity<LoanRequest>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.UserCnp)
+                    .IsRequired()
+                    .HasMaxLength(13);
+
+                entity.Property(e => e.Amount)
+                    .IsRequired();
+
+                entity.Property(e => e.ApplicationDate)
+                    .IsRequired()
+                    .HasDefaultValueSql("GETUTCDATE()");
+
+                entity.Property(e => e.RepaymentDate)
+                    .IsRequired();
+
+                entity.Property(e => e.Status)
+                    .IsRequired()
+                    .HasMaxLength(100);
             });
         }
     }
