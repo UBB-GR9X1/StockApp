@@ -86,12 +86,6 @@ namespace StockApp
                         return new ActivityApiService(client);
                     });
 
-                    // Register repository (proxy implementation)
-                    services.AddScoped<IActivityRepository>(provider =>
-                    {
-                        var apiService = provider.GetRequiredService<ActivityApiService>();
-                        return new ActivityProxyRepo(apiService);
-                    });
 
                     // Register the service
                     services.AddScoped<IActivityService>(provider =>
