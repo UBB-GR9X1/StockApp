@@ -17,7 +17,6 @@ namespace BankApi.Data
         public DbSet<TriggeredAlert> TriggeredAlerts { get; set; }
         public DbSet<GemStore> GemStores { get; set; }
         public DbSet<ActivityLog> ActivityLogs { get; set; }
-
         public DbSet<HomepageStock> HomepageStocks { get; set; } = null!;
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -43,6 +42,23 @@ namespace BankApi.Data
                 .Property(s => s.AuthorCNP)
                 .IsRequired();
 
+            modelBuilder.Entity<HomepageStock>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Symbol)
+                      .IsRequired()
+                      .HasMaxLength(10);
+                entity.Property(e => e.CompanyName)
+                      .IsRequired()
+                      .HasMaxLength(100);
+                entity.Property(e => e.Price)
+                      .HasPrecision(18, 2); // Adjust precision and scale as needed
+                entity.Property(e => e.Change)
+                      .HasPrecision(18, 2); // Adjust precision and scale as needed
+                entity.Property(e => e.PercentChange)
+                      .HasPrecision(18, 2); // Adjust precision and scale as needed
+            });
+
             modelBuilder.Entity<ChatReport>(entity =>
             {
                 entity.HasKey(e => e.Id);
@@ -56,8 +72,16 @@ namespace BankApi.Data
             });
 
             // Configure Alert entity
-            modelBuilder.Entity<Alert>()
-                .HasIndex(a => a.StockName);
+            modelBuilder.Entity<Alert>(entity =>
+            {
+                entity.HasIndex(a => a.StockName);
+
+                entity.Property(a => a.LowerBound)
+                      .HasPrecision(18, 4);
+
+                entity.Property(a => a.UpperBound)
+                      .HasPrecision(18, 4);
+            });
 
             // Configure TriggeredAlert entity
             modelBuilder.Entity<TriggeredAlert>()
@@ -86,7 +110,7 @@ namespace BankApi.Data
 
             modelBuilder.Entity<GemStore>(entity =>
             {
-                entity.ToTable("GemStore");
+                entity.ToTable("GemStores");
                 entity.HasKey(e => e.Cnp);
                 entity.Property(e => e.Cnp).IsRequired().HasMaxLength(13);
                 entity.Property(e => e.GemBalance).IsRequired();
