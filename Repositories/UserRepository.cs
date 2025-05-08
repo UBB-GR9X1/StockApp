@@ -257,13 +257,12 @@
                 using var connection = DatabaseHelper.GetConnection();
                 var command = new SqlCommand("SELECT * FROM [USER]", connection);
 
-                using var reader = await command.ExecuteReaderAsync();
-                while (await reader.ReadAsync())
+                await connection.OpenAsync().ConfigureAwait(false);  // Added this line
+                using var reader = await command.ExecuteReaderAsync().ConfigureAwait(false);
+                while (await reader.ReadAsync().ConfigureAwait(false))
                 {
                     users.Add(this.CreateUserFromDataReader(reader));
                 }
-
-                await connection.CloseAsync();
                 return users;
             }
             catch (SqlException ex)
