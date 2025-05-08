@@ -15,15 +15,11 @@
             _context = context;
         }
 
-        public async Task<List<NewsArticle>> GetAllNewsArticlesAsync()
-        {
-            return await _context.NewsArticles.ToListAsync();
-        }
+        public async Task<List<NewsArticle>> GetAllNewsArticlesAsync() =>
+            await _context.NewsArticles.ToListAsync();
 
-        public async Task<List<NewsArticle>> GetNewsArticlesByCategoryAsync(string category)
-        {
-            return await _context.NewsArticles.Where(article => article.Category == category).ToListAsync();
-        }
+        public async Task<List<NewsArticle>> GetNewsArticlesByCategoryAsync(string category) =>
+            await _context.NewsArticles.Where(article => article.Category == category).ToListAsync();
 
         public async Task<List<NewsArticle>> GetNewsArticlesByStockAsync(string stockName)
         {
@@ -37,10 +33,8 @@
                 .ToListAsync();
         }
 
-        public async Task<NewsArticle?> GetNewsArticleByIdAsync(int articleId)
-        {
-            return await _context.NewsArticles.FindAsync(articleId);
-        }
+        public async Task<NewsArticle?> GetNewsArticleByIdAsync(int articleId) =>
+            await _context.NewsArticles.FindAsync(articleId);
 
         public async Task AddNewsArticleAsync(NewsArticle article)
         {

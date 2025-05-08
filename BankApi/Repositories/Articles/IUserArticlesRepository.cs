@@ -5,22 +5,22 @@
     
     public interface IUserArticlesRepository
     {
-        List<UserArticle> GetAllUserArticlesAsync();
+        Task<List<UserArticle>> GetAllUserArticlesAsync();
 
-        List<UserArticle> GetUserArticlesByStatusAsync(Status status);
+        Task<List<UserArticle>> GetUserArticlesByStatusAsync(Status status);
 
-        List<UserArticle> GetUserArticlesByTopicAsync(string topic);
+        Task<List<UserArticle>> GetUserArticlesByTopicAsync(string topic);
 
-        UserArticle GetUserArticleByIdAsync(int articleId);
+        Task<UserArticle?> GetUserArticleByIdAsync(int articleId);
 
-        void AddUserArticleAsync(UserArticle article);
+        Task AddUserArticleAsync(UserArticle article);
 
-        void ApproveUserArticleAsync(int articleId);
+        Task<bool> ApproveUserArticleAsync(int articleId);
 
-        void RejectUserArticleAsync(int articleId);
+        Task<bool> RejectUserArticleAsync(int articleId);
 
-        void UpdateUserArticleAsync(UserArticle userArticle);
+        Task UpdateUserArticleAsync(UserArticle userArticle);
 
-        void DeleteUserArticleAsync(int articleId);
+        Task<bool> DeleteUserArticleAsync(int articleId);
     }
 }
