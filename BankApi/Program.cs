@@ -1,6 +1,7 @@
 using BankApi.Data;
 using BankApi.Repositories;
 using Microsoft.EntityFrameworkCore;
+using StockApp.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +14,7 @@ builder.Services.AddDbContext<ApiDbContext>(options =>
 
 // Register repository
 builder.Services.AddScoped<IRepository, Repository>();
+builder.Services.AddScoped<IChatReportRepository, ChatReportRepository>();
 
 // Add CORS
 builder.Services.AddCors(options =>
