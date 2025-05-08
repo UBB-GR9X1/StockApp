@@ -1,35 +1,69 @@
-namespace BankApi.Models
-{
-    using System;
 
+    using System.ComponentModel;
+    using System.Runtime.CompilerServices;
+
+    /// <summary>
+    /// Represents a tip that has been marked as given to another user.
+    /// </summary>
     public class GivenTip
     {
-        public int Id { get; set; }
+        private int id;
+        private int tipId;
+        private string givenToUser = string.Empty;
 
-        public string UserCnp { get; set; }
+        /// <inheritdoc/>
+        public event PropertyChangedEventHandler? PropertyChanged;
 
-        public int TipID { get; set; }
-
-        public int MessageID { get; set; }
-
-        public DateOnly Date { get; set; }
-
-        public GivenTip(int id, string userCNP, int tipID, int messageID, DateOnly date)
+        /// <summary>
+        /// Gets or sets the unique identifier for this given tip.
+        /// </summary>
+        public int Id
         {
-            this.Id = id;
-            this.UserCnp = userCNP;
-            this.TipID = tipID;
-            this.MessageID = messageID;
-            this.Date = date;
+            get => this.id;
+            set
+            {
+                if (this.id != value)
+                {
+                    this.id = value;
+                    this.OnPropertyChanged();
+                }
+            }
         }
 
-        public GivenTip()
+        /// <summary>
+        /// Gets or sets the ID of the tip being given.
+        /// </summary>
+        public int TipId
         {
-            this.Id = 0;
-            this.UserCnp = string.Empty;
-            this.TipID = 0;
-            this.MessageID = 0;
-            this.Date = new DateOnly();
+            get => this.tipId;
+            set
+            {
+                if (this.tipId != value)
+                {
+                    this.tipId = value;
+                    this.OnPropertyChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the name of the user who received the tip.
+        /// </summary>
+        public string GivenToUser
+        {
+            get => this.givenToUser;
+            set
+            {
+                if (this.givenToUser != value)
+                {
+                    this.givenToUser = value;
+                    this.OnPropertyChanged();
+                }
+            }
+        }
+
+        private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        {
+            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
-}
