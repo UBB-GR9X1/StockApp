@@ -102,7 +102,7 @@ namespace StockApp
                     services.AddSingleton<IBillSplitReportService, BillSplitReportService>();
                     services.AddSingleton<IChatReportService, ChatReportService>();
                     services.AddSingleton<IHistoryService, HistoryService>();
-                    services.AddSingleton<IInvestmentsService, InvestmentsApiService>();
+                    services.AddSingleton<IInvestmentsService, InvestmentsService>();
                     services.AddSingleton<ILoanCheckerService, LoanCheckerService>();
                     services.AddSingleton<ILoanRequestService, LoanRequestService>();
                     services.AddSingleton<ILoanService, LoanService>();

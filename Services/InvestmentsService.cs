@@ -9,12 +9,12 @@ using StockApp.Repositories;
 
 namespace StockApp.Services
 {
-    public class InvestmentsApiService : IInvestmentsService
+    public class InvestmentsService : IInvestmentsService
     {
         private readonly IUserRepository _userRepository;
         private readonly IInvestmentsRepository _investmentsRepository;
 
-        public InvestmentsApiService(IUserRepository userRepository, IInvestmentsRepository investmentsRepository)
+        public InvestmentsService(IUserRepository userRepository, IInvestmentsRepository investmentsRepository)
         {
             _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             _investmentsRepository = investmentsRepository ?? throw new ArgumentNullException(nameof(investmentsRepository));
@@ -24,7 +24,7 @@ namespace StockApp.Services
         {
             try
             {
-                return await Task.FromResult(_investmentsRepository.GetInvestmentsHistory());
+                return await _investmentsRepository.GetInvestmentsHistory();
             }
             catch (Exception ex)
             {
@@ -41,7 +41,7 @@ namespace StockApp.Services
 
             try
             {
-                await Task.Run(() => _investmentsRepository.AddInvestment(investment));
+                await _investmentsRepository.AddInvestment(investment);
             }
             catch (Exception ex)
             {
@@ -58,7 +58,7 @@ namespace StockApp.Services
 
             try
             {
-                await Task.Run(() => _investmentsRepository.UpdateInvestment(investmentId, investorCNP, amountReturned));
+                await _investmentsRepository.UpdateInvestment(investmentId, investorCNP, amountReturned);
             }
             catch (Exception ex)
             {

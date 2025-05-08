@@ -18,22 +18,22 @@ namespace StockApp.Repositories.Api
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         }
 
-        public List<Investment> GetInvestmentsHistory()
+        public async Task<List<Investment>> GetInvestmentsHistory()
         {
-            var response = _httpClient.GetFromJsonAsync<List<Investment>>(BaseUrl).Result;
+            var response = await _httpClient.GetFromJsonAsync<List<Investment>>(BaseUrl);
             return response ?? new List<Investment>();
         }
 
-        public void AddInvestment(Investment investment)
+        public async Task AddInvestment(Investment investment)
         {
             if (investment == null)
                 throw new ArgumentNullException(nameof(investment));
 
-            var response = _httpClient.PostAsJsonAsync(BaseUrl, investment).Result;
+            var response = await _httpClient.PostAsJsonAsync(BaseUrl, investment);
             response.EnsureSuccessStatusCode();
         }
 
-        public void UpdateInvestment(int investmentId, string investorCNP, float amountReturned)
+        public async Task UpdateInvestment(int investmentId, string investorCNP, float amountReturned)
         {
             if (investmentId <= 0)
                 throw new ArgumentException("Invalid investment ID", nameof(investmentId));
@@ -42,7 +42,7 @@ namespace StockApp.Repositories.Api
                 throw new ArgumentException("Investor CNP cannot be empty", nameof(investorCNP));
 
             var url = $"{BaseUrl}/{investmentId}?investorCNP={investorCNP}&amountReturned={amountReturned}";
-            var response = _httpClient.PutAsync(url, null).Result;
+            var response = await _httpClient.PutAsync(url, null);
             response.EnsureSuccessStatusCode();
         }
     }

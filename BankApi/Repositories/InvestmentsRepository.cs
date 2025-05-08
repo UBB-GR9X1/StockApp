@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using BankApi.Data;
 using BankApi.Models;
 using Microsoft.EntityFrameworkCore;
@@ -16,23 +17,23 @@ namespace BankApi.Repositories
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public List<Investment> GetInvestmentsHistory()
+        public async Task<List<Investment>> GetInvestmentsHistory()
         {
-            return _context.Investments.ToList();
+            return await _context.Investments.ToListAsync();
         }
 
-        public void AddInvestment(Investment investment)
+        public async Task AddInvestment(Investment investment)
         {
             if (investment == null)
                 throw new ArgumentNullException(nameof(investment));
 
             _context.Investments.Add(investment);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public void UpdateInvestment(int investmentId, string investorCNP, float amountReturned)
+        public async Task UpdateInvestment(int investmentId, string investorCNP, float amountReturned)
         {
-            var investment = _context.Investments.FirstOrDefault(i => i.Id == investmentId && i.InvestorCnp == investorCNP);
+            var investment = await _context.Investments.FirstOrDefaultAsync(i => i.Id == investmentId && i.InvestorCnp == investorCNP);
             if (investment == null)
                 throw new Exception("Investment not found or investor CNP does not match.");
 
@@ -40,7 +41,7 @@ namespace BankApi.Repositories
                 throw new Exception("Investment return has already been processed.");
 
             investment.AmountReturned = amountReturned;
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
     }
 } 
