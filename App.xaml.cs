@@ -74,6 +74,7 @@ namespace StockApp
                     services.AddSingleton<IUserRepository, UserRepository>();
                     services.AddSingleton<IActivityRepo, ActivityProxyRepo>();
                     services.AddSingleton<IGemStoreRepository, GemStoreProxyRepo>();
+                    services.AddSingleton<IProfileRepository, ProfileProxyRepo>();
 
 
                     // HttpClient for API communication

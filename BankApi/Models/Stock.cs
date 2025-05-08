@@ -1,4 +1,7 @@
-﻿namespace BankApi.Models
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace BankApi.Models
 {
     /// <summary>
     /// Represents a stock holding, including its name, symbol, author, price per share, and quantity.
@@ -9,27 +12,26 @@
     /// <param name="price">The purchase price of each share.</param>
     /// <param name="quantity">The number of shares held.</param>
     public class Stock
-        : BaseStock
     {
-        public Stock(string name, string symbol, string authorCNP, int price, int quantity)
-        {
-            base.Name = name;
-            base.Symbol = symbol;
-            base.AuthorCNP = authorCNP;
-            this.Price = price;
-            this.Quantity = quantity;
-        }
+        [Key]
+        [MaxLength(100)]
+        public string Name { get; set; } = string.Empty;
 
+        [Required]
+        [MaxLength(10)]
+        public string Symbol { get; set; } = string.Empty;
 
-        /// <summary>
-        /// Gets or sets the purchase price of each share.
-        /// </summary>
+        [Required]
         public int Price { get; set; }
 
-        /// <summary>
-        /// Gets or sets the number of shares held.
-        /// </summary>
+        [Required]
         public int Quantity { get; set; }
+
+        [Required]
+        [MaxLength(13)]
+        public string AuthorCnp { get; set; } = string.Empty;
+
+        public ICollection<UserStock> UserStocks { get; set; } = new List<UserStock>();
 
         /// <summary>
         /// Returns a string that represents the current stock,
