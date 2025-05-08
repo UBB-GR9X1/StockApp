@@ -61,12 +61,6 @@ namespace StockApp
                     services.AddDbContext<AppDbContext>(options =>
                         options.UseSqlServer(ConnectionString));
 
-                    // HttpClient for API communication
-                    services.AddHttpClient("BankApi", client =>
-                    {
-                        client.BaseAddress = new Uri("https://localhost:7001/");
-                    });
-
                     // Repositories
                     services.AddScoped<IAlertRepository, AlertProxyRepo>();
 
@@ -78,6 +72,24 @@ namespace StockApp
                     services.AddSingleton<ILoanRequestRepository, LoanRequestRepository>();
                     services.AddSingleton<IUserRepository, UserRepository>();
                     services.AddSingleton<IActivityRepo, ActivityProxyRepo>();
+
+
+                    // HttpClient for API communication
+                    services.AddHttpClient<IChatReportRepository, ChatReportRepoProxy>(client =>
+                    {
+                        client.BaseAddress = new Uri("https://localhost:7001/");
+                    });
+
+                    services.AddHttpClient<IAlertRepository, AlertProxyRepo>(client =>
+                    {
+                        client.BaseAddress = new Uri("https://localhost:7001/");
+                    });
+
+                    services.AddHttpClient<IActivityRepo, ActivityProxyRepo>(client =>
+                    {
+                        client.BaseAddress = new Uri("https://localhost:7001/");
+                    });
+
 
                     // Other Services
                     services.AddSingleton<IBillSplitReportService, BillSplitReportService>();
