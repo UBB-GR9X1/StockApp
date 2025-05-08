@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net9.0-windows10.0.26100.0</TargetFramework>
+		<TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+		<UseWinUI>true</UseWinUI>
+		<Platforms>AnyCPU;x64</Platforms>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<EnablePRIResourceGeneration>false</EnablePRIResourceGeneration>
+		<EnableMsixTooling>true</EnableMsixTooling>
+	</PropertyGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\StockApp.csproj" />
+	</ItemGroup>
+	<PropertyGroup>
+		<IsTestProject>true</IsTestProject>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
+		<PackageReference Include="MSTest.TestAdapter" Version="3.8.3" />
+		<PackageReference Include="MSTest.TestFramework" Version="3.8.3" />
+		<PackageReference Include="Moq" Version="4.20.72" />
+	</ItemGroup>
+</Project>
