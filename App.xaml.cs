@@ -72,7 +72,6 @@ namespace StockApp
 
                     services.AddSingleton<IBillSplitReportRepository, BillSplitReportProxyRepository>();
                     services.AddSingleton<IChatReportRepository, ChatReportRepoProxy>();
-                    services.AddSingleton<IHistoryRepository, HistoryRepository>();
                     services.AddSingleton<ILoanRepository, LoanProxyRepository>();
                     services.AddSingleton<ILoanRequestRepository, LoanRequestProxyRepo>();
                     services.AddSingleton<IActivityRepo, ActivityProxyRepo>();
@@ -80,7 +79,7 @@ namespace StockApp
                     services.AddSingleton<IUserRepository, UserProxyRepository>();
                     services.AddSingleton<IProfileRepository, ProfileProxyRepo>();
                     services.AddSingleton<IBaseStocksRepository, BaseStocksProxyRepository>();
-
+                    services.AddSingleton<IHistoryRepository, HistoryProxyRepository>();
                     services.AddSingleton<IHomepageStocksRepository, HomepageStocksProxyRepository>();
 
                     // HttpClient for API communication
@@ -118,7 +117,6 @@ namespace StockApp
 
                     // Legacy repositories
                     services.AddSingleton<IChatReportRepository, ChatReportRepoProxy>();
-                    services.AddSingleton<IHistoryRepository, HistoryRepository>();
                     services.AddSingleton<IStockPageRepository, StockPageRepository>();
 
                     services.AddHttpClient<IInvestmentsRepository, InvestmentsProxyRepository>(client =>
@@ -135,6 +133,21 @@ namespace StockApp
                         client.BaseAddress = new Uri("https://localhost:7001/");
                     });
                     services.AddHttpClient<ILoanRepository, LoanProxyRepository>(client =>
+                    {
+                        client.BaseAddress = new Uri("https://localhost:7001/");
+                    });
+
+                    services.AddHttpClient<IProfileRepository, ProfileProxyRepo>(client =>
+                    {
+                        client.BaseAddress = new Uri("https://localhost:7001/");
+                    });
+
+                    services.AddHttpClient<IGemStoreRepository, GemStoreProxyRepo>(client =>
+                    {
+                        client.BaseAddress = new Uri("https://localhost:7001/");
+                    });
+
+                    services.AddHttpClient<IHistoryRepository, HistoryProxyRepository>(client =>
                     {
                         client.BaseAddress = new Uri("https://localhost:7001/");
                     });

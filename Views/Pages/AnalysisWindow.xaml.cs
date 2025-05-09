@@ -2,6 +2,7 @@ namespace StockApp.Views.Pages
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
     using OxyPlot;
@@ -25,8 +26,8 @@ namespace StockApp.Views.Pages
             this.historyService = historyService ?? throw new ArgumentNullException(nameof(historyService));
 
             this.LoadUserData();
-            this.LoadHistory(this.historyService.GetHistoryMonthly(this.user.CNP));
             this.LoadUserActivitiesAsync();
+            this.Init().ConfigureAwait(false);
         }
 
         public void LoadUserData()
@@ -37,6 +38,11 @@ namespace StockApp.Views.Pages
             this.CNPTextBlock.Text = $"CNP: {this.user.CNP}";
             this.EmailTextBlock.Text = $"Email: {this.user.Email}";
             this.PhoneNumberTextBlock.Text = $"Phone number: {this.user.PhoneNumber}";
+        }
+
+        private async Task Init()
+        {
+            this.LoadHistory(await this.historyService.GetHistoryMonthlyAsync(this.user.CNP));
         }
 
         public async void LoadUserActivitiesAsync()
@@ -152,21 +158,21 @@ namespace StockApp.Views.Pages
             }
         }
 
-        private void OnWeeklyClick(object sender, RoutedEventArgs e)
+        private async void OnWeeklyClick(object sender, RoutedEventArgs e)
         {
-            var history = this.historyService.GetHistoryWeekly(this.user.CNP);
+            var history = await this.historyService.GetHistoryWeeklyAsync(this.user.CNP);
             this.LoadHistory(history);
         }
 
-        private void OnMonthlyClick(object sender, RoutedEventArgs e)
+        private async void OnMonthlyClick(object sender, RoutedEventArgs e)
         {
-            var history = this.historyService.GetHistoryMonthly(this.user.CNP);
+            var history = await this.historyService.GetHistoryMonthlyAsync(this.user.CNP);
             this.LoadHistory(history);
         }
 
-        private void OnYearlyClick(object sender, RoutedEventArgs e)
+        private async void OnYearlyClick(object sender, RoutedEventArgs e)
         {
-            var history = this.historyService.GetHistoryYearly(this.user.CNP);
+            var history = await this.historyService.GetHistoryYearlyAsync(this.user.CNP);
             this.LoadHistory(history);
         }
     }
