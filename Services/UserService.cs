@@ -30,14 +30,14 @@
             return this.userRepository.GetAllUsersAsync();
         }
 
-        public async Task CreateUser(User user)
+        public async Task<string> CreateUser(User user)
         {
             if (user == null)
             {
                 throw new ArgumentNullException(nameof(user));
             }
 
-            await this.userRepository.CreateUserAsync(user);
+            return await this.userRepository.CreateUserAsync(user);
         }
 
         public string GetCurrentUserCNP()

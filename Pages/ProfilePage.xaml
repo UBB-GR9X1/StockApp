@@ -11,10 +11,10 @@
         <StackPanel Padding="50" Spacing="30" Background="#FFF5EE" BorderBrush="#FF69B4" BorderThickness="10">
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="150" Background="#FFF5EE" Padding="20">
-                <Button Name="backButton" Content="Back" Click="GoBack" Background="#A39FE1" CornerRadius="10" Foreground="#FFF5EE" Padding="10" />
+                <Button x:Name="backButton" Content="Back" Click="GoBack" Background="#A39FE1" CornerRadius="10" Foreground="#FFF5EE" Padding="10" />
                 <TextBlock Text="Profile" FontSize="24" FontWeight="Bold" Foreground="#FF69B4"/>
-                <Button Command ="{x:Bind UpdateProfileButton}"
-                        Name="updateWindowButton" Content="Update Profile" Background="#FF69B4" CornerRadius="10" Foreground="#FFF5EE" Padding="10" />
+                <Button x:Name="updateWindowButton" Command="{x:Bind UpdateProfileButton}"
+                        Content="Update Profile" Background="#FF69B4" CornerRadius="10" Foreground="#FFF5EE" Padding="10" />
             </StackPanel>
 
             <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" BorderThickness="4" BorderBrush="#770737" Spacing="20" Padding="20" Background="#FFB6C1" CornerRadius="10">
@@ -24,12 +24,12 @@
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Spacing="15">
                     <TextBlock Text="Description:" FontSize="16" Foreground="#770737"/>
-                    <TextBlock x:Name="ProfileDescription" FontSize="16"/>
+                    <TextBlock x:Name="ProfileDescription" Text="{Binding Description}" FontSize="16"/>
                 </StackPanel>
             </StackPanel>
 
             <StackPanel BorderThickness="4" BorderBrush="#770737" Spacing="20" Padding="20" Background="#FFB6C1" CornerRadius="10">
-                <TextBlock x:Name="UsernameMyStocks"  FontSize="20" FontWeight="Bold" Foreground="#770737" />
+                <TextBlock x:Name="UsernameMyStocks" FontSize="20" FontWeight="Bold" Foreground="#770737" />
                 <ListView x:Name="StocksListView" SelectionMode="Single" BorderThickness="1" BorderBrush="#770737" CornerRadius="10" IsItemClickEnabled="True" >
                     <ListView.ItemTemplate>
                         <DataTemplate>
@@ -38,7 +38,7 @@
                     </ListView.ItemTemplate>
                 </ListView>
                 <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20">
-                    <Button Name="EnterStockButton" Content="Enter" CornerRadius="10" Click="GoToStockButton" Padding="5" Background="#FF69B4" Foreground="#FFF5EE" />
+                    <Button x:Name="EnterStockButton" Content="Enter" CornerRadius="10" Click="GoToStockButton" Padding="5" Background="#FF69B4" Foreground="#FFF5EE" />
                 </StackPanel>
             </StackPanel>
 

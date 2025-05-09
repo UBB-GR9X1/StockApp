@@ -5,9 +5,15 @@
    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"  
    xmlns:local="using:StockApp.Views.Pages"  
    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"  
-   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:local1="using:StockApp.ViewModels"  
+   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+   xmlns:local1="using:StockApp.ViewModels"
+   xmlns:converters="using:StockApp.Converters"
    mc:Ignorable="d"  
    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Page.Resources>
+        <converters:DateTimeOffsetToDateTimeConverter x:Key="DateTimeOffsetToDateTimeConverter"/>
+    </Page.Resources>
 
     <Page.DataContext>
         <local1:CreateProfilePageViewModel />
@@ -60,7 +66,7 @@
                     <TextBox Text="{Binding PhoneNumber, Mode=TwoWay}" Width="200"  Foreground="#770737" PlaceholderForeground="#990747" PlaceholderText="Enter phone number..." Grid.Row="5" Grid.Column="1" Margin="0,5"/>
 
                     <TextBlock Text="Birthday:" FontSize="16" Foreground="#770737" Width="120" Grid.Row="6" Grid.Column="0" Margin="0,5"/>
-                    <DatePicker Date="{Binding Birthday, Mode=TwoWay}" Width="200"  Foreground="#770737" Grid.Row="6" Grid.Column="1" Margin="0,5"/>
+                    <DatePicker Date="{Binding Birthday, Mode=TwoWay, Converter={StaticResource DateTimeOffsetToDateTimeConverter}}" Width="200"  Foreground="#770737" Grid.Row="6" Grid.Column="1" Margin="0,5"/>
 
                     <TextBlock Text="CNP:" FontSize="16" Foreground="#770737" Width="120" Grid.Row="7" Grid.Column="0" Margin="0,5"/>
                     <TextBox Text="{Binding CNP, Mode=TwoWay}" Width="200"  Foreground="#770737" PlaceholderForeground="#990747" PlaceholderText="Enter CNP..." Grid.Row="7" Grid.Column="1" Margin="0,5"/>

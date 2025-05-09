@@ -15,5 +15,7 @@
         bool IsGuest();
 
         Task<List<User>> GetUsers();
+
+        Task<string> CreateUser(User user);
     }
 }

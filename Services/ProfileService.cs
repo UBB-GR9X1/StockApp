@@ -1,5 +1,6 @@
 ﻿namespace StockApp.Services
 {
+    using System;
     using System.Collections.Generic;
     using StockApp.Models;
     using StockApp.Repositories;
@@ -15,6 +16,10 @@
         public ProfileService()
         {
             this.userRepo = new UserRepository();
+            if (string.IsNullOrEmpty(this.userRepo.CurrentUserCNP))
+            {
+                throw new InvalidOperationException("No user is currently logged in.");
+            }
             this.profileRepo = new ProfileRepository(this.userRepo.CurrentUserCNP);
         }
 
@@ -25,8 +30,13 @@
         /// <param name="profileRepo">Profile repository instance.</param>
         public ProfileService(IUserRepository userRepo, IProfileRepository profileRepo)
         {
-            this.userRepo = userRepo;
-            this.profileRepo = profileRepo;
+            this.userRepo = userRepo ?? throw new ArgumentNullException(nameof(userRepo));
+            this.profileRepo = profileRepo ?? throw new ArgumentNullException(nameof(profileRepo));
+
+            if (string.IsNullOrEmpty(this.userRepo.CurrentUserCNP))
+            {
+                throw new InvalidOperationException("No user is currently logged in.");
+            }
         }
 
         /// <summary>

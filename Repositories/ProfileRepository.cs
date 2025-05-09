@@ -16,7 +16,6 @@
     /// <param name="authorCnp">The CNP of the user whose profile is being managed.</param>
     public class ProfileRepository(string authorCnp) : IProfileRepository
     {
-        private readonly SqlConnection dbConnection = DatabaseHelper.GetConnection();
         private readonly string loggedInUserCnp = authorCnp;
 
         /// <summary>
@@ -32,10 +31,12 @@
 
             try
             {
-                using SqlCommand command = new(query, this.dbConnection);
+                using var connection = DatabaseHelper.GetConnection();
+                using var command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@CNP", this.loggedInUserCnp);
 
-                using SqlDataReader reader = command.ExecuteReader();
+                connection.Open();
+                using var reader = command.ExecuteReader();
                 if (reader.Read())
                 {
                     return new User(
@@ -53,6 +54,10 @@
             catch (SqlException ex)
             {
                 throw new ProfilePersistenceException("SQL error while retrieving current user.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new ProfilePersistenceException("Error while retrieving current user.", ex);
             }
         }
 
@@ -88,10 +93,24 @@
 
             try
             {
-                return this.ExecuteScalar<User>(query, command =>
-                {
+                using var connection = DatabaseHelper.GetConnection();
+                using var command = new SqlCommand(query, connection);
                     command.Parameters.AddWithValue("@CNP", authorCnp);
-                }) ?? throw new ProfilePersistenceException("User not found.");
+
+                connection.Open();
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    return new User(
+                        cnp: reader["CNP"]?.ToString(),
+                        username: reader["NAME"]?.ToString(),
+                        description: reader["DESCRIPTION"]?.ToString(),
+                        isModerator: false,
+                        image: reader["PROFILE_PICTURE"]?.ToString(),
+                        isHidden: reader["IS_HIDDEN"] != DBNull.Value && (bool)reader["IS_HIDDEN"]);
+                }
+
+                throw new ProfilePersistenceException("User not found.");
             }
             catch (SqlException ex)
             {
@@ -105,11 +124,27 @@
         /// <param name="isAdmin">A value indicating whether the user should be an admin.</param>
         public void UpdateRepoIsAdmin(bool isAdmin)
         {
-            this.ExecuteNonQuery("UPDATE [USER] SET IS_ADMIN = @IsAdmin WHERE CNP = @CNP", command =>
+            try
             {
+                using var connection = DatabaseHelper.GetConnection();
+                using var command = new SqlCommand(
+                    "UPDATE [USER] SET IS_ADMIN = @IsAdmin WHERE CNP = @CNP",
+                    connection);
+
                 command.Parameters.AddWithValue("@IsAdmin", isAdmin ? 1 : 0);
                 command.Parameters.AddWithValue("@CNP", this.loggedInUserCnp);
-            });
+
+                connection.Open();
+                int rowsAffected = command.ExecuteNonQuery();
+                if (rowsAffected == 0)
+                {
+                    throw new ProfilePersistenceException("User not found.");
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw new ProfilePersistenceException("SQL error while updating admin status.", ex);
+            }
         }
 
         /// <summary>
@@ -121,19 +156,33 @@
         /// <param name="newHidden">A value indicating whether the profile should be hidden.</param>
         public void UpdateMyUser(string newUsername, string newImage, string newDescription, bool newHidden)
         {
-            this.ExecuteNonQuery(
+            try
+            {
+                using var connection = DatabaseHelper.GetConnection();
+                using var command = new SqlCommand(
                 @"UPDATE [USER]
                       SET NAME = @NewName, PROFILE_PICTURE = @NewProfilePicture, 
                           DESCRIPTION = @NewDescription, IS_HIDDEN = @NewIsHidden 
                       WHERE CNP = @CNP",
-                command =>
-                {
+                    connection);
+
                     command.Parameters.AddWithValue("@NewName", newUsername);
                     command.Parameters.AddWithValue("@NewProfilePicture", newImage);
                     command.Parameters.AddWithValue("@NewDescription", newDescription);
                     command.Parameters.AddWithValue("@NewIsHidden", newHidden ? 1 : 0);
                     command.Parameters.AddWithValue("@CNP", this.loggedInUserCnp);
-                });
+
+                connection.Open();
+                int rowsAffected = command.ExecuteNonQuery();
+                if (rowsAffected == 0)
+                {
+                    throw new ProfilePersistenceException("User not found.");
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw new ProfilePersistenceException("SQL error while updating user profile.", ex);
+            }
         }
 
         /// <summary>
@@ -170,9 +219,11 @@
 
             try
             {
-                using var command = new SqlCommand(query, this.dbConnection);
+                using var connection = DatabaseHelper.GetConnection();
+                using var command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@UserCNP", this.loggedInUserCnp);
 
+                connection.Open();
                 using var reader = command.ExecuteReader();
                 List<Stock> stocks = [];
 
@@ -192,6 +243,10 @@
             {
                 throw new ProfilePersistenceException("SQL error while fetching user stocks.", ex);
             }
+            catch (Exception ex)
+            {
+                throw new ProfilePersistenceException("Error while fetching user stocks.", ex);
+            }
         }
 
         /// <summary>
@@ -205,7 +260,7 @@
         {
             try
             {
-                using SqlCommand command = new(query, this.dbConnection);
+                using SqlCommand command = new(query, DatabaseHelper.GetConnection());
                 parameterize?.Invoke(command);
 
                 var result = command.ExecuteScalar();
@@ -228,7 +283,7 @@
         {
             try
             {
-                using SqlCommand command = new(query, this.dbConnection);
+                using SqlCommand command = new(query, DatabaseHelper.GetConnection());
                 parameterize?.Invoke(command);
                 command.ExecuteNonQuery();
             }

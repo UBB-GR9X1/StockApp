@@ -4,15 +4,20 @@
 namespace StockApp.Views.Pages
 {
     using Microsoft.UI.Xaml.Controls;
+    using StockApp.ViewModels;
 
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
     public sealed partial class CreateProfilePage : Page
     {
+        private readonly CreateProfilePageViewModel viewModel;
+
         public CreateProfilePage()
         {
             this.InitializeComponent();
+            this.viewModel = new CreateProfilePageViewModel();
+            this.DataContext = this.viewModel;
         }
     }
 }

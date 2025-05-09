@@ -31,6 +31,9 @@ namespace StockApp
             DatabaseHelper.InitializeDatabase();
             this.serviceProvider = serviceProvider;
 
+            // Initialize NavigationService with the main frame
+            NavigationService.Initialize(new FrameAdapter(this.MainFrame));
+
             this.MainFrame.Content = this.serviceProvider.GetRequiredService<HomepageView>();
         }
 

@@ -14,11 +14,13 @@
     /// Initializes a new instance of the <see cref="ProfilePageViewModel"/> class with the specified profile service.
     /// </remarks>
     /// <param name="profileService">Service used to retrieve profile data.</param>
-    public class ProfilePageViewModel(IProfileService profileService) : INotifyPropertyChanged
+    public class ProfilePageViewModel : INotifyPropertyChanged
     {
-        private readonly IProfileService profileService = profileService ?? throw new ArgumentNullException(nameof(profileService));
-
+        private readonly IProfileService profileService;
         private BitmapImage imageSource;
+        private string username = string.Empty;
+        private string description = string.Empty;
+        private List<Stock> userStocks = new();
 
         /// <summary>
         /// Gets or sets the profile image source.
@@ -34,33 +36,104 @@
         }
 
         /// <summary>
+        /// Gets or sets the username.
+        /// </summary>
+        public string Username
+        {
+            get => this.username;
+            private set
+            {
+                this.username = value;
+                this.OnPropertyChanged(nameof(this.Username));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the description.
+        /// </summary>
+        public string Description
+        {
+            get => this.description;
+            private set
+            {
+                this.description = value;
+                this.OnPropertyChanged(nameof(this.Description));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the user stocks.
+        /// </summary>
+        public List<Stock> UserStocks
+        {
+            get => this.userStocks;
+            private set
+            {
+                this.userStocks = value;
+                this.OnPropertyChanged(nameof(this.UserStocks));
+            }
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ProfilePageViewModel"/> class with the default profile service and loads the profile image.
         /// </summary>
         public ProfilePageViewModel()
-            : this(new ProfileService())
         {
-            this.LoadProfileImage();
+            try
+            {
+                this.profileService = new ProfileService();
+                this.LoadProfileData();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error initializing ProfilePageViewModel: {ex.Message}");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ProfilePageViewModel"/> class with the specified profile service.
+        /// </summary>
+        /// <param name="profileService">Service used to retrieve profile data.</param>
+        public ProfilePageViewModel(IProfileService profileService)
+        {
+            this.profileService = profileService ?? throw new ArgumentNullException(nameof(profileService));
+            this.LoadProfileData();
+        }
+
+        private void LoadProfileData()
+        {
+            try
+            {
+                this.Username = this.profileService.GetUsername();
+                this.Description = this.profileService.GetDescription();
+                this.UserStocks = this.profileService.GetUserStocks();
+                this.LoadProfileImage();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error loading profile data: {ex.Message}");
+                throw;
+            }
         }
 
         /// <summary>
         /// Loads the profile image from the profile service.
         /// </summary>
-        internal void LoadProfileImage()
+        private void LoadProfileImage()
         {
-            // TODO: Handle missing or invalid image URL (e.g., set a placeholder image)
-            // Retrieve the image URL from the service
-            string imageUrl = this.profileService.GetImage();
-            if (!string.IsNullOrEmpty(imageUrl))
+            try
             {
-                try
+                string imageUrl = this.profileService.GetImage();
+                if (!string.IsNullOrEmpty(imageUrl))
                 {
                     this.ImageSource = new BitmapImage(new Uri(imageUrl));
                 }
-                catch (Exception ex)
-                {
-                    // FIXME: Consider providing user feedback if image fails to load
-                    System.Diagnostics.Debug.WriteLine($"Error loading image: {ex.Message}");
-                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error loading image: {ex.Message}");
+                // Don't throw here, as image loading failure shouldn't break the whole profile
             }
         }
 
@@ -68,22 +141,19 @@
         /// Gets the CNP of the currently logged-in user.
         /// </summary>
         /// <returns>The user's CNP as a string.</returns>
-        public string GetLoggedInUserCnp()
-        {
-            return this.profileService.GetLoggedInUserCnp();
-        }
+        public string GetLoggedInUserCnp() => this.profileService.GetLoggedInUserCnp();
 
         /// <summary>
         /// Gets the username of the currently logged-in user.
         /// </summary>
         /// <returns>The username.</returns>
-        public string GetUsername() => this.profileService.GetUsername();
+        public string GetUsername() => this.Username;
 
         /// <summary>
         /// Gets the description of the user.
         /// </summary>
         /// <returns>The user description.</returns>
-        public string GetDescription() => this.profileService.GetDescription();
+        public string GetDescription() => this.Description;
 
         /// <summary>
         /// Determines whether the user's profile is hidden.
@@ -101,7 +171,7 @@
         /// Gets the list of stocks associated with the user.
         /// </summary>
         /// <returns>A list of <see cref="Stock"/> objects.</returns>
-        public List<Stock> GetUserStocks() => this.profileService.GetUserStocks();
+        public List<Stock> GetUserStocks() => this.UserStocks;
 
         /// <summary>
         /// Updates the administrative mode of the user.

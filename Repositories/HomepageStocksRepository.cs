@@ -227,29 +227,34 @@ namespace StockApp.Repositories
         // Shared helper: execute a non-query SQL command
         private static void ExecuteSql(string query, Action<SqlCommand> parameterize)
         {
-            using var command = new SqlCommand(query, DatabaseHelper.GetConnection());
+            using var connection = DatabaseHelper.GetConnection();
+            using var command = new SqlCommand(query, connection);
             parameterize?.Invoke(command);
+            connection.Open();
             command.ExecuteNonQuery();
         }
 
         // Shared helper: execute a scalar query and return typed result
         private static T ExecuteScalar<T>(string query, Action<SqlCommand> parameterize)
         {
-            using var command = new SqlCommand(query, DatabaseHelper.GetConnection());
+            using var connection = DatabaseHelper.GetConnection();
+            using var command = new SqlCommand(query, connection);
             parameterize?.Invoke(command);
+            connection.Open();
             return (T)Convert.ChangeType(command.ExecuteScalar(), typeof(T));
         }
 
         // Shared helper: execute reader and map each row
         private static List<T> ExecuteReader<T>(string query, Action<SqlCommand> parameterize, Func<SqlDataReader, T> map)
         {
-            using SqlCommand command = new(query, DatabaseHelper.GetConnection());
+            using var connection = DatabaseHelper.GetConnection();
+            using var command = new SqlCommand(query, connection);
             parameterize?.Invoke(command);
+            connection.Open();
 
             using var reader = command.ExecuteReader();
             var results = new List<T>();
 
-            // Inline: read each row and apply mapping function
             while (reader.Read())
             {
                 results.Add(map(reader));

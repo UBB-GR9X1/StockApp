@@ -1,17 +1,23 @@
-﻿namespace StockApp.ViewModels
-{
-    using System;
+﻿    using System;
     using System.ComponentModel;
     using System.Runtime.CompilerServices;
     using System.Windows.Input;
+using Microsoft.UI.Xaml.Controls;
     using StockApp.Commands;
     using StockApp.Models;
     using StockApp.Repositories;
     using StockApp.Services;
+using System.Threading.Tasks;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Windowing;
+using StockApp.Pages;
 
+namespace StockApp.ViewModels
+{
     internal class CreateProfilePageViewModel : INotifyPropertyChanged
     {
-        private static readonly UserService userService = new(new UserRepository());
+        private static readonly UserRepository userRepository = new();
+        private static readonly UserService userService = new(userRepository);
 
         private string image = string.Empty;
         private string username = string.Empty;
@@ -20,16 +26,23 @@
         private string lastName = string.Empty;
         private string email = string.Empty;
         private string phoneNumber = string.Empty;
-        private DateTime birthday = new();
+        private DateTimeOffset birthday = DateTimeOffset.Now;
         private string cnp = string.Empty;
         private string zodiacSign = string.Empty;
         private string zodiacAttribute = string.Empty;
 
         public ICommand CreateProfileCommand { get; set; }
+        public ICommand GoToProfilePageCommand { get; set; }
 
         public CreateProfilePageViewModel()
         {
             this.CreateProfileCommand = new RelayCommand(this.CreateProfile);
+            this.GoToProfilePageCommand = new RelayCommand(this.GoToProfilePage);
+        }
+
+        private void GoToProfilePage(object parameter)
+        {
+            NavigationService.Instance.Navigate(typeof(ProfilePage));
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -76,7 +89,7 @@
             set => this.SetProperty(ref this.phoneNumber, value);
         }
 
-        public DateTime Birthday
+        public DateTimeOffset Birthday
         {
             get => this.birthday;
             set => this.SetProperty(ref this.birthday, value);
@@ -111,7 +124,7 @@
                 LastName = this.LastName,
                 Email = this.Email,
                 PhoneNumber = this.PhoneNumber,
-                Birthday = this.Birthday,
+                Birthday = this.Birthday.DateTime,
                 CNP = this.CNP,
                 ZodiacSign = this.ZodiacSign,
                 ZodiacAttribute = this.ZodiacAttribute,
@@ -122,7 +135,55 @@
                 NumberOfOffenses = 0,
             };
 
-            await userService.CreateUser(user);
+            try 
+            {
+                string result = await userService.CreateUser(user);
+                userRepository.CurrentUserCNP = user.CNP;
+                await ShowSuccessDialog(result);
+                
+                // Navigate to profile page after successful creation
+                NavigationService.Instance.Navigate(typeof(ProfilePage));
+            }
+            catch (Exception ex)
+            {
+                await ShowErrorDialog(ex.Message);
+            }
+        }
+
+        private async Task ShowErrorDialog(string message)
+        {
+            if (App.MainAppWindow == null)
+            {
+                throw new InvalidOperationException("Main window not found");
+            }
+
+            ContentDialog dialog = new()
+            {
+                Title = "Error",
+                Content = message,
+                CloseButtonText = "OK",
+                DefaultButton = ContentDialogButton.Close,
+                XamlRoot = App.MainAppWindow.Content.XamlRoot
+            };
+            await dialog.ShowAsync();
+        }
+
+        private async Task ShowSuccessDialog(string message)
+        {
+            if (App.MainAppWindow == null)
+            {
+                throw new InvalidOperationException("Main window not found");
+            }
+
+            ContentDialog dialog = new()
+            {
+                Title = "Success",
+                Content = message,
+                CloseButtonText = "OK",
+                DefaultButton = ContentDialogButton.Close,
+                XamlRoot = App.MainAppWindow.Content.XamlRoot
+            };
+            await dialog.ShowAsync();
         }
 
         private void SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)

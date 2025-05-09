@@ -79,17 +79,7 @@
         /// </exception>
         public static SqlConnection GetConnection()
         {
-            SqlConnection connection = new(App.ConnectionString);
-
-            try
-            {
-                connection.Open();
-                return connection;
-            }
-            catch (SqlException ex)
-            {
-                throw new DatabaseInitializationException("Failed to open SQL connection.", ex);
-            }
+            return new SqlConnection(App.ConnectionString);
         }
 
         private static bool CheckIfTablesExist()

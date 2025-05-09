@@ -8,15 +8,27 @@
     using StockApp.Exceptions;
     using StockApp.Models;
 
-    public class UserRepository(string? cnp = null) : IUserRepository
+    public class UserRepository : IUserRepository
     {
+        private static string currentUserCNP = App.Configuration["DefaultUserCNP"] 
+            ?? throw new InvalidOperationException("DefaultUserCNP is not set in appsettings.json");
+
+        public UserRepository(string? cnp = null)
+        {
+            if (!string.IsNullOrWhiteSpace(cnp))
+            {
+                currentUserCNP = cnp;
+            }
+        }
+
         /// <summary>
         /// Gets or sets the CNP (unique identifier) of the current user.
         /// </summary>
-        public string CurrentUserCNP { get; set; } = !string.IsNullOrWhiteSpace(cnp)
-                ? cnp
-                : App.Configuration["DefaultUserCNP"]
-                    ?? throw new InvalidOperationException("DefaultUserCNP is not set in appsettings.json");
+        public string CurrentUserCNP 
+        { 
+            get => currentUserCNP;
+            set => currentUserCNP = value;
+        }
 
         /// <summary>
         /// Gets a value indicating whether the current user is a guest (not logged in).
@@ -27,35 +39,43 @@
         /// Creates a new user in the database.
         /// </summary>
         /// <param name="user">The user entity to create.</param>
-        /// <returns>A task representing the asynchronous operation.</returns>
+        /// <returns>A task representing the asynchronous operation with a success message.</returns>
         /// <exception cref="UserRepositoryException">Thrown when there is an error creating the user.</exception>
-        public async Task CreateUserAsync(User user)
+        public async Task<string> CreateUserAsync(User user)
         {
             if (user == null)
             {
                 throw new ArgumentNullException(nameof(user), "User cannot be null");
             }
 
-            if (string.IsNullOrWhiteSpace(user.FirstName) || string.IsNullOrWhiteSpace(user.LastName))
+            if (string.IsNullOrWhiteSpace(user.Username))
             {
-                throw new ArgumentException("First and last names cannot be empty");
+                throw new ArgumentException("Username cannot be empty");
             }
 
             try
             {
-                using var connection = DatabaseHelper.GetConnection();
+                await using var connection = DatabaseHelper.GetConnection();
+                
+                // First check if user already exists
+                var checkCommand = new SqlCommand("SELECT COUNT(*) FROM [USER] WHERE CNP = @cnp", connection);
+                checkCommand.Parameters.AddWithValue("@cnp", user.CNP);
+                
+                await connection.OpenAsync();
+                int existingCount = (int)await checkCommand.ExecuteScalarAsync();
+                
+                if (existingCount > 0)
+                {
+                    throw new UserRepositoryException($"A user with CNP {user.CNP} already exists.");
+                }
+
+                // If user doesn't exist, proceed with insertion
                 var command = new SqlCommand(@"
                     INSERT INTO [USER] (
-                        CNP, NAME, DESCRIPTION, IS_HIDDEN, IS_ADMIN, PROFILE_PICTURE, GEM_BALANCE,
-                        FirstName, LastName, Email, PhoneNumber, HashedPassword, NumberOfOffenses,
-                        RiskScore, Roi, CreditScore, Birthday, ZodiacSign, ZodiacAttribute,
-                        NumberOfBillSharesPaid, Income, Balance
+                        CNP, NAME, DESCRIPTION, IS_HIDDEN, IS_ADMIN, PROFILE_PICTURE, GEM_BALANCE
                     )
                     VALUES (
-                        @cnp, @name, @description, @isHidden, @isAdmin, @profilePicture, @gemBalance,
-                        @firstName, @lastName, @email, @phoneNumber, @hashedPassword, @numberOfOffenses,
-                        @riskScore, @roi, @creditScore, @birthday, @zodiacSign, @zodiacAttribute,
-                        @numberOfBillSharesPaid, @income, @balance
+                        @cnp, @name, @description, @isHidden, @isAdmin, @profilePicture, @gemBalance
                     )", connection);
 
                 command.Parameters.AddWithValue("@cnp", user.CNP);
@@ -65,25 +85,9 @@
                 command.Parameters.AddWithValue("@isAdmin", user.IsModerator);
                 command.Parameters.AddWithValue("@profilePicture", user.Image ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@gemBalance", user.GemBalance);
-                command.Parameters.AddWithValue("@firstName", user.FirstName);
-                command.Parameters.AddWithValue("@lastName", user.LastName);
-                command.Parameters.AddWithValue("@email", user.Email);
-                command.Parameters.AddWithValue("@phoneNumber", user.PhoneNumber ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@hashedPassword", user.HashedPassword);
-                command.Parameters.AddWithValue("@numberOfOffenses", user.NumberOfOffenses);
-                command.Parameters.AddWithValue("@riskScore", user.RiskScore);
-                command.Parameters.AddWithValue("@roi", user.ROI);
-                command.Parameters.AddWithValue("@creditScore", user.CreditScore);
-                command.Parameters.AddWithValue("@birthday", user.Birthday.ToString("yyyy-MM-dd"));
-                command.Parameters.AddWithValue("@zodiacSign", user.ZodiacSign);
-                command.Parameters.AddWithValue("@zodiacAttribute", user.ZodiacAttribute);
-                command.Parameters.AddWithValue("@numberOfBillSharesPaid", user.NumberOfBillSharesPaid);
-                command.Parameters.AddWithValue("@income", user.Income);
-                command.Parameters.AddWithValue("@balance", user.Balance);
 
-                await connection.OpenAsync();
                 await command.ExecuteNonQueryAsync();
-                await connection.CloseAsync();
+                return $"User {user.Username} created successfully!";
             }
             catch (SqlException ex)
             {
@@ -107,14 +111,14 @@
 
             try
             {
-                using var connection = DatabaseHelper.GetConnection();
+                await using var connection = DatabaseHelper.GetConnection();
                 var command = new SqlCommand(@"
                     SELECT * FROM [USER] 
                     WHERE CNP = @cnp", connection);
                 command.Parameters.AddWithValue("@cnp", userCNP);
 
                 await connection.OpenAsync();
-                using var reader = await command.ExecuteReaderAsync();
+                await using var reader = await command.ExecuteReaderAsync();
                 if (await reader.ReadAsync())
                 {
                     return this.CreateUserFromDataReader(reader);
@@ -132,12 +136,12 @@
         {
             try
             {
-                using var connection = DatabaseHelper.GetConnection();
+                await using var connection = DatabaseHelper.GetConnection();
                 var command = new SqlCommand("SELECT * FROM [USER] WHERE NAME = @name", connection);
                 command.Parameters.AddWithValue("@name", username);
 
                 await connection.OpenAsync();
-                using var reader = await command.ExecuteReaderAsync();
+                await using var reader = await command.ExecuteReaderAsync();
                 if (await reader.ReadAsync())
                 {
                     return this.CreateUserFromDataReader(reader);
@@ -161,7 +165,7 @@
         {
             try
             {
-                using var connection = DatabaseHelper.GetConnection();
+                await using var connection = DatabaseHelper.GetConnection();
                 var command = new SqlCommand(@"
                     UPDATE [USER] SET 
                         NAME = @name, 
@@ -212,7 +216,6 @@
 
                 await connection.OpenAsync();
                 await command.ExecuteNonQueryAsync();
-                await connection.CloseAsync();
             }
             catch (SqlException ex)
             {
@@ -230,13 +233,12 @@
         {
             try
             {
-                using var connection = DatabaseHelper.GetConnection();
+                await using var connection = DatabaseHelper.GetConnection();
                 var command = new SqlCommand("DELETE FROM [USER] WHERE CNP = @cnp", connection);
                 command.Parameters.AddWithValue("@cnp", userCNP);
 
                 await connection.OpenAsync();
                 await command.ExecuteNonQueryAsync();
-                await connection.CloseAsync();
             }
             catch (SqlException ex)
             {
@@ -254,16 +256,16 @@
             try
             {
                 var users = new List<User>();
-                using var connection = DatabaseHelper.GetConnection();
+                await using var connection = DatabaseHelper.GetConnection();
                 var command = new SqlCommand("SELECT * FROM [USER]", connection);
 
-                using var reader = await command.ExecuteReaderAsync();
+                await connection.OpenAsync();
+                await using var reader = await command.ExecuteReaderAsync();
                 while (await reader.ReadAsync())
                 {
                     users.Add(this.CreateUserFromDataReader(reader));
                 }
 
-                await connection.CloseAsync();
                 return users;
             }
             catch (SqlException ex)
@@ -281,7 +283,7 @@
 
             try
             {
-                using var connection = DatabaseHelper.GetConnection();
+                await using var connection = DatabaseHelper.GetConnection();
                 var command = new SqlCommand(@"
                     UPDATE [USER] 
                     SET CreditScore = CreditScore - @Amount 
@@ -296,8 +298,6 @@
                 {
                     throw new KeyNotFoundException($"No user found with CNP: {cnp}");
                 }
-
-                await connection.CloseAsync();
             }
             catch (SqlException ex)
             {
@@ -314,7 +314,7 @@
 
             try
             {
-                using var connection = DatabaseHelper.GetConnection();
+                await using var connection = DatabaseHelper.GetConnection();
                 var command = new SqlCommand(@"
                     UPDATE [USER] 
                     SET NumberOfOffenses = ISNULL(NumberOfOffenses, 0) + 1 
@@ -328,8 +328,6 @@
                 {
                     throw new KeyNotFoundException($"No user found with CNP: {cnp}");
                 }
-
-                await connection.CloseAsync();
             }
             catch (SqlException ex)
             {
@@ -346,7 +344,7 @@
 
             try
             {
-                using var connection = DatabaseHelper.GetConnection();
+                await using var connection = DatabaseHelper.GetConnection();
                 var command = new SqlCommand(@"
                     UPDATE [USER] 
                     SET CreditScore = @CreditScore 
@@ -361,8 +359,6 @@
                 {
                     throw new KeyNotFoundException($"No user found with CNP: {cnp}");
                 }
-
-                await connection.CloseAsync();
             }
             catch (SqlException ex)
             {
@@ -379,7 +375,7 @@
 
             try
             {
-                using var connection = DatabaseHelper.GetConnection();
+                await using var connection = DatabaseHelper.GetConnection();
                 var command = new SqlCommand(@"
                     UPDATE [USER] 
                     SET Roi = @Roi 
@@ -394,8 +390,6 @@
                 {
                     throw new KeyNotFoundException($"No user found with CNP: {cnp}");
                 }
-
-                await connection.CloseAsync();
             }
             catch (SqlException ex)
             {
@@ -412,7 +406,7 @@
 
             try
             {
-                using var connection = DatabaseHelper.GetConnection();
+                await using var connection = DatabaseHelper.GetConnection();
                 var command = new SqlCommand(@"
                     UPDATE [USER] 
                     SET RiskScore = @RiskScore 
@@ -427,8 +421,6 @@
                 {
                     throw new KeyNotFoundException($"No user found with CNP: {cnp}");
                 }
-
-                await connection.CloseAsync();
             }
             catch (SqlException ex)
             {

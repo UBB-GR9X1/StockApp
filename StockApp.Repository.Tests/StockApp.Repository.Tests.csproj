@@ -17,6 +17,13 @@
 	<PackageReference Include="MSTest.TestAdapter" Version="3.8.3" />
 	<PackageReference Include="MSTest.TestFramework" Version="3.8.3" />
 	<PackageReference Include="Moq" Version="4.20.72" />
+	<PackageReference Include="System.Runtime.InteropServices" Version="4.3.0" />
+	<PackageReference Include="System.IO" Version="4.3.0" />
+	<PackageReference Include="System.Collections" Version="4.3.0" />
+	<PackageReference Include="System.Diagnostics.Debug" Version="4.3.0" />
+	<PackageReference Include="System.IO.FileSystem.Primitives" Version="4.3.0" />
+	<PackageReference Include="System.Runtime.Extensions" Version="4.3.0" />
+	<PackageReference Include="System.Runtime.Handles" Version="4.3.0" />
 </ItemGroup>
 
 <ItemGroup>

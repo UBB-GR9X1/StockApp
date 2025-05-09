@@ -9,10 +9,12 @@ namespace StockApp.Pages
     using StockApp.Models;
     using StockApp.Services;
     using StockApp.ViewModels;
+    using StockApp.Repositories;
 
     public sealed partial class ProfilePage : Page
     {
         private ProfilePageViewModel viewModel;
+        private static readonly IUserRepository userRepository = new UserRepository();
 
         private ICommand UpdateProfileButton { get; }
 
@@ -23,43 +25,88 @@ namespace StockApp.Pages
         {
             this.InitializeComponent();
             this.UpdateProfileButton = new StockNewsRelayCommand(() => this.GoToUpdatePage());
+            this.viewModel = new ProfilePageViewModel();
+            this.DataContext = this.viewModel;
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
 
-            this.viewModel = new ProfilePageViewModel();
-            this.DataContext = this.viewModel;
-
-            this.ShowUserInformation();
-            this.StocksListView.ItemsSource = this.viewModel.GetUserStocks();
-
-            if (this.viewModel.IsHidden())
+            try
             {
-                this.HideProfile();
-            }
+                if (string.IsNullOrEmpty(userRepository.CurrentUserCNP))
+                {
+                    this.ShowNoUserMessage();
+                    return;
+                }
 
-            this.UserStocksShowUsername();
+                this.LoadUserData();
+            }
+            catch (InvalidOperationException ex)
+            {
+                this.ShowNoUserMessage();
+            }
+            catch (Exception ex)
+            {
+                this.ShowErrorMessage(ex.Message);
+            }
         }
 
-        private void ShowUserInformation()
+        private void ShowNoUserMessage()
         {
-            this.UsernameTextBlock.Text = this.viewModel.GetUsername();
-            this.ProfileDescription.Text = this.viewModel.GetDescription();
-            this.ProfileImage.Source = this.viewModel.ImageSource;
+            this.UsernameTextBlock.Text = "No user logged in";
+            this.ProfileDescription.Text = "Please create a profile first";
+            this.StocksListView.ItemsSource = null;
+            this.ProfileImage.Visibility = Visibility.Collapsed;
+            this.EnterStockButton.Visibility = Visibility.Collapsed;
+            this.updateWindowButton.Visibility = Visibility.Collapsed;
+        }
+
+        private void ShowErrorMessage(string message)
+        {
+            this.UsernameTextBlock.Text = "Error";
+            this.ProfileDescription.Text = message;
+            this.StocksListView.ItemsSource = null;
+            this.ProfileImage.Visibility = Visibility.Collapsed;
+            this.EnterStockButton.Visibility = Visibility.Collapsed;
+            this.updateWindowButton.Visibility = Visibility.Collapsed;
+        }
+
+        private void LoadUserData()
+        {
+            try
+            {
+                // The view model properties will automatically update the UI through data binding
+                if (this.viewModel.IsHidden())
+                {
+                    this.HideProfile();
+                }
+
+                // Update username in stocks section
+                this.UserStocksShowUsername();
+            }
+            catch (Exception ex)
+            {
+                this.ShowErrorMessage(ex.Message);
+            }
         }
 
         private void GoToUpdatePage()
         {
+            if (this.viewModel == null)
+            {
+                this.ShowErrorMessage("No user profile available");
+                return;
+            }
             NavigationService.Instance.Navigate(typeof(UpdateProfilePage), this.viewModel.GetLoggedInUserCnp());
         }
 
         private void GetSelectedStock(object sender, RoutedEventArgs e)
         {
-            if (this.StocksListView.SelectedItem is string selectedStock)
+            if (this.StocksListView.SelectedItem is Stock selectedStock)
             {
-                this.StockName.Text = selectedStock;
+                this.StockName.Text = selectedStock.Name;
             }
             else
             {
@@ -90,7 +137,7 @@ namespace StockApp.Pages
         /// </summary>
         public void UserStocksShowUsername()
         {
-            this.UsernameMyStocks.Text = this.viewModel.GetUsername() + "'s STOCKS: ";
+            this.UsernameMyStocks.Text = this.viewModel.Username + "'s STOCKS: ";
         }
 
         /// <summary>
@@ -103,7 +150,6 @@ namespace StockApp.Pages
         {
             if (this.StocksListView.SelectedItem is Stock selectedStock)
             {
-                NavigationService.Initialize(new FrameAdapter(this.Frame));
                 NavigationService.Instance.Navigate(typeof(StockPage), selectedStock);
             }
             else

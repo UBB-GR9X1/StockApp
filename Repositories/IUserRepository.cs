@@ -10,7 +10,13 @@
 
         bool IsGuest { get; }
 
-        Task CreateUserAsync(User user);
+        /// <summary>
+        /// Creates a new user in the database.
+        /// </summary>
+        /// <param name="user">The user entity to create.</param>
+        /// <returns>A task representing the asynchronous operation with a success message.</returns>
+        /// <exception cref="UserRepositoryException">Thrown when there is an error creating the user.</exception>
+        Task<string> CreateUserAsync(User user);
 
         Task<User> GetUserByCnpAsync(string userCNP);
 
