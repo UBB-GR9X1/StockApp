@@ -73,6 +73,25 @@ namespace BankApi.Controllers
             return NoContent();
         }
 
+        [HttpPut("{id}/punish")]
+        public async Task<IActionResult> PunishUser(int id, [FromBody] PunishmentDetails details)
+        {
+            var user = await _repository.GetByIdAsync(id);
+            if (user == null)
+                return NotFound();
+
+            // Update the user's properties for punishment
+            user.GemBalance -= details.GemPenalty;
+            user.NumberOfOffenses++;
+            user.CreditScore -= 50; // Example punishment logic
+
+            var success = await _repository.UpdateAsync(user);
+            if (!success)
+                return NotFound();
+            
+            return NoContent();
+        }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -81,5 +100,11 @@ namespace BankApi.Controllers
                 return NotFound();
             return NoContent();
         }
+    }
+
+    // Class to contain punishment details
+    public class PunishmentDetails
+    {
+        public int GemPenalty { get; set; }
     }
 }
