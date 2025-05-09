@@ -1,34 +1,16 @@
 ﻿namespace StockApp.Services
 {
     using System.Collections.ObjectModel;
+    using System.Threading.Tasks;
     using StockApp.Models;
 
     public interface IHomepageService
     {
-        ObservableCollection<HomepageStock> AllStocks { get; }
+        Task AddToFavoritesAsync(HomepageStock stock);
 
-        ObservableCollection<HomepageStock> FavoriteStocks { get; }
+        Task RemoveFromFavoritesAsync(HomepageStock stock);
 
-        ObservableCollection<HomepageStock> FilteredAllStocks { get; }
+        Task<ObservableCollection<HomepageStock>> GetFilteredAndSortedStocksAsync(string query, string sortOption, bool favoritesOnly);
 
-        ObservableCollection<HomepageStock> FilteredFavoriteStocks { get; }
-
-        ObservableCollection<HomepageStock> GetAllStocks();
-
-        ObservableCollection<HomepageStock> GetFavoriteStocks();
-
-        void FilterStocks(string query);
-
-        void SortStocks(string sortOption);
-
-        void AddToFavorites(HomepageStock stock);
-
-        void RemoveFromFavorites(HomepageStock stock);
-
-        bool IsGuestUser();
-
-        string GetUserCNP();
-
-        void CreateUserProfile();
     }
 }

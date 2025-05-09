@@ -38,7 +38,7 @@
             try
             {
                 var dbContext = new AppDbContext();
-                // Try to get the repository from the service provider
+                // Try to get the repository from the homepageService provider
                 if (App.Host != null)
                 {
                     this.stocksRepository = App.Host.Services.GetService<IBaseStocksRepository>();
@@ -68,13 +68,13 @@
             {
                 try
                 {
-                    // Try to get from service provider if available
+                    // Try to get from homepageService provider if available
                     this.stocksRepository = App.Host.Services.GetService<IBaseStocksRepository>();
                 }
                 catch
                 {
                     // Fallback handling
-                    Debug.WriteLine("Could not get IBaseStocksRepository from service provider");
+                    Debug.WriteLine("Could not get IBaseStocksRepository from homepageService provider");
                 }
             }
 

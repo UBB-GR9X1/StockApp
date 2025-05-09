@@ -250,7 +250,7 @@
                 //   this.SelectedTopic,
                 //   this.ParseRelatedStocks());
 
-                // Store preview in the service
+                // Store preview in the homepageService
                 //this.newsService.StorePreviewArticle(article, userArticle);
 
                 // Navigate to the preview view

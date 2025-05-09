@@ -9,7 +9,7 @@
     /// ViewModel for updating user profile details including username, image, description, and visibility.
     /// </summary>
     /// <remarks>
-    /// Initializes a new instance of the <see cref="UpdateProfilePageViewModel"/> class with a specified service.
+    /// Initializes a new instance of the <see cref="UpdateProfilePageViewModel"/> class with a specified homepageService.
     /// </remarks>
     /// <param name="service">Service used to retrieve and update profile information.</param>
     internal class UpdateProfilePageViewModel(IProfileService service)
@@ -17,7 +17,7 @@
         private readonly IProfileService profileService = service ?? throw new ArgumentNullException(nameof(service));
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="UpdateProfilePageViewModel"/> class with the default profile service.
+        /// Initializes a new instance of the <see cref="UpdateProfilePageViewModel"/> class with the default profile homepageService.
         /// </summary>
         public UpdateProfilePageViewModel()
             : this(new ProfileService())
@@ -31,7 +31,7 @@
         /// <returns>The image URL as a string.</returns>
         public string GetImage()
         {
-            // Inline: delegate image retrieval to service
+            // Inline: delegate image retrieval to homepageService
             return this.profileService.GetImage();
         }
 
@@ -41,7 +41,7 @@
         /// <returns>The username as a string.</returns>
         public string GetUsername()
         {
-            // Inline: delegate username retrieval to service
+            // Inline: delegate username retrieval to homepageService
             return this.profileService.GetUsername();
         }
 
@@ -51,7 +51,7 @@
         /// <returns>The description as a string.</returns>
         public string GetDescription()
         {
-            // Inline: delegate description retrieval to service
+            // Inline: delegate description retrieval to homepageService
             return this.profileService.GetDescription();
         }
 
@@ -61,7 +61,7 @@
         /// <returns><c>true</c> if hidden; otherwise, <c>false</c>.</returns>
         public bool IsHidden()
         {
-            // Inline: delegate visibility check to service
+            // Inline: delegate visibility check to homepageService
             return this.profileService.IsHidden();
         }
 
@@ -71,7 +71,7 @@
         /// <returns><c>true</c> if admin; otherwise, <c>false</c>.</returns>
         public bool IsAdmin()
         {
-            // Inline: delegate admin check to service
+            // Inline: delegate admin check to homepageService
             return this.profileService.IsAdmin();
         }
 
@@ -81,7 +81,7 @@
         /// <returns>A list of <see cref="Stock"/> objects.</returns>
         public List<Stock> GetUserStocks()
         {
-            // Inline: retrieve user's stocks from service
+            // Inline: retrieve user's stocks from homepageService
             return this.profileService.GetUserStocks();
         }
 
@@ -95,7 +95,7 @@
         public void UpdateAll(string newUsername, string newImage, string newDescription, bool newHidden)
         {
             // TODO: Validate inputs (e.g., non-null, length constraints)
-            // FIXME: Consider handling exceptions from service to provide user feedback
+            // FIXME: Consider handling exceptions from homepageService to provide user feedback
             this.profileService.UpdateUser(newUsername, newImage, newDescription, newHidden); // Inline: perform bulk update
         }
 
@@ -105,7 +105,7 @@
         /// <param name="newIsAdmin"><c>true</c> to grant admin; otherwise, <c>false</c>.</param>
         public void UpdateAdminMode(bool newIsAdmin)
         {
-            // Inline: delegate admin mode toggle to service
+            // Inline: delegate admin mode toggle to homepageService
             this.profileService.UpdateIsAdmin(newIsAdmin);
         }
     }

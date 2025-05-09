@@ -15,12 +15,7 @@ namespace StockApp.Database
         {
         }
 
-        public DbSet<ChatReport> ChatReports { get; set; }
-        public DbSet<BaseStock> BaseStocks { get; set; }
-        public DbSet<Alert> Alerts { get; set; } = null!;
         public DbSet<CreditScoreHistory> CreditScoreHistories { get; set; } = null!;
-
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

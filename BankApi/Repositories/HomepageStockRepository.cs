@@ -1,13 +1,13 @@
 ﻿namespace BankApi.Repositories
 {
-    using BankApi.Data;
-    using BankApi.Models;
-    using Microsoft.EntityFrameworkCore;
-    using Microsoft.Extensions.Logging;
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using BankApi.Data;
+    using BankApi.Models;
+    using Microsoft.EntityFrameworkCore;
+    using Microsoft.Extensions.Logging;
 
     public class HomepageStockRepository : IHomepageStockRepository
     {
@@ -24,7 +24,10 @@
         {
             try
             {
-                return await _context.HomepageStocks.OrderBy(s => s.Id).ToListAsync();
+                return await _context.HomepageStocks
+                    .Include(hs => hs.StockDetails)
+                    .OrderBy(s => s.Id)
+                    .ToListAsync();
             }
             catch (Exception ex)
             {
@@ -37,7 +40,9 @@
         {
             try
             {
-                return await _context.HomepageStocks.FindAsync(id);
+                return await _context.HomepageStocks
+                    .Include(hs => hs.StockDetails)
+                    .FirstOrDefaultAsync(hs => hs.Id == id);
             }
             catch (Exception ex)
             {
@@ -51,6 +56,7 @@
             try
             {
                 return await _context.HomepageStocks
+                    .Include(hs => hs.StockDetails)
                     .FirstOrDefaultAsync(hs => hs.Symbol == symbol);
             }
             catch (Exception ex)
@@ -79,17 +85,18 @@
         {
             try
             {
-                var existingStock = await _context.HomepageStocks.FindAsync(id);
+                var existingStock = await _context.HomepageStocks
+                    .Include(hs => hs.StockDetails)
+                    .FirstOrDefaultAsync(hs => hs.Id == id);
+
                 if (existingStock == null)
                 {
                     return false;
                 }
 
                 existingStock.Symbol = updatedStock.Symbol;
-                existingStock.CompanyName = updatedStock.CompanyName;
-                existingStock.Price = updatedStock.Price;
+                existingStock.StockDetails = updatedStock.StockDetails;
                 existingStock.Change = updatedStock.Change;
-                existingStock.PercentChange = updatedStock.PercentChange;
 
                 await _context.SaveChangesAsync();
                 return true;
@@ -105,7 +112,10 @@
         {
             try
             {
-                var stock = await _context.HomepageStocks.FindAsync(id);
+                var stock = await _context.HomepageStocks
+                    .Include(hs => hs.StockDetails)
+                    .FirstOrDefaultAsync(hs => hs.Id == id);
+
                 if (stock == null)
                 {
                     return false;

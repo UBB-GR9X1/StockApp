@@ -36,23 +36,13 @@
                 _stocksRepository = App.Host.Services.GetService<IBaseStocksRepository>();
                 if (_stocksRepository == null)
                 {
-                    throw new InvalidOperationException("Could not resolve IBaseStocksRepository from the service provider");
+                    throw new InvalidOperationException("Could not resolve IBaseStocksRepository from the homepageService provider");
                 }
             }
             else
             {
                 throw new InvalidOperationException("App.Host is null, cannot resolve dependencies");
             }
-        }
-
-        /// <summary>
-        /// Checks if the user is a guest.
-        /// </summary>
-        /// <returns></returns>
-        public bool CheckIfUserIsGuest()
-        {
-            HomepageStocksRepository homepageStocksRepository = new();
-            return homepageStocksRepository.IsGuestUser(homepageStocksRepository.GetUserCnp());
         }
 
         /// <summary>
@@ -64,7 +54,7 @@
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="StockPersistenceException"></exception>
-        public async Task<string> AddStock(string stockName, string stockSymbol, string authorCNP)
+        public async Task<string> AddStockAsync(string stockName, string stockSymbol, string authorCNP)
         {
             if (string.IsNullOrWhiteSpace(stockName) ||
                 string.IsNullOrWhiteSpace(stockSymbol) ||

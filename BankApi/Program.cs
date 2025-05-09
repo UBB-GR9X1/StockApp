@@ -1,6 +1,7 @@
 using BankApi.Data;
 using BankApi.Repositories;
 using Microsoft.EntityFrameworkCore;
+using StockApp.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +13,12 @@ builder.Services.AddDbContext<ApiDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Register repository
-builder.Services.AddScoped<IRepository, Repository>();
+builder.Services.AddScoped<IBaseStockRepository, BaseStockRepository>();
+builder.Services.AddScoped<IAlertRepository, AlertRepository>();
+builder.Services.AddScoped<IHomepageStockRepository, HomepageStockRepository>();
+builder.Services.AddScoped<IGemStoreRepository, GemStoreRepository>();
+builder.Services.AddScoped<IChatReportRepository, ChatReportRepository>();
+
 
 // Add CORS
 builder.Services.AddCors(options =>

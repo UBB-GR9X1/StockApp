@@ -11,7 +11,7 @@
     /// View model for the profile page, managing the user's profile image and information.
     /// </summary>
     /// <remarks>
-    /// Initializes a new instance of the <see cref="ProfilePageViewModel"/> class with the specified profile service.
+    /// Initializes a new instance of the <see cref="ProfilePageViewModel"/> class with the specified profile homepageService.
     /// </remarks>
     /// <param name="profileService">Service used to retrieve profile data.</param>
     public class ProfilePageViewModel(IProfileService profileService) : INotifyPropertyChanged
@@ -34,7 +34,7 @@
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ProfilePageViewModel"/> class with the default profile service and loads the profile image.
+        /// Initializes a new instance of the <see cref="ProfilePageViewModel"/> class with the default profile homepageService and loads the profile image.
         /// </summary>
         public ProfilePageViewModel()
             : this(new ProfileService())
@@ -43,12 +43,12 @@
         }
 
         /// <summary>
-        /// Loads the profile image from the profile service.
+        /// Loads the profile image from the profile homepageService.
         /// </summary>
         internal void LoadProfileImage()
         {
             // TODO: Handle missing or invalid image URL (e.g., set a placeholder image)
-            // Retrieve the image URL from the service
+            // Retrieve the image URL from the homepageService
             string imageUrl = this.profileService.GetImage();
             if (!string.IsNullOrEmpty(imageUrl))
             {

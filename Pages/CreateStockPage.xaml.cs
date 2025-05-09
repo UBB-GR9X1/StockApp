@@ -8,10 +8,10 @@ namespace StockApp.Pages
     /// </summary>
     public sealed partial class CreateStockPage : Page
     {
-        public CreateStockPage()
+        public CreateStockPage(CreateStockViewModel viewModel)
         {
             this.InitializeComponent();
-            this.DataContext = new CreateStockViewModel();
+            this.DataContext = viewModel;
         }
 
     }

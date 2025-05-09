@@ -8,19 +8,21 @@ namespace StockApp.ViewModels
     using System.ComponentModel;
     using System.Runtime.CompilerServices;
     using System.Text.RegularExpressions;
+    using System.Threading.Tasks;
     using System.Windows.Input;
     using StockApp.Commands;
-    using StockApp.Database;
+    using StockApp.Models;
     using StockApp.Services;
 
-    internal class CreateStockViewModel : INotifyPropertyChanged
+    public class CreateStockViewModel : INotifyPropertyChanged
     {
+        private readonly ICreateStockService stockService;
+        private readonly IUserService userService;
         private string stockName;
         private string stockSymbol;
         private string authorCnp;
         private string message;
         private bool suppressValidation;
-        private readonly ICreateStockService stockService;
         private bool isAdmin;
         private bool isInputValid;
 
@@ -34,16 +36,22 @@ namespace StockApp.ViewModels
         /// </summary>
         public ICommand CreateStockCommand { get; }
 
-        public CreateStockViewModel(ICreateStockService stockService)
+        public CreateStockViewModel(ICreateStockService stockService, IUserService userService)
         {
+            this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
             this.stockService = stockService ?? throw new ArgumentNullException(nameof(stockService));
             this.CreateStockCommand = new RelayCommand(this.CreateStock, this.CanCreateStock);
-            this.IsAdmin = this.CheckIfUserIsAdmin();
+            this.suppressValidation = true;
+            this.StockName = string.Empty;
+            this.StockSymbol = string.Empty;
+            this.AuthorCnp = string.Empty;
+            this.suppressValidation = false;
+            this.Initialize();
         }
 
-        public CreateStockViewModel()
-            : this(new CreateStockService(new AppDbContext()))
+        private async void Initialize()
         {
+            this.IsAdmin = await this.CheckIfUserIsAdmin();
         }
 
         /// <summary>
@@ -114,7 +122,7 @@ namespace StockApp.ViewModels
         }
 
         /// <summary>
-        /// Gets or sets the validation or service message to display.
+        /// Gets or sets the validation or homepageService message to display.
         /// </summary>
         public string Message
         {
@@ -219,7 +227,7 @@ namespace StockApp.ViewModels
                 return;
             }
 
-            this.Message = await this.stockService.AddStock(this.StockName, this.StockSymbol, this.AuthorCnp);
+            this.Message = await this.stockService.AddStockAsync(this.StockName, this.StockSymbol, this.AuthorCnp);
 
             if (this.Message == "Stock added successfully with initial value!")
             {
@@ -235,16 +243,17 @@ namespace StockApp.ViewModels
         /// Checks whether the current user has administrative privileges.
         /// </summary>
         /// <returns>True if the user is an admin; otherwise false.</returns>
-        protected virtual bool CheckIfUserIsAdmin()
+        protected async Task<bool> CheckIfUserIsAdmin()
         {
+            User user = await this.userService.GetCurrentUserAsync();
             // This method should check if the user is an admin.
             // For now, let's assume the user is an admin.
-            if (this.stockService.CheckIfUserIsGuest())
+            if (!user.IsModerator)
             {
                 this.Message = "You are a guest user and cannot create stocks!";
             }
 
-            return !this.stockService.CheckIfUserIsGuest();
+            return !user.IsModerator;
         }
 
         /// <summary>

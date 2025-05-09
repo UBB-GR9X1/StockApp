@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using Microsoft.UI.Xaml;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Microsoft.UI.Xaml;
 using StockApp.Models;
 using StockApp.Services;
-using StockApp.ViewModels;
 
 namespace StockApp.ViewModels.Tests
 {
@@ -145,12 +143,5 @@ namespace StockApp.ViewModels.Tests
             _serviceMock.Verify(s => s.GetAllStocks(), Times.AtLeastOnce);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public void NavigateToPage_Invalid_Throws()
-        {
-            HomepageViewModel.NavigateToPage(123);
-            HomepageViewModel.NavigateToPage("UnknownPage");
-        }
     }
 }

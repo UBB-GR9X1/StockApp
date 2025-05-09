@@ -1,52 +1,47 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Threading.Tasks;
-using StockApp.Models;
-using StockApp.Repositories; // <-- Interface is here
-
-namespace StockApp.Repositories.Api
+﻿namespace StockApp.Repositories.Api
 {
-    public class HomepageStocksProxyRepository : IHomepageStocksProxyRepository
+    using System.Collections.Generic;
+    using System.Net.Http;
+    using System.Net.Http.Json;
+    using System.Threading.Tasks;
+    using StockApp.Models;
+
+    public class HomepageStocksProxyRepository : IHomepageStocksRepository
     {
         private readonly HttpClient _httpClient;
 
         public HomepageStocksProxyRepository(HttpClient httpClient)
         {
-            _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+            _httpClient = httpClient;
         }
 
-        public async Task<List<HomepageStock>> GetAllAsync()
+        public async Task<List<HomepageStock>> GetAllStocksAsync()
         {
-            return await _httpClient.GetFromJsonAsync<List<HomepageStock>>("api/HomepageStocks") ?? new List<HomepageStock>();
+            var result = await _httpClient.GetFromJsonAsync<List<HomepageStock>>("api/HomepageStock");
+            return result ?? new List<HomepageStock>();
         }
 
-        public async Task<HomepageStock?> GetByIdAsync(int id)
+        public async Task<HomepageStock> GetStockByIdAsync(int id)
         {
-            return await _httpClient.GetFromJsonAsync<HomepageStock>($"api/HomepageStocks/{id}");
+            var result = await _httpClient.GetFromJsonAsync<HomepageStock>($"api/HomepageStock/{id}");
+            return result ?? throw new KeyNotFoundException("Stock not found.");
         }
 
-        public async Task<HomepageStock?> GetBySymbolAsync(string symbol)
+        public async Task<bool> AddStockAsync(HomepageStock stock)
         {
-            return await _httpClient.GetFromJsonAsync<HomepageStock>($"api/HomepageStocks/symbol/{symbol}");
-        }
-
-        public async Task<bool> CreateAsync(HomepageStock homepageStock)
-        {
-            var response = await _httpClient.PostAsJsonAsync("api/HomepageStocks", homepageStock);
+            var response = await _httpClient.PostAsJsonAsync("api/HomepageStock", stock);
             return response.IsSuccessStatusCode;
         }
 
-        public async Task<bool> UpdateAsync(int id, HomepageStock homepageStock)
+        public async Task<bool> UpdateStockAsync(int id, HomepageStock stock)
         {
-            var response = await _httpClient.PutAsJsonAsync($"api/HomepageStocks/{id}", homepageStock);
+            var response = await _httpClient.PutAsJsonAsync($"api/HomepageStock/{stock.Id}", stock);
             return response.IsSuccessStatusCode;
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task<bool> DeleteStockAsync(int id)
         {
-            var response = await _httpClient.DeleteAsync($"api/HomepageStocks/{id}");
+            var response = await _httpClient.DeleteAsync($"api/HomepageStock/{id}");
             return response.IsSuccessStatusCode;
         }
     }

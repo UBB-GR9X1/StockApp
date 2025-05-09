@@ -12,7 +12,7 @@
         {
             try
             {
-                string apiUrl = $"https://www.purgomalum.com/service/containsprofanity?text={Uri.EscapeDataString(messageToBeChecked)}";
+                string apiUrl = $"https://www.purgomalum.com/homepageService/containsprofanity?text={Uri.EscapeDataString(messageToBeChecked)}";
                 HttpResponseMessage response = await Client.GetAsync(apiUrl);
                 string result = await response.Content.ReadAsStringAsync();
                 return result.Trim().ToLower() == "true";

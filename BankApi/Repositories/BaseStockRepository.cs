@@ -1,19 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using BankApi.Data;
 using BankApi.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace BankApi.Repositories
 {
-    public class Repository : IRepository
+    public class BaseStockRepository : IBaseStockRepository
     {
         private readonly ApiDbContext _dbContext;
-        private readonly ILogger<Repository> _logger;
+        private readonly ILogger<BaseStockRepository> _logger;
 
-        public Repository(ApiDbContext dbContext, ILogger<Repository> logger)
+        public BaseStockRepository(ApiDbContext dbContext, ILogger<BaseStockRepository> logger)
         {
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -30,7 +26,7 @@ namespace BankApi.Repositories
             {
                 // Check if stock with the same name already exists
                 var existingStock = await _dbContext.BaseStocks.FirstOrDefaultAsync(s => s.Name == stock.Name);
-                
+
                 if (existingStock != null)
                 {
                     _logger.LogWarning("Attempted to add duplicate stock: {StockName}", stock.Name);
@@ -39,10 +35,10 @@ namespace BankApi.Repositories
 
                 // Add the stock to the context
                 await _dbContext.BaseStocks.AddAsync(stock);
-                
+
                 // Save changes to the database
                 await _dbContext.SaveChangesAsync();
-                
+
                 _logger.LogInformation("Added new stock: {StockName}", stock.Name);
                 return stock;
             }
@@ -61,7 +57,7 @@ namespace BankApi.Repositories
             }
 
             var stock = await _dbContext.BaseStocks.FirstOrDefaultAsync(s => s.Name == name);
-            
+
             if (stock == null)
             {
                 _logger.LogWarning("Stock not found: {StockName}", name);
@@ -86,7 +82,7 @@ namespace BankApi.Repositories
             try
             {
                 var existingStock = await _dbContext.BaseStocks.FirstOrDefaultAsync(s => s.Name == stock.Name);
-                
+
                 if (existingStock == null)
                 {
                     _logger.LogWarning("Attempted to update non-existent stock: {StockName}", stock.Name);
@@ -99,10 +95,10 @@ namespace BankApi.Repositories
 
                 // Update the entity
                 _dbContext.BaseStocks.Update(existingStock);
-                
+
                 // Save changes
                 await _dbContext.SaveChangesAsync();
-                
+
                 _logger.LogInformation("Updated stock: {StockName}", stock.Name);
                 return existingStock;
             }
@@ -123,7 +119,7 @@ namespace BankApi.Repositories
             try
             {
                 var stock = await _dbContext.BaseStocks.FirstOrDefaultAsync(s => s.Name == name);
-                
+
                 if (stock == null)
                 {
                     _logger.LogWarning("Attempted to delete non-existent stock: {StockName}", name);
@@ -132,7 +128,7 @@ namespace BankApi.Repositories
 
                 _dbContext.BaseStocks.Remove(stock);
                 await _dbContext.SaveChangesAsync();
-                
+
                 _logger.LogInformation("Deleted stock: {StockName}", name);
                 return true;
             }
@@ -143,4 +139,4 @@ namespace BankApi.Repositories
             }
         }
     }
-} 
+}

@@ -12,6 +12,7 @@ namespace BankApi.Data
 
         // DbSets
         public DbSet<BaseStock> BaseStocks { get; set; }
+        public DbSet<Stock> Stocks { get; set; }
         public DbSet<ChatReport> ChatReports { get; set; }
         public DbSet<GivenTip> GivenTips { get; set; }
         public DbSet<CreditScoreHistory> CreditScoreHistories { get; set; }
@@ -52,21 +53,14 @@ namespace BankApi.Data
                       .IsRequired()
                       .HasMaxLength(10);
 
-                entity.Property(e => e.CompanyName)
-                      .IsRequired()
-                      .HasMaxLength(100);
-
-                entity.Property(e => e.Price)
-                      .HasPrecision(18, 2);
-
                 entity.Property(e => e.Change)
                       .HasPrecision(18, 2);
 
-                entity.Property(e => e.PercentChange)
-                      .HasPrecision(18, 2);
+                entity.HasOne(e => e.StockDetails)
+                      .WithOne()
+                      .HasForeignKey<HomepageStock>(e => e.Id);
             });
 
-            // ChatReport configuration
             modelBuilder.Entity<ChatReport>(entity =>
             {
                 entity.HasKey(e => e.Id);
