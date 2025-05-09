@@ -3,12 +3,12 @@
     using System;
     using System.Collections.ObjectModel;
     using System.Threading.Tasks;
-    using Src.Model;
+    using StockApp.Models;
     using StockApp.Services;
 
     public class LoanRequestViewModel
     {
-        private readonly ILoanRequestService loanRequestService;
+        private readonly ILoanRequestService _loanRequestService;
 
         public ObservableCollection<LoanRequest> LoanRequests { get; set; }
         public bool IsLoading { get; private set; }
@@ -16,31 +16,31 @@
 
         public LoanRequestViewModel(ILoanRequestService loanService)
         {
-            this.loanRequestService = loanService;
+            this._loanRequestService = loanService;
             this.LoanRequests = new ObservableCollection<LoanRequest>();
         }
 
         public async Task LoadLoanRequestsAsync()
         {
-            IsLoading = true;
-            ErrorMessage = string.Empty;
-            LoanRequests.Clear();
+            this.IsLoading = true;
+            this.ErrorMessage = string.Empty;
+            this.LoanRequests.Clear();
 
             try
             {
-                var requests = await _loanRequestService.GetLoanRequests();
+                var requests = await this._loanRequestService.GetLoanRequests();
                 foreach (var request in requests)
                 {
-                    LoanRequests.Add(request);
+                    this.LoanRequests.Add(request);
                 }
             }
             catch (Exception ex)
             {
-                ErrorMessage = $"Failed to load loan requests: {ex.Message}";
+                this.ErrorMessage = $"Failed to load loan requests: {ex.Message}";
             }
             finally
             {
-                IsLoading = false;
+                this.IsLoading = false;
             }
         }
 
@@ -53,7 +53,7 @@
 
             try
             {
-                return await Task.Run(() => _loanRequestService.GiveSuggestion(loanRequest));
+                return await this._loanRequestService.GiveSuggestion(loanRequest);
             }
             catch (Exception ex)
             {

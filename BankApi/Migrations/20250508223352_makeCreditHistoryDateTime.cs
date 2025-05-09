@@ -10,27 +10,27 @@ namespace BankApi.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<string>(
-                name: "UserCnp",
-                table: "CreditScoreHistories",
-                type: "nvarchar(13)",
-                maxLength: 13,
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "nvarchar(max)");
+            migrationBuilder.CreateTable(
+            name: "CreditScoreHistories",
+            columns: table => new
+            {
+                Id = table.Column<int>(type: "int", nullable: false)
+                    .Annotation("SqlServer:Identity", "1, 1"),
+                UserCnp = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                Date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                Score = table.Column<int>(type: "int", nullable: false)
+            },
+            constraints: table =>
+            {
+                table.PrimaryKey("PK_CreditScoreHistories", x => x.Id);
+            });
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<string>(
-                name: "UserCnp",
-                table: "CreditScoreHistories",
-                type: "nvarchar(max)",
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "nvarchar(13)",
-                oldMaxLength: 13);
+            migrationBuilder.DropTable(
+                name: "CreditScoreHistories");
         }
     }
 }

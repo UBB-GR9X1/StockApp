@@ -26,6 +26,7 @@ namespace BankApi.Data
         public DbSet<Investment> Investments { get; set; }
         public DbSet<BillSplitReport> BillSplitReports { get; set; }
         public DbSet<User> Users { get; set; } = null!;
+        public DbSet<Loan> Loans { get; set; } = null!;
 
         public DbSet<LoanRequest> LoanRequests { get; set; }
 

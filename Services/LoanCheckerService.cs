@@ -20,9 +20,9 @@
             this.timer.Tick += this.Timer_Tick;
         }
 
-        private void Timer_Tick(object sender, object e)
+        private async void Timer_Tick(object sender, object e)
         {
-            this.loanServices.CheckLoans();
+            await this.loanServices.CheckLoansAsync();
             this.LoansUpdated?.Invoke(this, EventArgs.Empty);
         }
 

@@ -1,4 +1,7 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.Threading.Tasks;
+using LiveChartsCore;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using StockApp.Models;
 using StockApp.Services;
@@ -9,10 +12,10 @@ namespace StockApp.ViewModels.Tests
     public class StockPageViewModelTests
     {
         private Mock<IStockPageService> _svc;
-        private Mock<ITextBlock> _priceTb;
-        private Mock<ITextBlock> _incTb;
-        private Mock<ITextBlock> _ownTb;
-        private Mock<IChart> _chart;
+        private Mock<TextBlock> _priceTb;
+        private Mock<TextBlock> _incTb;
+        private Mock<TextBlock> _ownTb;
+        private Mock<ISeries> _series;
         private StockPageViewModel _vm;
 
         private readonly Stock _stk = new Stock("X", "X", "", 0, 0);
@@ -21,10 +24,10 @@ namespace StockApp.ViewModels.Tests
         public void Init()
         {
             _svc = new Mock<IStockPageService>(MockBehavior.Strict);
-            _priceTb = new Mock<ITextBlock>(MockBehavior.Loose);
-            _incTb = new Mock<ITextBlock>(MockBehavior.Loose);
-            _ownTb = new Mock<ITextBlock>(MockBehavior.Loose);
-            _chart = new Mock<IChart>(MockBehavior.Loose);
+            _priceTb = new Mock<TextBlock>(MockBehavior.Loose);
+            _incTb = new Mock<TextBlock>(MockBehavior.Loose);
+            _ownTb = new Mock<TextBlock>(MockBehavior.Loose);
+            _series = new Mock<ISeries>(MockBehavior.Loose);
 
             _svc.Setup(s => s.SelectStock(_stk));
             _svc.Setup(s => s.IsGuest()).Returns(false);
@@ -43,7 +46,7 @@ namespace StockApp.ViewModels.Tests
                 _stk,
                 _priceTb.Object,
                 _incTb.Object,
-                _ownTb.Object,
+                _ownTb.Object
             );
         }
 
@@ -78,10 +81,10 @@ namespace StockApp.ViewModels.Tests
         }
 
         [TestMethod]
-        public void GetStockAuthor_Delegates()
+        public async Task GetStockAuthor_Delegates()
         {
-            var u = _vm.GetStockAuthor();
-            Assert.AreEqual("u", u.Result.Username);
+            var u = await _vm.GetStockAuthor();
+            Assert.AreEqual("u", u.Username);
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -77,20 +76,7 @@ namespace BankApi.Migrations
                     table.PrimaryKey("PK_ChatReports", x => x.Id);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "CreditScoreHistories",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    UserCnp = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Score = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CreditScoreHistories", x => x.Id);
-                });
+
 
             migrationBuilder.CreateTable(
                 name: "GemStores",
@@ -186,9 +172,6 @@ namespace BankApi.Migrations
 
             migrationBuilder.DropTable(
                 name: "ChatReports");
-
-            migrationBuilder.DropTable(
-                name: "CreditScoreHistories");
 
             migrationBuilder.DropTable(
                 name: "GemStores");

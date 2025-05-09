@@ -73,8 +73,8 @@ namespace StockApp
                     services.AddSingleton<IBillSplitReportRepository, BillSplitReportProxyRepository>();
                     services.AddSingleton<IChatReportRepository, ChatReportRepoProxy>();
                     services.AddSingleton<IHistoryRepository, HistoryRepository>();
-                    services.AddSingleton<ILoanRepository, LoanRepository>();
-                    services.AddSingleton<ILoanRequestRepository, LoanRequestRepository>();
+                    services.AddSingleton<ILoanRepository, LoanProxyRepository>();
+                    services.AddSingleton<ILoanRequestRepository, LoanRequestProxyRepo>();
                     services.AddSingleton<IActivityRepo, ActivityProxyRepo>();
                     services.AddSingleton<IGemStoreRepository, GemStoreProxyRepo>();
                     services.AddSingleton<IUserRepository, UserProxyRepository>();
@@ -119,9 +119,8 @@ namespace StockApp
                     // Legacy repositories
                     services.AddSingleton<IChatReportRepository, ChatReportRepoProxy>();
                     services.AddSingleton<IHistoryRepository, HistoryRepository>();
-                    services.AddSingleton<ILoanRepository, LoanRepository>();
-                    services.AddSingleton<ILoanRequestRepository, LoanRequestRepository>();
                     services.AddSingleton<IStockPageRepository, StockPageRepository>();
+
                     services.AddHttpClient<IInvestmentsRepository, InvestmentsProxyRepository>(client =>
                     {
                         client.BaseAddress = new Uri("https://localhost:7001/");
@@ -131,8 +130,15 @@ namespace StockApp
                     {
                         client.BaseAddress = new Uri("https://localhost:7001/");
                     });
-                    services.AddSingleton<ILoanRequestRepository, LoanRequestProxyRepo>();
-                    services.AddSingleton<IUserRepository, UserRepository>();
+                    services.AddHttpClient<ILoanRequestRepository, LoanRequestProxyRepo>(client =>
+                    {
+                        client.BaseAddress = new Uri("https://localhost:7001/");
+                    });
+                    services.AddHttpClient<ILoanRepository, LoanProxyRepository>(client =>
+                    {
+                        client.BaseAddress = new Uri("https://localhost:7001/");
+                    });
+
 
                     // Other Services
                     services.AddSingleton<IBillSplitReportService, BillSplitReportService>();

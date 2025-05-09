@@ -15,14 +15,14 @@
             this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         }
 
-        public User GetUserByCnp(string cnp)
+        public async Task<User> GetUserByCnpAsync(string cnp)
         {
             if (string.IsNullOrWhiteSpace(cnp))
             {
                 throw new ArgumentException("CNP cannot be empty");
             }
 
-            return this.userRepository.GetByCnpAsync(cnp).Result;
+            return await this.userRepository.GetByCnpAsync(cnp) ?? throw new KeyNotFoundException($"User with CNP {cnp} not found.");
         }
 
         public Task<List<User>> GetUsers()

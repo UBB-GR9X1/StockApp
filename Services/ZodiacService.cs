@@ -55,7 +55,7 @@
             string joke = doc.RootElement.GetProperty("value").GetString();
 
             int asciiJokeModulo10 = ComputeJokeAsciiModulo10(joke);
-            List<User> users = this.userRepository.GetAllAsync().Result;
+            List<User> users = await this.userRepository.GetAllAsync();
             bool flip = FlipCoin();
 
             foreach (User user in users)

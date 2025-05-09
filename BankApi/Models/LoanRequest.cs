@@ -1,5 +1,5 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BankApi.Models
 {
@@ -13,7 +13,8 @@ namespace BankApi.Models
         public string UserCnp { get; set; }
 
         [Required]
-        public float Amount { get; set; }
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal Amount { get; set; }
 
         [Required]
         public DateTime ApplicationDate { get; set; } = DateTime.UtcNow;

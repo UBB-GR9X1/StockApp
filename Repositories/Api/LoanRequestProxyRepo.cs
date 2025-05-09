@@ -1,40 +1,45 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Net.Http;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
-using Src.Model;
-using StockApp.Services;
+using StockApp.Models;
 
 namespace StockApp.Repositories.Api
 {
-    class LoanRequestProxyRepo : ILoanRequestRepository
+    public class LoanRequestProxyRepo : ILoanRequestRepository
     {
-        private readonly LoanRequestService _apiService;
+        private readonly HttpClient _httpClient;
 
-        public LoanRequestProxyRepo(LoanRequestService apiService)
+        public LoanRequestProxyRepo(HttpClient httpClient)
         {
-            _apiService = apiService ?? throw new ArgumentNullException(nameof(apiService));
+            this._httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         }
 
         public async Task<List<LoanRequest>> GetLoanRequests()
         {
-            return await _apiService.GetLoanRequests();
+            var response = await _httpClient.GetAsync("api/LoanRequest");
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<List<LoanRequest>>();
         }
 
         public async Task<List<LoanRequest>> GetUnsolvedLoanRequests()
         {
-            return await _apiService.GetUnsolvedLoanRequests();
+            var response = await _httpClient.GetAsync("api/LoanRequest/unsolved");
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<List<LoanRequest>>();
         }
 
         public async Task SolveLoanRequest(LoanRequest loanRequest)
         {
-            await _apiService.SolveLoanRequest(loanRequest);
+            var response = await _httpClient.PatchAsync($"api/LoanRequest/{loanRequest.Id}/solve", null);
+            response.EnsureSuccessStatusCode();
         }
 
         public async Task DeleteLoanRequest(LoanRequest loanRequest)
         {
-            await _apiService.DeleteLoanRequest(loanRequest);
+            var response = await _httpClient.DeleteAsync($"api/LoanRequest/{loanRequest.Id}");
+            response.EnsureSuccessStatusCode();
         }
     }
 }

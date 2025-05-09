@@ -3,7 +3,7 @@ namespace StockApp.Views.Components
     using System;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
-    using Src.Model;
+    using StockApp.Models;
     using StockApp.Services;
 
     public sealed partial class LoanRequestComponent : Page
@@ -17,7 +17,7 @@ namespace StockApp.Views.Components
 
         public string RequestingUserCNP { get; set; }
 
-        public float RequestedAmount { get; set; }
+        public decimal RequestedAmount { get; set; }
 
         public DateTime ApplicationDate { get; set; }
 
@@ -44,12 +44,12 @@ namespace StockApp.Views.Components
         private async void OnApproveClick(object sender, RoutedEventArgs e)
         {
             LoanRequest loanRequest = new LoanRequest(this.RequestID, this.RequestingUserCNP, this.RequestedAmount, this.ApplicationDate, this.RepaymentDate, this.State);
-            this.loanServices.AddLoan(loanRequest);
+            await this.loanServices.AddLoanAsync(loanRequest);
             this.loanRequestService.SolveLoanRequest(loanRequest);
             this.LoanRequestSolved?.Invoke(this, EventArgs.Empty);
         }
 
-        public void SetRequestData(int id, string requestingUserCnp, float requestedAmount, DateTime applicationDate, DateTime repaymentDate, string state, string suggestion)
+        public void SetRequestData(int id, string requestingUserCnp, decimal requestedAmount, DateTime applicationDate, DateTime repaymentDate, string state, string suggestion)
         {
             this.RequestID = id;
             this.RequestingUserCNP = requestingUserCnp;

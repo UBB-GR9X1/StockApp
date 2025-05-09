@@ -156,7 +156,7 @@ namespace BankApi.Migrations
                     b.ToTable("GivenTips");
                 });
 
-            modelBuilder.Entity("BankApi.Models.LoanRequest", b =>
+            modelBuilder.Entity("BankApi.Models.CreditScoreHistories", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()

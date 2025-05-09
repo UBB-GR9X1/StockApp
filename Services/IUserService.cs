@@ -8,7 +8,7 @@
     {
         Task CreateUser(User user);
 
-        User GetUserByCnp(string cnp);
+        Task<User> GetUserByCnpAsync(string cnp);
 
         Task<User> GetCurrentUserAsync();
 
