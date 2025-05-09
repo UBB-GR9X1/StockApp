@@ -1,19 +1,42 @@
 ﻿namespace BankApi.Seeders
 {
-    public class HomepageStocksSeeder(IConfiguration configuration) : BaseSeeder(configuration)
+    using Microsoft.Data.SqlClient;
+
+    public class HomepageStocksSeeder(IConfiguration configuration) : ForeignKeyTableSeeder(configuration)
     {
-        protected override string GetQuery() => @"
-            IF NOT EXISTS (SELECT 1 FROM HomepageStocks) 
-            BEGIN
-                INSERT INTO HomepageStocks 
-                    (Id, Symbol, Change)
-                VALUES
-                    (2, 'AAPL', 1.25),
-                    (3, 'GOOGL', -0.75),
-                    (4, 'TSLA', 2.30),
-                    (5, 'AMZN', -1.10),
-                    (6, 'MSFT', 0.50);
-            END;
-        ";
+        protected override async Task<string> GetQueryAsync()
+        {
+            List<int> stockIds = [];
+
+            // Fetch existing Stock IDs dynamically
+            using SqlConnection conn = new(connectionString);
+            await conn.OpenAsync();
+
+            using SqlCommand cmd = new("SELECT Id FROM BaseStocks ORDER BY Id ASC", conn);
+            using SqlDataReader reader = await cmd.ExecuteReaderAsync();
+
+            while (reader.Read())
+            {
+                stockIds.Add(reader.GetInt32(0));
+            }
+
+            // Ensure we have at least 5 stocks before proceeding
+            if (stockIds.Count < 5)
+                throw new InvalidOperationException("Not enough stocks in the database to seed HomepageStocks.");
+
+            return $@"
+                IF NOT EXISTS (SELECT 1 FROM HomepageStocks) 
+                BEGIN
+                    INSERT INTO HomepageStocks 
+                        (Id, Symbol, Change)
+                    VALUES
+                        ({stockIds[0]}, 'AAPL', 1.25),
+                        ({stockIds[1]}, 'GOOGL', -0.75),
+                        ({stockIds[2]}, 'TSLA', 2.30),
+                        ({stockIds[3]}, 'AMZN', -1.10),
+                        ({stockIds[4]}, 'MSFT', 0.50);
+                END;
+            ";
+        }
     }
 }

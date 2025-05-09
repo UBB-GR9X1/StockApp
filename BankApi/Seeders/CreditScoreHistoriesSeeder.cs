@@ -1,6 +1,6 @@
 ﻿namespace BankApi.Seeders
 {
-    public class CreditScoreHistoriesSeeder(IConfiguration configuration) : BaseSeeder(configuration)
+    public class CreditScoreHistoriesSeeder(IConfiguration configuration) : RegularTableSeeder(configuration)
     {
         protected override string GetQuery() => @"
             IF NOT EXISTS (SELECT 1 FROM CreditScoreHistories) 

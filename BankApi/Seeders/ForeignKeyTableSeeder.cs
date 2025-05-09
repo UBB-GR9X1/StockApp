@@ -2,20 +2,18 @@
 
 namespace BankApi.Seeders
 {
-    public abstract class BaseSeeder(IConfiguration configuration)
+    public abstract class ForeignKeyTableSeeder(IConfiguration configuration) : TableSeeder(configuration)
     {
-        private readonly string connectionString = configuration.GetConnectionString("DefaultConnection")!;
+        protected abstract Task<string> GetQueryAsync();
 
-        protected abstract string GetQuery();
-
-        public async Task SeedAsync()
+        public override async Task SeedAsync()
         {
             try
             {
                 using SqlConnection conn = new(connectionString);
                 await conn.OpenAsync();
 
-                using SqlCommand cmd = new(GetQuery(), conn);
+                using SqlCommand cmd = new(await GetQueryAsync(), conn);
                 await cmd.ExecuteNonQueryAsync();
             }
             catch (Exception ex)

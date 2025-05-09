@@ -1,6 +1,6 @@
 ﻿namespace BankApi.Seeders
 {
-    public class LoanRequestsSeeder(IConfiguration configuration) : BaseSeeder(configuration)
+    public class LoanRequestsSeeder(IConfiguration configuration) : RegularTableSeeder(configuration)
     {
         protected override string GetQuery() => @"
             IF NOT EXISTS (SELECT 1 FROM LoanRequests) 

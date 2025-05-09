@@ -86,7 +86,7 @@ if (app.Environment.IsDevelopment())
     // Seed the database
     foreach (var seederType in seederTypes)
     {
-        var seeder = (BaseSeeder)scope.ServiceProvider.GetRequiredService(seederType);
+        var seeder = (TableSeeder)scope.ServiceProvider.GetRequiredService(seederType);
         await seeder.SeedAsync();
     }
 
