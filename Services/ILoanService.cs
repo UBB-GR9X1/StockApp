@@ -1,23 +1,41 @@
 ﻿namespace StockApp.Services
 {
+    using System;
     using System.Collections.Generic;
-    using Src.Model;
+    using System.Threading.Tasks;
     using StockApp.Models;
 
     public interface ILoanService
     {
-        List<Loan> GetLoans();
+        Task<List<Loan>> GetLoansAsync();
 
-        List<Loan> GetUserLoans(string userCNP);
+        Task<List<Loan>> GetUserLoansAsync(string userCNP);
 
-        void AddLoan(LoanRequest loanRequest);
+        Task AddLoanAsync(LoanRequest loanRequest);
 
-        void CheckLoans();
+        Task CheckLoansAsync();
 
-        int ComputeNewCreditScore(User user, Loan loan);
+        static int ComputeNewCreditScore(User user, Loan loan)
+        {
+            int totalDaysInAdvance = (loan.RepaymentDate - DateTime.Today).Days;
+            if (totalDaysInAdvance > 30)
+            {
+                totalDaysInAdvance = 30;
+            }
+            else if (totalDaysInAdvance < -100)
+            {
+                totalDaysInAdvance = -100;
+            }
 
-        void UpdateHistoryForUser(string userCNP, int newScore);
+            int newUserCreditScore = user.CreditScore + (((int)loan.LoanAmount * 10) / user.Income) + totalDaysInAdvance;
+            newUserCreditScore = Math.Min(newUserCreditScore, 700);
+            newUserCreditScore = Math.Max(newUserCreditScore, 100);
 
-        void IncrementMonthlyPaymentsCompleted(int loanID, float penalty);
+            return newUserCreditScore;
+        }
+
+        Task UpdateHistoryForUserAsync(string userCNP, int newScore);
+
+        Task IncrementMonthlyPaymentsCompletedAsync(int loanID, decimal penalty);
     }
 }

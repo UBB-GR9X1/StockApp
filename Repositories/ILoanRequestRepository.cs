@@ -1,17 +1,17 @@
 ﻿namespace StockApp.Repositories
 {
-    using System;
     using System.Collections.Generic;
-    using Src.Model;
+    using System.Threading.Tasks;
+    using StockApp.Models;
 
     public interface ILoanRequestRepository
     {
-        List<LoanRequest> GetLoanRequests();
+        Task<List<LoanRequest>> GetLoanRequests();
 
-        List<LoanRequest> GetUnsolvedLoanRequests();
+        Task<List<LoanRequest>> GetUnsolvedLoanRequests();
 
-        void SolveLoanRequest(int loanRequestID);
+        Task SolveLoanRequest(LoanRequest loanRequest);
 
-        void DeleteLoanRequest(int loanRequestID);
+        Task DeleteLoanRequest(LoanRequest loanRequest);
     }
 }

@@ -20,7 +20,7 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="ActivityViewModel"/> class.
         /// </summary>
-        /// <param name="activityService">The service for managing activities.</param>
+        /// <param name="activityService">The homepageService for managing activities.</param>
         public ActivityViewModel(IActivityService activityService)
         {
             _activityService = activityService ?? throw new ArgumentNullException(nameof(activityService));

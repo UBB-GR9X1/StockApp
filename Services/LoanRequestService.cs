@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using Src.Data;
     using Src.Model;
     using StockApp.Models;
@@ -10,19 +11,18 @@
     public class LoanRequestService : ILoanRequestService
     {
         private readonly ILoanRequestRepository loanRequestRepository;
+        private readonly IUserRepository userRepository;
 
-        public LoanRequestService(ILoanRequestRepository loanRequestRepository)
+        public LoanRequestService(ILoanRequestRepository loanRequestRepository, IUserRepository userRepository)
         {
+            this.userRepository = userRepository;
             this.loanRequestRepository = loanRequestRepository;
         }
 
-        public string GiveSuggestion(LoanRequest loanRequest)
+        public async Task<string> GiveSuggestion(LoanRequest loanRequest)
         {
-            DatabaseConnection dbConnection = new DatabaseConnection();
-            UserRepository userRepository = new UserRepository();
-            LoanService loanService = new LoanService(new LoanRepository(dbConnection));
 
-            User user = userRepository.GetUserByCnpAsync(loanRequest.UserCnp).Result;
+            User user = await this.userRepository.GetByCnpAsync(loanRequest.UserCnp) ?? throw new Exception("User not found");
 
             string givenSuggestion = string.Empty;
 
@@ -59,72 +59,24 @@
             return givenSuggestion;
         }
 
-        public void SolveLoanRequest(LoanRequest loanRequest)
+        public async Task SolveLoanRequest(LoanRequest loanRequest)
         {
-            this.loanRequestRepository.SolveLoanRequest(loanRequest.Id);
+            await loanRequestRepository.SolveLoanRequest(loanRequest);
         }
 
-        public void DenyLoanRequest(LoanRequest loanRequest)
+        public  async Task DeleteLoanRequest(LoanRequest loanRequest)
         {
-            this.loanRequestRepository.DeleteLoanRequest(loanRequest.Id);
+            await loanRequestRepository.DeleteLoanRequest(loanRequest);
         }
 
-        public bool PastUnpaidLoans(User user, LoanService loanService)
+        public async Task<List<LoanRequest>> GetLoanRequests()
         {
-            List<Loan> userLoanList;
-            try
-            {
-                userLoanList = loanService.GetUserLoans(user.CNP);
-            }
-            catch (Exception)
-            {
-                userLoanList = new List<Loan>();
-            }
-
-            foreach (Loan loan in userLoanList)
-            {
-                if (loan.Status == "Active" && loan.RepaymentDate < DateTime.Today)
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            return await loanRequestRepository.GetLoanRequests();
         }
 
-        public float ComputeMonthlyDebtAmount(User user, LoanService loanServices)
+        public async Task<List<LoanRequest>> GetUnsolvedLoanRequests()
         {
-            List<Loan> loanList;
-            try
-            {
-                loanList = loanServices.GetUserLoans(user.CNP);
-            }
-            catch (Exception)
-            {
-                loanList = new List<Loan>();
-            }
-
-            float monthlyDebtAmount = 0;
-
-            foreach (Loan loan in loanList)
-            {
-                if (loan.Status == "Active")
-                {
-                    monthlyDebtAmount += loan.MonthlyPaymentAmount;
-                }
-            }
-
-            return monthlyDebtAmount;
-        }
-
-        public List<LoanRequest> GetLoanRequests()
-        {
-            return this.loanRequestRepository.GetLoanRequests();
-        }
-
-        public List<LoanRequest> GetUnsolvedLoanRequests()
-        {
-            return this.loanRequestRepository.GetUnsolvedLoanRequests();
+            return await loanRequestRepository.GetUnsolvedLoanRequests();
         }
     }
 }

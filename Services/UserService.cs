@@ -15,19 +15,19 @@
             this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         }
 
-        public User GetUserByCnp(string cnp)
+        public async Task<User> GetUserByCnpAsync(string cnp)
         {
             if (string.IsNullOrWhiteSpace(cnp))
             {
                 throw new ArgumentException("CNP cannot be empty");
             }
 
-            return this.userRepository.GetUserByCnpAsync(cnp).Result;
+            return await this.userRepository.GetByCnpAsync(cnp) ?? throw new KeyNotFoundException($"User with CNP {cnp} not found.");
         }
 
         public Task<List<User>> GetUsers()
         {
-            return this.userRepository.GetAllUsersAsync();
+            return this.userRepository.GetAllAsync();
         }
 
         public async Task CreateUser(User user)
@@ -37,7 +37,28 @@
                 throw new ArgumentNullException(nameof(user));
             }
 
-            await this.userRepository.CreateUserAsync(user);
+            await this.userRepository.CreateAsync(user);
+        }
+
+        public string GetCurrentUserCNP()
+        {
+            return IUserRepository.CurrentUserCNP;
+        }
+
+        public bool IsGuest()
+        {
+            return IUserRepository.IsGuest;
+        }
+
+        public async Task<User> GetCurrentUserAsync()
+        {
+            var cnp = IUserRepository.CurrentUserCNP;
+            if (string.IsNullOrWhiteSpace(cnp))
+            {
+                throw new ArgumentException("CNP cannot be empty");
+            }
+
+            return await this.userRepository.GetByCnpAsync(cnp);
         }
     }
 }

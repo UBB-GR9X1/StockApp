@@ -1,12 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using StockApp.Models;
-namespace StockApp.Repositories
+﻿namespace StockApp.Repositories
 {
-    /// <summary>
-    /// Interface for managing transactions in the application.
-    /// Provides methods for retrieving, filtering, and adding transactions.
-    /// </summary>
+    using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using StockApp.Models;
+
     public interface ITransactionRepository
     {
         /// <summary>

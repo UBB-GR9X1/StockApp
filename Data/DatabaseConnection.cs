@@ -11,7 +11,7 @@
 
         public DatabaseConnection()
         {
-            this.connectionString = "Server=DESKTOP-2UI353C\\SQLEXPRESS;Database=GitPushForce;Trusted_Connection=True;TrustServerCertificate=True;";
+            this.connectionString = "Server=.\\SQLEXPRESS;Database=StockApp_DB;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True";
 
             try
             {

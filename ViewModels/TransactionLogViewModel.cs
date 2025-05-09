@@ -218,7 +218,7 @@
         public ICommand ExportCommand { get; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TransactionLogViewModel"/> class with the specified service.
+        /// Initializes a new instance of the <see cref="TransactionLogViewModel"/> class with the specified homepageService.
         /// </summary>
         /// <param name="service">Service to retrieve and export transaction data.</param>
         public TransactionLogViewModel(ITransactionLogService service)
@@ -239,7 +239,7 @@
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TransactionLogViewModel"/> class with default repository and service.
+        /// Initializes a new instance of the <see cref="TransactionLogViewModel"/> class with default repository and homepageService.
         /// </summary>
 
 
@@ -351,13 +351,13 @@
         }
 
         /// <summary>
-        /// Loads and filters transactions from the service and applies sorting.
+        /// Loads and filters transactions from the homepageService and applies sorting.
         /// </summary>
         public async void LoadTransactions()
         {
             if (this.service == null)
             {
-                throw new InvalidOperationException("Transaction service is not initialized");
+                throw new InvalidOperationException("Transaction homepageService is not initialized");
             }
 
             // Add null checks here for all ComboBoxItem properties to prevent null reference

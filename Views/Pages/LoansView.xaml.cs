@@ -3,7 +3,7 @@ namespace StockApp.Views.Pages
     using System;
     using System.Collections.Generic;
     using Microsoft.UI.Xaml.Controls;
-    using Src.Model;
+    using StockApp.Models;
     using StockApp.Services;
     using StockApp.Views.Components;
 
@@ -33,13 +33,13 @@ namespace StockApp.Views.Pages
             this.LoadLoans();
         }
 
-        private void LoadLoans()
+        private async void LoadLoans()
         {
             this.LoansContainer.Items.Clear();
 
             try
             {
-                List<Loan> loans = this.service.GetLoans();
+                List<Loan> loans = await this.service.GetLoansAsync();
                 foreach (Loan loan in loans)
                 {
                     LoanComponent loanComponent = this.componentFactory();

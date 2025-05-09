@@ -1,34 +1,58 @@
 ﻿namespace BankApi.Models
 {
     using System;
+    using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
 
     public class Loan
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
+        [Required]
+        [MaxLength(13)]
         public string UserCnp { get; set; }
 
-        public float LoanAmount { get; set; }
+        [Required]
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal LoanAmount { get; set; }
 
+        [Required]
         public DateTime ApplicationDate { get; set; }
 
+        [Required]
         public DateTime RepaymentDate { get; set; }
 
-        public float InterestRate { get; set; }
+        [Required]
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal InterestRate { get; set; }
 
+        [Required]
         public int NumberOfMonths { get; set; }
 
-        public float MonthlyPaymentAmount { get; set; }
+        [Required]
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal MonthlyPaymentAmount { get; set; }
 
+        [Required]
+        [MaxLength(100)]
         public string Status { get; set; }
 
+        [Required]
         public int MonthlyPaymentsCompleted { get; set; }
 
-        public float RepaidAmount { get; set; }
+        [Required]
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal RepaidAmount { get; set; }
 
-        public float Penalty { get; set; }
+        [Required]
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal Penalty { get; set; }
 
-        public Loan(int loanID, string userCnp, float loanAmount, DateTime applicationDate, DateTime repaymentDate, float interestRate, int numberOfMonths, float monthlyPaymentAmount, int monthlyPaymentsCompleted, float repaidAmount, float penalty, string status)
+        public Loan() { }
+
+        public Loan(int loanID, string userCnp, decimal loanAmount, DateTime applicationDate, DateTime repaymentDate, decimal interestRate, int numberOfMonths, decimal monthlyPaymentAmount, int monthlyPaymentsCompleted, decimal repaidAmount, decimal penalty, string status)
         {
             this.Id = loanID;
             this.UserCnp = userCnp;

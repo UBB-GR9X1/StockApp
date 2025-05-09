@@ -7,7 +7,6 @@ namespace StockApp
     using StockApp.Database;
     using StockApp.Pages;
     using StockApp.Repositories;
-    using StockApp.Services;
     using StockApp.Views;
     using StockApp.Views.Components;
     using StockApp.Views.Pages;
@@ -18,12 +17,11 @@ namespace StockApp
     public sealed partial class MainWindow : Window
     {
         private readonly IServiceProvider serviceProvider;
-        private static readonly IUserRepository userRepository = new UserRepository();
 
         public Frame MainAppFrame => this.MainFrame;
-        public bool CreateProfileButtonVisibility => userRepository.CurrentUserCNP == null;
+        public bool CreateProfileButtonVisibility => IUserRepository.CurrentUserCNP == null;
 
-        public static bool ProfileButtonVisibility => userRepository.CurrentUserCNP != null;
+        public static bool ProfileButtonVisibility => IUserRepository.CurrentUserCNP != null;
 
         public MainWindow(IServiceProvider serviceProvider)
         {
@@ -39,75 +37,26 @@ namespace StockApp
             if (args.SelectedItemContainer != null)
             {
                 string invokedItemTag = args.SelectedItemContainer.Tag.ToString() ?? throw new InvalidOperationException("Tag cannot be null");
-                switch (invokedItemTag)
+
+                this.MainFrame.Content = invokedItemTag switch
                 {
-                    case "ChatReports":
-                        var chatReportsPage = this.serviceProvider.GetRequiredService<ChatReportView>();
-                        this.MainFrame.Content = chatReportsPage;
-                        break;
-                    case "LoanRequest":
-                        var loanRequestPage = this.serviceProvider.GetRequiredService<LoanRequestView>();
-                        this.MainFrame.Content = loanRequestPage;
-                        break;
-                    case "Loans":
-                        var loansPage = this.serviceProvider.GetRequiredService<LoansView>();
-                        this.MainFrame.Content = loansPage;
-                        break;
-                    case "UsersList":
-                        var usersView = this.serviceProvider.GetRequiredService<UsersView>();
-                        this.MainFrame.Content = usersView;
-                        break;
-                    case "BillSplitReports":
-                        var billSplitPage = this.serviceProvider.GetRequiredService<BillSplitReportPage>();
-                        this.MainFrame.Content = billSplitPage;
-                        break;
-                    case "Zodiac":
-                        this.ZodiacFeature(sender, null);
-                        break;
-                    case "Investments":
-                        this.MainFrame.Navigate(typeof(InvestmentsView));
-                        break;
-                    case "HomePage":
-                        var homePage = this.serviceProvider.GetRequiredService<HomepageView>();
-                        this.MainFrame.Content = homePage;
-                        break;
-                    case "NewsListPage":
-                        var newsListPage = this.serviceProvider.GetRequiredService<NewsListPage>();
-                        this.MainFrame.Content = newsListPage;
-                        break;
-                    case "CreateStockPage":
-                        var createStockPage = this.serviceProvider.GetRequiredService<CreateStockPage>();
-                        this.MainFrame.Content = createStockPage;
-                        break;
-                    case "TransactionLogPage":
-                        var transactionLogPage = this.serviceProvider.GetRequiredService<TransactionLogPage>();
-                        this.MainFrame.Content = transactionLogPage;
-                        break;
-                    case "ProfilePage":
-                        var profilePage = this.serviceProvider.GetRequiredService<ProfilePage>();
-                        this.MainFrame.Content = profilePage;
-                        break;
-                    case "CreateProfile":
-                        var createProfilePage = this.serviceProvider.GetRequiredService<CreateProfilePage>();
-                        this.MainFrame.Content = createProfilePage;
-                        break;
-                    case "GemStoreWindow":
-                        var gemStoreWindow = this.serviceProvider.GetRequiredService<GemStoreWindow>();
-                        this.MainFrame.Content = gemStoreWindow;
-                        break;
-                }
+                    "ChatReports" => this.serviceProvider.GetRequiredService<ChatReportView>(),
+                    "LoanRequest" => this.serviceProvider.GetRequiredService<LoanRequestView>(),
+                    "Loans" => this.serviceProvider.GetRequiredService<LoansView>(),
+                    "UsersList" => this.serviceProvider.GetRequiredService<UsersView>(),
+                    "BillSplitReports" => this.serviceProvider.GetRequiredService<BillSplitReportPage>(),
+                    "Zodiac" => this.serviceProvider.GetRequiredService<ZodiacFeatureView>(),
+                    "Investments" => this.serviceProvider.GetRequiredService<InvestmentsView>(),
+                    "HomePage" => this.serviceProvider.GetRequiredService<HomepageView>(),
+                    "NewsListPage" => this.serviceProvider.GetRequiredService<NewsListPage>(),
+                    "CreateStockPage" => this.serviceProvider.GetRequiredService<CreateStockPage>(),
+                    "TransactionLogPage" => this.serviceProvider.GetRequiredService<TransactionLogPage>(),
+                    "ProfilePage" => this.serviceProvider.GetRequiredService<ProfilePage>(),
+                    "CreateProfile" => this.serviceProvider.GetRequiredService<CreateProfilePage>(),
+                    "GemStoreWindow" => this.serviceProvider.GetRequiredService<GemStoreWindow>(),
+                    _ => throw new InvalidOperationException($"Unknown navigation item: {invokedItemTag}")
+                };
             }
-        }
-
-        private void ZodiacFeature(object sender, RoutedEventArgs e)
-        {
-            UserRepository userRepository = new UserRepository();
-            ZodiacService zodiacService = new ZodiacService(userRepository);
-
-            zodiacService.CreditScoreModificationBasedOnJokeAndCoinFlipAsync();
-            zodiacService.CreditScoreModificationBasedOnAttributeAndGravity();
-
-            this.MainFrame.Navigate(typeof(ZodiacFeatureView));
         }
     }
 }

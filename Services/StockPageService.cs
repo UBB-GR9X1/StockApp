@@ -9,17 +9,17 @@
 
     public class StockPageService : IStockPageService
     {
-        private readonly StockPageRepository stockRepo;
+        private readonly IStockPageRepository stockRepo;
         private string selectedStockName;
-        private readonly UserRepository userRepo;
+        private readonly IUserRepository userRepo;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StockPageService"/> class.
         /// </summary>
-        public StockPageService()
+        public StockPageService(IStockPageRepository stockRepo, IUserRepository userRepo)
         {
-            this.stockRepo = new();
-            this.userRepo = new();
+            this.stockRepo = stockRepo ?? throw new ArgumentNullException(nameof(stockRepo));
+            this.userRepo = userRepo ?? throw new ArgumentNullException(nameof(userRepo));
         }
 
         /// <summary>
@@ -202,7 +202,7 @@
         public async Task<User> GetStockAuthor()
         {
             string authorCNP = this.stockRepo.GetStock(this.selectedStockName).AuthorCNP;
-            return await this.userRepo.GetUserByCnpAsync(authorCNP);
+            return await this.userRepo.GetByCnpAsync(authorCNP) ?? throw new Exception("User not found.");
         }
     }
 }

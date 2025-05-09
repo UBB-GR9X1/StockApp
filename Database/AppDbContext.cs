@@ -15,12 +15,7 @@ namespace StockApp.Database
         {
         }
 
-        public DbSet<ChatReport> ChatReports { get; set; }
-
-        public DbSet<BaseStock> BaseStocks { get; set; }
-        public DbSet<Alert> Alerts { get; set; } = null!;
         public DbSet<CreditScoreHistory> CreditScoreHistories { get; set; } = null!;
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -65,6 +60,15 @@ namespace StockApp.Database
                       .IsRequired();
             });
 
+            modelBuilder.Entity<GemStore>(entity =>
+            {
+                entity.ToTable("GemStore");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Cnp).IsRequired().HasMaxLength(13);
+                entity.Property(e => e.GemBalance).IsRequired();
+                entity.Property(e => e.IsGuest).IsRequired();
+                entity.Property(e => e.LastUpdated).IsRequired();
+            });
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -79,7 +83,7 @@ namespace StockApp.Database
                 catch
                 {
                     // Fallback to a local database if ConnectionString is not available
-                    optionsBuilder.UseSqlServer("Data Source=VM;Initial Catalog=StockApp_DB;Integrated Security=True;Encrypt=True;Trust Server Certificate=True");
+                    optionsBuilder.UseSqlServer("Data Source=DESKTOP-2UI353C\\SQLEXPRESS;Initial Catalog=StockApp_DB;Integrated Security=True;Encrypt=True;Trust Server Certificate=True");
                 }
             }
         }

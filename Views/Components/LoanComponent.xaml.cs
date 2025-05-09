@@ -13,16 +13,16 @@ namespace StockApp.Views.Components
 
         private int loanID;
         private string userCNP;
-        private float loanAmount;
+        private decimal loanAmount;
         private DateTime applicationDate;
         private DateTime repaymentDate;
-        private float interestRate;
+        private decimal interestRate;
         private int numberOfMonths;
-        private float monthlyPaymentAmount;
+        private decimal monthlyPaymentAmount;
         private string status;
         private int monthlyPaymentsCompleted;
-        private float repaidAmount;
-        private float penalty;
+        private decimal repaidAmount;
+        private decimal penalty;
 
         public LoanComponent(ILoanService loanServices)
         {
@@ -30,9 +30,9 @@ namespace StockApp.Views.Components
             this.InitializeComponent();
         }
 
-        public void SetLoanData(int loanID, string userCNP, float loanAmount, DateTime applicationDate,
-                                DateTime repaymentDate, float interestRate, int noMonths, float monthlyPaymentAmount,
-                                string state, int monthlyPaymentsCompleted, float repaidAmount, float penalty)
+        public void SetLoanData(int loanID, string userCNP, decimal loanAmount, DateTime applicationDate,
+                                DateTime repaymentDate, decimal interestRate, int noMonths, decimal monthlyPaymentAmount,
+                                string state, int monthlyPaymentsCompleted, decimal repaidAmount, decimal penalty)
         {
             this.loanID = loanID;
             this.userCNP = userCNP;
@@ -63,7 +63,7 @@ namespace StockApp.Views.Components
 
         private async void OnSolveClick(object sender, RoutedEventArgs e)
         {
-            this.loanServices.IncrementMonthlyPaymentsCompleted(this.loanID, this.penalty);
+            await this.loanServices.IncrementMonthlyPaymentsCompletedAsync(this.loanID, this.penalty);
             this.LoanUpdated?.Invoke(this, EventArgs.Empty);
         }
     }

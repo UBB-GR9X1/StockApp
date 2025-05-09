@@ -1,86 +1,89 @@
-﻿namespace StockApp.Services
-{
-    using System;
-    using System.Collections.Generic;
-    using Src.Model;
-    using StockApp.Models;
-    using StockApp.Repositories;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Src.Model;
+using StockApp.Models;
+using StockApp.Repositories;
 
+namespace StockApp.Services
+{
     public class BillSplitReportService : IBillSplitReportService
     {
-        private readonly IBillSplitReportRepository billSplitReportRepository;
+        private readonly IBillSplitReportRepository _repo;
+        private const int PaymentTermDays = 30;
 
-        public BillSplitReportService(IBillSplitReportRepository billSplitReportRepository)
+        public BillSplitReportService(IBillSplitReportRepository repo)
         {
-            this.billSplitReportRepository = billSplitReportRepository;
+            _repo = repo ?? throw new ArgumentNullException(nameof(repo));
         }
 
-        public List<BillSplitReport> GetBillSplitReports()
+        /* ───────────────  CRUD wrappers  ─────────────── */
+
+        public async Task<List<BillSplitReport>> GetBillSplitReportsAsync() =>
+            await _repo.GetAllReportsAsync().ConfigureAwait(false);
+
+        public async Task<BillSplitReport> CreateBillSplitReportAsync(BillSplitReport report)
         {
-            return this.billSplitReportRepository.GetBillSplitReports();
+            if (report is null) throw new ArgumentNullException(nameof(report));
+            return await _repo.AddReportAsync(report).ConfigureAwait(false);
         }
 
-        public void CreateBillSplitReport(BillSplitReport billSplitReport)
+        public async Task<BillSplitReport> UpdateBillSplitReportAsync(BillSplitReport report)   // NEW
         {
-            this.billSplitReportRepository.CreateBillSplitReport(billSplitReport);
+            if (report is null) throw new ArgumentNullException(nameof(report));
+            return await _repo.UpdateReportAsync(report).ConfigureAwait(false);
         }
 
-        public int GetDaysOverdue(BillSplitReport billSplitReport)
+        public async Task DeleteBillSplitReportAsync(BillSplitReport report)
         {
-            return this.billSplitReportRepository.GetDaysOverdue(billSplitReport);
+            if (report is null) throw new ArgumentNullException(nameof(report));
+            _ = await _repo.DeleteReportAsync(report.Id).ConfigureAwait(false);
         }
 
-        public void SolveBillSplitReport(BillSplitReport billSplitReportToBeSolved)
+        /* ───────────────  Helper logic  ─────────────── */
+
+        public Task<int> GetDaysOverdueAsync(BillSplitReport report)
         {
-            int daysPastDue = this.GetDaysOverdue(billSplitReportToBeSolved);
+            if (report is null) throw new ArgumentNullException(nameof(report));
+
+            var due = report.DateOfTransaction.AddDays(PaymentTermDays);
+            var today = DateTime.UtcNow;
+            var overdue = due > today ? 0 : (int)(today - due).TotalDays;
+
+            return Task.FromResult(overdue);
+        }
+
+        public async Task SolveBillSplitReportAsync(BillSplitReport report)
+        {
+            if (report is null) throw new ArgumentNullException(nameof(report));
+
+            int daysPastDue = await GetDaysOverdueAsync(report).ConfigureAwait(false);
+            string userCnp = report.ReportedUserCnp;
 
             float timeFactor = Math.Min(50, (daysPastDue - 1) * 50 / 20.0f);
+            float amountFactor = Math.Min(50, (report.BillShare - 1) * 50 / 999.0f);
+            float gravity = timeFactor + amountFactor;
 
-            float amountFactor = Math.Min(50, (billSplitReportToBeSolved.BillShare - 1) * 50 / 999.0f);
+            // Extra credit-score endpoints live only on the proxy
+            var proxy = (BillSplitReportProxyRepository)_repo;
 
-            float gravityFactor = timeFactor + amountFactor;
+            int currentScore = await proxy.GetCurrentCreditScoreAsync(userCnp)
+                                            .ConfigureAwait(false);
+            float txSum = await proxy.SumTransactionsSinceReportAsync(
+                                            userCnp, report.DateOfTransaction)
+                                            .ConfigureAwait(false);
 
-            int currentBalance = this.billSplitReportRepository.GetCurrentCreditScore(billSplitReportToBeSolved);
-            decimal transactionsSum = this.billSplitReportRepository.SumTransactionsSinceReport(billSplitReportToBeSolved);
+            bool couldHavePaid = currentScore + txSum >= report.BillShare;
+            if (couldHavePaid) gravity += gravity * 0.10f;
 
-            bool couldHavePaidBillShare = currentBalance + transactionsSum >= (decimal)billSplitReportToBeSolved.BillShare;
+            int newScore = (int)Math.Floor(currentScore - 0.20f * gravity);
 
-            if (couldHavePaidBillShare)
-            {
-                gravityFactor += gravityFactor * 0.1f;
-            }
-
-            if (this.billSplitReportRepository.CheckHistoryOfBillShares(billSplitReportToBeSolved))
-            {
-                gravityFactor -= gravityFactor * 0.05f;
-            }
-
-            if (this.billSplitReportRepository.CheckFrequentTransfers(billSplitReportToBeSolved))
-            {
-                gravityFactor -= gravityFactor * 0.05f;
-            }
-
-            int numberOfOffenses = this.billSplitReportRepository.GetNumberOfOffenses(billSplitReportToBeSolved);
-            gravityFactor += (float)Math.Floor(numberOfOffenses * 0.1f);
-
-            int newCreditScore = (int)Math.Floor(currentBalance - 0.2f * gravityFactor);
-
-            this.billSplitReportRepository.UpdateCreditScore(billSplitReportToBeSolved, newCreditScore);
-            this.billSplitReportRepository.UpdateCreditScoreHistory(billSplitReportToBeSolved, newCreditScore);
-
-            this.billSplitReportRepository.IncrementNoOfBillSharesPaid(billSplitReportToBeSolved);
-
-            this.billSplitReportRepository.DeleteBillSplitReport(billSplitReportToBeSolved.Id);
+            await proxy.UpdateCreditScoreAsync(userCnp, newScore).ConfigureAwait(false);
+            await _repo.IncrementBillSharesPaidAsync(userCnp).ConfigureAwait(false);
+            await _repo.DeleteReportAsync(report.Id).ConfigureAwait(false);
         }
 
-        public void DeleteBillSplitReport(BillSplitReport billSplitReportToBeSolved)
-        {
-            this.billSplitReportRepository.DeleteBillSplitReport(billSplitReportToBeSolved.Id);
-        }
-
-        public User GetUserByCNP(string cNP)
-        {
-            return new User();
-        }
+        
+        public User GetUserByCNP(string cnp) => new User();
     }
 }
