@@ -59,6 +59,7 @@ Type[] seederTypes =
     typeof(BaseStocksSeeder),
     typeof(CreditScoreHistoriesSeeder),
     typeof(GemStoresSeeder),
+    typeof(TipsSeeder),
 ];
 
 // Dependency injection for seeders.
