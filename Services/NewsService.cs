@@ -2,30 +2,29 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Threading.Tasks;
-    using System.Diagnostics;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Logging;
+    using StockApp.Database;
     using StockApp.Exceptions;
     using StockApp.Models;
     using StockApp.Repositories;
-    using Microsoft.EntityFrameworkCore;
-    using Microsoft.Extensions.DependencyInjection;
-    using StockApp.Database;
-    using Microsoft.Extensions.Logging;
 
     /// <summary>
     /// Provides business logic for managing news and user-submitted articles.
     /// </summary>
     public class NewsService : INewsService
     {
-        private static readonly IUserRepository UserRepo = new UserRepository();
+        private readonly IUserRepository userRepository;
         private static readonly Dictionary<string, NewsArticle> previewArticles = [];
         private static readonly Dictionary<string, UserArticle> previewUserArticles = [];
         private readonly List<NewsArticle> cachedArticles = [];
         private static List<UserArticle> userArticles = [];
         private static bool isInitialized = false;
         private readonly INewsRepository newsRepository;
-        private readonly IBaseStocksRepository stocksRepository;
+        private readonly IBaseStocksService stocksService;
         private readonly AppDbContext dbContext;
         private readonly ILogger<NewsService> logger;
 
@@ -33,23 +32,11 @@
         /// Initializes a new instance of the <see cref="NewsService"/> class
         /// with default repository implementations.
         /// </summary>
-        public NewsService()
+        public NewsService(IUserRepository userRepository, IBaseStocksService baseStocksService, INewsRepository newsRepository)
         {
-            try
-            {
-                var dbContext = new AppDbContext();
-                // Try to get the repository from the service provider
-                if (App.Host != null)
-                {
-                    this.stocksRepository = App.Host.Services.GetService<IBaseStocksRepository>();
-                }
-            }
-            catch (Exception ex)
-            {
-                // Log the error but continue with empty collections
-                Debug.WriteLine($"Error initializing NewsService: {ex.Message}");
-                this.stocksRepository = null;
-            }
+            this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+            this.newsRepository = newsRepository ?? throw new ArgumentNullException(nameof(newsRepository));
+            this.stocksService = baseStocksService ?? throw new ArgumentNullException(nameof(baseStocksService));
         }
 
         /// <summary>
@@ -57,24 +44,24 @@
         /// using the specified repositories.
         /// </summary>
         /// <param name="dbContext">The database context.</param>
-        /// <param name="stocksRepository">The stocks repository.</param>
-        public NewsService(AppDbContext dbContext = null, IBaseStocksRepository stocksRepository = null)
+        /// <param name="stocksService">The stocks service.</param>
+        public NewsService(AppDbContext dbContext = null, IBaseStocksService stocksService = null)
         {
             this.newsRepository = new NewsRepository();
             this.dbContext = dbContext;
-            this.stocksRepository = stocksRepository;
+            this.stocksService = stocksService ?? App.Host.Services.GetService<IBaseStocksService>();
 
-            if (this.stocksRepository == null && dbContext != null && App.Host != null)
+            if (this.stocksService == null && dbContext != null && App.Host != null)
             {
                 try
                 {
                     // Try to get from service provider if available
-                    this.stocksRepository = App.Host.Services.GetService<IBaseStocksRepository>();
+                    this.stocksService = App.Host.Services.GetService<IBaseStocksService>();
                 }
                 catch
                 {
                     // Fallback handling
-                    Debug.WriteLine("Could not get IBaseStocksRepository from service provider");
+                    Debug.WriteLine("Could not get IBaseStocksApiService from service provider");
                 }
             }
 
@@ -184,7 +171,7 @@
         /// <exception cref="NewsPersistenceException">If creation fails.</exception>
         public bool CreateArticle(NewsArticle article)
         {
-            if (UserRepo.CurrentUserCNP == null)
+            if (IUserRepository.CurrentUserCNP == null)
             {
                 throw new UnauthorizedAccessException("User must be logged in to create an article");
             }
@@ -208,14 +195,14 @@
         /// <returns>A list of <see cref="UserArticle"/> instances.</returns>
         /// <exception cref="UnauthorizedAccessException">If current user is not an admin.</exception>
         /// <exception cref="NewsPersistenceException">If loading fails.</exception>
-        public List<UserArticle> GetUserArticles(string status = null, string topic = null)
+        public async Task<List<UserArticle>> GetUserArticles(string status = null, string topic = null)
         {
-            if (UserRepo.CurrentUserCNP == null)
+            if (IUserRepository.CurrentUserCNP == null)
             {
                 throw new UnauthorizedAccessException("User must be logged in to access user articles");
             }
 
-            User user = UserRepo.GetUserByCnpAsync(UserRepo.CurrentUserCNP).Result;
+            User user = await this.userRepository.GetByCnpAsync(IUserRepository.CurrentUserCNP) ?? throw new Exception("User not found");
             if (user.IsModerator)
             {
                 throw new UnauthorizedAccessException("User must be an admin to access user articles");
@@ -254,14 +241,14 @@
         /// <exception cref="UnauthorizedAccessException">If current user is not an admin.</exception>
         /// <exception cref="ArgumentNullException">If <paramref name="articleId"/> is null or empty.</exception>
         /// <exception cref="NewsPersistenceException">If approval fails.</exception>
-        public bool ApproveUserArticle(string articleId)
+        public async Task<bool> ApproveUserArticle(string articleId)
         {
-            if (UserRepo.CurrentUserCNP == null)
+            if (IUserRepository.CurrentUserCNP == null)
             {
                 throw new UnauthorizedAccessException("User must be logged in to access user articles");
             }
 
-            User user = UserRepo.GetUserByCnpAsync(UserRepo.CurrentUserCNP).Result;
+            User user = await this.userRepository.GetByCnpAsync(IUserRepository.CurrentUserCNP) ?? throw new Exception("User not found");
             if (user.IsModerator)
             {
                 throw new UnauthorizedAccessException("User must be an admin to access user articles");
@@ -292,14 +279,14 @@
         /// <exception cref="UnauthorizedAccessException">If current user is not an admin.</exception>
         /// <exception cref="ArgumentNullException">If <paramref name="articleId"/> is null or empty.</exception>
         /// <exception cref="NewsPersistenceException">If rejection fails.</exception>
-        public bool RejectUserArticle(string articleId)
+        public async Task<bool> RejectUserArticle(string articleId)
         {
-            if (UserRepo.CurrentUserCNP == null)
+            if (IUserRepository.CurrentUserCNP == null)
             {
                 throw new UnauthorizedAccessException("User must be logged in to access user articles");
             }
 
-            User user = UserRepo.GetUserByCnpAsync(UserRepo.CurrentUserCNP).Result;
+            User user = await userRepository.GetByCnpAsync(IUserRepository.CurrentUserCNP) ?? throw new Exception("User not found");
             if (user.IsModerator)
             {
                 throw new UnauthorizedAccessException("User must be an admin to access user articles");
@@ -330,14 +317,14 @@
         /// <exception cref="UnauthorizedAccessException">If current user is not an admin.</exception>
         /// <exception cref="ArgumentNullException">If <paramref name="articleId"/> is null or empty.</exception>
         /// <exception cref="NewsPersistenceException">If deletion fails.</exception>
-        public bool DeleteUserArticle(string articleId)
+        public async Task<bool> DeleteUserArticle(string articleId)
         {
-            if (UserRepo.CurrentUserCNP == null)
+            if (IUserRepository.CurrentUserCNP == null)
             {
                 throw new UnauthorizedAccessException("User must be logged in to access user articles");
             }
 
-            User user = UserRepo.GetUserByCnpAsync(UserRepo.CurrentUserCNP).Result;
+            User user = await this.userRepository.GetByCnpAsync(IUserRepository.CurrentUserCNP) ?? throw new Exception("User not found");
             if (user.IsModerator)
             {
                 throw new UnauthorizedAccessException("User must be an admin to access user articles");
@@ -369,14 +356,14 @@
         /// <returns>True if submission succeeded.</returns>
         /// <exception cref="UnauthorizedAccessException">If no user is logged in.</exception>
         /// <exception cref="NewsPersistenceException">If submission fails.</exception>
-        public bool SubmitUserArticle(UserArticle article)
+        public async Task<bool> SubmitUserArticle(UserArticle article)
         {
-            if (UserRepo.CurrentUserCNP == null)
+            if (IUserRepository.CurrentUserCNP == null)
             {
                 throw new UnauthorizedAccessException("User must be logged in to access user articles");
             }
 
-            User user = UserRepo.GetUserByCnpAsync(UserRepo.CurrentUserCNP).Result;
+            User user = await this.userRepository.GetByCnpAsync(IUserRepository.CurrentUserCNP) ?? throw new Exception("User not found");
             if (user.IsModerator)
             {
                 throw new UnauthorizedAccessException("User must be an admin to access user articles");
@@ -404,14 +391,14 @@
         /// </summary>
         /// <returns>The current <see cref="User"/>.</returns>
         /// <exception cref="InvalidOperationException">If no user is logged in.</exception>
-        public User GetCurrentUser()
+        public async Task<User> GetCurrentUser()
         {
-            if (UserRepo.CurrentUserCNP == null)
+            if (IUserRepository.CurrentUserCNP == null)
             {
                 throw new UnauthorizedAccessException("User must be logged in to access user articles");
             }
 
-            User user = UserRepo.GetUserByCnpAsync(UserRepo.CurrentUserCNP).Result;
+            User user = await this.userRepository.GetByCnpAsync(IUserRepository.CurrentUserCNP) ?? throw new Exception("User not found");
             if (user.IsModerator)
             {
                 throw new UnauthorizedAccessException("User must be an admin to access user articles");
@@ -472,13 +459,13 @@
             }
             else if (password == "user")
             {
-                User user = UserRepo.GetUserByUsernameAsync(username).Result;
+                User user = await this.userRepository.GetByUsernameAsync(username) ?? throw new Exception("User not found");
                 if (user == null)
                 {
                     throw new UnauthorizedAccessException("Invalid username or password");
                 }
 
-                UserRepo.CurrentUserCNP = user.CNP;
+                IUserRepository.CurrentUserCNP = user.CNP;
                 return user;
             }
 

@@ -2,35 +2,37 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using Src.Model;
+    using StockApp.Models;
     using StockApp.Repositories;
     using StockApp.Models;
 
     public class TipsService : ITipsService
     {
         private TipsRepository tipsRepository;
+        private IUserRepository userRepository;
 
         public TipsService(TipsRepository tipsRepository)
         {
             this.tipsRepository = tipsRepository;
         }
 
-        public void GiveTipToUser(string userCNP)
+        public async Task GiveTipToUser(string userCNP)
         {
-            UserRepository userRepository = new UserRepository();
 
             try
             {
-                int userCreditScore = userRepository.GetUserByCnpAsync(userCNP).Result.CreditScore;
-                if (userCreditScore < 300)
+                User user = await this.userRepository.GetByCnpAsync(userCNP) ?? throw new Exception("User not found");
+                if (user.CreditScore < 300)
                 {
                     this.tipsRepository.GiveUserTipForLowBracket(userCNP);
                 }
-                else if (userCreditScore < 550)
+                else if (user.CreditScore < 550)
                 {
                     this.tipsRepository.GiveUserTipForMediumBracket(userCNP);
                 }
-                else if (userCreditScore > 549)
+                else if (user.CreditScore > 549)
                 {
                     this.tipsRepository.GiveUserTipForHighBracket(userCNP);
                 }

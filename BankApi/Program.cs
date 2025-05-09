@@ -10,13 +10,25 @@ builder.Services.AddControllers();
 
 // Configure DbContext
 builder.Services.AddDbContext<ApiDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), sqlServerOptionsAction: sqlOptions =>
+    {
+        sqlOptions.EnableRetryOnFailure();
+    }));
 
-// Register repositories
-builder.Services.AddScoped<IRepository, Repository>();
+// Register repository
+builder.Services.AddScoped<IBaseStocksRepository, BaseStocksRepository>();
 builder.Services.AddScoped<IChatReportRepository, ChatReportRepository>();
 builder.Services.AddScoped<IAlertRepository, AlertRepository>();
-builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
+builder.Services.AddScoped<IHomepageStockRepository, HomepageStockRepository>();
+builder.Services.AddScoped<IGemStoreRepository, GemStoreRepository>();
+builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
+builder.Services.AddScoped<IInvestmentsRepository, InvestmentsRepository>();
+builder.Services.AddScoped<IBillSplitReportRepository, BillSplitReportRepository>();
+builder.Services.AddScoped<IHistoryRepository, HistoryRepository>();
+builder.Services.AddScoped<IChatReportRepository, ChatReportRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ILoanRequestRepository, LoanRequestRepository>();
+builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 
 // Add CORS
 builder.Services.AddCors(options =>

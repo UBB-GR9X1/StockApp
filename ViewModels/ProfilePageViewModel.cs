@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
+    using System.Threading.Tasks;
     using Microsoft.UI.Xaml.Media.Imaging;
     using StockApp.Models;
     using StockApp.Services;
@@ -10,20 +11,26 @@
     /// <summary>
     /// View model for the profile page, managing the user's profile image and information.
     /// </summary>
-    /// <remarks>
-    /// Initializes a new instance of the <see cref="ProfilePageViewModel"/> class with the specified profile service.
-    /// </remarks>
-    /// <param name="profileService">Service used to retrieve profile data.</param>
-    public class ProfilePageViewModel(IProfileService profileService) : INotifyPropertyChanged
+    public class ProfilePageViewModel : INotifyPropertyChanged
     {
-        private readonly IProfileService profileService = profileService ?? throw new ArgumentNullException(nameof(profileService));
+        private readonly IProfileService profileService;
+        private BitmapImage? imageSource;
 
-        private BitmapImage imageSource;
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ProfilePageViewModel"/> class with the default profile service and loads the profile image.
+        /// </summary>
+        /// <param name="profileService">Service used to retrieve profile data.</param>
+        public ProfilePageViewModel(IProfileService profileService)
+        {
+            this.profileService = profileService ?? throw new ArgumentNullException(nameof(profileService));
+            this.PropertyChanged = null!;
+            this.LoadProfileImageAsync().ConfigureAwait(false);
+        }
 
         /// <summary>
         /// Gets or sets the profile image source.
         /// </summary>
-        public BitmapImage ImageSource
+        public BitmapImage? ImageSource
         {
             get => this.imageSource;
             set
@@ -34,33 +41,21 @@
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ProfilePageViewModel"/> class with the default profile service and loads the profile image.
+        /// Loads the profile image from the profile service asynchronously.
         /// </summary>
-        public ProfilePageViewModel()
-            : this(new ProfileService())
+        private async Task LoadProfileImageAsync()
         {
-            this.LoadProfileImage();
-        }
-
-        /// <summary>
-        /// Loads the profile image from the profile service.
-        /// </summary>
-        internal void LoadProfileImage()
-        {
-            // TODO: Handle missing or invalid image URL (e.g., set a placeholder image)
-            // Retrieve the image URL from the service
-            string imageUrl = this.profileService.GetImage();
-            if (!string.IsNullOrEmpty(imageUrl))
+            try
             {
-                try
+                var user = await this.profileService.CurrentUserProfile;
+                if (!string.IsNullOrEmpty(user.Image))
                 {
-                    this.ImageSource = new BitmapImage(new Uri(imageUrl));
+                    this.ImageSource = new BitmapImage(new Uri(user.Image));
                 }
-                catch (Exception ex)
-                {
-                    // FIXME: Consider providing user feedback if image fails to load
-                    System.Diagnostics.Debug.WriteLine($"Error loading image: {ex.Message}");
-                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error loading image: {ex.Message}");
             }
         }
 
@@ -68,54 +63,74 @@
         /// Gets the CNP of the currently logged-in user.
         /// </summary>
         /// <returns>The user's CNP as a string.</returns>
-        public string GetLoggedInUserCnp()
+        public async Task<string> GetLoggedInUserCnpAsync()
         {
-            return this.profileService.GetLoggedInUserCnp();
+            var user = await this.profileService.CurrentUserProfile;
+            return user.CNP ?? string.Empty;
         }
 
         /// <summary>
         /// Gets the username of the currently logged-in user.
         /// </summary>
         /// <returns>The username.</returns>
-        public string GetUsername() => this.profileService.GetUsername();
+        public async Task<string> GetUsernameAsync()
+        {
+            var user = await this.profileService.CurrentUserProfile;
+            return user.Username ?? string.Empty;
+        }
 
         /// <summary>
         /// Gets the description of the user.
         /// </summary>
         /// <returns>The user description.</returns>
-        public string GetDescription() => this.profileService.GetDescription();
+        public async Task<string> GetDescriptionAsync()
+        {
+            var user = await this.profileService.CurrentUserProfile;
+            return user.Description ?? string.Empty;
+        }
 
         /// <summary>
         /// Determines whether the user's profile is hidden.
         /// </summary>
         /// <returns><c>true</c> if the profile is hidden; otherwise, <c>false</c>.</returns>
-        public bool IsHidden() => this.profileService.IsHidden();
+        public async Task<bool> IsHiddenAsync()
+        {
+            var user = await this.profileService.CurrentUserProfile;
+            return user.IsHidden;
+        }
 
         /// <summary>
         /// Determines whether the user has administrative privileges.
         /// </summary>
         /// <returns><c>true</c> if the user is an admin; otherwise, <c>false</c>.</returns>
-        public bool IsAdmin() => this.profileService.IsAdmin();
+        public async Task<bool> IsAdminAsync()
+        {
+            var user = await this.profileService.CurrentUserProfile;
+            return user.IsModerator;
+        }
 
         /// <summary>
         /// Gets the list of stocks associated with the user.
         /// </summary>
         /// <returns>A list of <see cref="Stock"/> objects.</returns>
-        public List<Stock> GetUserStocks() => this.profileService.GetUserStocks();
+        public async Task<List<Stock>> GetUserStocksAsync()
+        {
+            return await this.profileService.GetUserStocksAsync();
+        }
 
         /// <summary>
         /// Updates the administrative mode of the user.
         /// </summary>
         /// <param name="newIsAdmin">If set to <c>true</c>, grants admin mode; otherwise, revokes it.</param>
-        public void UpdateAdminMode(bool newIsAdmin)
+        public async Task UpdateAdminModeAsync(bool newIsAdmin)
         {
-            this.profileService.UpdateIsAdmin(newIsAdmin);
+            await this.profileService.UpdateIsAdminAsync(newIsAdmin);
         }
 
         /// <summary>
         /// Occurs when a property value changes.
         /// </summary>
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         /// <summary>
         /// Raises the <see cref="PropertyChanged"/> event.

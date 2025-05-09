@@ -1,6 +1,8 @@
 ﻿namespace BankApi.Models
 {
     using System;
+    using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
 
     /// <summary>
     /// Represents a single transaction entry in the transaction log,
@@ -9,47 +11,71 @@
     public class TransactionLogTransaction
     {
         /// <summary>
-        /// Gets the trading symbol of the stock involved in the transaction.
+        /// Gets or sets the unique identifier for the transaction.
         /// </summary>
-        public string StockSymbol { get; }
+        [Key]
+        public int Id { get; set; }
 
         /// <summary>
-        /// Gets the display name of the stock involved in the transaction.
+        /// Gets or sets the trading symbol of the stock involved in the transaction.
         /// </summary>
-        public string StockName { get; }
+        [Required]
+        [MaxLength(10)]
+        public string StockSymbol { get; set; }
 
         /// <summary>
-        /// Gets the type of transaction ("BUY" or "SELL").
+        /// Gets or sets the display name of the stock involved in the transaction.
         /// </summary>
-        public string Type { get; }
+        [Required]
+        [MaxLength(100)]
+        public string StockName { get; set; }
 
         /// <summary>
-        /// Gets the number of shares involved in the transaction.
+        /// Gets or sets the type of transaction ("BUY" or "SELL").
         /// </summary>
-        public int Amount { get; }
+        [Required]
+        [MaxLength(4)]
+        public string Type { get; set; }
 
         /// <summary>
-        /// Gets the price paid per share in the transaction.
+        /// Gets or sets the number of shares involved in the transaction.
         /// </summary>
-        public int PricePerStock { get; }
+        [Range(1, int.MaxValue)]
+        public int Amount { get; set; }
+
+        /// <summary>
+        /// Gets or sets the price paid per share in the transaction.
+        /// </summary>
+        [Range(1, int.MaxValue)]
+        public int PricePerStock { get; set; }
 
         /// <summary>
         /// Gets the total value of the transaction (Amount multiplied by PricePerStock).
         /// </summary>
+        [NotMapped]
         public int TotalValue => this.Amount * this.PricePerStock;
 
         /// <summary>
-        /// Gets the date and time when the transaction took place.
+        /// Gets or sets the date and time when the transaction took place.
         /// </summary>
-        public DateTime Date { get; }
+        [Required]
+        public DateTime Date { get; set; }
 
         /// <summary>
-        /// Gets the CNP identifier of the user who executed the transaction.
+        /// Gets or sets the user who performed the transaction.
         /// </summary>
-        public string Author { get; }
+        [Required]
+        public User Author { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TransactionLogTransaction"/> class.
+        /// </summary>
+        public TransactionLogTransaction()
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TransactionLogTransaction"/> class with parameters.
         /// </summary>
         /// <param name="stockSymbol">The trading symbol of the stock; cannot be null or whitespace.</param>
         /// <param name="stockName">The display name of the stock; cannot be null or whitespace.</param>
@@ -57,7 +83,7 @@
         /// <param name="amount">The number of shares; must be greater than zero.</param>
         /// <param name="pricePerStock">The price per share; must be greater than zero.</param>
         /// <param name="date">The date and time when the transaction occurred.</param>
-        /// <param name="author">The CNP of the user who performed the transaction; cannot be null or whitespace.</param>
+        /// <param name="author">The user who performed the transaction; cannot be null.</param>
         public TransactionLogTransaction(
             string stockSymbol,
             string stockName,
@@ -65,40 +91,34 @@
             int amount,
             int pricePerStock,
             DateTime date,
-            string author)
+            User author)
         {
-            // Validate that the stock symbol is provided
             if (string.IsNullOrWhiteSpace(stockSymbol))
             {
                 throw new ArgumentException("StockSymbol required");
             }
 
-            // Validate that the stock name is provided
             if (string.IsNullOrWhiteSpace(stockName))
             {
                 throw new ArgumentException("StockName required");
             }
 
-            // Validate that the transaction type is either BUY or SELL
             if (type is not ("BUY" or "SELL"))
             {
                 throw new ArgumentException("Type must be BUY or SELL");
             }
 
-            // Validate that the amount is positive
             if (amount <= 0)
             {
-                throw new ArgumentException("Amount > 0");
+                throw new ArgumentException("Amount must be greater than 0");
             }
 
-            // Validate that the price per stock is positive
             if (pricePerStock <= 0)
             {
-                throw new ArgumentException("PricePerStock > 0");
+                throw new ArgumentException("PricePerStock must be greater than 0");
             }
 
-            // Validate that the author identifier is provided
-            if (string.IsNullOrWhiteSpace(author))
+            if (author == null)
             {
                 throw new ArgumentException("Author required");
             }

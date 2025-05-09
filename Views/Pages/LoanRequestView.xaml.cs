@@ -2,8 +2,9 @@ namespace StockApp.Views.Pages
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using Microsoft.UI.Xaml.Controls;
-    using Src.Model;
+    using StockApp.Models;
     using StockApp.Services;
     using StockApp.Views.Components;
 
@@ -17,16 +18,16 @@ namespace StockApp.Views.Pages
             this.InitializeComponent();
             this.service = loanRequestService;
             this.componentFactory = componentFactory;
-            this.LoadLoanRequests();
+            this.LoadLoanRequests().ConfigureAwait(false);
         }
 
-        private void LoadLoanRequests()
+        private async Task LoadLoanRequests()
         {
             this.LoanRequestContainer.Items.Clear();
 
             try
             {
-                List<LoanRequest> loanRequests = this.service.GetUnsolvedLoanRequests();
+                List<LoanRequest> loanRequests = await this.service.GetUnsolvedLoanRequests();
 
                 if (loanRequests.Count == 0)
                 {
@@ -44,7 +45,7 @@ namespace StockApp.Views.Pages
                         request.ApplicationDate,
                         request.RepaymentDate,
                         request.Status,
-                        this.service.GiveSuggestion(request));
+                        await this.service.GiveSuggestion(request));
 
                     requestComponent.LoanRequestSolved += this.OnLoanRequestSolved;
 

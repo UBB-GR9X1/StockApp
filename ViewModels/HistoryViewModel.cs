@@ -19,72 +19,74 @@
 
         public HistoryViewModel(IHistoryService historyService)
         {
-            _historyService = historyService ?? throw new ArgumentNullException(nameof(historyService));
+            this._historyService = historyService ?? throw new ArgumentNullException(nameof(historyService));
         }
 
         public string UserCnp
         {
-            get => _userCnp;
+            get => this._userCnp;
             set
             {
-                if (_userCnp != value)
+                if (this._userCnp != value)
                 {
-                    _userCnp = value;
-                    LoadHistory();
-                    OnPropertyChanged();
+                    this._userCnp = value;
+                    this.LoadHistory();
+                    this.OnPropertyChanged();
                 }
             }
         }
 
         public List<CreditScoreHistory> WeeklyHistory
         {
-            get => _weeklyHistory;
+            get => this._weeklyHistory;
             private set
             {
-                if (_weeklyHistory != value)
+                if (this._weeklyHistory != value)
                 {
-                    _weeklyHistory = value;
-                    OnPropertyChanged();
+                    this._weeklyHistory = value;
+                    this.OnPropertyChanged();
                 }
             }
         }
 
         public List<CreditScoreHistory> MonthlyHistory
         {
-            get => _monthlyHistory;
+            get => this._monthlyHistory;
             private set
             {
-                if (_monthlyHistory != value)
+                if (this._monthlyHistory != value)
                 {
-                    _monthlyHistory = value;
-                    OnPropertyChanged();
+                    this._monthlyHistory = value;
+                    this.OnPropertyChanged();
                 }
             }
         }
 
         public List<CreditScoreHistory> YearlyHistory
         {
-            get => _yearlyHistory;
+            get => this._yearlyHistory;
             private set
             {
-                if (_yearlyHistory != value)
+                if (this._yearlyHistory != value)
                 {
-                    _yearlyHistory = value;
-                    OnPropertyChanged();
+                    this._yearlyHistory = value;
+                    this.OnPropertyChanged();
                 }
             }
         }
 
-        private void LoadHistory()
+        private async void LoadHistory()
         {
-            if (string.IsNullOrWhiteSpace(_userCnp))
+            if (string.IsNullOrWhiteSpace(this._userCnp))
+            {
                 return;
+            }
 
             try
             {
-                WeeklyHistory = _historyService.GetHistoryWeekly(_userCnp);
-                MonthlyHistory = _historyService.GetHistoryMonthly(_userCnp);
-                YearlyHistory = _historyService.GetHistoryYearly(_userCnp);
+                this.WeeklyHistory = await this._historyService.GetHistoryWeeklyAsync(this._userCnp);
+                this.MonthlyHistory = await this._historyService.GetHistoryMonthlyAsync(this._userCnp);
+                this.YearlyHistory = await this._historyService.GetHistoryYearlyAsync(this._userCnp);
             }
             catch (Exception ex)
             {
@@ -95,7 +97,7 @@
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

@@ -1,19 +1,27 @@
-﻿namespace StockApp.Repositories
-{
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using StockApp.Models;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using StockApp.Models;
 
+namespace StockApp.Repositories
+{
     public interface IHistoryRepository
     {
-        List<CreditScoreHistory> GetAllHistory();
-        CreditScoreHistory GetHistoryById(int id);
-        void AddHistory(CreditScoreHistory history);
-        void UpdateHistory(CreditScoreHistory history);
-        void DeleteHistory(int id);
-        List<CreditScoreHistory> GetHistoryForUser(string userCnp);
-        List<CreditScoreHistory> GetHistoryWeekly(string userCnp);
-        List<CreditScoreHistory> GetHistoryMonthly(string userCnp);
-        List<CreditScoreHistory> GetHistoryYearly(string userCnp);
+        Task AddHistoryAsync(CreditScoreHistory history);
+
+        Task DeleteHistoryAsync(int id);
+
+        Task<List<CreditScoreHistory>> GetAllHistoryAsync();
+
+        Task<CreditScoreHistory> GetHistoryByIdAsync(int id);
+
+        Task<List<CreditScoreHistory>> GetHistoryForUserAsync(string userCnp);
+
+        Task<List<CreditScoreHistory>> GetHistoryMonthlyAsync(string userCnp);
+
+        Task<List<CreditScoreHistory>> GetHistoryWeeklyAsync(string userCnp);
+
+        Task<List<CreditScoreHistory>> GetHistoryYearlyAsync(string userCnp);
+
+        Task UpdateHistoryAsync(CreditScoreHistory history);
     }
 }

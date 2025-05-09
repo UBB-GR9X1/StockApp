@@ -55,7 +55,7 @@
             string joke = doc.RootElement.GetProperty("value").GetString();
 
             int asciiJokeModulo10 = ComputeJokeAsciiModulo10(joke);
-            List<User> users = this.userRepository.GetAllUsersAsync().Result;
+            List<User> users = await this.userRepository.GetAllAsync();
             bool flip = FlipCoin();
 
             foreach (User user in users)
@@ -69,7 +69,7 @@
                     user.CreditScore -= asciiJokeModulo10;
                 }
 
-                this.userRepository.UpdateUserCreditScoreAsync(user.CNP, user.CreditScore);
+                await this.userRepository.UpdateAsync(user.Id, user);
             }
         }
 
@@ -80,7 +80,7 @@
 
         public async void CreditScoreModificationBasedOnAttributeAndGravity()
         {
-            List<User> userList = await this.userRepository.GetAllUsersAsync();
+            List<User> userList = await this.userRepository.GetAllAsync();
 
             if (userList == null || userList.Count == 0)
             {
@@ -91,7 +91,7 @@
             {
                 int gravityResult = ComputeGravity();
                 user.CreditScore += gravityResult;
-                await this.userRepository.UpdateUserCreditScoreAsync(user.CNP, user.CreditScore);
+                await this.userRepository.UpdateAsync(user.Id, user);
             }
         }
     }

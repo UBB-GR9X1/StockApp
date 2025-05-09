@@ -3,8 +3,6 @@
     using System;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
-    using StockApp.Repositories;
-    using StockApp.Services;
     using StockApp.ViewModels;
 
     /// <summary>
@@ -17,15 +15,11 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="TransactionLogPage"/> class.
         /// </summary>
-        public TransactionLogPage()
+        public TransactionLogPage(TransactionLogViewModel viewModel)
         {
+            this.DataContext = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
             this.InitializeComponent();
-            this.viewModel = new(new TransactionLogService(new TransactionRepository()));
-
-            // Set the DataContext for binding to the ViewModel
-            this.DataContext = this.viewModel;
-
-            // Event to show a message box (if requested by the ViewModel)
+            this.viewModel = viewModel;
             this.viewModel.ShowMessageBoxRequested += this.ShowMessageBoxRequested;
         }
 

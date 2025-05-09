@@ -8,10 +8,6 @@
 
     internal class DatabaseHelper
     {
-        private const string CreateTablesScriptPath = "SqlScripts/CreateTables.sql";
-        private const string ResetDatabaseScriptPath = "SqlScripts/ResetDatabase.sql";
-        private const string CheckTablesExistScriptPath = "SqlScripts/CheckTablesExist.sql";
-
         private static DatabaseHelper? instance;
 
         private DatabaseHelper()
@@ -42,15 +38,9 @@
 
             try
             {
-                bool tablesExist = CheckIfTablesExist();
-                if (!tablesExist)
-                {
-                    CreateDatabaseTables();
-                }
-            }
-            catch (SqlScriptMissingException ex)
-            {
-                throw new DatabaseInitializationException("Missing required SQL script during initialization.", ex);
+                // Just verify we can connect to the database
+                using SqlConnection connection = new(App.ConnectionString);
+                connection.Open();
             }
             catch (SqlException ex)
             {
@@ -90,94 +80,6 @@
             {
                 throw new DatabaseInitializationException("Failed to open SQL connection.", ex);
             }
-        }
-
-        private static bool CheckIfTablesExist()
-        {
-            try
-            {
-                // Open a new connection to check for table existence
-                using SqlConnection connection = new(App.ConnectionString);
-                connection.Open();
-
-                string sql = LoadSqlScript(CheckTablesExistScriptPath);
-
-                using SqlCommand command = new(sql, connection);
-                return Convert.ToBoolean(command.ExecuteScalar() ?? false);
-            }
-            catch (FileNotFoundException ex)
-            {
-                throw new SqlScriptMissingException($"SQL script file '{CheckTablesExistScriptPath}' was not found.", ex);
-            }
-            catch (SqlException ex)
-            {
-                throw new DatabaseInitializationException("An error occurred while checking if database tables exist.", ex);
-            }
-        }
-
-        private static void ResetDatabase()
-        {
-            const string masterConnection = @"
-        Data Source=DESKTOP-2UI353C\SQLEXPRESS;
-        Initial Catalog=StockApp_DB;
-        Integrated Security=True;
-        Trust Server Certificate=True";
-
-            try
-            {
-                using SqlConnection connection = new(masterConnection);
-                connection.Open();
-
-                string sql = LoadSqlScript(ResetDatabaseScriptPath);
-
-                using SqlCommand command = new(sql, connection);
-                command.ExecuteNonQuery();
-            }
-            catch (FileNotFoundException ex)
-            {
-                throw new SqlScriptMissingException(ResetDatabaseScriptPath, ex);
-            }
-            catch (SqlException ex)
-            {
-                throw new DatabaseInitializationException("Failed to reset the database.", ex);
-            }
-        }
-
-        private static void CreateDatabaseTables()
-        {
-            try
-            {
-                // Open a connection to create necessary tables
-                using SqlConnection connection = new(App.ConnectionString);
-                connection.Open();
-
-                string sql = LoadSqlScript(CreateTablesScriptPath);
-
-                using SqlCommand command = new(sql, connection);
-                command.ExecuteNonQuery();
-            }
-            catch (FileNotFoundException ex)
-            {
-                throw new SqlScriptMissingException(CreateTablesScriptPath, ex);
-            }
-            catch (SqlException ex)
-            {
-                throw new DatabaseInitializationException("Failed to create database tables.", ex);
-            }
-        }
-
-        private static string LoadSqlScript(string relativePath)
-        {
-            // Build the full path to the SQL script file
-            string fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, relativePath);
-
-            if (!File.Exists(fullPath))
-            {
-                throw new SqlScriptMissingException(fullPath);
-            }
-
-            // Read and return the SQL script contents
-            return File.ReadAllText(fullPath);
         }
     }
 }

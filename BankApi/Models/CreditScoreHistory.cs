@@ -1,31 +1,33 @@
-﻿namespace BankApi.Models
-{
-    using System;
+﻿using System.ComponentModel.DataAnnotations;
 
+namespace BankApi.Models
+{
     public class CreditScoreHistory
     {
+        [Key]
         public int Id { get; set; }
 
-        public string UserCnp { get; set; }
+        [Required]
+        [MaxLength(13)]
+        public string UserCnp { get; set; } = string.Empty;
 
+        [Required]
         public DateTime Date { get; set; }
 
+        [Required]
+        [Range(0, 1000)]
         public int Score { get; set; }
-
-        public CreditScoreHistory(int id, string userCnp, DateTime date, int creditScore)
-        {
-            this.Id = id;
-            this.UserCnp = userCnp;
-            this.Date = date;
-            this.Score = creditScore;
-        }
 
         public CreditScoreHistory()
         {
-            this.Id = 0;
-            this.UserCnp = string.Empty;
-            this.Date = new DateTime();
-            this.Score = 0;
+        }
+
+        public CreditScoreHistory(int id, string userCnp, DateTime date, int creditScore)
+        {
+            Id = id;
+            UserCnp = userCnp;
+            Date = date;
+            Score = creditScore;
         }
     }
 }

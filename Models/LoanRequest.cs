@@ -1,4 +1,4 @@
-﻿namespace Src.Model
+﻿namespace StockApp.Models
 {
     using System;
 
@@ -8,7 +8,7 @@
 
         public string UserCnp { get; set; }
 
-        public float Amount { get; set; }
+        public decimal Amount { get; set; }
 
         public DateTime ApplicationDate { get; set; }
 
@@ -16,7 +16,7 @@
 
         public string Status { get; set; }
 
-        public LoanRequest(int requestId, string userCnp, float amount, DateTime applicationDate, DateTime repaymentDate, string status)
+        public LoanRequest(int requestId, string userCnp, decimal amount, DateTime applicationDate, DateTime repaymentDate, string status)
         {
             this.Id = requestId;
             this.UserCnp = userCnp;
@@ -24,6 +24,11 @@
             this.ApplicationDate = applicationDate;
             this.RepaymentDate = repaymentDate;
             this.Status = status;
+        }
+
+        public LoanRequest()
+        {
+
         }
     }
 }

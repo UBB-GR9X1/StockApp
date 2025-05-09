@@ -2,24 +2,25 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
+    using System.Threading.Tasks;
     using StockApp.Exceptions;
     using StockApp.Models;
+    using StockApp.Repositories;
 
     public class HistoryService : IHistoryService
     {
-        private readonly HistoryApiService _apiService;
+        private readonly IHistoryRepository _historyRepository;
 
-        public HistoryService(HistoryApiService apiService)
+        public HistoryService(IHistoryRepository apiService)
         {
-            _apiService = apiService ?? throw new ArgumentNullException(nameof(apiService));
+            _historyRepository = apiService ?? throw new ArgumentNullException(nameof(apiService));
         }
 
-        public List<CreditScoreHistory> GetAllHistory()
+        public async Task<List<CreditScoreHistory>> GetAllHistoryAsync()
         {
             try
             {
-                return _apiService.GetAllHistory();
+                return await _historyRepository.GetAllHistoryAsync();
             }
             catch (Exception ex)
             {
@@ -27,11 +28,11 @@
             }
         }
 
-        public CreditScoreHistory GetHistoryById(int id)
+        public async Task<CreditScoreHistory> GetHistoryByIdAsync(int id)
         {
             try
             {
-                return _apiService.GetHistoryById(id);
+                return await _historyRepository.GetHistoryByIdAsync(id);
             }
             catch (Exception ex)
             {
@@ -39,7 +40,7 @@
             }
         }
 
-        public void AddHistory(CreditScoreHistory history)
+        public async Task AddHistoryAsync(CreditScoreHistory history)
         {
             if (history == null)
             {
@@ -53,7 +54,7 @@
 
             try
             {
-                _apiService.AddHistory(history);
+                await _historyRepository.AddHistoryAsync(history);
             }
             catch (Exception ex)
             {
@@ -61,7 +62,7 @@
             }
         }
 
-        public void UpdateHistory(CreditScoreHistory history)
+        public async Task UpdateHistoryAsync(CreditScoreHistory history)
         {
             if (history == null)
             {
@@ -75,7 +76,7 @@
 
             try
             {
-                _apiService.UpdateHistory(history);
+                await _historyRepository.UpdateHistoryAsync(history);
             }
             catch (Exception ex)
             {
@@ -83,11 +84,11 @@
             }
         }
 
-        public void DeleteHistory(int id)
+        public async Task DeleteHistoryAsync(int id)
         {
             try
             {
-                _apiService.DeleteHistory(id);
+                await _historyRepository.DeleteHistoryAsync(id);
             }
             catch (Exception ex)
             {
@@ -95,7 +96,7 @@
             }
         }
 
-        public List<CreditScoreHistory> GetHistoryForUser(string userCnp)
+        public async Task<List<CreditScoreHistory>> GetHistoryForUserAsync(string userCnp)
         {
             if (string.IsNullOrWhiteSpace(userCnp))
             {
@@ -104,7 +105,7 @@
 
             try
             {
-                return _apiService.GetHistoryForUser(userCnp);
+                return await _historyRepository.GetHistoryForUserAsync(userCnp);
             }
             catch (Exception ex)
             {
@@ -112,7 +113,7 @@
             }
         }
 
-        public List<CreditScoreHistory> GetHistoryWeekly(string userCnp)
+        public async Task<List<CreditScoreHistory>> GetHistoryWeeklyAsync(string userCnp)
         {
             if (string.IsNullOrWhiteSpace(userCnp))
             {
@@ -121,7 +122,7 @@
 
             try
             {
-                return _apiService.GetHistoryWeekly(userCnp);
+                return await _historyRepository.GetHistoryWeeklyAsync(userCnp);
             }
             catch (Exception ex)
             {
@@ -129,7 +130,7 @@
             }
         }
 
-        public List<CreditScoreHistory> GetHistoryMonthly(string userCnp)
+        public async Task<List<CreditScoreHistory>> GetHistoryMonthlyAsync(string userCnp)
         {
             if (string.IsNullOrWhiteSpace(userCnp))
             {
@@ -138,7 +139,7 @@
 
             try
             {
-                return _apiService.GetHistoryMonthly(userCnp);
+                return await _historyRepository.GetHistoryMonthlyAsync(userCnp);
             }
             catch (Exception ex)
             {
@@ -146,7 +147,7 @@
             }
         }
 
-        public List<CreditScoreHistory> GetHistoryYearly(string userCnp)
+        public async Task<List<CreditScoreHistory>> GetHistoryYearlyAsync(string userCnp)
         {
             if (string.IsNullOrWhiteSpace(userCnp))
             {
@@ -155,7 +156,7 @@
 
             try
             {
-                return _apiService.GetHistoryYearly(userCnp);
+                return await _historyRepository.GetHistoryYearlyAsync(userCnp);
             }
             catch (Exception ex)
             {
