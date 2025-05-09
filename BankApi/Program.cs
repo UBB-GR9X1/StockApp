@@ -56,6 +56,7 @@ Type[] seederTypes =
     typeof(TransactionLogTransactionsSeeder),
     typeof(ActivityLogsSeeder),
     typeof(AlertsSeeder),
+    typeof(BaseStocksSeeder),
 ];
 
 // Dependency injection for seeders.
