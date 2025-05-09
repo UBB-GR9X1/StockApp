@@ -3,20 +3,18 @@
     using System;
     using System.Collections.ObjectModel;
     using System.Threading.Tasks;
-    using Src.Data;
     using Src.Model;
-    using StockApp.Repositories;
     using StockApp.Services;
 
     public class LoanRequestViewModel
     {
-        private readonly LoanRequestService loanRequestService;
+        private readonly ILoanRequestService loanRequestService;
 
         public ObservableCollection<LoanRequest> LoanRequests { get; set; }
 
-        public LoanRequestViewModel()
+        public LoanRequestViewModel(ILoanRequestService loanService)
         {
-            this.loanRequestService = new LoanRequestService(new LoanRequestRepository(new DatabaseConnection()));
+            this.loanRequestService = loanService;
             this.LoanRequests = new ObservableCollection<LoanRequest>();
         }
 

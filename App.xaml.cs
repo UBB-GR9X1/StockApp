@@ -75,10 +75,9 @@ namespace StockApp
                     services.AddSingleton<IHistoryRepository, HistoryRepository>();
                     services.AddSingleton<ILoanRepository, LoanRepository>();
                     services.AddSingleton<ILoanRequestRepository, LoanRequestRepository>();
-                    services.AddSingleton<IUserRepository, UserRepository>();
                     services.AddSingleton<IActivityRepo, ActivityProxyRepo>();
                     services.AddSingleton<IGemStoreRepository, GemStoreProxyRepo>();
-                    services.AddSingleton<IUserProxyRepository, UserProxyRepository>();
+                    services.AddSingleton<IUserRepository, UserProxyRepository>();
                     services.AddSingleton<IProfileRepository, ProfileProxyRepo>();
                     services.AddSingleton<IBaseStocksRepository, BaseStocksProxyRepository>();
 
@@ -107,21 +106,22 @@ namespace StockApp
                     {
                         client.BaseAddress = new Uri(config["ApiBaseUrl"]);
                     });
-                    services.AddHttpClient<IUserProxyRepository, UserProxyRepository>(client =>
+                    services.AddHttpClient<IUserRepository, UserProxyRepository>(client =>
                     {
-                        client.BaseAddress = new Uri("http://localhost:7001/");
+                        client.BaseAddress = new Uri("https://localhost:7001/");
                     });
 
                     services.AddHttpClient<IBaseStocksRepository, BaseStocksProxyRepository>(client =>
                     {
                         client.BaseAddress = new Uri("https://localhost:7001/");
                     });
+
                     // Legacy repositories
                     services.AddSingleton<IChatReportRepository, ChatReportRepoProxy>();
                     services.AddSingleton<IHistoryRepository, HistoryRepository>();
                     services.AddSingleton<ILoanRepository, LoanRepository>();
                     services.AddSingleton<ILoanRequestRepository, LoanRequestRepository>();
-                    services.AddSingleton<IUserRepository, UserRepository>();
+                    services.AddSingleton<IStockPageRepository, StockPageRepository>();
                     services.AddHttpClient<IInvestmentsRepository, InvestmentsProxyRepository>(client =>
                     {
                         client.BaseAddress = new Uri("https://localhost:7001/");
@@ -131,8 +131,6 @@ namespace StockApp
                     {
                         client.BaseAddress = new Uri("https://localhost:7001/");
                     });
-
-
 
                     // Other Services
                     services.AddSingleton<IBillSplitReportService, BillSplitReportService>();
@@ -151,6 +149,7 @@ namespace StockApp
                     services.AddSingleton<IProfileService, ProfileService>();
                     services.AddSingleton<IHomepageService, HomepageService>();
                     services.AddSingleton<ICreateStockService, CreateStockService>();
+                    services.AddSingleton<IStockPageService, StockPageService>();
                     services.AddSingleton<MainWindow>();
 
                     // UI Components
@@ -210,6 +209,7 @@ namespace StockApp
                     services.AddTransient<InvestmentsView>();
                     services.AddTransient<HomepageViewModel>();
                     services.AddTransient<CreateStockViewModel>();
+                    services.AddTransient<CreateProfilePageViewModel>();
                 }).Build();
         }
 

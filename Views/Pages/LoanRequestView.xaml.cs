@@ -20,7 +20,7 @@ namespace StockApp.Views.Pages
             this.LoadLoanRequests();
         }
 
-        private void LoadLoanRequests()
+        private async void LoadLoanRequests()
         {
             this.LoanRequestContainer.Items.Clear();
 
@@ -44,7 +44,7 @@ namespace StockApp.Views.Pages
                         request.ApplicationDate,
                         request.RepaymentDate,
                         request.Status,
-                        this.service.GiveSuggestion(request));
+                        await this.service.GiveSuggestion(request));
 
                     requestComponent.LoanRequestSolved += this.OnLoanRequestSolved;
 

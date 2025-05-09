@@ -3,11 +3,10 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using StockApp.Models;
-using StockApp.Repositories;
 
 namespace StockApp.Repositories.Api
 {
-    public class UserProxyRepository : IUserProxyRepository
+    public class UserProxyRepository : IUserRepository
     {
         private readonly HttpClient _httpClient;
 

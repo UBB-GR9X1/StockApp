@@ -17,12 +17,11 @@ namespace StockApp
     public sealed partial class MainWindow : Window
     {
         private readonly IServiceProvider serviceProvider;
-        private static readonly IUserRepository userRepository = new UserRepository();
 
         public Frame MainAppFrame => this.MainFrame;
-        public bool CreateProfileButtonVisibility => userRepository.CurrentUserCNP == null;
+        public bool CreateProfileButtonVisibility => IUserRepository.CurrentUserCNP == null;
 
-        public static bool ProfileButtonVisibility => userRepository.CurrentUserCNP != null;
+        public static bool ProfileButtonVisibility => IUserRepository.CurrentUserCNP != null;
 
         public MainWindow(IServiceProvider serviceProvider)
         {

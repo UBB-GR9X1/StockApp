@@ -5,7 +5,6 @@
     using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using System.Windows.Input;
-    using Microsoft.UI.Dispatching;
     using Microsoft.UI.Xaml.Controls;
     using StockApp.Commands;
     using StockApp.Models;
@@ -275,7 +274,7 @@
 
             try
             {
-                var success = this.newsService.ApproveUserArticle(this.previewId);
+                var success = await this.newsService.ApproveUserArticle(this.previewId);
                 if (success)
                 {
                     this.ArticleStatus = "Approved";
@@ -326,7 +325,7 @@
 
             try
             {
-                var success = this.newsService.RejectUserArticle(this.previewId);
+                var success = await this.newsService.RejectUserArticle(this.previewId);
                 if (success)
                 {
                     this.ArticleStatus = "Rejected";
@@ -387,7 +386,7 @@
                 {
                     this.IsLoading = true;
 
-                    var success = this.newsService.DeleteUserArticle(this.previewId);
+                    var success = await this.newsService.DeleteUserArticle(this.previewId);
                     if (success)
                     {
                         var dialog = new ContentDialog

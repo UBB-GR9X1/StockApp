@@ -11,7 +11,7 @@
     /// </summary>
     public class StockPageRepository : IStockPageRepository
     {
-        private static readonly UserRepository userRepository = new();
+        private readonly IUserRepository userRepository;
 
         /// <summary>
         /// Gets the user associated with the stock page, or <c>null</c> if guest.
@@ -27,8 +27,11 @@
         /// Initializes a new instance of the <see cref="StockPageRepository"/> class,
         /// fetching the current user's CNP and loading their profile.
         /// </summary>
-        public StockPageRepository()
+        public StockPageRepository(IUserRepository userRepository)
         {
+            this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+            this.User = null;
+            this.IsGuest = true;
             this.InitializeUser();
         }
 
@@ -221,7 +224,7 @@
                    ZodiacSign, ZodiacAttribute, NumberOfBillSharesPaid, Income, Balance
                FROM Users 
                WHERE Cnp = @cnp", connection);
-            command.Parameters.AddWithValue("@cnp", userRepository.CurrentUserCNP);
+            command.Parameters.AddWithValue("@cnp", IUserRepository.CurrentUserCNP);
 
             using var reader = command.ExecuteReader();
             if (reader.Read())

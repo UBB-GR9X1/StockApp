@@ -2,7 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-    using Src.Data;
+    using System.Threading.Tasks;
     using Src.Model;
     using StockApp.Models;
     using StockApp.Repositories;
@@ -10,19 +10,18 @@
     public class LoanRequestService : ILoanRequestService
     {
         private readonly ILoanRequestRepository loanRequestRepository;
+        private readonly IUserRepository userRepository;
 
-        public LoanRequestService(ILoanRequestRepository loanRequestRepository)
+        public LoanRequestService(ILoanRequestRepository loanRequestRepository, IUserRepository userRepository)
         {
+            this.userRepository = userRepository;
             this.loanRequestRepository = loanRequestRepository;
         }
 
-        public string GiveSuggestion(LoanRequest loanRequest)
+        public async Task<string> GiveSuggestion(LoanRequest loanRequest)
         {
-            DatabaseConnection dbConnection = new DatabaseConnection();
-            UserRepository userRepository = new UserRepository();
-            LoanService loanService = new LoanService(new LoanRepository(dbConnection));
 
-            User user = userRepository.GetUserByCnpAsync(loanRequest.UserCnp).Result;
+            User user = await this.userRepository.GetByCnpAsync(loanRequest.UserCnp) ?? throw new Exception("User not found");
 
             string givenSuggestion = string.Empty;
 

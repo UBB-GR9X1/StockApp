@@ -6,6 +6,8 @@
 
     public interface IUserService
     {
+        Task CreateUser(User user);
+
         User GetUserByCnp(string cnp);
 
         Task<User> GetCurrentUserAsync();

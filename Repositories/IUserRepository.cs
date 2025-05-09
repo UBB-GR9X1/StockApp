@@ -6,30 +6,23 @@
 
     public interface IUserRepository
     {
-        string CurrentUserCNP { get; set; }
 
-        bool IsGuest { get; }
+        public static string CurrentUserCNP { get; set; } = App.Configuration.GetSection("CurrentUserCNP").Value ?? string.Empty;
 
-        Task CreateUserAsync(User user);
+        public static bool IsGuest => string.IsNullOrEmpty(CurrentUserCNP);
 
-        Task<User> GetUserByCnpAsync(string userCNP);
+        Task<List<User>> GetAllAsync();
 
-        Task<User> GetUserByUsernameAsync(string username);
+        Task<User?> GetByIdAsync(int id);
 
-        Task UpdateUserAsync(User user);
+        Task<User?> GetByCnpAsync(string cnp);
 
-        Task DeleteUserAsync(string userCNP);
+        Task<User?> GetByUsernameAsync(string username);
 
-        Task<List<User>> GetAllUsersAsync();
+        Task<bool> CreateAsync(User user);
 
-        Task PenalizeUserAsync(string cnp, int penaltyAmount);
+        Task<bool> UpdateAsync(int id, User user);
 
-        Task IncrementOffensesCountAsync(string cnp);
-
-        Task UpdateUserCreditScoreAsync(string cnp, int creditScore);
-
-        Task UpdateUserROIAsync(string cnp, decimal roi);
-
-        Task UpdateUserRiskScoreAsync(string cnp, int riskScore);
+        Task<bool> DeleteAsync(int id);
     }
 }

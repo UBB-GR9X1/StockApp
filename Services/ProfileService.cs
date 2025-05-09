@@ -10,7 +10,7 @@
         private readonly IProfileRepository profileRepo;
         private readonly IUserRepository userRepo;
 
-        public Task<User> CurrentUserProfile => this.profileRepo.GetUserProfileAsync(this.userRepo.CurrentUserCNP);
+        public Task<User> CurrentUserProfile => this.profileRepo.GetUserProfileAsync(IUserRepository.CurrentUserCNP);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProfileService"/> class.

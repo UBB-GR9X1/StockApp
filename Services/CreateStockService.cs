@@ -51,7 +51,7 @@
             return string.IsNullOrEmpty(cnp) || cnp == "0000000000000";
         }
 
-        private string GetUserCnp() => _userRepository.CurrentUserCNP;
+        private string GetUserCnp() => IUserRepository.CurrentUserCNP;
 
         /*──────────────────────  Public API  ──────────────────────*/
 

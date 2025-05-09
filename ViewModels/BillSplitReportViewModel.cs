@@ -60,13 +60,12 @@ namespace StockApp.ViewModels
         {
             try
             {
-                return await this._userRepository.GetUserByCnpAsync(cnp)
-                                            .ConfigureAwait(false);
+                return await this._userRepository.GetByCnpAsync(cnp) ?? throw new Exception("User not found");
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error getting user: {ex.Message}");
-                return new User { FirstName = "Unknown", LastName = "User", CNP = cnp };
+                throw;
             }
         }
 

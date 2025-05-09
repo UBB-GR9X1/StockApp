@@ -9,6 +9,7 @@
     public class LoanService : ILoanService
     {
         private readonly ILoanRepository loanRepository;
+        private readonly IUserRepository userRepository;
 
         public LoanService(ILoanRepository loanRepository)
         {
@@ -27,9 +28,7 @@
 
         public void AddLoan(LoanRequest loanRequest)
         {
-            UserRepository userRepository = new UserRepository();
-
-            User user = userRepository.GetUserByCnpAsync(loanRequest.UserCnp).Result;
+            User user = userRepository.GetByCnpAsync(loanRequest.UserCnp).Result;
 
             if (user == null)
             {
@@ -59,7 +58,6 @@
 
             this.loanRepository.AddLoan(loan);
         }
-        UserRepository userRepo = new();
 
         public async void CheckLoans()
         {
@@ -67,13 +65,14 @@
             foreach (Loan loan in loanList)
             {
                 int numberOfMonthsPassed = ((DateTime.Today.Year - loan.ApplicationDate.Year) * 12) + DateTime.Today.Month - loan.ApplicationDate.Month;
-                User user = await this.userRepo.GetUserByCnpAsync(loan.UserCnp);
+                User user = await this.userRepository.GetByCnpAsync(loan.UserCnp) ?? throw new Exception("User not found");
                 if (loan.MonthlyPaymentsCompleted >= loan.NumberOfMonths)
                 {
                     loan.Status = "completed";
                     int newUserCreditScore = this.ComputeNewCreditScore(user, loan);
 
-                    await this.userRepo.UpdateUserCreditScoreAsync(loan.UserCnp, newUserCreditScore);
+                    user.CreditScore = newUserCreditScore;
+                    await this.userRepository.UpdateAsync(user.Id, user);
                 }
 
                 if (numberOfMonthsPassed > loan.MonthlyPaymentsCompleted)
@@ -92,7 +91,8 @@
                     loan.Status = "overdue";
                     int newUserCreditScore = this.ComputeNewCreditScore(user, loan);
 
-                    await this.userRepo.UpdateUserCreditScoreAsync(loan.UserCnp, newUserCreditScore);
+                    user.CreditScore = newUserCreditScore;
+                    await this.userRepository.UpdateAsync(user.Id, user);
                     this.UpdateHistoryForUser(loan.UserCnp, newUserCreditScore);
                 }
                 else if (loan.Status == "overdue")
@@ -102,7 +102,8 @@
                         loan.Status = "completed";
                         int newUserCreditScore = this.ComputeNewCreditScore(user, loan);
 
-                        await this.userRepo.UpdateUserCreditScoreAsync(loan.UserCnp, newUserCreditScore);
+                        user.CreditScore = newUserCreditScore;
+                        await this.userRepository.UpdateAsync(user.Id, user);
                         this.UpdateHistoryForUser(loan.UserCnp, newUserCreditScore);
                     }
                 }
