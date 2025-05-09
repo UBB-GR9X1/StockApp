@@ -50,42 +50,6 @@
 
             return ids;
         }
-
-        private async Task<string> GetQueryAsync()
-        {
-            var foreignKeys = await this.GetForeignKeys();
-            return this.GetQueryWithForeignKeys(foreignKeys);
-        }
-
-        protected abstract string GetReferencedTableName();
-
-        protected abstract string GetQueryWithForeignKeys(List<int> foreignKeys);
-
-        private async Task<List<int>> GetForeignKeys()
-        {
-            List<int> ids = [];
-
-            // Fetch existing User IDs dynamically
-            using SqlConnection conn = new(this.connectionString);
-            await conn.OpenAsync();
-
-            using SqlCommand cmd = new($"SELECT Id FROM {GetReferencedTableName()} ORDER BY Id ASC", conn);
-            using SqlDataReader reader = await cmd.ExecuteReaderAsync();
-
-            while (reader.Read())
-            {
-                ids.Add(reader.GetInt32(0));
-            }
-
-            // Ensure we have at least 5 users before proceeding
-            if (ids.Count < 5)
-            {
-                throw new InvalidOperationException($"Not enough records in the {GetReferencedTableName()} table to seed.");
-            }
-
-            return ids;
-        }
-
         private async Task<string> GetQueryAsync()
         {
             var foreignKeys = await this.GetForeignKeys();
