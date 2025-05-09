@@ -50,6 +50,7 @@
 
             return ids;
         }
+        
         private async Task<string> GetQueryAsync()
         {
             var foreignKeys = await this.GetForeignKeys();
