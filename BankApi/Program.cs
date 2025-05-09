@@ -45,34 +45,42 @@ builder.Services.AddCors(options =>
     });
 });
 
+Type[] seederTypes =
+[
+    typeof(UsersSeeder),
+    typeof(ChatReportsSeeder),
+    typeof(LoanRequestsSeeder),
+    typeof(LoansSeeder),
+    typeof(BillSplitReportsSeeder),
+    typeof(InvestmentsSeeder),
+    typeof(TransactionLogTransactionsSeeder),
+];
+
 // Dependency injection for seeders.
-builder.Services.AddSingleton<UserDatabaseSeeder>(sp =>
-    new UserDatabaseSeeder(builder.Configuration));
-builder.Services.AddSingleton<ChatReportsDatabaseSeeder>(sp =>
-    new ChatReportsDatabaseSeeder(builder.Configuration));
+foreach (var seederType in seederTypes)
+{
+    builder.Services.AddSingleton(seederType, sp =>
+        Activator.CreateInstance(seederType, sp.GetRequiredService<IConfiguration>())!);
+}
 
 var app = builder.Build();
 
 // Apply migrations in development environment
 if (app.Environment.IsDevelopment())
 {
-    using (var scope = app.Services.CreateScope())
+    using var scope = app.Services.CreateScope();
+
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+    dbContext.Database.Migrate(); // This will apply any pending migrations
+
+    // Seed the database
+    foreach (var seederType in seederTypes)
     {
-        var dbContext = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
-        dbContext.Database.Migrate(); // This will apply any pending migrations
-
-        // Seed the database
-        var userSeeder = scope.ServiceProvider.GetRequiredService<UserDatabaseSeeder>();
-        await userSeeder.InsertUsersAsync();
-
-        var chatReportsSeeder = scope.ServiceProvider.GetRequiredService<ChatReportsDatabaseSeeder>();
-        await chatReportsSeeder.InsertUsersAsync();
+        var seeder = (BaseSeeder)scope.ServiceProvider.GetRequiredService(seederType);
+        await seeder.SeedAsync();
     }
-}
 
-// Configure the HTTP request pipeline
-if (app.Environment.IsDevelopment())
-{
+    // Configure the HTTP request pipeline
     app.UseDeveloperExceptionPage();
 }
 
