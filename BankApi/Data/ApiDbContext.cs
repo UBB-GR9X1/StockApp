@@ -25,6 +25,7 @@ namespace BankApi.Data
         public DbSet<UserStock> UserStocks { get; set; }
         public DbSet<Investment> Investments { get; set; }
         public DbSet<BillSplitReport> BillSplitReports { get; set; }
+        public DbSet<User> Users { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -44,8 +45,62 @@ namespace BankApi.Data
                 entity.Property(s => s.Symbol)
                       .IsRequired();
 
-                entity.Property(s => s.AuthorCNP)
+            modelBuilder.Entity<BaseStock>()
+                .Property(s => s.AuthorCNP)
+                .IsRequired();
+
+            // User configuration
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasIndex(e => e.CNP).IsUnique();
+                entity.Property(e => e.CNP)
+                      .IsRequired()
+                      .HasMaxLength(13);
+                entity.Property(e => e.Username)
+                      .IsRequired()
+                      .HasMaxLength(50);
+                entity.Property(e => e.FirstName)
+                      .IsRequired()
+                      .HasMaxLength(50);
+                entity.Property(e => e.LastName)
+                      .IsRequired()
+                      .HasMaxLength(50);
+                entity.Property(e => e.Email)
+                      .IsRequired()
+                      .HasMaxLength(100);
+                entity.Property(e => e.HashedPassword)
                       .IsRequired();
+                entity.Property(e => e.Description)
+                      .HasMaxLength(500);
+                entity.Property(e => e.Image)
+                      .HasMaxLength(255);
+                entity.Property(e => e.PhoneNumber)
+                      .HasMaxLength(20);
+                entity.Property(e => e.GemBalance)
+                      .HasDefaultValue(0);
+                entity.Property(e => e.NumberOfOffenses)
+                      .HasDefaultValue(0);
+                entity.Property(e => e.RiskScore)
+                      .HasDefaultValue(0);
+                entity.Property(e => e.ROI)
+                      .HasPrecision(18, 2)
+                      .HasDefaultValue(0);
+                entity.Property(e => e.CreditScore)
+                      .HasDefaultValue(0);
+                entity.Property(e => e.Birthday)
+                      .IsRequired();
+                entity.Property(e => e.ZodiacSign)
+                      .HasMaxLength(50);
+                entity.Property(e => e.ZodiacAttribute)
+                      .HasMaxLength(50);
+                entity.Property(e => e.NumberOfBillSharesPaid)
+                      .HasDefaultValue(0);
+                entity.Property(e => e.Income)
+                      .HasDefaultValue(0);
+                entity.Property(e => e.Balance)
+                      .HasPrecision(18, 2)
+                      .HasDefaultValue(0);
             });
 
             // HomepageStock configuration

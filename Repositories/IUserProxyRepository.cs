@@ -1,17 +1,17 @@
-﻿using BankApi.Models;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using StockApp.Models;
 
-namespace BankApi.Repositories
+namespace StockApp.Repositories
 {
-    public interface IUserRepository
+    public interface IUserProxyRepository
     {
         Task<List<User>> GetAllAsync();
         Task<User?> GetByIdAsync(int id);
         Task<User?> GetByCnpAsync(string cnp);
         Task<User?> GetByUsernameAsync(string username);
-        Task<User> CreateAsync(User user);
-        Task<bool> UpdateAsync(User user);
+        Task<bool> CreateAsync(User user);
+        Task<bool> UpdateAsync(int id, User user);
         Task<bool> DeleteAsync(int id);
     }
 }

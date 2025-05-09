@@ -78,6 +78,7 @@ namespace StockApp
                     services.AddSingleton<IUserRepository, UserRepository>();
                     services.AddSingleton<IActivityRepo, ActivityProxyRepo>();
                     services.AddSingleton<IGemStoreRepository, GemStoreProxyRepo>();
+                    services.AddSingleton<IUserProxyRepository, UserProxyRepository>();
                     services.AddSingleton<IProfileRepository, ProfileProxyRepo>();
                     services.AddSingleton<IBaseStocksRepository, BaseStocksProxyRepository>();
 
@@ -105,6 +106,10 @@ namespace StockApp
                     services.AddHttpClient<IActivityRepo, ActivityProxyRepo>(client =>
                     {
                         client.BaseAddress = new Uri(config["ApiBaseUrl"]);
+                    });
+                    services.AddHttpClient<IUserProxyRepository, UserProxyRepository>(client =>
+                    {
+                        client.BaseAddress = new Uri("http://localhost:7001/");
                     });
 
                     services.AddHttpClient<IBaseStocksRepository, BaseStocksProxyRepository>(client =>
