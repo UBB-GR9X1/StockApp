@@ -23,7 +23,6 @@ namespace BankApi.Data
         public DbSet<GemStore> GemStores { get; set; }
         public DbSet<ActivityLog> ActivityLogs { get; set; }
         public DbSet<HomepageStock> HomepageStocks { get; set; } = null!;
-        public DbSet<Profile> Profiles { get; set; }
         public DbSet<UserStock> UserStocks { get; set; }
         public DbSet<Investment> Investments { get; set; }
         public DbSet<BillSplitReport> BillSplitReports { get; set; }
@@ -197,20 +196,6 @@ namespace BankApi.Data
                         .IsRequired();
                 });
 
-                modelBuilder.Entity<Profile>(entity =>
-                {
-                    entity.ToTable("Profiles");
-                    entity.HasKey(e => e.Cnp);
-                    entity.Property(e => e.Cnp).IsRequired().HasMaxLength(13);
-                    entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
-                    entity.Property(e => e.ProfilePicture).HasMaxLength(500);
-                    entity.Property(e => e.Description).HasMaxLength(1000);
-                    entity.Property(e => e.IsHidden).IsRequired();
-                    entity.Property(e => e.IsAdmin).IsRequired();
-                    entity.Property(e => e.GemBalance).IsRequired();
-                    entity.Property(e => e.LastUpdated).IsRequired();
-                });
-
                 modelBuilder.Entity<Investment>(entity =>
                 {
                     entity.HasKey(e => e.Id);
@@ -287,36 +272,10 @@ namespace BankApi.Data
 
             modelBuilder.Entity<TransactionLogTransaction>(entity =>
             {
-                entity.ToTable("TransactionLogTransactions");
-
-                entity.HasKey(e => new { e.Author, e.Date });
-
-                entity.Property(e => e.Author).IsRequired();
-                entity.ToTable(t => t.HasCheckConstraint("CK_Transaction_AuthorCNP_Length", "LEN(AuthorCNP) = 13"));
-
-                entity.Property(e => e.StockSymbol)
-                      .IsRequired()
-                      .HasMaxLength(10); 
-
-                entity.Property(e => e.StockName)
-                      .IsRequired()
-                      .HasMaxLength(100);
-
-                entity.Property(e => e.Type)
-                      .IsRequired()
-                      .HasMaxLength(4); 
-
-                entity.Property(e => e.Amount)
-                      .IsRequired();
-
-                entity.Property(e => e.PricePerStock)
-                      .IsRequired();
-
-                entity.Property(e => e.Date)
-                      .IsRequired()
-                      .HasColumnType("datetime");
-                
-
+                entity.HasOne(e => e.Author)
+                    .WithMany()
+                    .HasForeignKey(e => e.Id)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }

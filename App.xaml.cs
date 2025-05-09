@@ -75,7 +75,6 @@ namespace StockApp
 
                     services.AddSingleton<IBillSplitReportRepository, BillSplitReportProxyRepository>();
                     services.AddSingleton<ITransactionRepository, TransactionProxyRepository>();
-                    services.AddSingleton<IBillSplitReportRepository, BillSplitReportRepository>();
                     services.AddSingleton<IChatReportRepository, ChatReportRepoProxy>();
                     services.AddSingleton<ILoanRepository, LoanProxyRepository>();
                     services.AddSingleton<ILoanRequestRepository, LoanRequestProxyRepo>();

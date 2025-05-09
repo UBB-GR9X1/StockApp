@@ -16,7 +16,7 @@ namespace BankApi.Controllers
         }
 
         [HttpGet("{cnp}")]
-        public async Task<ActionResult<Profile>> GetProfile(string cnp)
+        public async Task<ActionResult<User>> GetProfile(string cnp)
         {
             try
             {
@@ -34,12 +34,12 @@ namespace BankApi.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Profile>> CreateProfile([FromBody] Profile profile)
+        public async Task<ActionResult<User>> CreateProfile([FromBody] User profile)
         {
             try
             {
                 var createdProfile = await _profileRepository.CreateProfileAsync(profile);
-                return CreatedAtAction(nameof(GetProfile), new { cnp = createdProfile.Cnp }, createdProfile);
+                return CreatedAtAction(nameof(GetProfile), new { cnp = createdProfile.CNP }, createdProfile);
             }
             catch (Exception ex)
             {
@@ -48,11 +48,11 @@ namespace BankApi.Controllers
         }
 
         [HttpPut("{cnp}")]
-        public async Task<ActionResult<Profile>> UpdateProfile(string cnp, [FromBody] Profile profile)
+        public async Task<ActionResult<User>> UpdateProfile(string cnp, [FromBody] User profile)
         {
             try
             {
-                if (cnp != profile.Cnp)
+                if (cnp != profile.CNP)
                 {
                     return BadRequest("CNP mismatch");
                 }
@@ -116,4 +116,4 @@ namespace BankApi.Controllers
             }
         }
     }
-} 
+}

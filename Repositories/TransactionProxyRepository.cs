@@ -4,30 +4,23 @@
     using System.Collections.Generic;
     using System.Net.Http;
     using System.Net.Http.Json;
-    using System.Text.Json;
     using System.Threading.Tasks;
     using StockApp.Models;
 
     public class TransactionProxyRepository : ITransactionRepository
     {
         private readonly HttpClient _httpClient;
-        private readonly string _baseUrl = "https://localhost:7001/api/Transactions";
-        private readonly JsonSerializerOptions _jsonOptions;
 
         public TransactionProxyRepository(HttpClient httpClient)
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-            _jsonOptions = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            };
         }
 
         public async Task AddTransaction(TransactionLogTransaction transaction)
         {
             try
             {
-                var response = await _httpClient.PostAsJsonAsync(_baseUrl, transaction);
+                var response = await _httpClient.PostAsJsonAsync("api/Transaction", transaction);
                 if (response.IsSuccessStatusCode)
                 {
                     return;
@@ -46,10 +39,10 @@
         {
             try
             {
-                var transactions = await _httpClient.GetFromJsonAsync<List<TransactionLogTransaction>>(_baseUrl, _jsonOptions);
+                var transactions = await _httpClient.GetFromJsonAsync<List<TransactionLogTransaction>>("api/Transaction");
                 return transactions ?? new List<TransactionLogTransaction>();
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 throw new Exception("Error occured while revrieving transactions from the API", ex);
             }
@@ -64,12 +57,12 @@
 
             try
             {
-                var url = $"{_baseUrl}/filter";
-                var response = await _httpClient.PostAsJsonAsync(url, criteria, _jsonOptions);
+                var url = $"api/Transaction/filter";
+                var response = await _httpClient.PostAsJsonAsync(url, criteria);
 
                 if (response.IsSuccessStatusCode)
                 {
-                    var transactions = await response.Content.ReadFromJsonAsync<List<TransactionLogTransaction>>(_jsonOptions);
+                    var transactions = await response.Content.ReadFromJsonAsync<List<TransactionLogTransaction>>();
                     return transactions ?? new List<TransactionLogTransaction>();
                 }
 

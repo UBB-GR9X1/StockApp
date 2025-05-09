@@ -13,32 +13,46 @@ namespace BankApi.Repositories
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task<Profile?> GetProfileByCnpAsync(string cnp)
+        public async Task<User?> GetProfileByCnpAsync(string cnp)
         {
-            return await _context.Profiles
-                .FirstOrDefaultAsync(p => p.Cnp == cnp);
+            return await _context.Users
+                .FirstOrDefaultAsync(p => p.CNP == cnp);
         }
 
-        public async Task<Profile> CreateProfileAsync(Profile profile)
+        public async Task<User> CreateProfileAsync(User profile)
         {
-            _context.Profiles.Add(profile);
+            _context.Users.Add(profile);
             await _context.SaveChangesAsync();
             return profile;
         }
 
-        public async Task<Profile> UpdateProfileAsync(Profile profile)
+        public async Task<User> UpdateProfileAsync(User profile)
         {
-            var existingProfile = await _context.Profiles.FindAsync(profile.Cnp);
+            var existingProfile = await _context.Users.FindAsync(profile.CNP);
             if (existingProfile == null)
             {
-                throw new KeyNotFoundException($"Profile with CNP {profile.Cnp} not found.");
+                throw new KeyNotFoundException($"Profile with CNP {profile.CNP} not found.");
             }
-
-            existingProfile.Name = profile.Name;
-            existingProfile.ProfilePicture = profile.ProfilePicture;
             existingProfile.Description = profile.Description;
+            existingProfile.Image = profile.Image;
             existingProfile.IsHidden = profile.IsHidden;
-            existingProfile.LastUpdated = DateTime.UtcNow;
+            existingProfile.GemBalance = profile.GemBalance;
+            existingProfile.NumberOfOffenses = profile.NumberOfOffenses;
+            existingProfile.Username = profile.Username;
+            existingProfile.FirstName = profile.FirstName;
+            existingProfile.LastName = profile.LastName;
+            existingProfile.Email = profile.Email;
+            existingProfile.PhoneNumber = profile.PhoneNumber;
+            existingProfile.HashedPassword = profile.HashedPassword;
+            existingProfile.RiskScore = profile.RiskScore;
+            existingProfile.ROI = profile.ROI;
+            existingProfile.CreditScore = profile.CreditScore;
+            existingProfile.Birthday = profile.Birthday;
+            existingProfile.ZodiacSign = profile.ZodiacSign;
+            existingProfile.ZodiacAttribute = profile.ZodiacAttribute;
+            existingProfile.NumberOfBillSharesPaid = profile.NumberOfBillSharesPaid;
+            existingProfile.Income = profile.Income;
+            existingProfile.Balance = profile.Balance;
 
             await _context.SaveChangesAsync();
             return existingProfile;
@@ -46,14 +60,13 @@ namespace BankApi.Repositories
 
         public async Task<bool> UpdateAdminStatusAsync(string cnp, bool isAdmin)
         {
-            var profile = await _context.Profiles.FindAsync(cnp);
+            var profile = await _context.Users.FindAsync(cnp);
             if (profile == null)
             {
                 return false;
             }
 
-            profile.IsAdmin = isAdmin;
-            profile.LastUpdated = DateTime.UtcNow;
+            profile.IsModerator = isAdmin;
             await _context.SaveChangesAsync();
             return true;
         }
@@ -81,4 +94,4 @@ namespace BankApi.Repositories
             return randomUsernames[random.Next(randomUsernames.Count)];
         }
     }
-} 
+}

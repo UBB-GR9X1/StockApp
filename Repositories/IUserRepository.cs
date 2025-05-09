@@ -6,7 +6,6 @@
 
     public interface IUserRepository
     {
-
         public static string CurrentUserCNP { get; set; } = App.Configuration.GetSection("CurrentUserCNP").Value ?? string.Empty;
 
         public static bool IsGuest => string.IsNullOrEmpty(CurrentUserCNP);

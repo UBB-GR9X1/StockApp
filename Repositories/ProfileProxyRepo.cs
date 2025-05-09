@@ -11,7 +11,7 @@ namespace StockApp.Repositories
     public class ProfileProxyRepo : IProfileRepository
     {
         private readonly HttpClient _httpClient;
-        private const string BaseUrl = "https://localhost:7001/api/Profile";
+        private const string BaseUrl = "api/Profile";
 
         public ProfileProxyRepo(HttpClient httpClient)
         {
