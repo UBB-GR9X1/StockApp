@@ -4,8 +4,7 @@
 namespace StockApp
 {
     using System;
-    using System.Net.Http;
-    using Microsoft.AspNetCore.Hosting;
+    using System.Collections.Generic;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
@@ -17,6 +16,8 @@ namespace StockApp
     using StockApp.Repositories;
     using StockApp.Repositories.Api;
     using StockApp.Services;
+    using StockApp.ViewModels;
+    using StockApp.Views;
     using StockApp.Views.Components;
     using StockApp.Views.Pages;
 
@@ -25,7 +26,7 @@ namespace StockApp
     /// </summary>
     public partial class App : Application
     {
-        public static Window? MainWindow { get; private set; } = null!;
+        public static MainWindow? MainAppWindow { get; private set; } = null!;
 
         public static IHost Host { get; private set; }
 
@@ -41,19 +42,23 @@ namespace StockApp
             this.ConfigureHost();
 
             // explanation before the OnUnhandledException method
-            //this.UnhandledException += this.OnUnhandledException;
+            // this.UnhandledException += this.OnUnhandledException;
         }
 
         private void ConfigureHost()
         {
             Host = Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder()
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                })
                 .ConfigureServices((context, services) =>
                 {
-                    var config = new ConfigurationBuilder().AddUserSecrets<App>().AddEnvironmentVariables().Build();
+                    // Build configuration
+                    var configBuilder = new ConfigurationBuilder()
+                        .AddUserSecrets<App>()
+                        .AddEnvironmentVariables()
+                        .AddInMemoryCollection(new Dictionary<string, string> {
+                            { "ApiBaseUrl", "https://localhost:7001/" },
+                        });
+
+                    var config = configBuilder.Build();
                     services.AddSingleton<IConfiguration>(config);
                     services.AddSingleton(new DatabaseConnection());
 
@@ -61,31 +66,75 @@ namespace StockApp
                     services.AddDbContext<AppDbContext>(options =>
                         options.UseSqlServer(ConnectionString));
 
+                    // Repositories
+                    services.AddScoped<IAlertRepository, AlertProxyRepo>();
+                    services.AddScoped<IInvestmentsRepository, InvestmentsProxyRepository>();
+
+                    services.AddSingleton<IBillSplitReportRepository, BillSplitReportProxyRepository>();
+                    services.AddSingleton<IChatReportRepository, ChatReportRepoProxy>();
+                    services.AddSingleton<IHistoryRepository, HistoryRepository>();
+                    services.AddSingleton<ILoanRepository, LoanRepository>();
+                    services.AddSingleton<ILoanRequestRepository, LoanRequestRepository>();
+                    services.AddSingleton<IActivityRepo, ActivityProxyRepo>();
+                    services.AddSingleton<IGemStoreRepository, GemStoreProxyRepo>();
+                    services.AddSingleton<IUserRepository, UserProxyRepository>();
+                    services.AddSingleton<IProfileRepository, ProfileProxyRepo>();
+                    services.AddSingleton<IBaseStocksRepository, BaseStocksProxyRepository>();
+
+                    services.AddSingleton<IHomepageStocksRepository, HomepageStocksProxyRepository>();
+
                     // HttpClient for API communication
-                    services.AddHttpClient("BankApi", client =>
+                    services.AddHttpClient<IChatReportRepository, ChatReportRepoProxy>(client =>
+                    {
+                        client.BaseAddress = new Uri(config["ApiBaseUrl"]);
+                    });
+
+                    // Register the API services
+                    services.AddScoped<IBaseStocksService, BaseStocksService>();
+
+                    // Register BillSplitReport API service
+                    services.AddHttpClient<IBillSplitReportRepository, BillSplitReportProxyRepository>((client) =>
+                    {
+                        client.BaseAddress = new Uri("https://localhost:7001/");
+                    });
+                    services.AddHttpClient<IAlertRepository, AlertProxyRepo>(client =>
                     {
                         client.BaseAddress = new Uri("https://localhost:7001/");
                     });
 
-                    // Repositories
-                    services.AddScoped<IBaseStocksRepository>(provider =>
+                    services.AddHttpClient<IActivityRepo, ActivityProxyRepo>(client =>
                     {
-                        var httpClientFactory = provider.GetRequiredService<IHttpClientFactory>();
-                        var client = httpClientFactory.CreateClient("BankApi");
-                        return new BankStocksProxyRepo(client);
+                        client.BaseAddress = new Uri(config["ApiBaseUrl"]);
+                    });
+                    services.AddHttpClient<IUserRepository, UserProxyRepository>(client =>
+                    {
+                        client.BaseAddress = new Uri("https://localhost:7001/");
                     });
 
-                    services.AddSingleton<IActivityRepository, ActivityRepository>();
-                    services.AddSingleton<IBillSplitReportRepository, BillSplitReportRepository>();
+                    services.AddHttpClient<IBaseStocksRepository, BaseStocksProxyRepository>(client =>
+                    {
+                        client.BaseAddress = new Uri("https://localhost:7001/");
+                    });
+
+                    // Legacy repositories
                     services.AddSingleton<IChatReportRepository, ChatReportRepoProxy>();
                     services.AddSingleton<IHistoryRepository, HistoryRepository>();
-                    services.AddSingleton<IInvestmentsRepository, InvestmentsRepository>();
                     services.AddSingleton<ILoanRepository, LoanRepository>();
+                    services.AddSingleton<ILoanRequestRepository, LoanRequestRepository>();
+                    services.AddSingleton<IStockPageRepository, StockPageRepository>();
+                    services.AddHttpClient<IInvestmentsRepository, InvestmentsProxyRepository>(client =>
+                    {
+                        client.BaseAddress = new Uri("https://localhost:7001/");
+                    });
+
+                    services.AddHttpClient<IHomepageStocksRepository, HomepageStocksProxyRepository>(client =>
+                    {
+                        client.BaseAddress = new Uri("https://localhost:7001/");
+                    });
                     services.AddSingleton<ILoanRequestRepository, LoanRequestProxyRepo>();
                     services.AddSingleton<IUserRepository, UserRepository>();
 
                     // Other Services
-                    services.AddSingleton<IActivityService, ActivityService>();
                     services.AddSingleton<IBillSplitReportService, BillSplitReportService>();
                     services.AddSingleton<IChatReportService, ChatReportService>();
                     services.AddSingleton<IHistoryService, HistoryService>();
@@ -97,9 +146,17 @@ namespace StockApp
                     services.AddSingleton<ITipsService, TipsService>();
                     services.AddSingleton<IUserService, UserService>();
                     services.AddSingleton<IZodiacService, ZodiacService>();
+                    services.AddSingleton<IActivityService, ActivityService>();
+                    services.AddSingleton<IStoreService, StoreService>();
+                    services.AddSingleton<IProfileService, ProfileService>();
+                    services.AddSingleton<IHomepageService, HomepageService>();
+                    services.AddSingleton<ICreateStockService, CreateStockService>();
+                    services.AddSingleton<IStockPageService, StockPageService>();
                     services.AddSingleton<MainWindow>();
 
                     // UI Components
+                    services.AddTransient<BillSplitReportViewModel>();
+                    services.AddTransient<BillSplitReportViewModel>();
                     services.AddTransient<BillSplitReportComponent>();
                     services.AddTransient<Func<BillSplitReportComponent>>(provider =>
                     {
@@ -135,15 +192,28 @@ namespace StockApp
                     });
                     services.AddTransient<UsersView>();
 
+                    // ViewModels
+
+                    services.AddTransient<StoreViewModel>();
+
+                    // Register services for UserInfoComponent
+                    services.AddTransient<IHistoryService, HistoryService>();
+
                     services.AddTransient<NewsListPage>();
                     services.AddTransient<CreateStockPage>();
                     services.AddTransient<TransactionLogPage>();
                     services.AddTransient<ProfilePage>();
                     services.AddTransient<GemStoreWindow>();
                     services.AddTransient<CreateProfilePage>();
+                    services.AddTransient<ProfilePageViewModel>();
+                    services.AddTransient<HomepageView>();
+                    services.AddTransient<InvestmentsViewModel>();
+                    services.AddTransient<InvestmentsView>();
+                    services.AddTransient<HomepageViewModel>();
+                    services.AddTransient<CreateStockViewModel>();
+                    services.AddTransient<CreateProfilePageViewModel>();
                 }).Build();
         }
-
 
         /// <summary>
         /// Gets or sets the current window of the application.
@@ -173,8 +243,8 @@ namespace StockApp
         /// <param name="launchActivatedEventArgs">Details about the launch request and process.</param>
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs launchActivatedEventArgs)
         {
-            MainWindow = Host.Services.GetRequiredService<MainWindow>();
-            MainWindow.Activate();
+            MainAppWindow = Host.Services.GetRequiredService<MainWindow>();
+            MainAppWindow.Activate();
         }
 
         // i found some stupid ass error for the debugger, got it twice and couldn't

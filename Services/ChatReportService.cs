@@ -1,20 +1,18 @@
-﻿using Src.Data;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Src.Helpers;
 using Src.Model;
 using StockApp.Models;
 using StockApp.Repositories;
 using StockApp.Services;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
-public class ChatReportService : IChatReportService
+public class ChatReportService(IChatReportRepository chatReportRepository, IUserRepository userRepository, ITipsService tipsService, IMessagesService messageService) : IChatReportService
 {
-    private readonly IChatReportRepository chatReportRepository;
-
-    public ChatReportService(IChatReportRepository chatReportRepository)
-    {
-        this.chatReportRepository = chatReportRepository;
-    }
+    private readonly IChatReportRepository chatReportRepository = chatReportRepository ?? throw new System.ArgumentNullException(nameof(chatReportRepository));
+    private readonly IUserRepository userRepository = userRepository ?? throw new System.ArgumentNullException(nameof(userRepository));
+    private readonly ITipsService tipsService = tipsService ?? throw new System.ArgumentNullException(nameof(tipsService));
+    private readonly IMessagesService messageService = messageService ?? throw new System.ArgumentNullException(nameof(messageService));
 
     public async Task DoNotPunishUser(ChatReport chatReportToBeSolved)
     {
@@ -23,10 +21,7 @@ public class ChatReportService : IChatReportService
 
     public async Task PunishUser(ChatReport chatReportToBeSolved)
     {
-        UserRepository userRepo = new UserRepository();
-        DatabaseConnection dbConn = new DatabaseConnection();
-
-        User reportedUser = await userRepo.GetUserByCnpAsync(chatReportToBeSolved.ReportedUserCnp);
+        User reportedUser = await userRepository.GetByCnpAsync(chatReportToBeSolved.ReportedUserCnp) ?? throw new Exception("User not found");
 
         int noOffenses = reportedUser.NumberOfOffenses;
         const int MINIMUM = 3;
@@ -36,22 +31,22 @@ public class ChatReportService : IChatReportService
             ? FLAT_PENALTY * noOffenses
             : FLAT_PENALTY;
 
-        await userRepo.PenalizeUserAsync(chatReportToBeSolved.ReportedUserCnp, amount);
+        reportedUser.GemBalance -= amount;
+        await this.userRepository.UpdateAsync(reportedUser.Id, reportedUser);
 
-        int updatedScore = (await userRepo.GetUserByCnpAsync(chatReportToBeSolved.ReportedUserCnp)).CreditScore - amount;
+        int updatedScore = reportedUser.CreditScore - amount;
         await this.chatReportRepository.UpdateScoreHistoryForUserAsync(chatReportToBeSolved.ReportedUserCnp, updatedScore);
 
-        await userRepo.IncrementOffensesCountAsync(chatReportToBeSolved.ReportedUserCnp);
+        reportedUser.NumberOfOffenses++;
+        await this.userRepository.UpdateAsync(reportedUser.Id, reportedUser);
         await this.chatReportRepository.DeleteChatReportAsync(chatReportToBeSolved.Id);
 
-        var tipsService = new TipsService(new TipsRepository(dbConn));
         tipsService.GiveTipToUser(chatReportToBeSolved.ReportedUserCnp);
 
         int tipCount = await this.chatReportRepository.GetNumberOfGivenTipsForUserAsync(chatReportToBeSolved.ReportedUserCnp);
         if (tipCount % 3 == 0)
         {
-            var msgService = new MessagesService(new MessagesRepository(dbConn));
-            msgService.GiveMessageToUser(chatReportToBeSolved.ReportedUserCnp);
+            messageService.GiveMessageToUser(chatReportToBeSolved.ReportedUserCnp);
         }
 
         await this.chatReportRepository.UpdateActivityLogAsync(chatReportToBeSolved.ReportedUserCnp, amount);

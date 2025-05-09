@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using StockApp.Models;
 using StockApp.Services;
@@ -41,12 +40,10 @@ namespace StockApp.ViewModels.Tests
             _svc.Setup(s => s.GetStockAuthor()).ReturnsAsync(new User(cnp: "u", username: "u", isModerator: false));
 
             _vm = new StockPageViewModel(
-                _svc.Object,
                 _stk,
                 _priceTb.Object,
                 _incTb.Object,
                 _ownTb.Object,
-                _chart.Object
             );
         }
 

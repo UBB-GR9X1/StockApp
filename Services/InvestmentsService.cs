@@ -1,43 +1,97 @@
-﻿namespace StockApp.Services
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Data;
-    using System.Linq;
-    using Src.Model;
-    using StockApp.Models;
-    using StockApp.Repositories;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Threading.Tasks;
+using Src.Model;
+using StockApp.Models;
+using StockApp.Repositories;
 
+namespace StockApp.Services
+{
     public class InvestmentsService : IInvestmentsService
     {
-        private readonly IUserRepository userRepository;
-        private readonly IInvestmentsRepository investmentsRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly IInvestmentsRepository _investmentsRepository;
 
         public InvestmentsService(IUserRepository userRepository, IInvestmentsRepository investmentsRepository)
         {
-            this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-            this.investmentsRepository = investmentsRepository ?? throw new ArgumentNullException(nameof(investmentsRepository));
+            this._userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+            this._investmentsRepository = investmentsRepository ?? throw new ArgumentNullException(nameof(investmentsRepository));
         }
 
-        public void CalculateAndUpdateRiskScore()
+        public async Task<List<Investment>> GetInvestmentsHistoryAsync()
         {
-            var allExistentUsers = this.userRepository.GetAllUsersAsync().Result;
-
-            foreach (var currentUser in allExistentUsers)
+            try
             {
-                var recentInvestments = this.GetRecentInvestments(currentUser.CNP);
-                if (recentInvestments != null)
-                {
-                    var riskScoreChange = this.CalculateRiskScoreChange(currentUser, recentInvestments);
-                    this.UpdateUserRiskScore(currentUser, riskScoreChange);
-                    this.userRepository.UpdateUserRiskScoreAsync(currentUser.CNP, currentUser.RiskScore);
-                }
+                return await this._investmentsRepository.GetInvestmentsHistory();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error retrieving investment history", ex);
             }
         }
 
-        private List<Investment> GetRecentInvestments(string cnp)
+        public async Task AddInvestmentAsync(Investment investment)
         {
-            var allInvestments = this.investmentsRepository.GetInvestmentsHistory();
+            if (investment == null)
+            {
+                throw new ArgumentNullException(nameof(investment));
+            }
+
+            try
+            {
+                await this._investmentsRepository.AddInvestment(investment);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error adding investment for user {investment.InvestorCnp}", ex);
+            }
+        }
+
+        public async Task UpdateInvestmentAsync(int investmentId, string investorCNP, float amountReturned)
+        {
+            if (string.IsNullOrWhiteSpace(investorCNP))
+            {
+                throw new ArgumentException("Investor CNP cannot be empty", nameof(investorCNP));
+            }
+
+            try
+            {
+                await this._investmentsRepository.UpdateInvestment(investmentId, investorCNP, amountReturned);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error updating investment {investmentId} for user {investorCNP}", ex);
+            }
+        }
+
+        public async Task CalculateAndUpdateRiskScoreAsync()
+        {
+            try
+            {
+                var allExistentUsers = await this._userRepository.GetAllAsync();
+
+                foreach (var currentUser in allExistentUsers)
+                {
+                    var recentInvestments = await this.GetRecentInvestmentsAsync(currentUser.CNP);
+                    if (recentInvestments != null)
+                    {
+                        var riskScoreChange = this.CalculateRiskScoreChange(currentUser, recentInvestments);
+                        this.UpdateUserRiskScore(currentUser, riskScoreChange);
+                        await this._userRepository.UpdateAsync(currentUser.Id, currentUser);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error calculating and updating risk scores", ex);
+            }
+        }
+
+        private async Task<List<Investment>> GetRecentInvestmentsAsync(string cnp)
+        {
+            var allInvestments = await this.GetInvestmentsHistoryAsync();
 
             var latestInvestment = allInvestments
                 .Where(i => i.InvestorCnp == cnp)
@@ -120,22 +174,29 @@
             user.RiskScore = Math.Max(minRiskScore, Math.Min(user.RiskScore, maxRiskScore));
         }
 
-        public void CalculateAndUpdateROI()
+        public async Task CalculateAndUpdateROIAsync()
         {
-            var allExistentUsers = this.userRepository.GetAllUsersAsync().Result;
-
-            foreach (var currentUser in allExistentUsers)
+            try
             {
-                this.CalculateAndSetUserROI(currentUser);
-                this.userRepository.UpdateUserROIAsync(currentUser.CNP, currentUser.ROI);
+                var allExistentUsers = await this._userRepository.GetAllAsync();
+
+                foreach (var currentUser in allExistentUsers)
+                {
+                    await this.CalculateAndSetUserROIAsync(currentUser);
+                    await this._userRepository.UpdateAsync(currentUser.Id, currentUser);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error calculating and updating ROI", ex);
             }
         }
 
-        private void CalculateAndSetUserROI(User user)
+        private async Task CalculateAndSetUserROIAsync(User user)
         {
             var investmentOpen = -1;
 
-            var allInvestments = this.investmentsRepository.GetInvestmentsHistory()
+            var allInvestments = (await this.GetInvestmentsHistoryAsync())
                 .Where(i => i.InvestorCnp == user.CNP)
                 .Where(i => i.AmountReturned != investmentOpen)
                 .ToList();
@@ -159,77 +220,89 @@
             user.ROI = newUserROI;
         }
 
-        public void CreditScoreUpdateInvestmentsBased()
+        public async Task CreditScoreUpdateInvestmentsBasedAsync()
         {
-            var allExistentUsers = this.userRepository.GetAllUsersAsync().Result;
-
-            foreach (var currentUser in allExistentUsers)
+            try
             {
-                var oldCreditScore = currentUser.CreditScore;
-                var oldRiskScore = currentUser.RiskScore;
-                var oldROI = currentUser.ROI;
+                var allExistentUsers = await this._userRepository.GetAllAsync();
 
-                var riskScorePercent = currentUser.RiskScore / 100;
-                var creditScoreSubstracted = currentUser.CreditScore * riskScorePercent;
-                currentUser.CreditScore -= creditScoreSubstracted;
-
-                if (currentUser.ROI <= 0)
+                foreach (var currentUser in allExistentUsers)
                 {
-                    currentUser.CreditScore -= 100;
-                }
-                else if (currentUser.ROI < 1)
-                {
-                    var decreaseAmount = 10 / currentUser.ROI;
-                    currentUser.CreditScore -= (int)decreaseAmount;
-                }
-                else
-                {
-                    var increaseAmount = 10 * currentUser.ROI;
-                    currentUser.CreditScore += (int)increaseAmount;
-                }
+                    var oldCreditScore = currentUser.CreditScore;
+                    var oldRiskScore = currentUser.RiskScore;
+                    var oldROI = currentUser.ROI;
 
-                var minCreditScore = 100;
-                var maxCreditScore = 700;
+                    var riskScorePercent = currentUser.RiskScore / 100;
+                    var creditScoreSubstracted = currentUser.CreditScore * riskScorePercent;
+                    currentUser.CreditScore -= creditScoreSubstracted;
 
-                currentUser.CreditScore = Math.Min(maxCreditScore, Math.Max(minCreditScore, currentUser.CreditScore));
+                    if (currentUser.ROI <= 0)
+                    {
+                        currentUser.CreditScore -= 100;
+                    }
+                    else if (currentUser.ROI < 1)
+                    {
+                        var decreaseAmount = 10 / currentUser.ROI;
+                        currentUser.CreditScore -= (int)decreaseAmount;
+                    }
+                    else
+                    {
+                        var increaseAmount = 10 * currentUser.ROI;
+                        currentUser.CreditScore += (int)increaseAmount;
+                    }
 
-                this.userRepository.UpdateUserRiskScoreAsync(currentUser.CNP, currentUser.CreditScore);
+                    var minCreditScore = 100;
+                    var maxCreditScore = 700;
+
+                    currentUser.CreditScore = Math.Min(maxCreditScore, Math.Max(minCreditScore, currentUser.CreditScore));
+
+                    await this._userRepository.UpdateAsync(currentUser.Id, currentUser);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error updating credit scores based on investments", ex);
             }
         }
 
-        public List<InvestmentPortfolio> GetPortfolioSummary()
+        public async Task<List<InvestmentPortfolio>> GetPortfolioSummaryAsync()
         {
-            UserRepository userRepository = new UserRepository();
-            List<User> userList = userRepository.GetAllUsersAsync().Result;
-
-            var portfolios = new List<InvestmentPortfolio>();
-
-            foreach (var user in userList)
+            try
             {
-                var investments = this.investmentsRepository.GetInvestmentsHistory()
-                    .Where(i => i.InvestorCnp == user.CNP)
-                    .ToList();
+                var userList = await this._userRepository.GetAllAsync();
+                var portfolios = new List<InvestmentPortfolio>();
 
-                if (investments.Any())
+                foreach (var user in userList)
                 {
-                    var totalAmountInvested = (decimal)investments.Sum(i => i.AmountInvested);
-                    var totalAmountReturned = (decimal)investments.Sum(i => i.AmountReturned);
+                    var investments = (await this.GetInvestmentsHistoryAsync())
+                        .Where(i => i.InvestorCnp == user.CNP)
+                        .ToList();
 
-                    var averageROI = totalAmountInvested == 0 ? 0 : totalAmountReturned / totalAmountInvested;
+                    if (investments.Any())
+                    {
+                        var totalAmountInvested = (decimal)investments.Sum(i => i.AmountInvested);
+                        var totalAmountReturned = (decimal)investments.Sum(i => i.AmountReturned);
 
-                    var portfolio = new InvestmentPortfolio(
-                        user.FirstName,
-                        user.LastName,
-                        totalAmountInvested,
-                        totalAmountReturned,
-                        averageROI,
-                        investments.Count,
-                        user.RiskScore);
-                    portfolios.Add(portfolio);
+                        var averageROI = totalAmountInvested == 0 ? 0 : totalAmountReturned / totalAmountInvested;
+
+                        var portfolio = new InvestmentPortfolio(
+                            user.FirstName,
+                            user.LastName,
+                            totalAmountInvested,
+                            totalAmountReturned,
+                            averageROI,
+                            investments.Count,
+                            user.RiskScore);
+                        portfolios.Add(portfolio);
+                    }
                 }
-            }
 
-            return portfolios;
+                return portfolios;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error retrieving portfolio summary", ex);
+            }
         }
     }
 }

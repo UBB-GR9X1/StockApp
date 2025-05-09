@@ -5,6 +5,8 @@
     using Src.Model;
     using StockApp.Models;
 
+namespace StockApp.Services
+{
     public interface ILoanRequestService
     {
         Task<string> GiveSuggestion(LoanRequest loanRequest);

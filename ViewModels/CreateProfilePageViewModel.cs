@@ -6,12 +6,11 @@
     using System.Windows.Input;
     using StockApp.Commands;
     using StockApp.Models;
-    using StockApp.Repositories;
     using StockApp.Services;
 
-    internal class CreateProfilePageViewModel : INotifyPropertyChanged
+    public class CreateProfilePageViewModel : INotifyPropertyChanged
     {
-        private static readonly UserService userService = new(new UserRepository());
+        private readonly IUserService userService;
 
         private string image = string.Empty;
         private string username = string.Empty;
@@ -20,15 +19,16 @@
         private string lastName = string.Empty;
         private string email = string.Empty;
         private string phoneNumber = string.Empty;
-        private DateOnly birthday = new();
+        private DateTime birthday = new();
         private string cnp = string.Empty;
         private string zodiacSign = string.Empty;
         private string zodiacAttribute = string.Empty;
 
         public ICommand CreateProfileCommand { get; set; }
 
-        public CreateProfilePageViewModel()
+        public CreateProfilePageViewModel(IUserService userService)
         {
+            this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
             this.CreateProfileCommand = new RelayCommand(this.CreateProfile);
         }
 
@@ -76,7 +76,7 @@
             set => this.SetProperty(ref this.phoneNumber, value);
         }
 
-        public DateOnly Birthday
+        public DateTime Birthday
         {
             get => this.birthday;
             set => this.SetProperty(ref this.birthday, value);
@@ -122,7 +122,7 @@
                 NumberOfOffenses = 0,
             };
 
-            await userService.CreateUser(user);
+            await this.userService.CreateUser(user);
         }
 
         private void SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)

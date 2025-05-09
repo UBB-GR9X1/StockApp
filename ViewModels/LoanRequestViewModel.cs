@@ -8,16 +8,16 @@
 
     public class LoanRequestViewModel
     {
-        private readonly ILoanRequestService _loanRequestService;
+        private readonly ILoanRequestService loanRequestService;
 
         public ObservableCollection<LoanRequest> LoanRequests { get; set; }
         public bool IsLoading { get; private set; }
         public string ErrorMessage { get; private set; }
 
-        public LoanRequestViewModel(ILoanRequestService loanRequestService)
+        public LoanRequestViewModel(ILoanRequestService loanService)
         {
-            _loanRequestService = loanRequestService ?? throw new ArgumentNullException(nameof(loanRequestService));
-            LoanRequests = new ObservableCollection<LoanRequest>();
+            this.loanRequestService = loanService;
+            this.LoanRequests = new ObservableCollection<LoanRequest>();
         }
 
         public async Task LoadLoanRequestsAsync()

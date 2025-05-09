@@ -1,4 +1,5 @@
-﻿namespace BankApi.Models
+// BankApi/Models/TriggeredAlert.cs
+namespace BankApi.Models
 {
     /// <summary>
     /// Represents an alert that has been triggered for a specific stock,
@@ -6,6 +7,11 @@
     /// </summary>
     public class TriggeredAlert
     {
+        /// <summary>
+        /// Gets or sets the unique identifier for this triggered alert.
+        /// </summary>
+        public int Id { get; set; }
+
         /// <summary>
         /// Gets or sets the name of the stock for which the alert was triggered.
         /// </summary>
@@ -15,5 +21,10 @@
         /// Gets or sets the message detailing why the alert was triggered.
         /// </summary>
         public string Message { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the timestamp when the alert was triggered.
+        /// </summary>
+        public DateTime TriggeredAt { get; set; } = DateTime.UtcNow;
     }
 }

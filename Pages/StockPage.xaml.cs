@@ -61,7 +61,7 @@ namespace StockApp.Pages
             // Retrieve the stock name passed during navigation
             if (e.Parameter is Stock selectedStock)
             {
-                this.viewModel = new StockPageViewModel(selectedStock, this.PriceLabel, this.IncreaseLabel, this.OwnedStocks, this.StockChart);
+                this.viewModel = new StockPageViewModel(selectedStock, this.PriceLabel, this.IncreaseLabel, this.OwnedStocks);
                 this.DataContext = this.viewModel;
             }
             else

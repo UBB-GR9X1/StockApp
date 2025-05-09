@@ -1,34 +1,28 @@
 ﻿namespace StockApp.Repositories
 {
-    using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using StockApp.Models;
 
     public interface IUserRepository
     {
-        string CurrentUserCNP { get; set; }
 
-        Task CreateUserAsync(User user);
+        public static string CurrentUserCNP { get; set; } = App.Configuration.GetSection("CurrentUserCNP").Value ?? string.Empty;
 
-        Task<User> GetUserByCnpAsync(string userCNP);
+        public static bool IsGuest => string.IsNullOrEmpty(CurrentUserCNP);
 
-        Task<User> GetUserByUsernameAsync(string username);
+        Task<List<User>> GetAllAsync();
 
-        Task UpdateUserAsync(User user);
+        Task<User?> GetByIdAsync(int id);
 
-        Task DeleteUserAsync(string userCNP);
+        Task<User?> GetByCnpAsync(string cnp);
 
-        Task<List<User>> GetAllUsersAsync();
+        Task<User?> GetByUsernameAsync(string username);
 
-        Task PenalizeUserAsync(string cnp, int penaltyAmount);
+        Task<bool> CreateAsync(User user);
 
-        Task IncrementOffensesCountAsync(string cnp);
+        Task<bool> UpdateAsync(int id, User user);
 
-        Task UpdateUserCreditScoreAsync(string cnp, int creditScore);
-
-        Task UpdateUserROIAsync(string cnp, decimal roi);
-
-        Task UpdateUserRiskScoreAsync(string cnp, int riskScore);
+        Task<bool> DeleteAsync(int id);
     }
 }

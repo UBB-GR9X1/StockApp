@@ -4,10 +4,7 @@
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.ComponentModel;
-    using System.IO;
     using System.Linq;
-    using System.Threading.Tasks;
-    using System.Windows.Forms;
     using System.Windows.Input;
     using Microsoft.UI.Xaml.Controls;
     using StockApp.Models;
@@ -221,7 +218,7 @@
         public ICommand ExportCommand { get; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TransactionLogViewModel"/> class with the specified service.
+        /// Initializes a new instance of the <see cref="TransactionLogViewModel"/> class with the specified homepageService.
         /// </summary>
         /// <param name="service">Service to retrieve and export transaction data.</param>
         public TransactionLogViewModel(ITransactionLogService service)
@@ -242,7 +239,7 @@
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TransactionLogViewModel"/> class with default repository and service.
+        /// Initializes a new instance of the <see cref="TransactionLogViewModel"/> class with default repository and homepageService.
         /// </summary>
         public TransactionLogViewModel()
             : this(new TransactionLogService(new TransactionRepository()))
@@ -284,7 +281,7 @@
             };
 
             // We create another window when launching the app because bad coding practices so we get this beauty :D
-            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
+            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainAppWindow);
             WinRT.Interop.InitializeWithWindow.Initialize(saveFileDialog, hwnd);
 
             // Show the save file dialog
@@ -357,13 +354,13 @@
         }
 
         /// <summary>
-        /// Loads and filters transactions from the service and applies sorting.
+        /// Loads and filters transactions from the homepageService and applies sorting.
         /// </summary>
         public void LoadTransactions()
         {
             if (this.service == null)
             {
-                throw new InvalidOperationException("Transaction service is not initialized");
+                throw new InvalidOperationException("Transaction homepageService is not initialized");
             }
 
             // Add null checks here for all ComboBoxItem properties to prevent null reference
@@ -403,7 +400,7 @@
             filterCriteria.Validate(); // Inline: ensure criteria consistency
 
             var transactions = this.service.GetFilteredTransactions(filterCriteria)
-                ?? throw new InvalidOperationException("Transaction service returned null");
+                ?? throw new InvalidOperationException("Transaction homepageService returned null");
 
             var transactionsSorted = transactions.OrderBy<TransactionLogTransaction, object>(t =>
             {

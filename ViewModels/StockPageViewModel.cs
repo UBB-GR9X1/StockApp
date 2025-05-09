@@ -5,11 +5,10 @@
     using System.ComponentModel;
     using System.Linq;
     using System.Threading.Tasks;
-    using Catel.Services;
     using LiveChartsCore;
     using LiveChartsCore.SkiaSharpView;
     using LiveChartsCore.SkiaSharpView.Painting;
-    using LiveChartsCore.SkiaSharpView.WinUI;
+    using Microsoft.Extensions.DependencyInjection;
     using Microsoft.UI;
     using Microsoft.UI.Xaml.Controls;
     using Microsoft.UI.Xaml.Media;
@@ -32,10 +31,11 @@
         private int userGems = 0;
         private string userGemsText = "0 ❇️ Gems";
 
-        private readonly ITextBlock priceLabel;
-        private readonly ITextBlock increaseLabel;
-        private readonly ITextBlock ownedStocks;
-        private readonly IChart stockChart;
+        private readonly TextBlock priceLabel;
+        private readonly TextBlock increaseLabel;
+        private readonly TextBlock ownedStocks;
+
+        public ISeries[] Series { get; set; } = [];
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StockPageViewModel"/> class with dependencies.
@@ -47,18 +47,15 @@
         /// <param name="ownedStocks">Adapter for displaying number of owned stocks.</param>
         /// <param name="stockChart">Adapter for displaying the stock history chart.</param>
         public StockPageViewModel(
-            IStockPageService service,
             Stock selectedStock,
-            ITextBlock priceLabel,
-            ITextBlock increaseLabel,
-            ITextBlock ownedStocks,
-            IChart stockChart)
+            TextBlock priceLabel,
+            TextBlock increaseLabel,
+            TextBlock ownedStocks)
         {
-            this.stockPageService = service ?? throw new ArgumentNullException(nameof(service));
+            this.stockPageService = App.Host.Services.GetService<IStockPageService>() ?? throw new ArgumentNullException(nameof(IStockPageService));
             this.priceLabel = priceLabel ?? throw new ArgumentNullException(nameof(priceLabel));
             this.increaseLabel = increaseLabel ?? throw new ArgumentNullException(nameof(increaseLabel));
             this.ownedStocks = ownedStocks ?? throw new ArgumentNullException(nameof(ownedStocks));
-            this.stockChart = stockChart ?? throw new ArgumentNullException(nameof(stockChart));
 
             this.stockPageService.SelectStock(selectedStock);
             this.isGuest = this.stockPageService.IsGuest();
@@ -66,30 +63,6 @@
             this.stockSymbol = this.stockPageService.GetStockSymbol();
             this.UpdateStockValue();
             this.isFavorite = this.stockPageService.GetFavorite();
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="StockPageViewModel"/> class with default adapters.
-        /// </summary>
-        /// <param name="selectedStock">The stock object selected by the user.</param>
-        /// <param name="priceLabel">TextBlock control for price display.</param>
-        /// <param name="increaseLabel">TextBlock control for percentage change display.</param>
-        /// <param name="ownedStocks">TextBlock control for owned stocks display.</param>
-        /// <param name="stockChart">CartesianChart control for history display.</param>
-        public StockPageViewModel(
-            Stock selectedStock,
-            TextBlock priceLabel,
-            TextBlock increaseLabel,
-            TextBlock ownedStocks,
-            CartesianChart stockChart)
-            : this(
-                  new StockPageService(),
-                  selectedStock,
-                  new TextBlockAdapter(priceLabel),
-                  new TextBlockAdapter(increaseLabel),
-                  new TextBlockAdapter(ownedStocks),
-                  new ChartAdapter(stockChart))
-        {
         }
 
         /// <summary>
@@ -119,9 +92,7 @@
                 }
             }
 
-            this.stockChart.UpdateLayout();
-            this.stockChart.Series = new ISeries[]
-            {
+            this.Series = [
                 new LineSeries<int>
                 {
                     Values = stockHistory.TakeLast(30).ToArray(),
@@ -129,7 +100,7 @@
                     Stroke = new SolidColorPaint(SKColor.Parse("#4169E1"), 5), // FIXME: make stroke color configurable
                     GeometryStroke = new SolidColorPaint(SKColor.Parse("#4169E1"), 5),
                 },
-            };
+            ];
 
             // TODO: handle case where stockHistory is empty to prevent exceptions
         }

@@ -1,4 +1,7 @@
-﻿namespace BankApi.Models
+// BankApi/Models/Alert.cs
+using System.ComponentModel.DataAnnotations;
+
+namespace BankApi.Models
 {
     using System.ComponentModel;
     using System.Runtime.CompilerServices;
@@ -6,7 +9,7 @@
     /// <summary>
     /// Represents a stock alert with upper and lower price bounds and an on/off toggle.
     /// </summary>
-    public class Alert : INotifyPropertyChanged
+    public class Alert
     {
         private int alertId;
         private string stockName = string.Empty;
@@ -23,103 +26,36 @@
         /// <summary>
         /// Gets or sets the unique identifier for this alert.
         /// </summary>
-        public int AlertId
-        {
-            get => this.alertId;
-            set
-            {
-                if (this.alertId != value)
-                {
-                    this.alertId = value;
-                    this.OnPropertyChanged();
-                }
-            }
-        }
+        [Key]
+        public int AlertId { get; set; }
 
         /// <summary>
         /// Gets or sets the stock symbol or name that this alert monitors.
         /// </summary>
-        public string StockName
-        {
-            get => this.stockName;
-            set
-            {
-                if (this.stockName != value)
-                {
-                    this.stockName = value;
-                    this.OnPropertyChanged();
-                }
-            }
-        }
+        [Required]
+        [MaxLength(100)]
+        public string StockName { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the user-defined name for this alert.
         /// </summary>
-        public string Name
-        {
-            get => this.name;
-            set
-            {
-                if (this.name != value)
-                {
-                    this.name = value;
-                    this.OnPropertyChanged();
-                }
-            }
-        }
+        [Required]
+        [MaxLength(100)]
+        public string Name { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the upper price boundary for triggering the alert.
         /// </summary>
-        public decimal UpperBound
-        {
-            get => this.upperBound;
-            set
-            {
-                if (this.upperBound != value)
-                {
-                    this.upperBound = value;
-                    this.OnPropertyChanged();
-                }
-            }
-        }
+        public decimal UpperBound { get; set; }
 
         /// <summary>
         /// Gets or sets the lower price boundary for triggering the alert.
         /// </summary>
-        public decimal LowerBound
-        {
-            get => this.lowerBound;
-            set
-            {
-                if (this.lowerBound != value)
-                {
-                    this.lowerBound = value;
-                    this.OnPropertyChanged();
-                }
-            }
-        }
+        public decimal LowerBound { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the alert is active.
         /// </summary>
-        public bool ToggleOnOff
-        {
-            get => this.toggleOnOff;
-            set
-            {
-                if (this.toggleOnOff != value)
-                {
-                    this.toggleOnOff = value;
-                    this.OnPropertyChanged();
-                }
-            }
-        }
-
-        private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-        {
-            // Notify any listeners that the given property has changed.
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+        public bool ToggleOnOff { get; set; }
     }
 }

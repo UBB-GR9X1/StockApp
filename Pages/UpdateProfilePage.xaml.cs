@@ -12,15 +12,15 @@ namespace StockApp.Pages
     {
         private UpdateProfilePageViewModel viewModelUpdate;
 
-        public UpdateProfilePage()
+        public UpdateProfilePage(UpdateProfilePageViewModel viewModelUpdate)
         {
             this.InitializeComponent();
+            this.viewModelUpdate = viewModelUpdate ?? throw new ArgumentNullException(nameof(viewModelUpdate));
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
-            this.viewModelUpdate = new();
             this.DataContext = this.viewModelUpdate;
         }
 
@@ -35,7 +35,7 @@ namespace StockApp.Pages
 
             //TODO: holy shit this code is unholy do actual auth checking
             bool isAdmin = false;
-            this.viewModelUpdate.UpdateAdminMode(isAdmin);
+            await this.viewModelUpdate.UpdateAdminModeAsync(isAdmin);
 
             string message = isAdmin ? "You are now ADMIN!" : "Incorrect Password!";
             string title = isAdmin ? "Success" : "Error";
@@ -57,7 +57,7 @@ namespace StockApp.Pages
             string newDescription = this.DescriptionInput?.Text ?? string.Empty;
 
             if (string.IsNullOrEmpty(newUsername) && string.IsNullOrEmpty(newImage) && string.IsNullOrEmpty(newDescription)
-                && (this.MyCheckBox?.IsChecked == false && this.viewModelUpdate.IsHidden() == false) && this.MyDescriptionCheckBox?.IsChecked == false)
+                && (this.MyCheckBox?.IsChecked == false && await this.viewModelUpdate.IsHidden() == false) && this.MyDescriptionCheckBox?.IsChecked == false)
             {
                 await this.ShowErrorDialog("Please fill up at least one of the information fields");
                 return;
@@ -77,7 +77,7 @@ namespace StockApp.Pages
 
             if (string.IsNullOrEmpty(newUsername))
             {
-                newUsername = this.viewModelUpdate.GetUsername() ?? throw new InvalidOperationException("Username cannot be null");
+                newUsername = await this.viewModelUpdate.GetUsername() ?? throw new InvalidOperationException("Username cannot be null");
             }
 
             if (descriptionEmpty)
@@ -86,15 +86,15 @@ namespace StockApp.Pages
             }
             else if (string.IsNullOrWhiteSpace(newDescription))
             {
-                newDescription = this.viewModelUpdate.GetDescription() ?? string.Empty;
+                newDescription = await this.viewModelUpdate.GetDescription() ?? string.Empty;
             }
 
             if (string.IsNullOrEmpty(newImage))
             {
-                newImage = this.viewModelUpdate.GetImage() ?? throw new InvalidOperationException("Image cannot be null");
+                newImage = await this.viewModelUpdate.GetImage() ?? throw new InvalidOperationException("Image cannot be null");
             }
 
-            this.viewModelUpdate.UpdateAll(newUsername, newImage, newDescription, newHidden);
+            await this.viewModelUpdate.UpdateAllAsync(newUsername, newImage, newDescription, newHidden);
             await this.ShowSuccessDialog("Profile updated successfully!");
         }
 

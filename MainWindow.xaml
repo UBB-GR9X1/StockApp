@@ -14,19 +14,20 @@
             <!-- Navigation bar -->
             <NavigationView PaneDisplayMode="Top" SelectionChanged="NavigationView_SelectionChanged" IsSettingsVisible="False" IsBackButtonVisible="Collapsed">
                <NavigationView.MenuItems>
-                   <NavigationViewItem Content="Users" Tag="UsersList"/>
-                   <NavigationViewItem Content="Chat reports" Tag="ChatReports"/>
-                   <NavigationViewItem Content="Loan requests" Tag="LoanRequest"/>
-                   <NavigationViewItem Content="Loans" Tag="Loans"/>
-                   <NavigationViewItem Content="BillSplit reports" Tag="BillSplitReports"/>
-                   <NavigationViewItem Content="Investments" Tag="Investments"/>
-                   <NavigationViewItem Content="Chuck Norris" Tag="Zodiac" Background="#539BF5" Foreground="#f2f2f2"/>
-                   <NavigationViewItem Content="News" Tag="NewsListPage"/>
-                   <NavigationViewItem Content="Create Stock" Tag="CreateStockPage"/>
-                   <NavigationViewItem Content="History" Tag="TransactionLogPage"/>
-                   <NavigationViewItem Content="Store" Tag="GemStoreWindow"/>
-                   <NavigationViewItem Content="Create Profile" Tag="CreateProfile" Visibility="{Binding CreateProfileButtonVisibility, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                   <NavigationViewItem Content="Profile" Tag="ProfilePage" Visibility="{Binding ProfileButtonVisibility, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <NavigationViewItem Content="Home" Tag="HomePage"/>
+                    <NavigationViewItem Content="Users" Tag="UsersList"/>
+                    <NavigationViewItem Content="Chat reports" Tag="ChatReports"/>
+                    <NavigationViewItem Content="Loan requests" Tag="LoanRequest"/>
+                    <NavigationViewItem Content="Loans" Tag="Loans"/>
+                    <NavigationViewItem Content="BillSplit reports" Tag="BillSplitReports"/>
+                    <NavigationViewItem Content="Investments" Tag="Investments"/>
+                    <NavigationViewItem Content="Chuck Norris" Tag="Zodiac" Background="#539BF5" Foreground="#f2f2f2"/>
+                    <NavigationViewItem Content="News" Tag="NewsListPage"/>
+                    <NavigationViewItem Content="Create Stock" Tag="CreateStockPage"/>
+                    <NavigationViewItem Content="History" Tag="TransactionLogPage"/>
+                    <NavigationViewItem Content="Store" Tag="GemStoreWindow"/>
+                    <NavigationViewItem Content="Create Profile" Tag="CreateProfile" Visibility="{Binding CreateProfileButtonVisibility, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <NavigationViewItem Content="Profile" Tag="ProfilePage" Visibility="{Binding ProfileButtonVisibility, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                </NavigationView.MenuItems>
             </NavigationView>
 

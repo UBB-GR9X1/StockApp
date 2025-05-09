@@ -1,22 +1,19 @@
 ﻿namespace StockApp.Repositories
 {
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using StockApp.Models;
 
     public interface IHomepageStocksRepository
     {
-        string GetUserCnp();
+        Task<List<HomepageStock>> GetAllStocksAsync();
 
-        bool IsGuestUser(string userCnp);
+        Task<HomepageStock> GetStockByIdAsync(int id);
 
-        List<HomepageStock> LoadStocks();
+        Task<bool> AddStockAsync(HomepageStock stock);
 
-        void AddToFavorites(HomepageStock stock);
+        Task<bool> UpdateStockAsync(int id, HomepageStock stock);
 
-        void RemoveFromFavorites(HomepageStock stock);
-
-        List<int> GetStockHistory(string stockName);
-
-        void CreateUserProfile();
+        Task<bool> DeleteStockAsync(int id);
     }
 }

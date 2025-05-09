@@ -1,16 +1,26 @@
-﻿namespace BankApi.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace BankApi.Models
 {
     public class ActivityLog
     {
+        [Key]
         public int Id { get; set; }
 
+        [Required]
+        [MaxLength(13)]
         public string UserCnp { get; set; }
 
+        [Required]
+        [MaxLength(100)]
         public string ActivityName { get; set; }
 
+        [Required]
         public int LastModifiedAmount { get; set; }
 
         public string ActivityDetails { get; set; }
+
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public ActivityLog(int id, string userCNP, string name, int amount, string details)
         {

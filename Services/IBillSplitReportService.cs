@@ -1,21 +1,21 @@
-﻿namespace StockApp.Services
-{
-    using System.Collections.Generic;
-    using Src.Model;
-    using StockApp.Models;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Src.Model;
 
+namespace StockApp.Services
+{
     public interface IBillSplitReportService
     {
-        List<BillSplitReport> GetBillSplitReports();
+        Task<List<BillSplitReport>> GetBillSplitReportsAsync();
 
-        void CreateBillSplitReport(BillSplitReport billSplitReport);
+        Task<BillSplitReport> CreateBillSplitReportAsync(BillSplitReport billSplitReport);
 
-        int GetDaysOverdue(BillSplitReport billSplitReport);
+        Task<int> GetDaysOverdueAsync(BillSplitReport billSplitReport);
 
-        void SolveBillSplitReport(BillSplitReport billSplitReportToBeSolved);
+        Task SolveBillSplitReportAsync(BillSplitReport billSplitReportToBeSolved);
 
-        void DeleteBillSplitReport(BillSplitReport billSplitReportToBeSolved);
+        Task DeleteBillSplitReportAsync(BillSplitReport billSplitReportToBeSolved);
 
-        User GetUserByCNP(string cNP);
+        Task<BillSplitReport> UpdateBillSplitReportAsync(BillSplitReport billSplitReport);
     }
 }

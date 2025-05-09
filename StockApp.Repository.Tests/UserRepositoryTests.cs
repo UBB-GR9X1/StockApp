@@ -1,9 +1,10 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using StockApp.Models;
-using StockApp.Repositories;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using BankApi.Models;
+using BankApi.Repositories;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace StockApp.Repository.Tests
 {
@@ -32,8 +33,8 @@ namespace StockApp.Repository.Tests
                 GemBalance = 1000
             };
 
-            await _repo.CreateUserAsync(user);
-            var retrieved = await _repo.GetUserByCnpAsync(user.CNP);
+            await _repo.CreateAsync(user);
+            var retrieved = await _repo.GetByCnpAsync(user.CNP);
 
             Assert.AreEqual(user.Username, retrieved.Username);
             Assert.AreEqual(1000, retrieved.GemBalance);
@@ -43,13 +44,13 @@ namespace StockApp.Repository.Tests
         public async Task UpdateUser_ChangesProperties()
         {
             var user = new User { CNP = "c1", Username = "Initial", GemBalance = 100 };
-            await _repo.CreateUserAsync(user);
+            await _repo.CreateAsync(user);
 
             user.Username = "Updated";
             user.GemBalance = 500;
 
-            await _repo.UpdateUserAsync(user);
-            var updated = await _repo.GetUserByCnpAsync("c1");
+            await _repo.UpdateAsync(user);
+            var updated = await _repo.GetByCnpAsync("c1");
 
             Assert.AreEqual("Updated", updated.Username);
             Assert.AreEqual(500, updated.GemBalance);
@@ -59,106 +60,67 @@ namespace StockApp.Repository.Tests
         public async Task DeleteUser_RemovesFromRepo()
         {
             var user = new User { CNP = "c2", Username = "ToDelete", GemBalance = 100 };
-            await _repo.CreateUserAsync(user);
+            await _repo.CreateAsync(user);
 
-            await _repo.DeleteUserAsync("c2");
+            await _repo.DeleteAsync(user.Id); // Updated to pass the correct type (int)
 
             await Assert.ThrowsExceptionAsync<KeyNotFoundException>(() =>
-                _repo.GetUserByCnpAsync("c2"));
+                _repo.GetByCnpAsync("c2"));
         }
     }
 
     internal class InMemoryUserRepository : IUserRepository
     {
-        private readonly Dictionary<string, User> _users = [];
+        private readonly Dictionary<string, User> _users = new();
 
         public string CurrentUserCNP { get; set; } = "1234567890124";
 
-        public Task CreateUserAsync(User user)
+        public Task<User> CreateAsync(User user)
         {
             _users[user.CNP] = user;
-            return Task.CompletedTask;
+            return Task.FromResult(user);
         }
 
-        public Task<User> GetUserByCnpAsync(string cnp)
+        public Task<User?> GetByIdAsync(int id)
         {
-            if (_users.TryGetValue(cnp, out var user))
-                return Task.FromResult(user);
-
-            throw new KeyNotFoundException($"User with CNP '{cnp}' not found.");
+            var user = _users.Values.FirstOrDefault(u => u.Id == id);
+            return Task.FromResult(user);
         }
 
-        public Task<User> GetUserByUsernameAsync(string username)
+        public Task<User?> GetByCnpAsync(string cnp)
         {
-            foreach (var user in _users.Values)
-            {
-                if (user.Username.Equals(username, StringComparison.OrdinalIgnoreCase))
-                    return Task.FromResult(user);
-            }
-            throw new KeyNotFoundException($"User with username '{username}' not found.");
+            _users.TryGetValue(cnp, out var user);
+            return Task.FromResult(user);
         }
 
-        public Task<List<User>> GetAllUsersAsync() =>
-            Task.FromResult(new List<User>(_users.Values));
+        public Task<User?> GetByUsernameAsync(string username)
+        {
+            var user = _users.Values.FirstOrDefault(u => u.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
+            return Task.FromResult(user);
+        }
 
-        public Task UpdateUserAsync(User user)
+        public Task<List<User>> GetAllAsync()
+        {
+            return Task.FromResult(_users.Values.ToList());
+        }
+
+        public Task<bool> UpdateAsync(User user)
         {
             if (!_users.ContainsKey(user.CNP))
-                throw new KeyNotFoundException();
+                return Task.FromResult(false);
 
             _users[user.CNP] = user;
-            return Task.CompletedTask;
+            return Task.FromResult(true);
         }
 
-        public Task DeleteUserAsync(string cnp)
+        public Task<bool> DeleteAsync(int id)
         {
-            _users.Remove(cnp);
-            return Task.CompletedTask;
-        }
+            var user = _users.Values.FirstOrDefault(u => u.Id == id);
+            if (user == null)
+                return Task.FromResult(false);
 
-        public Task PenalizeUserAsync(string cnp, int penaltyAmount)
-        {
-            if (!_users.TryGetValue(cnp, out var user))
-                throw new KeyNotFoundException($"User with CNP '{cnp}' not found.");
-                
-            user.GemBalance -= penaltyAmount;
-            return Task.CompletedTask;
-        }
-
-        public Task IncrementOffensesCountAsync(string cnp)
-        {
-            if (!_users.TryGetValue(cnp, out var user))
-                throw new KeyNotFoundException($"User with CNP '{cnp}' not found.");
-                
-            user.NumberOfOffenses++;
-            return Task.CompletedTask;
-        }
-
-        public Task UpdateUserCreditScoreAsync(string cnp, int creditScore)
-        {
-            if (!_users.TryGetValue(cnp, out var user))
-                throw new KeyNotFoundException($"User with CNP '{cnp}' not found.");
-                
-            user.CreditScore = creditScore;
-            return Task.CompletedTask;
-        }
-
-        public Task UpdateUserROIAsync(string cnp, decimal roi)
-        {
-            if (!_users.TryGetValue(cnp, out var user))
-                throw new KeyNotFoundException($"User with CNP '{cnp}' not found.");
-                
-            user.ROI = roi;
-            return Task.CompletedTask;
-        }
-
-        public Task UpdateUserRiskScoreAsync(string cnp, int riskScore)
-        {
-            if (!_users.TryGetValue(cnp, out var user))
-                throw new KeyNotFoundException($"User with CNP '{cnp}' not found.");
-                
-            user.RiskScore = riskScore;
-            return Task.CompletedTask;
+            _users.Remove(user.CNP);
+            return Task.FromResult(true);
         }
     }
 }

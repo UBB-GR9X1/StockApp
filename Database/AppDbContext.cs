@@ -1,9 +1,9 @@
-using Microsoft.EntityFrameworkCore;
-using Src.Model;
-using StockApp.Models;
-
 namespace StockApp.Database
 {
+    using Microsoft.EntityFrameworkCore;
+    using Src.Model;
+    using StockApp.Models;
+
     public class AppDbContext : DbContext
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
@@ -15,10 +15,7 @@ namespace StockApp.Database
         {
         }
 
-        public DbSet<ChatReport> ChatReports { get; set; }
-
-        public DbSet<BaseStock> BaseStocks { get; set; }
-
+        public DbSet<CreditScoreHistory> CreditScoreHistories { get; set; } = null!;
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -33,6 +30,24 @@ namespace StockApp.Database
                 entity.Property(e => e.AuthorCNP).HasColumnName("AUTHOR_CNP");
             });
 
+            modelBuilder.Entity<Alert>(entity =>
+            {
+                entity.HasKey(e => e.AlertId);
+                entity.Property(e => e.StockName).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.UpperBound).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.LowerBound).HasColumnType("decimal(18,2)");
+            });
+
+            modelBuilder.Entity<CreditScoreHistory>(entity =>
+            {
+                entity.ToTable("CreditScoreHistory");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.UserCnp).IsRequired().HasMaxLength(13);
+                entity.Property(e => e.Date).IsRequired();
+                entity.Property(e => e.Score).IsRequired();
+            });
+
             modelBuilder.Entity<ChatReport>(entity =>
             {
                 entity.HasKey(e => e.Id);
@@ -45,6 +60,15 @@ namespace StockApp.Database
                       .IsRequired();
             });
 
+            modelBuilder.Entity<GemStore>(entity =>
+            {
+                entity.ToTable("GemStore");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Cnp).IsRequired().HasMaxLength(13);
+                entity.Property(e => e.GemBalance).IsRequired();
+                entity.Property(e => e.IsGuest).IsRequired();
+                entity.Property(e => e.LastUpdated).IsRequired();
+            });
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

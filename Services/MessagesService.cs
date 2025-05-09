@@ -4,26 +4,27 @@
     using System.Collections.Generic;
     using Src.Data;
     using Src.Model;
+    using StockApp.Models;
     using StockApp.Repositories;
 
     public class MessagesService : IMessagesService
     {
         private readonly MessagesRepository messagesRepository;
+        private readonly IUserRepository userRepository;
 
-        public MessagesService(MessagesRepository messagesRepository)
+        public MessagesService(MessagesRepository messagesRepository, IUserRepository userRepository)
         {
+            this.userRepository = userRepository;
             this.messagesRepository = messagesRepository;
         }
 
-        public void GiveMessageToUser(string userCNP)
+        public async void GiveMessageToUser(string userCNP)
         {
             DatabaseConnection dbConn = new DatabaseConnection();
-            UserRepository userRepository = new UserRepository();
-
-            int userCreditScore = userRepository.GetUserByCnpAsync(userCNP).Result.CreditScore;
+            User user = await this.userRepository.GetByCnpAsync(userCNP) ?? throw new Exception("User not found");
             try
             {
-                if (userCreditScore >= 550)
+                if (user.CreditScore >= 550)
                 {
                     this.messagesRepository.GiveUserRandomMessage(userCNP);
                 }

@@ -1,43 +1,43 @@
-﻿namespace StockApp.Services
-{
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using StockApp.Models;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using StockApp.Models;
 
+namespace StockApp.Services
+{
     public interface INewsService
     {
-        List<NewsArticle> GetNewsArticles();
-
-        NewsArticle GetNewsArticleById(string articleId);
-
-        bool MarkArticleAsRead(string articleId);
+        Task<bool> ApproveUserArticle(string articleId);
 
         bool CreateArticle(NewsArticle article);
 
-        List<UserArticle> GetUserArticles(string status = null, string topic = null);
+        Task<bool> DeleteUserArticle(string articleId);
 
-        bool ApproveUserArticle(string articleId);
+        List<NewsArticle> GetCachedArticles();
 
-        bool RejectUserArticle(string articleId);
+        Task<User> GetCurrentUser();
 
-        bool DeleteUserArticle(string articleId);
+        NewsArticle GetNewsArticleById(string articleId);
 
-        bool SubmitUserArticle(UserArticle article);
+        List<NewsArticle> GetNewsArticles();
 
-        User GetCurrentUser();
+        List<string> GetRelatedStocksForArticle(string articleId);
+
+        UserArticle GetUserArticleForPreview(string articleId);
+
+        Task<List<UserArticle>> GetUserArticles(string status = null, string topic = null);
 
         Task<User> LoginAsync(string username, string password);
 
         void Logout();
 
+        bool MarkArticleAsRead(string articleId);
+
+        Task<bool> RejectUserArticle(string articleId);
+
         void StorePreviewArticle(NewsArticle article, UserArticle userArticle);
 
-        UserArticle GetUserArticleForPreview(string articleId);
-
-        List<string> GetRelatedStocksForArticle(string articleId);
+        Task<bool> SubmitUserArticle(UserArticle article);
 
         void UpdateCachedArticles(List<NewsArticle> articles);
-
-        List<NewsArticle> GetCachedArticles();
     }
 }
