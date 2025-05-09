@@ -92,6 +92,31 @@ namespace BankApi.Controllers
             return NoContent();
         }
 
+        [HttpPatch("{cnp}/creditScore")]
+        public async Task<IActionResult> UpdateCreditScore(string cnp, [FromQuery] int newScore)
+        {
+            try
+            {
+                var user = await _repository.GetByCnpAsync(cnp);
+                if (user == null)
+                    return NotFound($"User with CNP {cnp} not found.");
+
+                user.CreditScore = newScore;
+                
+                var success = await _repository.UpdateAsync(user);
+                if (!success)
+                    return NotFound();
+                
+                _logger.LogInformation($"Updated credit score for user with CNP {cnp} to {newScore}");
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error updating credit score for user with CNP {cnp}");
+                return StatusCode(500, "An error occurred while updating the credit score.");
+            }
+        }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
