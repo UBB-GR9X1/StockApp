@@ -18,6 +18,7 @@ namespace StockApp.Pages
     public sealed partial class StockPage : Page
     {
         private StockPageViewModel? viewModel;
+        private Page previousPage;
 
         private ICommand command { get; }
 
@@ -37,7 +38,9 @@ namespace StockApp.Pages
         /// <param name="e"></param>
         public void ReturnButtonClick(object sender, RoutedEventArgs e)
         {
-            NavigationService.Instance.GoBack();
+            //NavigationService.Instance.GoBack();
+            Frame rootFrame = App.MainAppWindow.MainAppFrame;
+            rootFrame.Content = this.previousPage;
         }
 
         /// <summary>
@@ -59,10 +62,11 @@ namespace StockApp.Pages
             base.OnNavigatedTo(e);
 
             // Retrieve the stock name passed during navigation
-            if (e.Parameter is Stock selectedStock)
+            if (e.Parameter is StockDetailsDTO stockDetailsDTO)
             {
-                this.viewModel = new StockPageViewModel(selectedStock, this.PriceLabel, this.IncreaseLabel, this.OwnedStocks);
+                this.viewModel = new StockPageViewModel(stockDetailsDTO.StockDetails, this.PriceLabel, this.IncreaseLabel, this.OwnedStocks);
                 this.DataContext = this.viewModel;
+                this.previousPage = stockDetailsDTO.PreviousPage;
             }
             else
             {
@@ -97,8 +101,14 @@ namespace StockApp.Pages
         /// <param name="e"></param>
         public async void BuyButtonClick(object sender, RoutedEventArgs e)
         {
+            if (this.viewModel?.IsGuest ?? true)
+            {
+                await this.ShowDialogAsync("Login Required", "You need to be logged in to buy stocks.");
+                return;
+            }
+
             int quantity = (int)this.QuantityInput.Value;
-            bool success = this.viewModel?.BuyStock(quantity) ?? false;
+            bool success = this.viewModel.BuyStock(quantity);
             this.QuantityInput.Value = 1;
 
             if (!success)
@@ -114,8 +124,14 @@ namespace StockApp.Pages
         /// <param name="e"></param>
         public async void SellButtonClick(object sender, RoutedEventArgs e)
         {
+            if (this.viewModel?.IsGuest ?? true)
+            {
+                await this.ShowDialogAsync("Login Required", "You need to be logged in to sell stocks.");
+                return;
+            }
+
             int quantity = (int)this.QuantityInput.Value;
-            bool success = this.viewModel?.SellStock(quantity) ?? false;
+            bool success = this.viewModel.SellStock(quantity);
             this.QuantityInput.Value = 1;
 
             if (!success)

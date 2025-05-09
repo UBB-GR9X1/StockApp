@@ -44,11 +44,11 @@
             using SqlConnection connection = DatabaseHelper.GetConnection();
             using var command = new SqlCommand("UPDATE [USER] SET GEM_BALANCE = @gems WHERE CNP = @cnp", connection);
             command.Parameters.AddWithValue("@gems", newGemBalance);
-            command.Parameters.AddWithValue("@cnp", this.User?.CNP);
+            command.Parameters.AddWithValue("@cnp", IUserRepository.CurrentUserCNP);
             command.ExecuteNonQuery();
 
             // Inline: reflect change in in-memory User object
-            if (this.User != null)
+            if (!IUserRepository.IsGuest)
             {
                 this.User.GemBalance = newGemBalance;
             }
@@ -100,9 +100,9 @@
         /// <exception cref="InvalidOperationException">Thrown if the stock is not found.</exception>
         public Stock GetStock(string stockName)
         {
-            if (this.User == null)
+            if (IUserRepository.IsGuest)
             {
-                throw new Exception("User is not initialized.");
+                throw new Exception("User is not logged in.");
             }
 
             const string query = @"
@@ -114,7 +114,7 @@
             using SqlConnection connection = DatabaseHelper.GetConnection();
             using var command = new SqlCommand(query, connection);
             command.Parameters.AddWithValue("@name", stockName);
-            command.Parameters.AddWithValue("@cnp", this.User.CNP);
+            command.Parameters.AddWithValue("@cnp", IUserRepository.CurrentUserCNP);
 
             using var reader = command.ExecuteReader();
             if (reader.Read())
@@ -178,7 +178,7 @@
         {
             using SqlConnection connection = DatabaseHelper.GetConnection();
             using var command = new SqlCommand("SELECT 1 FROM FAVORITE_STOCK WHERE USER_CNP = @cnp AND STOCK_NAME = @name", connection);
-            command.Parameters.AddWithValue("@cnp", this.User?.CNP);
+            command.Parameters.AddWithValue("@cnp", IUserRepository.CurrentUserCNP);
             command.Parameters.AddWithValue("@name", stockName);
 
             using var reader = command.ExecuteReader();

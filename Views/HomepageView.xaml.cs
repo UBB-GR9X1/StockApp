@@ -15,7 +15,8 @@
         {
             this.ViewModel = homepageViewModel ?? throw new ArgumentNullException(nameof(homepageViewModel));
             this.InitializeComponent();
-            this.DataContext = this.ViewModel;
+            this.DataContext = homepageViewModel;
+            this.ViewModel = homepageViewModel;
         }
 
         /// <summary>
@@ -37,9 +38,11 @@
             }
 
             // Navigate to the stock page using the selected stock's name
-            if (App.MainAppWindow != null)
+            if (App.MainAppWindow != null && App.MainAppWindow.MainAppFrame.Content is Page currentPage)
             {
-                App.MainAppWindow.MainAppFrame.Navigate(typeof(StockPage), selectedStock.StockDetails);
+                StockDetailsDTO stockDetailsDTO =
+                    new StockDetailsDTO(selectedStock.StockDetails, currentPage);
+                App.MainAppWindow.MainAppFrame.Navigate(typeof(StockPage), stockDetailsDTO);
             }
         }
     }

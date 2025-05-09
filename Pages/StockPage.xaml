@@ -55,6 +55,7 @@
                         HorizontalAlignment="Center" 
                         Background="{Binding FavoriteButtonColor}"
                         Click="FavoriteButtonClick"
+                        IsEnabled="{Binding IsGuest, Mode=TwoWay}"
                         >
                     </Button>
 
@@ -66,6 +67,7 @@
                         Background="RoyalBlue"
                         Content="🔔"
                         Click="AlertsButtonClick"
+                        IsEnabled="{Binding IsGuest, Mode=TwoWay}"
                         >
                     </Button>
 
@@ -118,6 +120,7 @@
                         Background="#b5fc51"
                         Foreground="DarkGreen"    
                         Click="BuyButtonClick"
+                        IsEnabled="{Binding IsGuest, Mode=TwoWay}"
                     />
                     
                     <!-- Make me a number input (range input) that starts from 0 -->
@@ -137,6 +140,7 @@
                         Background="IndianRed"
                         Foreground="#471310"   
                         Click="SellButtonClick"  
+                        IsEnabled="{Binding IsGuest, Mode=TwoWay}"
                     />
 
                 </StackPanel>

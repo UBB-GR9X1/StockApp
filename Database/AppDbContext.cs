@@ -83,7 +83,7 @@ namespace StockApp.Database
                 catch
                 {
                     // Fallback to a local database if ConnectionString is not available
-                    optionsBuilder.UseSqlServer("Data Source=VM;Initial Catalog=StockApp_DB;Integrated Security=True;Encrypt=True;Trust Server Certificate=True");
+                    optionsBuilder.UseSqlServer("Data Source=DESKTOP-2UI353C\\SQLEXPRESS;Initial Catalog=StockApp_DB;Integrated Security=True;Encrypt=True;Trust Server Certificate=True");
                 }
             }
         }
