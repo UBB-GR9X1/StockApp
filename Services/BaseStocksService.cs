@@ -20,19 +20,19 @@ namespace StockApp.Services
 
         /*────────────────────  Queries  ────────────────────*/
 
-        public Task<List<BaseStock>> GetAllStocksAsync() =>
-            // Repository is synchronous, so wrap with Task.FromResult
-            Task.FromResult(_repo.GetAllStocks());
+        public async Task<List<BaseStock>> GetAllStocksAsync()
+        {
+            return await _repo.GetAllStocksAsync();
+        }
 
         /*───────────────────  Commands  ────────────────────*/
 
-        public Task AddStockAsync(BaseStock stock, int initialPrice = 100)
+        public async Task AddStockAsync(BaseStock stock, int initialPrice = 100)
         {
             if (stock is null) throw new ArgumentNullException(nameof(stock));
 
             // Repository call is synchronous; execute and return a completed Task
-            _repo.AddStock(stock, initialPrice);
-            return Task.CompletedTask;
+            await _repo.AddStockAsync(stock, initialPrice);
         }
     }
 }

@@ -24,10 +24,11 @@
         {
             try
             {
-                return await _context.HomepageStocks
+                var a = await _context.HomepageStocks
                     .Include(hs => hs.StockDetails)
                     .OrderBy(s => s.Id)
                     .ToListAsync();
+                return a;
             }
             catch (Exception ex)
             {

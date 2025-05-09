@@ -23,7 +23,6 @@ namespace BankApi.Data
         public DbSet<HomepageStock> HomepageStocks { get; set; } = null!;
         public DbSet<Profile> Profiles { get; set; }
         public DbSet<UserStock> UserStocks { get; set; }
-
         public DbSet<Investment> Investments { get; set; }
         public DbSet<BillSplitReport> BillSplitReports { get; set; }
 
@@ -161,7 +160,6 @@ namespace BankApi.Data
                 entity.Property(e => e.AmountReturned).HasPrecision(18, 2);
                 entity.Property(e => e.InvestmentDate).IsRequired();
             });
-
             // Configure BillSplitReport entity
             modelBuilder.Entity<BillSplitReport>()
                 .HasKey(b => b.Id);
@@ -180,15 +178,19 @@ namespace BankApi.Data
 
             modelBuilder.Entity<BillSplitReport>()
                 .Property(b => b.BillShare)
-                .IsRequired();
+                .IsRequired()
+                .HasPrecision(18, 2); // Specify precision and scale for the decimal property
 
             modelBuilder.Entity<UserStock>(entity =>
             {
-                entity.ToTable("UserStocks");
                 entity.HasKey(e => new { e.UserCnp, e.StockName });
                 entity.Property(e => e.UserCnp).IsRequired().HasMaxLength(13);
                 entity.Property(e => e.StockName).IsRequired().HasMaxLength(100);
                 entity.Property(e => e.Quantity).IsRequired();
+                entity.HasOne(e => e.Stock)
+                      .WithMany()
+                      .HasForeignKey(e => e.StockName)
+                      .HasPrincipalKey(s => s.Name);
             });
 
             modelBuilder.Entity<CreditScoreHistory>(entity =>

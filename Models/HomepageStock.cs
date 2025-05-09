@@ -24,5 +24,6 @@
         /// Gets or sets a value indicating whether this stock is marked as a favorite.
         /// </summary>
         public bool IsFavorite { get; set; }
+
     }
 }

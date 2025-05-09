@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Threading.Tasks;
 using StockApp.Models;
 
 namespace StockApp.Repositories
@@ -28,15 +29,13 @@ namespace StockApp.Repositories
 
         /*─────────────────────────  CREATE  ─────────────────────────*/
 
-        public void AddStock(BaseStock stock, int initialPrice = 100)
+        public async Task AddStockAsync(BaseStock stock, int initialPrice = 100)
         {
             try
             {
                 // The API ignores initialPrice, mirroring BaseStocksApiService.
-                var response = _httpClient
-                    .PostAsJsonAsync(_baseUrl, stock)
-                    .GetAwaiter()
-                    .GetResult();
+                var response = await _httpClient
+                    .PostAsJsonAsync(_baseUrl, stock);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -56,16 +55,14 @@ namespace StockApp.Repositories
 
         /*─────────────────────────  READ  ──────────────────────────*/
 
-        public List<BaseStock> GetAllStocks()
+        public async Task<List<BaseStock>> GetAllStocksAsync()
         {
             try
             {
-                var stocks = _httpClient
-                             .GetFromJsonAsync<List<BaseStock>>(_baseUrl, _jsonOptions)
-                             .GetAwaiter()
-                             .GetResult();
+                var stocks = await _httpClient
+                             .GetFromJsonAsync<List<BaseStock>>(_baseUrl, _jsonOptions);
 
-                return stocks ?? new List<BaseStock>();
+                return stocks ?? [];
             }
             catch (Exception ex)
             {

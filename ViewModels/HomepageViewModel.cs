@@ -18,7 +18,7 @@
         private readonly IHomepageService homepageService;
         private readonly IUserService userService;
 
-        private ObservableCollection<HomepageStock> filteredStocks = new();
+        private ObservableCollection<HomepageStock> filteredStocks = [];
         private string searchQuery = string.Empty;
         private string selectedSortOption = string.Empty;
         private bool isGuestUser;
@@ -38,6 +38,8 @@
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public ICommand FavoriteCommand { get; }
+
+        public bool CanModifyFavorites => this.userService.IsGuest() == false;
 
         public ICommand SearchCommand { get; }
 
@@ -83,12 +85,22 @@
 
         private async Task LoadStocksAsync()
         {
-            this.FilteredStocks = await this.homepageService.GetFilteredAndSortedStocksAsync(this.SearchQuery, this.SelectedSortOption, false);
+            var stocks = await this.homepageService.GetFilteredAndSortedStocksAsync(this.SearchQuery, this.SelectedSortOption, false);
+            this.filteredStocks.Clear();
+            foreach (var stock in stocks)
+            {
+                this.filteredStocks.Add(stock);
+            }
         }
 
         private async Task ApplyFilterAndSortAsync()
         {
-            this.FilteredStocks = await this.homepageService.GetFilteredAndSortedStocksAsync(this.SearchQuery, this.SelectedSortOption, false);
+            var stocks = await this.homepageService.GetFilteredAndSortedStocksAsync(this.SearchQuery, this.SelectedSortOption, false);
+            this.FilteredStocks.Clear();
+            foreach (var stock in stocks)
+            {
+                this.FilteredStocks.Add(stock);
+            }
         }
 
         private async Task ToggleFavoriteAsync(HomepageStock? stock)

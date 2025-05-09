@@ -10,57 +10,30 @@ namespace BankApi.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<decimal>(
-                name: "AmountReturned",
-                table: "Investments",
-                type: "decimal(18,2)",
-                precision: 18,
-                scale: 2,
-                nullable: false,
-                oldClrType: typeof(float),
-                oldType: "real(18)",
-                oldPrecision: 18,
-                oldScale: 2);
-
-            migrationBuilder.AlterColumn<decimal>(
-                name: "AmountInvested",
-                table: "Investments",
-                type: "decimal(18,2)",
-                precision: 18,
-                scale: 2,
-                nullable: false,
-                oldClrType: typeof(float),
-                oldType: "real(18)",
-                oldPrecision: 18,
-                oldScale: 2);
+            migrationBuilder.CreateTable(
+    name: "Investments",
+    columns: table => new
+    {
+        Id = table.Column<int>(type: "int", nullable: false)
+            .Annotation("SqlServer:Identity", "1, 1"),
+        InvestorCnp = table.Column<string>(type: "nvarchar(13)", maxLength: 13, nullable: false),
+        Details = table.Column<string>(type: "nvarchar(max)", nullable: false),
+        AmountInvested = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+        AmountReturned = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+        InvestmentDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+    },
+    constraints: table =>
+    {
+        table.PrimaryKey("PK_Investments", x => x.Id);
+    });
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<float>(
-                name: "AmountReturned",
-                table: "Investments",
-                type: "real(18)",
-                precision: 18,
-                scale: 2,
-                nullable: false,
-                oldClrType: typeof(decimal),
-                oldType: "decimal(18,2)",
-                oldPrecision: 18,
-                oldScale: 2);
 
-            migrationBuilder.AlterColumn<float>(
-                name: "AmountInvested",
-                table: "Investments",
-                type: "real(18)",
-                precision: 18,
-                scale: 2,
-                nullable: false,
-                oldClrType: typeof(decimal),
-                oldType: "decimal(18,2)",
-                oldPrecision: 18,
-                oldScale: 2);
+            migrationBuilder.DropTable(
+                name: "Investments");
         }
     }
 }

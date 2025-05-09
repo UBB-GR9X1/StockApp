@@ -4,21 +4,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BankApi.Repositories
 {
-<<<<<<<< HEAD:BankApi/Repositories/BaseStocksRepository.cs
     public class BaseStocksRepository : IBaseStocksRepository
     {
         private readonly ApiDbContext _dbContext;
         private readonly ILogger<BaseStocksRepository> _logger;
 
         public BaseStocksRepository(ApiDbContext dbContext, ILogger<BaseStocksRepository> logger)
-========
-    public class BaseStockRepository : IBaseStockRepository
-    {
-        private readonly ApiDbContext _dbContext;
-        private readonly ILogger<BaseStockRepository> _logger;
-
-        public BaseStockRepository(ApiDbContext dbContext, ILogger<BaseStockRepository> logger)
->>>>>>>> migrate-homepage-stock-repo2:BankApi/Repositories/BaseStockRepository.cs
         {
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));

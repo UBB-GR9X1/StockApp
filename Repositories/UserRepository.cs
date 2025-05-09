@@ -113,7 +113,6 @@
                     WHERE CNP = @cnp", connection);
                 command.Parameters.AddWithValue("@cnp", userCNP);
 
-                await connection.OpenAsync();
                 using var reader = await command.ExecuteReaderAsync();
                 if (await reader.ReadAsync())
                 {

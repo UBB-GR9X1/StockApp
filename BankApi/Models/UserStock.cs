@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BankApi.Models
 {
@@ -23,7 +22,6 @@ namespace BankApi.Models
         [Required]
         public int Quantity { get; set; }
 
-        [ForeignKey("StockName")]
         public Stock Stock { get; set; } = null!;
     }
 }

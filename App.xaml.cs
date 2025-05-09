@@ -4,6 +4,7 @@
 namespace StockApp
 {
     using System;
+    using System.Collections.Generic;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
@@ -53,9 +54,8 @@ namespace StockApp
                     var configBuilder = new ConfigurationBuilder()
                         .AddUserSecrets<App>()
                         .AddEnvironmentVariables()
-                        .AddInMemoryCollection(new Dictionary<string, string>
-                        {
-                            { "ApiBaseUrl", "https://localhost:7001/" }
+                        .AddInMemoryCollection(new Dictionary<string, string> {
+                            { "ApiBaseUrl", "https://localhost:7001/" },
                         });
 
                     var config = configBuilder.Build();
@@ -79,6 +79,7 @@ namespace StockApp
                     services.AddSingleton<IActivityRepo, ActivityProxyRepo>();
                     services.AddSingleton<IGemStoreRepository, GemStoreProxyRepo>();
                     services.AddSingleton<IProfileRepository, ProfileProxyRepo>();
+                    services.AddSingleton<IBaseStocksRepository, BaseStocksProxyRepository>();
 
                     services.AddSingleton<IHomepageStocksRepository, HomepageStocksProxyRepository>();
 
@@ -106,10 +107,13 @@ namespace StockApp
                         client.BaseAddress = new Uri(config["ApiBaseUrl"]);
                     });
 
+                    services.AddHttpClient<IBaseStocksRepository, BaseStocksProxyRepository>(client =>
+                    {
+                        client.BaseAddress = new Uri("https://localhost:7001/");
+                    });
                     // Legacy repositories
                     services.AddSingleton<IChatReportRepository, ChatReportRepoProxy>();
                     services.AddSingleton<IHistoryRepository, HistoryRepository>();
-                    services.AddSingleton<IInvestmentsRepository, InvestmentsRepository>();
                     services.AddSingleton<ILoanRepository, LoanRepository>();
                     services.AddSingleton<ILoanRequestRepository, LoanRequestRepository>();
                     services.AddSingleton<IUserRepository, UserRepository>();

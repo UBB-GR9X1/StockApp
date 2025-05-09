@@ -11,9 +11,7 @@ namespace StockApp.ViewModels
     using System.Threading.Tasks;
     using System.Windows.Input;
     using StockApp.Commands;
-    using StockApp.Models;
     using StockApp.Services;
-    using StockApp.Repositories;
 
     public class CreateStockViewModel : INotifyPropertyChanged
     {
@@ -50,9 +48,7 @@ namespace StockApp.ViewModels
             this.Initialize();
         }
 
-        public CreateStockViewModel()
-            : this(new CreateStockService(App.Host.Services.GetService(typeof(IBaseStocksService)) as IBaseStocksService, 
-                                        App.Host.Services.GetService(typeof(IUserRepository)) as IUserRepository))
+        private async void Initialize()
         {
             this.IsAdmin = await this.CheckIfUserIsAdmin();
         }
@@ -248,15 +244,17 @@ namespace StockApp.ViewModels
         /// <returns>True if the user is an admin; otherwise false.</returns>
         protected async Task<bool> CheckIfUserIsAdmin()
         {
-            User user = await this.userService.GetCurrentUserAsync();
+            return true;
+            //FIXME: THIS NEEDS THE NEW TABLE LAYOUT
+            //User user = await this.userService.GetCurrentUserAsync();
             // This method should check if the user is an admin.
             // For now, let's assume the user is an admin.
-            if (!user.IsModerator)
-            {
-                this.Message = "You are a guest user and cannot create stocks!";
-            }
+            //if (!user.IsModerator)
+            //{
+            //    this.Message = "You are a guest user and cannot create stocks!";
+            //}
 
-            return !user.IsModerator;
+            //return !user.IsModerator;
         }
 
         /// <summary>

@@ -6,7 +6,6 @@
     using System.Threading.Tasks;
     using Microsoft.Data.SqlClient;
     using Microsoft.Extensions.DependencyInjection;
-    using StockApp.Database;
     using StockApp.Exceptions;
     using StockApp.Models;
     using StockApp.Repositories;
@@ -56,7 +55,7 @@
 
         /*──────────────────────  Public API  ──────────────────────*/
 
-        public async Task<string> AddStock(string stockName,
+        public async Task<string> AddStockAsync(string stockName,
                                            string stockSymbol,
                                            string authorCNP)
         {
@@ -68,10 +67,14 @@
             }
 
             if (!Regex.IsMatch(stockSymbol, @"^[A-Z]{1,5}$"))
+            {
                 throw new ArgumentException("Stock symbol must consist of 1 to 5 uppercase letters.");
+            }
 
             if (!Regex.IsMatch(authorCNP, @"^\d{13}$"))
+            {
                 throw new ArgumentException("Author CNP must be exactly 13 digits.");
+            }
 
             try
             {
@@ -104,17 +107,29 @@
             try
             {
                 if (string.IsNullOrWhiteSpace(stockName))
+                {
                     return (false, "Stock name cannot be empty.");
+                }
+
                 if (string.IsNullOrWhiteSpace(stockSymbol))
+                {
                     return (false, "Stock symbol cannot be empty.");
+                }
 
                 if (string.IsNullOrWhiteSpace(authorCnp))
+                {
                     authorCnp = GetUserCnp();
+                }
 
                 if (stockName.Length > 100)
+                {
                     return (false, "Stock name cannot exceed 100 characters.");
+                }
+
                 if (stockSymbol.Length > 10)
+                {
                     return (false, "Stock symbol cannot exceed 10 characters.");
+                }
 
                 var stock = new BaseStock(stockName, stockSymbol, authorCnp);
 
