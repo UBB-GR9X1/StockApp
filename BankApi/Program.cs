@@ -1,5 +1,6 @@
 using BankApi.Data;
 using BankApi.Repositories;
+using BankApi.Seeders;
 using Microsoft.EntityFrameworkCore;
 using StockApp.Repositories;
 
@@ -44,6 +45,12 @@ builder.Services.AddCors(options =>
     });
 });
 
+// Dependency injection for seeders.
+builder.Services.AddSingleton<UserDatabaseSeeder>(sp =>
+    new UserDatabaseSeeder(builder.Configuration));
+builder.Services.AddSingleton<ChatReportsDatabaseSeeder>(sp =>
+    new ChatReportsDatabaseSeeder(builder.Configuration));
+
 var app = builder.Build();
 
 // Apply migrations in development environment
@@ -53,6 +60,13 @@ if (app.Environment.IsDevelopment())
     {
         var dbContext = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
         dbContext.Database.Migrate(); // This will apply any pending migrations
+
+        // Seed the database
+        var userSeeder = scope.ServiceProvider.GetRequiredService<UserDatabaseSeeder>();
+        await userSeeder.InsertUsersAsync();
+
+        var chatReportsSeeder = scope.ServiceProvider.GetRequiredService<ChatReportsDatabaseSeeder>();
+        await chatReportsSeeder.InsertUsersAsync();
     }
 }
 
