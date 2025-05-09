@@ -1,8 +1,8 @@
 ﻿namespace BankApi.Seeders
 {
-    public class InvestmentsSeeder(IConfiguration configuration) : BaseSeeder(configuration, query)
+    public class InvestmentsSeeder(IConfiguration configuration) : BaseSeeder(configuration)
     {
-        private const string query = @"
+        protected override string GetQuery() => @"
             IF NOT EXISTS (SELECT 1 FROM Investments) 
             BEGIN
                 INSERT INTO Investments 

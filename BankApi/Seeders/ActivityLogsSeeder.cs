@@ -1,8 +1,8 @@
 ﻿namespace BankApi.Seeders
 {
-    public class ActivityLogsSeeder(IConfiguration configuration) : BaseSeeder(configuration, query)
+    public class ActivityLogsSeeder(IConfiguration configuration) : BaseSeeder(configuration)
     {
-        private const string query = @"
+        protected override string GetQuery() => @"
             IF NOT EXISTS (SELECT 1 FROM ActivityLogs) 
             BEGIN
                 INSERT INTO ActivityLogs 

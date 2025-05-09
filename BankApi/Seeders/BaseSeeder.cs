@@ -2,9 +2,11 @@
 
 namespace BankApi.Seeders
 {
-    public class BaseSeeder(IConfiguration configuration, string query)
+    public abstract class BaseSeeder(IConfiguration configuration)
     {
         private readonly string connectionString = configuration.GetConnectionString("DefaultConnection")!;
+
+        protected abstract string GetQuery();
 
         public async Task SeedAsync()
         {
@@ -13,12 +15,13 @@ namespace BankApi.Seeders
                 using SqlConnection conn = new(connectionString);
                 await conn.OpenAsync();
 
-                using SqlCommand cmd = new(query, conn);
+                using SqlCommand cmd = new(GetQuery(), conn);
                 await cmd.ExecuteNonQueryAsync();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Database seeding failed: {ex.Message}");
+                Console.Error.WriteLine($"Database seeding failed: {ex.Message}");
+                throw;
             }
         }
     }

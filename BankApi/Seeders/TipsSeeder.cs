@@ -1,8 +1,8 @@
 ﻿namespace BankApi.Seeders
 {
-    public class TipsSeeder(IConfiguration configuration) : BaseSeeder(configuration, query)
+    public class TipsSeeder(IConfiguration configuration) : BaseSeeder(configuration)
     {
-        private const string query = @"
+        protected override string GetQuery() => @"
             IF NOT EXISTS (SELECT 1 FROM Tips) 
             BEGIN
                 INSERT INTO Tips 

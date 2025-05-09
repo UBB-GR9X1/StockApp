@@ -1,8 +1,8 @@
 ﻿namespace BankApi.Seeders
 {
-    public class TriggeredAlertsSeeder(IConfiguration configuration) : BaseSeeder(configuration, query)
+    public class TriggeredAlertsSeeder(IConfiguration configuration) : BaseSeeder(configuration)
     {
-        private const string query = @"
+        protected override string GetQuery() => @"
             IF NOT EXISTS (SELECT 1 FROM TriggeredAlerts) 
             BEGIN
                 INSERT INTO TriggeredAlerts 
