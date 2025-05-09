@@ -1,38 +1,11 @@
 ﻿namespace BankApi.Seeders
 {
-    using Microsoft.Data.SqlClient;
-
     public class TransactionLogTransactionsSeeder(IConfiguration configuration) : ForeignKeyTableSeeder(configuration)
     {
-        protected override async Task<List<int>> GetForeignKeys()
+        protected override string GetReferencedTableName() => "Users";
+
+        protected override string GetQueryWithForeignKeys(List<int> foreignKeys)
         {
-            List<int> userIds = [];
-
-            // Fetch existing User IDs dynamically
-            using SqlConnection conn = new(connectionString);
-            await conn.OpenAsync();
-
-            using SqlCommand cmd = new("SELECT Id FROM Users ORDER BY Id ASC", conn);
-            using SqlDataReader reader = await cmd.ExecuteReaderAsync();
-
-            while (reader.Read())
-            {
-                userIds.Add(reader.GetInt32(0));
-            }
-
-            // Ensure we have at least 5 users before proceeding
-            if (userIds.Count < 5)
-            {
-                throw new InvalidOperationException("Not enough users in the database to seed TransactionLogTransactions.");
-            }
-
-            return userIds;
-        }
-
-        protected override async Task<string> GetQueryAsync()
-        {
-            var foreignKeys = await GetForeignKeys();
-
             return $@"
                 IF NOT EXISTS (SELECT 1 FROM TransactionLogTransactions) 
                 BEGIN

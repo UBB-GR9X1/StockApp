@@ -1,7 +1,7 @@
-﻿using Microsoft.Data.SqlClient;
-
-namespace BankApi.Seeders
+﻿namespace BankApi.Seeders
 {
+    using Microsoft.Data.SqlClient;
+
     public abstract class RegularTableSeeder(IConfiguration configuration) : TableSeeder(configuration)
     {
         protected abstract string GetQuery();
@@ -10,10 +10,10 @@ namespace BankApi.Seeders
         {
             try
             {
-                using SqlConnection conn = new(connectionString);
+                using SqlConnection conn = new(this.connectionString);
                 await conn.OpenAsync();
 
-                using SqlCommand cmd = new(GetQuery(), conn);
+                using SqlCommand cmd = new(this.GetQuery(), conn);
                 await cmd.ExecuteNonQueryAsync();
             }
             catch (Exception ex)
