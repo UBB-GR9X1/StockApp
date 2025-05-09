@@ -4,8 +4,6 @@
 namespace StockApp
 {
     using System;
-    using System.Collections.Generic;
-    using Microsoft.AspNetCore.Hosting;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
@@ -49,10 +47,6 @@ namespace StockApp
         private void ConfigureHost()
         {
             Host = Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder()
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                })
                 .ConfigureServices((context, services) =>
                 {
                     // Build configuration
@@ -86,6 +80,7 @@ namespace StockApp
                     services.AddSingleton<IGemStoreRepository, GemStoreProxyRepo>();
                     services.AddSingleton<IProfileRepository, ProfileProxyRepo>();
 
+                    services.AddSingleton<IHomepageStocksRepository, HomepageStocksProxyRepository>();
 
                     // HttpClient for API communication
                     services.AddHttpClient<IChatReportRepository, ChatReportRepoProxy>(client =>
@@ -123,6 +118,12 @@ namespace StockApp
                         client.BaseAddress = new Uri("https://localhost:7001/");
                     });
 
+                    services.AddHttpClient<IHomepageStocksRepository, HomepageStocksProxyRepository>(client =>
+                    {
+                        client.BaseAddress = new Uri("https://localhost:7001/");
+                    });
+
+
 
                     // Other Services
                     services.AddSingleton<IBillSplitReportService, BillSplitReportService>();
@@ -139,6 +140,8 @@ namespace StockApp
                     services.AddSingleton<IActivityService, ActivityService>();
                     services.AddSingleton<IStoreService, StoreService>();
                     services.AddSingleton<IProfileService, ProfileService>();
+                    services.AddSingleton<IHomepageService, HomepageService>();
+                    services.AddSingleton<ICreateStockService, CreateStockService>();
                     services.AddSingleton<MainWindow>();
 
                     // UI Components
@@ -196,6 +199,8 @@ namespace StockApp
                     services.AddTransient<HomepageView>();
                     services.AddTransient<InvestmentsViewModel>();
                     services.AddTransient<InvestmentsView>();
+                    services.AddTransient<HomepageViewModel>();
+                    services.AddTransient<CreateStockViewModel>();
                 }).Build();
         }
 

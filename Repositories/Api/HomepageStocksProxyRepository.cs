@@ -1,47 +1,47 @@
-﻿namespace StockApp.Services
+﻿namespace StockApp.Repositories.Api
 {
-    using StockApp.Models;
     using System.Collections.Generic;
     using System.Net.Http;
     using System.Net.Http.Json;
     using System.Threading.Tasks;
+    using StockApp.Models;
 
-    public class HomepageStocksApiService : IHomepageStocksApiService
+    public class HomepageStocksProxyRepository : IHomepageStocksRepository
     {
         private readonly HttpClient _httpClient;
 
-        public HomepageStocksApiService(HttpClient httpClient)
+        public HomepageStocksProxyRepository(HttpClient httpClient)
         {
             _httpClient = httpClient;
         }
 
         public async Task<List<HomepageStock>> GetAllStocksAsync()
         {
-            var result = await _httpClient.GetFromJsonAsync<List<HomepageStock>>("api/HomepageStocks");
+            var result = await _httpClient.GetFromJsonAsync<List<HomepageStock>>("api/HomepageStock");
             return result ?? new List<HomepageStock>();
         }
 
         public async Task<HomepageStock> GetStockByIdAsync(int id)
         {
-            var result = await _httpClient.GetFromJsonAsync<HomepageStock>($"api/HomepageStocks/{id}");
+            var result = await _httpClient.GetFromJsonAsync<HomepageStock>($"api/HomepageStock/{id}");
             return result ?? throw new KeyNotFoundException("Stock not found.");
         }
 
         public async Task<bool> AddStockAsync(HomepageStock stock)
         {
-            var response = await _httpClient.PostAsJsonAsync("api/HomepageStocks", stock);
+            var response = await _httpClient.PostAsJsonAsync("api/HomepageStock", stock);
             return response.IsSuccessStatusCode;
         }
 
-        public async Task<bool> UpdateStockAsync(HomepageStock stock)
+        public async Task<bool> UpdateStockAsync(int id, HomepageStock stock)
         {
-            var response = await _httpClient.PutAsJsonAsync($"api/HomepageStocks/{stock.Id}", stock);
+            var response = await _httpClient.PutAsJsonAsync($"api/HomepageStock/{stock.Id}", stock);
             return response.IsSuccessStatusCode;
         }
 
         public async Task<bool> DeleteStockAsync(int id)
         {
-            var response = await _httpClient.DeleteAsync($"api/HomepageStocks/{id}");
+            var response = await _httpClient.DeleteAsync($"api/HomepageStock/{id}");
             return response.IsSuccessStatusCode;
         }
     }

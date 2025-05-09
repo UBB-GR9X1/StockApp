@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace BankApi.Migrations
 {
     /// <inheritdoc />
-    public partial class AddActivityLogs : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -36,13 +36,31 @@ namespace BankApi.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     StockName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    UpperBound = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    LowerBound = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    UpperBound = table.Column<decimal>(type: "decimal(18,4)", precision: 18, scale: 4, nullable: false),
+                    LowerBound = table.Column<decimal>(type: "decimal(18,4)", precision: 18, scale: 4, nullable: false),
                     ToggleOnOff = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Alerts", x => x.AlertId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "BaseStocks",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Symbol = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                    AuthorCNP = table.Column<string>(type: "nvarchar(13)", maxLength: 13, nullable: false),
+                    Discriminator = table.Column<string>(type: "nvarchar(13)", maxLength: 13, nullable: false),
+                    Price = table.Column<int>(type: "int", nullable: true),
+                    Quantity = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BaseStocks", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -72,6 +90,22 @@ namespace BankApi.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_CreditScoreHistories", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "GemStores",
+                columns: table => new
+                {
+                    Cnp = table.Column<string>(type: "nvarchar(13)", maxLength: 13, nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    GemBalance = table.Column<int>(type: "int", nullable: false),
+                    IsGuest = table.Column<bool>(type: "bit", nullable: false),
+                    LastUpdated = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_GemStores", x => x.Cnp);
                 });
 
             migrationBuilder.CreateTable(
@@ -105,10 +139,35 @@ namespace BankApi.Migrations
                     table.PrimaryKey("PK_TriggeredAlerts", x => x.Id);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "HomepageStocks",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false),
+                    Symbol = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                    Change = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_HomepageStocks", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_HomepageStocks_BaseStocks_Id",
+                        column: x => x.Id,
+                        principalTable: "BaseStocks",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Alerts_StockName",
                 table: "Alerts",
                 column: "StockName");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BaseStocks_Name",
+                table: "BaseStocks",
+                column: "Name",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_TriggeredAlerts_StockName",
@@ -132,10 +191,19 @@ namespace BankApi.Migrations
                 name: "CreditScoreHistories");
 
             migrationBuilder.DropTable(
+                name: "GemStores");
+
+            migrationBuilder.DropTable(
                 name: "GivenTips");
 
             migrationBuilder.DropTable(
+                name: "HomepageStocks");
+
+            migrationBuilder.DropTable(
                 name: "TriggeredAlerts");
+
+            migrationBuilder.DropTable(
+                name: "BaseStocks");
         }
     }
 }

@@ -38,7 +38,7 @@
             try
             {
                 var dbContext = new AppDbContext();
-                // Try to get the repository from the service provider
+                // Try to get the repository from the homepageService provider
                 if (App.Host != null)
                 {
                     this.stocksService = App.Host.Services.GetService<IBaseStocksService>();

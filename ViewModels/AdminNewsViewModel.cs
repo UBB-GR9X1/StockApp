@@ -32,7 +32,7 @@
         private bool isEmptyState;
 
         /// <summary>
-        /// Initializes a new instance of <see cref="AdminNewsViewModel"/> with the specified service and dispatcher.
+        /// Initializes a new instance of <see cref="AdminNewsViewModel"/> with the specified homepageService and dispatcher.
         /// </summary>
         /// <param name="service">Service for retrieving and modifying news articles.</param>
         /// <param name="dispatcherQueue">Dispatcher used for UI thread operations.</param>

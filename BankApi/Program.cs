@@ -7,8 +7,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
 builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
 // Configure DbContext
 builder.Services.AddDbContext<ApiDbContext>(options =>
@@ -17,16 +15,19 @@ builder.Services.AddDbContext<ApiDbContext>(options =>
         sqlOptions.EnableRetryOnFailure();
     }));
 
-// Register repositories
+// Register repository
+builder.Services.AddScoped<IBaseStockRepository, BaseStockRepository>();
 builder.Services.AddScoped<IChatReportRepository, ChatReportRepository>();
 builder.Services.AddScoped<IAlertRepository, AlertRepository>();
-builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
+builder.Services.AddScoped<IHomepageStockRepository, HomepageStockRepository>();
 builder.Services.AddScoped<IGemStoreRepository, GemStoreRepository>();
 builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
 builder.Services.AddScoped<IInvestmentsRepository, InvestmentsRepository>();
 builder.Services.AddScoped<IBaseStocksRepository, BaseStocksRepository>();
 builder.Services.AddScoped<IBillSplitReportRepository, BillSplitReportRepository>();
 builder.Services.AddScoped<IHistoryRepository, HistoryRepository>();
+builder.Services.AddScoped<IChatReportRepository, ChatReportRepository>();
+
 
 // Add CORS
 builder.Services.AddCors(options =>
@@ -54,8 +55,7 @@ if (app.Environment.IsDevelopment())
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseDeveloperExceptionPage();
 }
 
 app.UseHttpsRedirection();

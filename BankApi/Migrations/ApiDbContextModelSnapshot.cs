@@ -106,6 +106,11 @@ namespace BankApi.Migrations
                         .HasMaxLength(13)
                         .HasColumnType("nvarchar(13)");
 
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasMaxLength(13)
+                        .HasColumnType("nvarchar(13)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -122,6 +127,10 @@ namespace BankApi.Migrations
                         .IsUnique();
 
                     b.ToTable("BaseStocks");
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("BaseStock");
+
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("BankApi.Models.BillSplitReport", b =>
@@ -255,25 +264,9 @@ namespace BankApi.Migrations
             modelBuilder.Entity("BankApi.Models.HomepageStock", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
                     b.Property<decimal>("Change")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("CompanyName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<decimal>("PercentChange")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("Price")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
@@ -344,6 +337,30 @@ namespace BankApi.Migrations
                     b.HasIndex("StockName");
 
                     b.ToTable("TriggeredAlerts");
+                });
+
+            modelBuilder.Entity("BankApi.Models.Stock", b =>
+                {
+                    b.HasBaseType("BankApi.Models.BaseStock");
+
+                    b.Property<int>("Price")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.HasDiscriminator().HasValue("Stock");
+                });
+
+            modelBuilder.Entity("BankApi.Models.HomepageStock", b =>
+                {
+                    b.HasOne("BankApi.Models.Stock", "StockDetails")
+                        .WithOne()
+                        .HasForeignKey("BankApi.Models.HomepageStock", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("StockDetails");
                 });
 #pragma warning restore 612, 618
         }

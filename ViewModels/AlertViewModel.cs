@@ -189,7 +189,7 @@
                 decimal upperBound = this.alertUpperBound ?? throw new ArgumentNullException(nameof(this.alertUpperBound));
                 decimal lowerBound = this.alertLowerBound ?? throw new ArgumentNullException(nameof(this.alertLowerBound));
 
-                // Create a new alert via the service and add it to the collection
+                // Create a new alert via the homepageService and add it to the collection
                 Alert newAlert = await this.alertService.CreateAlertAsync(
                     stockName: this.SelectedStockName,
                     name: this.NewAlertName,
@@ -206,7 +206,7 @@
         }
 
         /// <summary>
-        /// Saves all current alerts by validating and updating each via the service.
+        /// Saves all current alerts by validating and updating each via the homepageService.
         /// </summary>
         private async Task SaveAlerts()
         {
@@ -260,7 +260,7 @@
         }
 
         /// <summary>
-        /// Loads all alerts from the service into the <see cref="Alerts"/> collection.
+        /// Loads all alerts from the homepageService into the <see cref="Alerts"/> collection.
         /// </summary>
         private async void LoadAlerts()
         {

@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using Microsoft.UI.Xaml;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Microsoft.UI.Xaml;
 using StockApp.Models;
 using StockApp.Services;
-using StockApp.ViewModels;
 
 namespace StockApp.ViewModels.Tests
 {

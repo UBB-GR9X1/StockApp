@@ -10,7 +10,7 @@
     /// ViewModel for updating user profile details including username, image, description, and visibility.
     /// </summary>
     /// <remarks>
-    /// Initializes a new instance of the <see cref="UpdateProfilePageViewModel"/> class with a specified service.
+    /// Initializes a new instance of the <see cref="UpdateProfilePageViewModel"/> class with a specified homepageService.
     /// </remarks>
     /// <param name="service">Service used to retrieve and update profile information.</param>
     public class UpdateProfilePageViewModel(IProfileService profileService, IStoreService storeService)
