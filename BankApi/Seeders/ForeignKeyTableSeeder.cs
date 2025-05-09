@@ -4,6 +4,8 @@ namespace BankApi.Seeders
 {
     public abstract class ForeignKeyTableSeeder(IConfiguration configuration) : TableSeeder(configuration)
     {
+        protected abstract Task<List<int>> GetForeignKeys();
+
         protected abstract Task<string> GetQueryAsync();
 
         public override async Task SeedAsync()

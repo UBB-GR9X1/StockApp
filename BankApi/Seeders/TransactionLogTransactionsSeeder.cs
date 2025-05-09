@@ -4,7 +4,7 @@
 
     public class TransactionLogTransactionsSeeder(IConfiguration configuration) : ForeignKeyTableSeeder(configuration)
     {
-        protected override async Task<string> GetQueryAsync()
+        protected override async Task<List<int>> GetForeignKeys()
         {
             List<int> userIds = [];
 
@@ -22,7 +22,16 @@
 
             // Ensure we have at least 5 users before proceeding
             if (userIds.Count < 5)
+            {
                 throw new InvalidOperationException("Not enough users in the database to seed TransactionLogTransactions.");
+            }
+
+            return userIds;
+        }
+
+        protected override async Task<string> GetQueryAsync()
+        {
+            var foreignKeys = await GetForeignKeys();
 
             return $@"
                 IF NOT EXISTS (SELECT 1 FROM TransactionLogTransactions) 
@@ -30,11 +39,11 @@
                     INSERT INTO TransactionLogTransactions 
                         (Id, StockSymbol, StockName, Type, Amount, PricePerStock, Date)
                     VALUES
-                        ({userIds[0]}, 'AAPL', 'Apple Inc.', 'BUY', 10, 150, '2025-04-01'),
-                        ({userIds[1]}, 'GOOGL', 'Alphabet Inc.', 'SELL', 5, 2800, '2025-03-15'),
-                        ({userIds[2]}, 'TSLA', 'Tesla Inc.', 'BUY', 20, 750, '2025-02-20'),
-                        ({userIds[3]}, 'AMZN', 'Amazon.com Inc.', 'SELL', 8, 3400, '2025-01-10'),
-                        ({userIds[4]}, 'MSFT', 'Microsoft Corp.', 'BUY', 15, 320, '2025-05-05');
+                        ({foreignKeys[0]}, 'AAPL', 'Apple Inc.', 'BUY', 10, 150, '2025-04-01'),
+                        ({foreignKeys[1]}, 'GOOGL', 'Alphabet Inc.', 'SELL', 5, 2800, '2025-03-15'),
+                        ({foreignKeys[2]}, 'TSLA', 'Tesla Inc.', 'BUY', 20, 750, '2025-02-20'),
+                        ({foreignKeys[3]}, 'AMZN', 'Amazon.com Inc.', 'SELL', 8, 3400, '2025-01-10'),
+                        ({foreignKeys[4]}, 'MSFT', 'Microsoft Corp.', 'BUY', 15, 320, '2025-05-05');
                 END;
             ";
         }

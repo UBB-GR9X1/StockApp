@@ -4,7 +4,7 @@
 
     public class HomepageStocksSeeder(IConfiguration configuration) : ForeignKeyTableSeeder(configuration)
     {
-        protected override async Task<string> GetQueryAsync()
+        protected override async Task<List<int>> GetForeignKeys()
         {
             List<int> stockIds = [];
 
@@ -22,7 +22,16 @@
 
             // Ensure we have at least 5 stocks before proceeding
             if (stockIds.Count < 5)
+            {
                 throw new InvalidOperationException("Not enough stocks in the database to seed HomepageStocks.");
+            }
+
+            return stockIds;
+        }
+
+        protected override async Task<string> GetQueryAsync()
+        {
+            var foreignKeys = await GetForeignKeys();
 
             return $@"
                 IF NOT EXISTS (SELECT 1 FROM HomepageStocks) 
@@ -30,11 +39,11 @@
                     INSERT INTO HomepageStocks 
                         (Id, Symbol, Change)
                     VALUES
-                        ({stockIds[0]}, 'AAPL', 1.25),
-                        ({stockIds[1]}, 'GOOGL', -0.75),
-                        ({stockIds[2]}, 'TSLA', 2.30),
-                        ({stockIds[3]}, 'AMZN', -1.10),
-                        ({stockIds[4]}, 'MSFT', 0.50);
+                        ({foreignKeys[0]}, 'AAPL', 1.25),
+                        ({foreignKeys[1]}, 'GOOGL', -0.75),
+                        ({foreignKeys[2]}, 'TSLA', 2.30),
+                        ({foreignKeys[3]}, 'AMZN', -1.10),
+                        ({foreignKeys[4]}, 'MSFT', 0.50);
                 END;
             ";
         }
