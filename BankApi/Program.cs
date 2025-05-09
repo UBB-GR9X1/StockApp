@@ -63,6 +63,7 @@ Type[] seederTypes =
     typeof(TriggeredAlertsSeeder),
     typeof(HomepageStocksSeeder),
     typeof(UserStocksSeeder),
+    typeof(GivenTipsSeeder),
 ];
 
 // Dependency injection for seeders.
