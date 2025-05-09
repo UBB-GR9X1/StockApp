@@ -5,18 +5,18 @@
     using System.Net.Http;
     using System.Net.Http.Json;
     using System.Threading.Tasks;
-    using Src.Model;
     using StockApp.Models;
+    using StockApp.Repositories;
 
     /// <summary>
     /// Proxy repository for Tips that makes HTTP calls to the Tip API.
     /// </summary>
-    public class TipsProxyRepo
+    public class TipsProxyRepository : ITipsRepository
     {
         private readonly HttpClient _httpClient;
-        private readonly string _baseUrl = "https://localhost:5001/api/tip";
+        private readonly string _baseUrl = "api/tip";
 
-        public TipsProxyRepo(HttpClient httpClient)
+        public TipsProxyRepository(HttpClient httpClient)
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         }

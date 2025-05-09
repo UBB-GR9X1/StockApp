@@ -1,50 +1,24 @@
 namespace StockApp.Views.Pages
 {
-    using System.Collections.Generic;
     using Microsoft.UI.Xaml;
-    using Src.Model;
     using StockApp.Models;
-    using StockApp.Repositories;
-    using StockApp.Views.Components;
+    using StockApp.ViewModels;
 
     public sealed partial class TipHistoryWindow : Window
     {
-        private User selectedUser;
-        private readonly MessagesRepository messagesRepository;
-        private readonly TipsRepository tipsRepository;
+        private readonly TipHistoryViewModel viewModel;
 
-        public TipHistoryWindow(User selectedUser, MessagesRepository messagesRepository, TipsRepository tipsRepository)
+        public TipHistoryWindow(TipHistoryViewModel tipHistoryViewModel)
         {
             this.InitializeComponent();
-            this.selectedUser = selectedUser;
-            this.messagesRepository = messagesRepository;
-            this.tipsRepository = tipsRepository;
-
-            List<Message> messages = this.messagesRepository.GetMessagesForGivenUser(selectedUser.CNP);
-            List<Tip> tips = this.tipsRepository.GetTipsForGivenUser(selectedUser.CNP);
-
-            this.LoadHistory(tips);
-            this.LoadHistory(messages);
+            this.viewModel = tipHistoryViewModel;
+            this.TipHistoryContainer.DataContext = this.viewModel;
         }
 
-        private void LoadHistory(List<Message> messages)
+        public async void LoadUser(User user)
         {
-            foreach (Message message in messages)
-            {
-                MessageHistoryComponent messageComponent = new MessageHistoryComponent();
-                messageComponent.SetMessageData(message);
-                this.MessageHistoryContainer.Items.Add(messageComponent);
-            }
-        }
-
-        private void LoadHistory(List<Tip> tips)
-        {
-            foreach (Tip tip in tips)
-            {
-                TipHistoryComponent tipComponent = new TipHistoryComponent();
-                tipComponent.SetTipData(tip);
-                this.TipHistoryContainer.Items.Add(tipComponent);
-            }
+            await this.viewModel.LoadUserData(user);
         }
     }
+
 }

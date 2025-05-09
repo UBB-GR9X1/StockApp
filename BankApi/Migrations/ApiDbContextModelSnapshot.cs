@@ -244,20 +244,24 @@ namespace BankApi.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateOnly>("Date")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("Date")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.Property<int>("MessageID")
+                    b.Property<int>("TipId")
                         .HasColumnType("int");
 
-                    b.Property<int>("TipID")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserCnp")
+                    b.Property<string>("UserCNP")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(13)
+                        .HasColumnType("nvarchar(13)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("TipId");
+
+                    b.HasIndex("UserCNP");
 
                     b.ToTable("GivenTips");
                 });
@@ -397,6 +401,34 @@ namespace BankApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("LoanRequests");
+                });
+
+            modelBuilder.Entity("BankApi.Models.Tip", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CreditScoreBracket")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("TipText")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Tips");
                 });
 
             modelBuilder.Entity("BankApi.Models.TransactionLogTransaction", b =>
@@ -611,6 +643,26 @@ namespace BankApi.Migrations
                         .HasColumnType("int");
 
                     b.HasDiscriminator().HasValue("Stock");
+                });
+
+            modelBuilder.Entity("BankApi.Models.GivenTip", b =>
+                {
+                    b.HasOne("BankApi.Models.Tip", "Tip")
+                        .WithMany()
+                        .HasForeignKey("TipId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BankApi.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserCNP")
+                        .HasPrincipalKey("CNP")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tip");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("BankApi.Models.HomepageStock", b =>

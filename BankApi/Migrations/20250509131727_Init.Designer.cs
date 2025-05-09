@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BankApi.Migrations
 {
     [DbContext(typeof(ApiDbContext))]
-    [Migration("20250509103454_MakeLoanIdIdentitiy")]
-    partial class MakeLoanIdIdentitiy
+    [Migration("20250509131727_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -247,20 +247,23 @@ namespace BankApi.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateOnly>("Date")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("Date")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.Property<int>("MessageID")
+                    b.Property<int>("TipId")
                         .HasColumnType("int");
 
-                    b.Property<int>("TipID")
+                    b.Property<int>("UserCNP")
+                        .HasMaxLength(13)
                         .HasColumnType("int");
-
-                    b.Property<string>("UserCnp")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("TipId");
+
+                    b.HasIndex("UserCNP");
 
                     b.ToTable("GivenTips");
                 });
@@ -402,40 +405,66 @@ namespace BankApi.Migrations
                     b.ToTable("LoanRequests");
                 });
 
-            modelBuilder.Entity("BankApi.Models.Profile", b =>
+            modelBuilder.Entity("BankApi.Models.Tip", b =>
                 {
-                    b.Property<string>("Cnp")
-                        .HasMaxLength(13)
-                        .HasColumnType("nvarchar(13)");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<int>("GemBalance")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<bool>("IsAdmin")
-                        .HasColumnType("bit");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<bool>("IsHidden")
-                        .HasColumnType("bit");
+                    b.Property<string>("CreditScoreBracket")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
-                    b.Property<DateTime>("LastUpdated")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("TipText")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("Type")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("ProfilePicture")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                    b.HasKey("Id");
 
-                    b.HasKey("Cnp");
+                    b.ToTable("Tips");
+                });
 
-                    b.ToTable("Profiles", (string)null);
+            modelBuilder.Entity("BankApi.Models.TransactionLogTransaction", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Amount")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("PricePerStock")
+                        .HasColumnType("int");
+
+                    b.Property<string>("StockName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("StockSymbol")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(4)
+                        .HasColumnType("nvarchar(4)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TransactionLogTransactions");
                 });
 
             modelBuilder.Entity("BankApi.Models.TriggeredAlert", b =>
@@ -618,6 +647,25 @@ namespace BankApi.Migrations
                     b.HasDiscriminator().HasValue("Stock");
                 });
 
+            modelBuilder.Entity("BankApi.Models.GivenTip", b =>
+                {
+                    b.HasOne("BankApi.Models.Tip", "Tip")
+                        .WithMany()
+                        .HasForeignKey("TipId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BankApi.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserCNP")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tip");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("BankApi.Models.HomepageStock", b =>
                 {
                     b.HasOne("BankApi.Models.Stock", "StockDetails")
@@ -627,6 +675,17 @@ namespace BankApi.Migrations
                         .IsRequired();
 
                     b.Navigation("StockDetails");
+                });
+
+            modelBuilder.Entity("BankApi.Models.TransactionLogTransaction", b =>
+                {
+                    b.HasOne("BankApi.Models.User", "Author")
+                        .WithMany()
+                        .HasForeignKey("Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Author");
                 });
 
             modelBuilder.Entity("BankApi.Models.UserStock", b =>

@@ -21,6 +21,13 @@
         public string CreditScoreBracket { get; set; } = string.Empty;
 
         /// <summary>
+        /// Gets or sets the type of the tip
+        /// </summary>
+        [Required]
+        [MaxLength(100)]
+        public string Type { get; set; } = string.Empty;
+
+        /// <summary>
         /// Gets or sets the text of the tip.
         /// </summary>
         [Required]

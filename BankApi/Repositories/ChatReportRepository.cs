@@ -65,7 +65,8 @@
         public async Task<int> GetNumberOfGivenTipsForUserAsync(string userCnp)
         {
             return await _context.GivenTips
-                .Where(t => t.UserCnp == userCnp)
+                .Include(t => t.User)
+                .Where(t => t.User.CNP == userCnp)
                 .CountAsync();
         }
 

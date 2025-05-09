@@ -85,6 +85,8 @@ namespace StockApp
                     services.AddSingleton<IBaseStocksRepository, BaseStocksProxyRepository>();
                     services.AddSingleton<IHistoryRepository, HistoryProxyRepository>();
                     services.AddSingleton<IHomepageStocksRepository, HomepageStocksProxyRepository>();
+                    services.AddSingleton<ITipsRepository, TipsProxyRepository>();
+                    services.AddSingleton<IMessagesRepository, MessageProxyRepository>();
 
                     // HttpClient for API communication
                     services.AddHttpClient<IChatReportRepository, ChatReportRepoProxy>(client =>
@@ -161,6 +163,22 @@ namespace StockApp
                     {
                         client.BaseAddress = new Uri("https://localhost:7001/");
                     });
+
+                    services.AddHttpClient<ITipsRepository, TipsProxyRepository>(client =>
+                    {
+                        client.BaseAddress = new Uri("https://localhost:7001/");
+                    });
+
+                    services.AddHttpClient<IMessagesRepository, MessageProxyRepository>(client =>
+                    {
+                        client.BaseAddress = new Uri("https://localhost:7001/");
+                    });
+
+                    services.AddHttpClient<IChatReportRepository, ChatReportRepoProxy>(client =>
+                    {
+                        client.BaseAddress = new Uri("https://localhost:7001/");
+                    });
+
                     // Other Services
                     services.AddSingleton<IBillSplitReportService, BillSplitReportService>();
                     services.AddSingleton<IChatReportService, ChatReportService>();
@@ -239,6 +257,8 @@ namespace StockApp
                     services.AddTransient<HomepageViewModel>();
                     services.AddTransient<CreateStockViewModel>();
                     services.AddTransient<CreateProfilePageViewModel>();
+                    services.AddTransient<TipHistoryViewModel>();
+                    services.AddTransient<TipHistoryWindow>();
                 }).Build();
         }
 

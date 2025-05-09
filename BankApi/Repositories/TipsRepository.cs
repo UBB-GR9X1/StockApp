@@ -1,8 +1,6 @@
 using BankApi.Data;
-using BankApi.Repositories;
-using Microsoft.EntityFrameworkCore;
-using BankApi.Data;
 using BankApi.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace BankApi.Repositories
 {
@@ -23,7 +21,8 @@ namespace BankApi.Repositories
 
             return await _context.GivenTips
                 .Include(gt => gt.Tip)
-                .Where(gt => gt.UserCnp == userCnp)
+                .Include(gt => gt.User)
+                .Where(gt => gt.User.CNP == userCnp)
                 .Select(gt => gt.Tip)
                 .ToListAsync();
         }
@@ -31,9 +30,6 @@ namespace BankApi.Repositories
         // Provide a tip to a user based on credit score bracket
         public async Task<GivenTip> GiveTipToUserAsync(string userCnp, string creditScoreBracket)
         {
-            if (string.IsNullOrWhiteSpace(userCnp))
-                throw new ArgumentException("User CNP must be provided.");
-
             if (string.IsNullOrWhiteSpace(creditScoreBracket))
                 throw new ArgumentException("Credit score bracket must be provided.");
 
@@ -47,10 +43,10 @@ namespace BankApi.Repositories
 
             var givenTip = new GivenTip
             {
-                UserCnp = userCnp,
-                TipId = randomTip.Id,
-                Date = DateOnly.FromDateTime(DateTime.Today),
-                Tip = randomTip
+                User = await _context.Users
+                    .FirstOrDefaultAsync(u => u.CNP == userCnp) ?? throw new InvalidOperationException($"User with CNP '{userCnp}' not found."),
+                Tip = randomTip,
+                Date = DateTime.UtcNow,
             };
 
             _context.GivenTips.Add(givenTip);
