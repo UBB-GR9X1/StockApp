@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace BankApi.Repositories
 {
     /// <summary>
-    /// Repository for managing <see cref="Alert"/> entities and their triggered instances using Entity Framework Core.
+    /// BaseStockRepository for managing <see cref="Alert"/> entities and their triggered instances using Entity Framework Core.
     /// </summary>
     public class AlertRepository : IAlertRepository
     {

@@ -1,36 +1,185 @@
-﻿namespace Src.Model
+﻿namespace StockApp.Models
 {
     using System;
+    using System.ComponentModel;
 
-    public class Loan
+    public class Loan : INotifyPropertyChanged
     {
-        public int Id { get; set; }
+        private int id;
+        private string userCnp;
+        private decimal loanAmount;
+        private DateTime applicationDate;
+        private DateTime repaymentDate;
+        private decimal interestRate;
+        private int numberOfMonths;
+        private decimal monthlyPaymentAmount;
+        private string status;
+        private int monthlyPaymentsCompleted;
+        private decimal repaidAmount;
+        private decimal penalty;
 
-        public string UserCnp { get; set; }
+        public event PropertyChangedEventHandler PropertyChanged;
 
-        public float LoanAmount { get; set; }
-
-        public DateTime ApplicationDate { get; set; }
-
-        public DateTime RepaymentDate { get; set; }
-
-        public float InterestRate { get; set; }
-
-        public int NumberOfMonths { get; set; }
-
-        public float MonthlyPaymentAmount { get; set; }
-
-        public string Status { get; set; }
-
-        public int MonthlyPaymentsCompleted { get; set; }
-
-        public float RepaidAmount { get; set; }
-
-        public float Penalty { get; set; }
-
-        public Loan(int loanID, string userCnp, float loanAmount, DateTime applicationDate, DateTime repaymentDate, float interestRate, int numberOfMonths, float monthlyPaymentAmount, int monthlyPaymentsCompleted, float repaidAmount, float penalty, string status)
+        public int Id
         {
-            this.Id = loanID;
+            get => this.id;
+            set
+            {
+                if (this.id != value)
+                {
+                    this.id = value;
+                    this.OnPropertyChanged(nameof(this.Id));
+                }
+            }
+        }
+
+        public string UserCnp
+        {
+            get => this.userCnp;
+            set
+            {
+                if (this.userCnp != value)
+                {
+                    this.userCnp = value;
+                    this.OnPropertyChanged(nameof(this.UserCnp));
+                }
+            }
+        }
+
+        public decimal LoanAmount
+        {
+            get => this.loanAmount;
+            set
+            {
+                if (this.loanAmount != value)
+                {
+                    this.loanAmount = value;
+                    this.OnPropertyChanged(nameof(this.LoanAmount));
+                }
+            }
+        }
+
+        public DateTime ApplicationDate
+        {
+            get => this.applicationDate;
+            set
+            {
+                if (this.applicationDate != value)
+                {
+                    this.applicationDate = value;
+                    this.OnPropertyChanged(nameof(this.ApplicationDate));
+                }
+            }
+        }
+
+        public DateTime RepaymentDate
+        {
+            get => this.repaymentDate;
+            set
+            {
+                if (this.repaymentDate != value)
+                {
+                    this.repaymentDate = value;
+                    this.OnPropertyChanged(nameof(this.RepaymentDate));
+                }
+            }
+        }
+
+        public decimal InterestRate
+        {
+            get => this.interestRate;
+            set
+            {
+                if (this.interestRate != value)
+                {
+                    this.interestRate = value;
+                    this.OnPropertyChanged(nameof(this.InterestRate));
+                }
+            }
+        }
+
+        public int NumberOfMonths
+        {
+            get => this.numberOfMonths;
+            set
+            {
+                if (this.numberOfMonths != value)
+                {
+                    this.numberOfMonths = value;
+                    this.OnPropertyChanged(nameof(this.NumberOfMonths));
+                }
+            }
+        }
+
+        public decimal MonthlyPaymentAmount
+        {
+            get => this.monthlyPaymentAmount;
+            set
+            {
+                if (this.monthlyPaymentAmount != value)
+                {
+                    this.monthlyPaymentAmount = value;
+                    this.OnPropertyChanged(nameof(this.MonthlyPaymentAmount));
+                }
+            }
+        }
+
+        public string Status
+        {
+            get => this.status;
+            set
+            {
+                if (this.status != value)
+                {
+                    this.status = value;
+                    this.OnPropertyChanged(nameof(this.Status));
+                }
+            }
+        }
+
+        public int MonthlyPaymentsCompleted
+        {
+            get => this.monthlyPaymentsCompleted;
+            set
+            {
+                if (this.monthlyPaymentsCompleted != value)
+                {
+                    this.monthlyPaymentsCompleted = value;
+                    this.OnPropertyChanged(nameof(this.MonthlyPaymentsCompleted));
+                }
+            }
+        }
+
+        public decimal RepaidAmount
+        {
+            get => this.repaidAmount;
+            set
+            {
+                if (this.repaidAmount != value)
+                {
+                    this.repaidAmount = value;
+                    this.OnPropertyChanged(nameof(this.RepaidAmount));
+                }
+            }
+        }
+
+        public decimal Penalty
+        {
+            get => this.penalty;
+            set
+            {
+                if (this.penalty != value)
+                {
+                    this.penalty = value;
+                    this.OnPropertyChanged(nameof(this.Penalty));
+                }
+            }
+        }
+
+        public Loan() { }
+
+        public Loan(string userCnp, decimal loanAmount, DateTime applicationDate, DateTime repaymentDate, decimal interestRate, int numberOfMonths, decimal monthlyPaymentAmount, int monthlyPaymentsCompleted, decimal repaidAmount, decimal penalty, string status)
+        {
             this.UserCnp = userCnp;
             this.LoanAmount = loanAmount;
             this.ApplicationDate = applicationDate;
@@ -42,6 +191,11 @@
             this.MonthlyPaymentsCompleted = monthlyPaymentsCompleted;
             this.RepaidAmount = repaidAmount;
             this.Penalty = penalty;
+        }
+
+        protected void OnPropertyChanged(string propertyName)
+        {
+            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

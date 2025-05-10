@@ -1,22 +1,23 @@
 ﻿namespace StockApp.Repositories
 {
     using System.Collections.Generic;
-    using Src.Model;
+    using System.Threading.Tasks;
+    using StockApp.Models;
 
     public interface ILoanRepository
     {
-        List<Loan> GetLoans();
+        Task<List<Loan>> GetLoansAsync();
 
-        List<Loan> GetUserLoans(string userCNP);
+        Task<List<Loan>> GetUserLoansAsync(string userCNP);
 
-        void AddLoan(Loan loan);
+        Task AddLoanAsync(Loan loan);
 
-        void UpdateLoan(Loan loan);
+        Task UpdateLoanAsync(Loan loan);
 
-        void DeleteLoan(int loanID);
+        Task DeleteLoanAsync(int loanID);
 
-        Loan GetLoanById(int loanID);
+        Task<Loan> GetLoanByIdAsync(int loanID);
 
-        void UpdateCreditScoreHistoryForUser(string userCNP, int newScore);
+        Task UpdateCreditScoreHistoryForUserAsync(string userCNP, int newScore);
     }
 }

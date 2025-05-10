@@ -2,36 +2,38 @@
 {
     using System;
     using System.Collections.Generic;
-    using Src.Model;
+    using System.Threading.Tasks;
+    using StockApp.Models;
     using StockApp.Repositories;
 
     public class TipsService : ITipsService
     {
-        private TipsRepository tipsRepository;
+        private ITipsRepository tipsRepository;
+        private IUserRepository userRepository;
 
-        public TipsService(TipsRepository tipsRepository)
+        public TipsService(ITipsRepository tipsRepository, IUserRepository userRepository)
         {
             this.tipsRepository = tipsRepository;
+            this.userRepository = userRepository;
         }
 
-        public void GiveTipToUser(string userCNP)
+        public async Task GiveTipToUser(string userCNP)
         {
-            UserRepository userRepository = new UserRepository();
 
             try
             {
-                int userCreditScore = userRepository.GetUserByCnpAsync(userCNP).Result.CreditScore;
-                if (userCreditScore < 300)
+                User user = await this.userRepository.GetByCnpAsync(userCNP) ?? throw new Exception("User not found");
+                if (user.CreditScore < 300)
                 {
-                    this.tipsRepository.GiveUserTipForLowBracket(userCNP);
+                    await this.tipsRepository.GiveLowBracketTipAsync(userCNP);
                 }
-                else if (userCreditScore < 550)
+                else if (user.CreditScore < 550)
                 {
-                    this.tipsRepository.GiveUserTipForMediumBracket(userCNP);
+                    await this.tipsRepository.GiveMediumBracketTipAsync(userCNP);
                 }
-                else if (userCreditScore > 549)
+                else if (user.CreditScore > 549)
                 {
-                    this.tipsRepository.GiveUserTipForHighBracket(userCNP);
+                    await this.tipsRepository.GiveHighBracketTipAsync(userCNP);
                 }
             }
             catch (Exception exception)
@@ -40,9 +42,9 @@
             }
         }
 
-        public List<Tip> GetTipsForGivenUser(string userCnp)
+        public async Task<List<Tip>> GetTipsForGivenUser(string userCnp)
         {
-            return this.tipsRepository.GetTipsForGivenUser(userCnp);
+            return await this.tipsRepository.GetTipsForGivenUserAsync(userCnp);
         }
     }
 }

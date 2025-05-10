@@ -11,12 +11,8 @@
         public string Symbol { get; set; } = string.Empty;
 
         [Required]
-        public string CompanyName { get; set; } = string.Empty;
-
-        public decimal Price { get; set; }
+        public Stock StockDetails { get; set; } = new Stock();
 
         public decimal Change { get; set; }
-
-        public decimal PercentChange { get; set; }
     }
 }

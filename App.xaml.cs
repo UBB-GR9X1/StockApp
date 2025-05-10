@@ -4,7 +4,7 @@
 namespace StockApp
 {
     using System;
-    using Microsoft.AspNetCore.Hosting;
+    using System.Collections.Generic;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
@@ -42,19 +42,23 @@ namespace StockApp
             this.ConfigureHost();
 
             // explanation before the OnUnhandledException method
-            //this.UnhandledException += this.OnUnhandledException;
+            // this.UnhandledException += this.OnUnhandledException;
         }
 
         private void ConfigureHost()
         {
             Host = Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder()
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                })
                 .ConfigureServices((context, services) =>
                 {
-                    var config = new ConfigurationBuilder().AddUserSecrets<App>().AddEnvironmentVariables().Build();
+                    // Build configuration
+                    var configBuilder = new ConfigurationBuilder()
+                        .AddUserSecrets<App>()
+                        .AddEnvironmentVariables()
+                        .AddInMemoryCollection(new Dictionary<string, string> {
+                            { "ApiBaseUrl", "https://localhost:7001/" },
+                        });
+
+                    var config = configBuilder.Build();
                     services.AddSingleton<IConfiguration>(config);
                     services.AddSingleton(new DatabaseConnection());
 
@@ -64,24 +68,38 @@ namespace StockApp
 
                     // Repositories
                     services.AddScoped<IAlertRepository, AlertProxyRepo>();
-
-                    services.AddSingleton<IBillSplitReportRepository, BillSplitReportRepository>();
+                    services.AddScoped<ITransactionRepository, TransactionProxyRepository>();
+                    services.AddScoped<ITransactionLogService, TransactionLogService>();
+                    services.AddScoped<TransactionLogViewModel>();
+                    services.AddScoped<IInvestmentsRepository, InvestmentsProxyRepository>();
+                    services.AddScoped<IBillSplitReportRepository, BillSplitReportProxyRepository>();
+                    services.AddScoped<ITransactionRepository, TransactionProxyRepository>();
+                    services.AddScoped<IChatReportRepository, ChatReportRepoProxy>();
+                    services.AddScoped<ILoanRepository, LoanProxyRepository>();
+                    services.AddScoped<ILoanRequestRepository, LoanRequestProxyRepo>();
+                    services.AddScoped<IActivityRepo, ActivityProxyRepo>();
+                    services.AddScoped<IGemStoreRepository, GemStoreProxyRepo>();
+                    services.AddScoped<IUserRepository, UserProxyRepository>();
+                    services.AddScoped<IProfileRepository, ProfileProxyRepo>();
+                    services.AddScoped<IBaseStocksRepository, BaseStocksProxyRepository>();
+                    services.AddScoped<IHistoryRepository, HistoryProxyRepository>();
+                    services.AddScoped<IHomepageStocksRepository, HomepageStocksProxyRepository>();
+                    services.AddScoped<ITipsRepository, TipsProxyRepository>();
+                    services.AddScoped<IMessagesRepository, MessageProxyRepository>();
                     services.AddSingleton<IChatReportRepository, ChatReportRepoProxy>();
-                    services.AddSingleton<IHistoryRepository, HistoryRepository>();
-                    services.AddSingleton<IInvestmentsRepository, InvestmentsRepository>();
-                    services.AddSingleton<ILoanRepository, LoanRepository>();
-                    services.AddSingleton<ILoanRequestRepository, LoanRequestRepository>();
-                    services.AddSingleton<IUserRepository, UserRepository>();
-                    services.AddSingleton<IActivityRepo, ActivityProxyRepo>();
-                    services.AddSingleton<IGemStoreRepository, GemStoreProxyRepo>();
 
+                    //FIXME: port \/\/\/\/
+                    services.AddSingleton<IStockPageRepository, StockPageRepository>();
 
                     // HttpClient for API communication
                     services.AddHttpClient<IChatReportRepository, ChatReportRepoProxy>(client =>
                     {
+                        client.BaseAddress = new Uri(config["ApiBaseUrl"]);
+                    });
+                    services.AddHttpClient<IBillSplitReportRepository, BillSplitReportProxyRepository>((client) =>
+                    {
                         client.BaseAddress = new Uri("https://localhost:7001/");
                     });
-
                     services.AddHttpClient<IAlertRepository, AlertProxyRepo>(client =>
                     {
                         client.BaseAddress = new Uri("https://localhost:7001/");
@@ -89,79 +107,140 @@ namespace StockApp
 
                     services.AddHttpClient<IActivityRepo, ActivityProxyRepo>(client =>
                     {
+                        client.BaseAddress = new Uri(config["ApiBaseUrl"]);
+                    });
+                    services.AddHttpClient<IUserRepository, UserProxyRepository>(client =>
+                    {
+                        client.BaseAddress = new Uri("https://localhost:7001/");
+                    });
+
+                    services.AddHttpClient<IBaseStocksRepository, BaseStocksProxyRepository>(client =>
+                    {
+                        client.BaseAddress = new Uri("https://localhost:7001/");
+                    });
+                    services.AddHttpClient<IInvestmentsRepository, InvestmentsProxyRepository>(client =>
+                    {
+                        client.BaseAddress = new Uri("https://localhost:7001/");
+                    });
+
+                    services.AddHttpClient<IHomepageStocksRepository, HomepageStocksProxyRepository>(client =>
+                    {
+                        client.BaseAddress = new Uri("https://localhost:7001/");
+                        client.Timeout = TimeSpan.FromSeconds(6);
+                    });
+                    services.AddHttpClient<ILoanRequestRepository, LoanRequestProxyRepo>(client =>
+                    {
+                        client.BaseAddress = new Uri("https://localhost:7001/");
+                    });
+                    services.AddHttpClient<ILoanRepository, LoanProxyRepository>(client =>
+                    {
+                        client.BaseAddress = new Uri("https://localhost:7001/");
+                    });
+
+                    services.AddHttpClient<IProfileRepository, ProfileProxyRepo>(client =>
+                    {
+                        client.BaseAddress = new Uri("https://localhost:7001/");
+                    });
+
+                    services.AddHttpClient<IGemStoreRepository, GemStoreProxyRepo>(client =>
+                    {
+                        client.BaseAddress = new Uri("https://localhost:7001/");
+                    });
+
+                    services.AddHttpClient<IHistoryRepository, HistoryProxyRepository>(client =>
+                    {
+                        client.BaseAddress = new Uri("https://localhost:7001/");
+                    });
+
+                    services.AddHttpClient<ITransactionRepository, TransactionProxyRepository>(client =>
+                    {
+                        client.BaseAddress = new Uri("https://localhost:7001/");
+                    });
+
+                    services.AddHttpClient<ITipsRepository, TipsProxyRepository>(client =>
+                    {
+                        client.BaseAddress = new Uri("https://localhost:7001/");
+                    });
+
+                    services.AddHttpClient<IMessagesRepository, MessageProxyRepository>(client =>
+                    {
+                        client.BaseAddress = new Uri("https://localhost:7001/");
+                    });
+
+                    services.AddHttpClient<IChatReportRepository, ChatReportRepoProxy>(client =>
+                    {
                         client.BaseAddress = new Uri("https://localhost:7001/");
                     });
 
 
                     // Other Services
-                    services.AddSingleton<IBillSplitReportService, BillSplitReportService>();
-                    services.AddSingleton<IChatReportService, ChatReportService>();
-                    services.AddSingleton<IHistoryService, HistoryService>();
-                    services.AddSingleton<IInvestmentsService, InvestmentsService>();
-                    services.AddSingleton<ILoanCheckerService, LoanCheckerService>();
-                    services.AddSingleton<ILoanRequestService, LoanRequestService>();
-                    services.AddSingleton<ILoanService, LoanService>();
-                    services.AddSingleton<IMessagesService, MessagesService>();
-                    services.AddSingleton<ITipsService, TipsService>();
-                    services.AddSingleton<IUserService, UserService>();
-                    services.AddSingleton<IZodiacService, ZodiacService>();
-                    services.AddSingleton<IActivityService, ActivityService>();
-                    services.AddSingleton<IStoreService, StoreService>();
+                    services.AddScoped<IBaseStocksService, BaseStocksService>();
+                    services.AddScoped<IBillSplitReportService, BillSplitReportService>();
+                    services.AddScoped<IChatReportService, ChatReportService>();
+                    services.AddScoped<IHistoryService, HistoryService>();
+                    services.AddScoped<IInvestmentsService, InvestmentsService>();
+                    services.AddScoped<ILoanRequestService, LoanRequestService>();
+                    services.AddScoped<ILoanService, LoanService>();
+                    services.AddScoped<IMessagesService, MessagesService>();
+                    services.AddScoped<ITipsService, TipsService>();
+                    services.AddScoped<IUserService, UserService>();
+                    services.AddScoped<IZodiacService, ZodiacService>();
+                    services.AddScoped<IActivityService, ActivityService>();
+                    services.AddScoped<IStoreService, StoreService>();
+                    services.AddScoped<IProfileService, ProfileService>();
+                    services.AddScoped<IHomepageService, HomepageService>();
+                    services.AddScoped<ICreateStockService, CreateStockService>();
+                    services.AddScoped<IStockPageService, StockPageService>();
+                    services.AddScoped<IHistoryService, HistoryService>();
+                    services.AddScoped<INewsService, NewsService>();
+
                     services.AddSingleton<MainWindow>();
 
                     // UI Components
+                    services.AddTransient<BillSplitReportViewModel>();
+                    services.AddTransient<BillSplitReportViewModel>();
                     services.AddTransient<BillSplitReportComponent>();
-                    services.AddTransient<Func<BillSplitReportComponent>>(provider =>
-                    {
-                        return () => provider.GetRequiredService<BillSplitReportComponent>();
-                    });
                     services.AddTransient<BillSplitReportPage>();
-
                     services.AddTransient<ChatReportComponent>();
-                    services.AddTransient<Func<ChatReportComponent>>(provider =>
-                    {
-                        return () => provider.GetRequiredService<ChatReportComponent>();
-                    });
-                    services.AddTransient<ChatReportView>();
-
-                    services.AddTransient<LoanComponent>();
-                    services.AddTransient<Func<LoanComponent>>(provider =>
-                    {
-                        return () => provider.GetRequiredService<LoanComponent>();
-                    });
-                    services.AddTransient<LoansView>();
-
                     services.AddTransient<LoanRequestComponent>();
-                    services.AddTransient<Func<LoanRequestComponent>>(provider =>
-                    {
-                        return () => provider.GetRequiredService<LoanRequestComponent>();
-                    });
+                    services.AddTransient<LoanComponent>();
+                    services.AddTransient<BillSplitReportComponent>();
+                    services.AddTransient<LoansView>();
                     services.AddTransient<LoanRequestView>();
-
                     services.AddTransient<UserInfoComponent>();
-                    services.AddTransient<Func<UserInfoComponent>>(provider =>
-                    {
-                        return () => provider.GetRequiredService<UserInfoComponent>();
-                    });
                     services.AddTransient<UsersView>();
-
                     // ViewModels
 
                     services.AddTransient<StoreViewModel>();
-
-                    // Register services for UserInfoComponent
-                    services.AddTransient<IHistoryService, HistoryService>();
-
+                    services.AddTransient<ProfilePageViewModel>();
+                    services.AddTransient<InvestmentsViewModel>();
+                    services.AddTransient<HomepageViewModel>();
+                    services.AddTransient<CreateStockViewModel>();
+                    services.AddTransient<CreateProfilePageViewModel>();
+                    services.AddTransient<TipHistoryViewModel>();
+                    services.AddTransient<NewsDetailViewModel>();
+                    services.AddTransient<NewsListViewModel>();
                     services.AddTransient<NewsListPage>();
+
+                    // Pages
                     services.AddTransient<CreateStockPage>();
                     services.AddTransient<TransactionLogPage>();
                     services.AddTransient<ProfilePage>();
                     services.AddTransient<GemStoreWindow>();
                     services.AddTransient<CreateProfilePage>();
                     services.AddTransient<HomepageView>();
+                    services.AddTransient<InvestmentsView>();
+                    services.AddTransient<TipHistoryWindow>();
+                    services.AddTransient<NewsArticleView>();
+                    services.AddTransient<LoansViewModel>();
+                    services.AddTransient<ChatReportView>();
+                    //FIXME: remove \/\/\/\/
+                    services.AddTransient<Func<LoanRequestComponent>>(sp => () => sp.GetRequiredService<LoanRequestComponent>());
+                    services.AddTransient<Func<ChatReportComponent>>(sp => () => sp.GetRequiredService<ChatReportComponent>());
+                    services.AddTransient<Func<UserInfoComponent>>(sp => () => sp.GetRequiredService<UserInfoComponent>());
+
                 }).Build();
         }
-
 
         /// <summary>
         /// Gets or sets the current window of the application.

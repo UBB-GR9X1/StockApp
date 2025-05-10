@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using StockApp.Models;
     using StockApp.Repositories;
 
@@ -16,10 +17,6 @@
         public ProfileService()
         {
             this.userRepo = new UserRepository();
-            if (string.IsNullOrEmpty(this.userRepo.CurrentUserCNP))
-            {
-                throw new InvalidOperationException("No user is currently logged in.");
-            }
             this.profileRepo = new ProfileRepository(this.userRepo.CurrentUserCNP);
         }
 
@@ -82,24 +79,23 @@
         /// <param name="newImage"> The new image URL.</param>
         /// <param name="newDescription"> The new description.</param>
         /// <param name="newHidden"> Indicates if the user should be hidden.</param>
-        public void UpdateUser(string newUsername, string newImage, string newDescription, bool newHidden)
+        public async Task UpdateUserAsync(string newUsername, string newImage, string newDescription, bool newHidden)
         {
-            this.profileRepo.UpdateMyUser(newUsername, newImage, newDescription, newHidden);
+            await this.profileRepo.UpdateMyUserAsync(newUsername, newImage, newDescription, newHidden);
         }
 
         /// <summary>
         /// Updates the admin status of the current user.
         /// </summary>
         /// <param name="isAdmin"> Indicates if the user should be an admin.</param>
-        public void UpdateIsAdmin(bool isAdmin)
+        public async Task UpdateIsAdminAsync(bool isAdmin)
         {
-            this.profileRepo.UpdateRepoIsAdmin(isAdmin);
+            await this.profileRepo.UpdateRepoIsAdminAsync(isAdmin);
         }
 
-        /// <summary>
-        /// Gets the CNP of the logged-in user.
-        /// </summary>
-        /// <returns> The CNP of the logged-in user.</returns>
-        public string GetLoggedInUserCnp() => this.profileRepo.CurrentUser().CNP;
+        public async Task<List<Stock>> GetUserStocksAsync()
+        {
+            return await this.profileRepo.UserStocksAsync();
+        }
     }
 }

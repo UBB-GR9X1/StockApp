@@ -2,34 +2,35 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using Src.Data;
-    using Src.Model;
+    using StockApp.Models;
     using StockApp.Repositories;
 
     public class MessagesService : IMessagesService
     {
-        private readonly MessagesRepository messagesRepository;
+        private readonly IMessagesRepository messagesRepository;
+        private readonly IUserRepository userRepository;
 
-        public MessagesService(MessagesRepository messagesRepository)
+        public MessagesService(IMessagesRepository messagesRepository, IUserRepository userRepository)
         {
+            this.userRepository = userRepository;
             this.messagesRepository = messagesRepository;
         }
 
-        public void GiveMessageToUser(string userCNP)
+        public async void GiveMessageToUser(string userCNP)
         {
             DatabaseConnection dbConn = new DatabaseConnection();
-            UserRepository userRepository = new UserRepository();
-
-            int userCreditScore = userRepository.GetUserByCnpAsync(userCNP).Result.CreditScore;
+            User user = await this.userRepository.GetByCnpAsync(userCNP) ?? throw new Exception("User not found");
             try
             {
-                if (userCreditScore >= 550)
+                if (user.CreditScore >= 550)
                 {
-                    this.messagesRepository.GiveUserRandomMessage(userCNP);
+                    await this.messagesRepository.GiveUserRandomMessageAsync(userCNP);
                 }
                 else
                 {
-                    this.messagesRepository.GiveUserRandomRoastMessage(userCNP);
+                    await this.messagesRepository.GiveUserRandomMessageAsync(userCNP);
                 }
             }
             catch (Exception e)
@@ -38,9 +39,9 @@
             }
         }
 
-        public List<Message> GetMessagesForGivenUser(string userCnp)
+        public async Task<List<Message>> GetMessagesForGivenUser(string userCnp)
         {
-            return this.messagesRepository.GetMessagesForGivenUser(userCnp);
+            return await this.messagesRepository.GetMessagesForUserAsync(userCnp);
         }
     }
 }

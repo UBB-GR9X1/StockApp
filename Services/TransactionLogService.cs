@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
     using StockApp.Exceptions;
     using StockApp.Models;
     using StockApp.Repositories;
@@ -22,10 +23,10 @@
         /// </summary>
         /// <param name="criteria"></param>
         /// <returns></returns>
-        public List<TransactionLogTransaction> GetFilteredTransactions(TransactionFilterCriteria criteria)
+        public async Task<List<TransactionLogTransaction>> GetFilteredTransactions(TransactionFilterCriteria criteria)
         {
             criteria.Validate();
-            return this.transactionRepository.GetByFilterCriteria(criteria);
+            return await this.transactionRepository.GetByFilterCriteria(criteria);
         }
 
         /// <summary>

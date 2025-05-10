@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
+    using System.Threading.Tasks;
     using Microsoft.UI.Xaml.Media.Imaging;
     using StockApp.Models;
     using StockApp.Services;
@@ -25,7 +26,7 @@
         /// <summary>
         /// Gets or sets the profile image source.
         /// </summary>
-        public BitmapImage ImageSource
+        public BitmapImage? ImageSource
         {
             get => this.imageSource;
             set
@@ -77,11 +78,11 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="ProfilePageViewModel"/> class with the default profile service and loads the profile image.
         /// </summary>
-        public ProfilePageViewModel()
+        public ProfilePageViewModel(IProfileService profileService)
         {
             try
             {
-                this.profileService = new ProfileService();
+                this.profileService = profileService ?? throw new ArgumentNullException(nameof(profileService));
                 this.LoadProfileData();
             }
             catch (Exception ex)
@@ -135,57 +136,64 @@
                 System.Diagnostics.Debug.WriteLine($"Error loading image: {ex.Message}");
                 // Don't throw here, as image loading failure shouldn't break the whole profile
             }
-        }
 
         /// <summary>
         /// Gets the CNP of the currently logged-in user.
         /// </summary>
         /// <returns>The user's CNP as a string.</returns>
-        public string GetLoggedInUserCnp() => this.profileService.GetLoggedInUserCnp();
+        /// <returns>The user's CNP as a string.</returns>
 
         /// <summary>
         /// Gets the username of the currently logged-in user.
         /// </summary>
         /// <returns>The username.</returns>
-        public string GetUsername() => this.Username;
+        /// <returns>The username.</returns>
 
         /// <summary>
         /// Gets the description of the user.
         /// </summary>
         /// <returns>The user description.</returns>
-        public string GetDescription() => this.Description;
+        /// <returns>The user description.</returns>
 
         /// <summary>
         /// Determines whether the user's profile is hidden.
         /// </summary>
         /// <returns><c>true</c> if the profile is hidden; otherwise, <c>false</c>.</returns>
-        public bool IsHidden() => this.profileService.IsHidden();
+        public async Task<bool> IsHiddenAsync()
+        {
+            var user = await this.profileService.CurrentUserProfile;
+            return user.IsHidden;
+        }
 
         /// <summary>
         /// Determines whether the user has administrative privileges.
         /// </summary>
         /// <returns><c>true</c> if the user is an admin; otherwise, <c>false</c>.</returns>
-        public bool IsAdmin() => this.profileService.IsAdmin();
+        public async Task<bool> IsAdminAsync()
+        {
+            var user = await this.profileService.CurrentUserProfile;
+            return user.IsModerator;
+        }
 
         /// <summary>
         /// Gets the list of stocks associated with the user.
         /// </summary>
         /// <returns>A list of <see cref="Stock"/> objects.</returns>
-        public List<Stock> GetUserStocks() => this.UserStocks;
+        /// <returns>A list of <see cref="Stock"/> objects.</returns>
 
         /// <summary>
         /// Updates the administrative mode of the user.
         /// </summary>
         /// <param name="newIsAdmin">If set to <c>true</c>, grants admin mode; otherwise, revokes it.</param>
-        public void UpdateAdminMode(bool newIsAdmin)
+        public async Task UpdateAdminModeAsync(bool newIsAdmin)
         {
-            this.profileService.UpdateIsAdmin(newIsAdmin);
+            await this.profileService.UpdateIsAdminAsync(newIsAdmin);
         }
 
         /// <summary>
         /// Occurs when a property value changes.
         /// </summary>
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         /// <summary>
         /// Raises the <see cref="PropertyChanged"/> event.

@@ -5,7 +5,6 @@
     using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using System.Windows.Input;
-    using Microsoft.UI.Dispatching;
     using Microsoft.UI.Xaml.Controls;
     using StockApp.Commands;
     using StockApp.Models;
@@ -105,11 +104,6 @@
         }
 
         /// <summary>
-        /// Command to navigate back to the previous view.
-        /// </summary>
-        public ICommand BackCommand { get; }
-
-        /// <summary>
         /// Command to approve the current article.
         /// </summary>
         public ICommand ApproveCommand { get; }
@@ -134,7 +128,6 @@
             this.newsService = newsService ?? throw new ArgumentNullException(nameof(newsService));
             this.dispatcherQueue = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
 
-            this.BackCommand = new StockNewsRelayCommand(() => NavigationService.Instance.GoBack());
             this.ApproveCommand = new StockNewsRelayCommand(async () => await this.ApproveArticleAsync());
             this.RejectCommand = new StockNewsRelayCommand(async () => await this.RejectArticleAsync());
             this.DeleteCommand = new StockNewsRelayCommand(async () => await this.DeleteArticleAsync());
@@ -275,7 +268,7 @@
 
             try
             {
-                var success = this.newsService.ApproveUserArticle(this.previewId);
+                var success = await this.newsService.ApproveUserArticle(this.previewId);
                 if (success)
                 {
                     this.ArticleStatus = "Approved";
@@ -326,7 +319,7 @@
 
             try
             {
-                var success = this.newsService.RejectUserArticle(this.previewId);
+                var success = await this.newsService.RejectUserArticle(this.previewId);
                 if (success)
                 {
                     this.ArticleStatus = "Rejected";
@@ -387,7 +380,7 @@
                 {
                     this.IsLoading = true;
 
-                    var success = this.newsService.DeleteUserArticle(this.previewId);
+                    var success = await this.newsService.DeleteUserArticle(this.previewId);
                     if (success)
                     {
                         var dialog = new ContentDialog

@@ -1,35 +1,73 @@
-namespace Src.Model
+namespace StockApp.Models
 {
     using System;
+    using System.ComponentModel;
+    using System.Runtime.CompilerServices;
 
-    public class GivenTip
-	{
-		public int Id { get; set; }
+    public class GivenTip : INotifyPropertyChanged
+    {
+        private int id;
+        private string userCnp = string.Empty;
+        private DateOnly date;
+        private Tip tip;
 
-		public string UserCnp { get; set; }
+        public event PropertyChangedEventHandler? PropertyChanged;
 
-		public int TipID { get; set; }
+        public int Id
+        {
+            get => this.id;
+            set
+            {
+                if (this.id != value)
+                {
+                    this.id = value;
+                    this.OnPropertyChanged();
+                }
+            }
+        }
 
-		public int MessageID { get; set; }
+        public string UserCnp
+        {
+            get => this.userCnp;
+            set
+            {
+                if (this.userCnp != value)
+                {
+                    this.userCnp = value;
+                    this.OnPropertyChanged();
+                }
+            }
+        }
 
-		public DateOnly Date { get; set; }
+        public DateOnly Date
+        {
+            get => this.date;
+            set
+            {
+                if (this.date != value)
+                {
+                    this.date = value;
+                    this.OnPropertyChanged();
+                }
+            }
+        }
 
-		public GivenTip(int id, string userCNP, int tipID, int messageID, DateOnly date)
-		{
-			this.Id = id;
-			this.UserCnp = userCNP;
-			this.TipID = tipID;
-			this.MessageID = messageID;
-			this.Date = date;
-		}
+        public Tip Tip
+        {
+            get => this.tip;
+            set
+            {
+                if (this.tip != value)
+                {
+                    this.tip = value;
+                    this.OnPropertyChanged();
+                }
+            }
+        }
 
-		public GivenTip()
-		{
-			this.Id = 0;
-			this.UserCnp = string.Empty;
-			this.TipID = 0;
-			this.MessageID = 0;
-			this.Date = new DateOnly();
-		}
-	}
+        private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        {
+            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+    }
 }

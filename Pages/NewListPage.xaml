@@ -43,23 +43,6 @@
                         Orientation="Horizontal" 
                         Spacing="8"
                         HorizontalAlignment="Right">
-                <!-- Login/Logout Button -->
-                <Button Command="{x:Bind ViewModel.LoginCommand}" 
-                        Visibility="{x:Bind ViewModel.IsLoggedIn, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE77B;"/>
-                        <TextBlock Text="Login"/>
-                    </StackPanel>
-                </Button>
-
-                <Button Command="{x:Bind ViewModel.LogoutCommand}" 
-                        Visibility="{x:Bind ViewModel.IsLoggedIn, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE7E8;"/>
-                        <TextBlock Text="Logout"/>
-                    </StackPanel>
-                </Button>
-
                 <!-- Admin Panel Button -->
                 <Button Command="{x:Bind ViewModel.AdminPanelCommand}" 
                         Visibility="{x:Bind ViewModel.IsAdmin, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
@@ -154,72 +137,73 @@
                           ItemContainerStyle="{StaticResource DefaultListViewItemStyle}">
                     <ListView.ItemTemplate>
                         <DataTemplate x:DataType="models:NewsArticle">
-                            <Grid Padding="16" 
-                                  Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
-                                  BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
-                                  BorderThickness="1" 
-                                  CornerRadius="8">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
+                           <Grid Padding="16" 
+                                 Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                                 BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                                 BorderThickness="1" 
+                                 CornerRadius="8"
+                                 >
+                               <Grid.RowDefinitions>
+                                   <RowDefinition Height="Auto"/>
+                                   <RowDefinition Height="Auto"/>
+                                   <RowDefinition Height="Auto"/>
+                               </Grid.RowDefinitions>
 
-                                <!-- Title -->
-                                <TextBlock Grid.Row="0" 
-                                           Text="{x:Bind Title}" 
-                                           Style="{StaticResource SubtitleTextBlockStyle}" 
-                                           FontWeight="{x:Bind IsRead, Converter={StaticResource ReadStatusToFontWeightConverter}}"
-                                           TextWrapping="Wrap"/>
+                               <!-- Title -->
+                               <TextBlock Grid.Row="0" 
+                                          Text="{x:Bind Title}" 
+                                          Style="{StaticResource SubtitleTextBlockStyle}" 
+                                          FontWeight="{x:Bind IsRead, Converter={StaticResource ReadStatusToFontWeightConverter}}"
+                                          TextWrapping="Wrap"/>
 
-                                <!-- Summary -->
-                                <TextBlock Grid.Row="1" 
-                                           Text="{x:Bind Summary}" 
-                                           Style="{StaticResource BodyTextBlockStyle}" 
-                                           TextWrapping="Wrap" 
-                                           Margin="0,8,0,0" 
-                                           Opacity="0.8"/>
+                               <!-- Summary -->
+                               <TextBlock Grid.Row="1" 
+                                          Text="{x:Bind Summary}" 
+                                          Style="{StaticResource BodyTextBlockStyle}" 
+                                          TextWrapping="Wrap" 
+                                          Margin="0,8,0,0" 
+                                          Opacity="0.8"/>
 
-                                <!-- Metadata -->
-                                <Grid Grid.Row="2" Margin="0,12,0,0">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
+                               <!-- Metadata -->
+                               <Grid Grid.Row="2" Margin="0,12,0,0">
+                                   <Grid.ColumnDefinitions>
+                                       <ColumnDefinition Width="*"/>
+                                       <ColumnDefinition Width="Auto"/>
+                                   </Grid.ColumnDefinitions>
 
-                                    <!-- Source and Date -->
-                                    <StackPanel Grid.Column="0" 
-                                                Orientation="Horizontal" 
-                                                Spacing="8">
-                                        <TextBlock Text="{x:Bind Source}" 
-                                                   Style="{StaticResource CaptionTextBlockStyle}" 
-                                                   Opacity="0.7"/>
-                                        <TextBlock Text="•" 
-                                                   Style="{StaticResource CaptionTextBlockStyle}" 
-                                                   Opacity="0.7"/>
-                                        <TextBlock Text="{x:Bind PublishedDate}" 
-                                                   Style="{StaticResource CaptionTextBlockStyle}" 
-                                                   Opacity="0.7"/>
-                                        <TextBlock Text="•" 
-                                                   Style="{StaticResource CaptionTextBlockStyle}" 
-                                                   Opacity="0.7"/>
-                                        <TextBlock Text="{x:Bind Category}" 
-                                                   Style="{StaticResource CaptionTextBlockStyle}" 
-                                                   Opacity="0.7"/>
-                                    </StackPanel>
+                                   <!-- Source and Date -->
+                                   <StackPanel Grid.Column="0" 
+                                               Orientation="Horizontal" 
+                                               Spacing="8">
+                                       <TextBlock Text="{x:Bind Source}" 
+                                                  Style="{StaticResource CaptionTextBlockStyle}" 
+                                                  Opacity="0.7"/>
+                                       <TextBlock Text="•" 
+                                                  Style="{StaticResource CaptionTextBlockStyle}" 
+                                                  Opacity="0.7"/>
+                                       <TextBlock Text="{x:Bind PublishedDate}" 
+                                                  Style="{StaticResource CaptionTextBlockStyle}" 
+                                                  Opacity="0.7"/>
+                                       <TextBlock Text="•" 
+                                                  Style="{StaticResource CaptionTextBlockStyle}" 
+                                                  Opacity="0.7"/>
+                                       <TextBlock Text="{x:Bind Category}" 
+                                                  Style="{StaticResource CaptionTextBlockStyle}" 
+                                                  Opacity="0.7"/>
+                                   </StackPanel>
 
-                                    <!-- Watchlist Indicator -->
-                                    <Border Grid.Column="1" 
-                                            Background="{ThemeResource AccentFillColorDefaultBrush}" 
-                                            Padding="6,2" 
-                                            CornerRadius="4"
-                                            Visibility="{x:Bind IsWatchlistRelated, Converter={StaticResource BoolToVisibilityConverter}}">
-                                        <TextBlock Text="Watchlist" 
-                                                   Foreground="White" 
-                                                   FontSize="12"/>
-                                    </Border>
-                                </Grid>
-                            </Grid>
+                                   <!-- Watchlist Indicator -->
+                                   <Border Grid.Column="1" 
+                                           Background="{ThemeResource AccentFillColorDefaultBrush}" 
+                                           Padding="6,2" 
+                                           CornerRadius="4"
+                                           Visibility="{x:Bind IsWatchlistRelated, Converter={StaticResource BoolToVisibilityConverter}}">
+                                       <TextBlock Text="Watchlist" 
+                                                  Foreground="White" 
+                                                  FontSize="12"/>
+                                   </Border>
+                               </Grid>
+                           </Grid>
                         </DataTemplate>
                     </ListView.ItemTemplate>
                     <ListView.ItemContainerTransitions>

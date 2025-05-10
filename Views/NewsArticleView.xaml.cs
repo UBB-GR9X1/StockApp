@@ -10,15 +10,21 @@ namespace StockApp.Views
 
     public sealed partial class NewsArticleView : Page
     {
+        private NewsDetailViewModel viewModel;
+
         /// <summary>
         /// Gets a new instance of the <see cref="NewsArticleView"/> class.
         /// </summary>
-        public NewsDetailViewModel ViewModel { get; } = new();
+        public NewsDetailViewModel ViewModel
+        {
+            get => this.viewModel;
+            set
+            {
+                this.viewModel = value;
+                this.DataContext = value;
+            }
+        }
 
-        /// <summary>
-        /// The ID of the selected article.
-        /// </summary>
-        private readonly string selectedArticleId;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NewsArticleView"/> class.
@@ -47,18 +53,6 @@ namespace StockApp.Views
             }
 
             NavigationService.Instance.Navigate(typeof(StockPage), stockName);
-        }
-
-        protected override void OnNavigatedTo(NavigationEventArgs e)
-        {
-            base.OnNavigatedTo(e);
-
-            if (e.Parameter is not string articleId)
-            {
-                throw new ArgumentException("Navigation parameter is not a valid article ID", nameof(e));
-            }
-
-            this.ViewModel.LoadArticle(articleId);
         }
     }
 }

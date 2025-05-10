@@ -1,6 +1,7 @@
 namespace StockApp.Pages
 {
     using System;
+    using System.Threading.Tasks;
     using System.Windows.Input;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
@@ -11,25 +12,38 @@ namespace StockApp.Pages
     using StockApp.ViewModels;
     using StockApp.Repositories;
 
+    /// <summary>
+    /// Represents the Profile Page of the application.
+    /// </summary>
     public sealed partial class ProfilePage : Page
     {
+        private readonly ProfilePageViewModel viewModel;
         private ProfilePageViewModel viewModel;
         private static readonly IUserRepository userRepository = new UserRepository();
 
+        /// <summary>
+        /// Gets the command for updating the profile.
+        /// </summary>
         private ICommand UpdateProfileButton { get; }
 
         /// <summary>
-        /// Constructor for the ProfilePage class.
+        /// Initializes a new instance of the <see cref="ProfilePage"/> class.
         /// </summary>
-        public ProfilePage()
+        /// <param name="viewModel">The view model for the profile page.</param>
+        public ProfilePage(ProfilePageViewModel viewModel)
         {
+            this.viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
             this.InitializeComponent();
             this.UpdateProfileButton = new StockNewsRelayCommand(() => this.GoToUpdatePage());
             this.viewModel = new ProfilePageViewModel();
             this.DataContext = this.viewModel;
         }
 
-        protected override void OnNavigatedTo(NavigationEventArgs e)
+        /// <summary>
+        /// Called when the page is navigated to.
+        /// </summary>
+        /// <param name="e">Event data for navigation.</param>
+        protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
 
@@ -92,7 +106,10 @@ namespace StockApp.Pages
             }
         }
 
-        private void GoToUpdatePage()
+        /// <summary>
+        /// Navigates to the update profile page.
+        /// </summary>
+        private async void GoToUpdatePage()
         {
             if (this.viewModel == null)
             {
@@ -102,6 +119,11 @@ namespace StockApp.Pages
             NavigationService.Instance.Navigate(typeof(UpdateProfilePage), this.viewModel.GetLoggedInUserCnp());
         }
 
+        /// <summary>
+        /// Retrieves the selected stock and displays its name.
+        /// </summary>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="e">The event arguments.</param>
         private void GetSelectedStock(object sender, RoutedEventArgs e)
         {
             if (this.StocksListView.SelectedItem is Stock selectedStock)
@@ -114,6 +136,9 @@ namespace StockApp.Pages
             }
         }
 
+        /// <summary>
+        /// Hides the profile details from the UI.
+        /// </summary>
         private void HideProfile()
         {
             this.StocksListView.Visibility = Visibility.Collapsed;
@@ -125,8 +150,8 @@ namespace StockApp.Pages
         /// <summary>
         /// Handles the click event for the "Go Back" button.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="e">The event arguments.</param>
         public void GoBack(object sender, RoutedEventArgs e)
         {
             NavigationService.Instance.GoBack();
@@ -135,7 +160,7 @@ namespace StockApp.Pages
         /// <summary>
         /// Sets the text of the UsernameMyStocks TextBlock to the user's username.
         /// </summary>
-        public void UserStocksShowUsername()
+        private async Task UserStocksShowUsernameAsync()
         {
             this.UsernameMyStocks.Text = this.viewModel.Username + "'s STOCKS: ";
         }
@@ -143,9 +168,9 @@ namespace StockApp.Pages
         /// <summary>
         /// Handles the click event for the "Go To Stock" button.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <exception cref="InvalidOperationException"></exception>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="e">The event arguments.</param>
+        /// <exception cref="InvalidOperationException">Thrown when no stock is selected.</exception>
         public void GoToStockButton(object sender, RoutedEventArgs e)
         {
             if (this.StocksListView.SelectedItem is Stock selectedStock)

@@ -29,7 +29,7 @@
         public event PropertyChangedEventHandler? PropertyChanged;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="StoreViewModel"/> class with the specified service.
+        /// Initializes a new instance of the <see cref="StoreViewModel"/> class with the specified homepageService.
         /// </summary>
         /// <param name="storeService">Service used to retrieve and update store data.</param>
         /// <param name="gemStoreRepository">Repository for gem store operations.</param>

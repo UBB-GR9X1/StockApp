@@ -5,19 +5,15 @@
 using Microsoft.UI.Xaml.Controls;
     using StockApp.Commands;
     using StockApp.Models;
-    using StockApp.Repositories;
     using StockApp.Services;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Windowing;
 using StockApp.Pages;
 
-namespace StockApp.ViewModels
-{
-    internal class CreateProfilePageViewModel : INotifyPropertyChanged
+    public class CreateProfilePageViewModel : INotifyPropertyChanged
     {
-        private static readonly UserRepository userRepository = new();
-        private static readonly UserService userService = new(userRepository);
+        private readonly IUserService userService;
 
         private string image = string.Empty;
         private string username = string.Empty;
@@ -34,8 +30,9 @@ namespace StockApp.ViewModels
         public ICommand CreateProfileCommand { get; set; }
         public ICommand GoToProfilePageCommand { get; set; }
 
-        public CreateProfilePageViewModel()
+        public CreateProfilePageViewModel(IUserService userService)
         {
+            this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
             this.CreateProfileCommand = new RelayCommand(this.CreateProfile);
             this.GoToProfilePageCommand = new RelayCommand(this.GoToProfilePage);
         }

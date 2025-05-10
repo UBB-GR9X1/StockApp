@@ -5,7 +5,6 @@
     using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using System.Windows.Input;
-    using Microsoft.UI.Dispatching;
     using Microsoft.UI.Xaml.Controls;
     using StockApp;
     using StockApp.Commands;
@@ -32,7 +31,7 @@
         private bool isEmptyState;
 
         /// <summary>
-        /// Initializes a new instance of <see cref="AdminNewsViewModel"/> with the specified service and dispatcher.
+        /// Initializes a new instance of <see cref="AdminNewsViewModel"/> with the specified homepageService and dispatcher.
         /// </summary>
         /// <param name="service">Service for retrieving and modifying news articles.</param>
         /// <param name="dispatcherQueue">Dispatcher used for UI thread operations.</param>
@@ -236,7 +235,7 @@
                 string? status = this.SelectedStatus == "All" ? null : this.SelectedStatus;
                 string? topic = this.SelectedTopic == "All" ? null : this.SelectedTopic;
 
-                var articles = this.newsService.GetUserArticles(status, topic);
+                var articles = await this.newsService.GetUserArticles(status, topic);
 
                 // Update the collection on the UI thread
                 this.dispatcherQueue.TryEnqueue(() =>
@@ -302,7 +301,7 @@
         {
             try
             {
-                var success = this.newsService.ApproveUserArticle(articleId);
+                var success = await this.newsService.ApproveUserArticle(articleId);
                 if (success)
                 {
                     await this.RefreshArticlesAsync();
@@ -342,7 +341,7 @@
         {
             try
             {
-                var success = this.newsService.RejectUserArticle(articleId);
+                var success = await this.newsService.RejectUserArticle(articleId);
                 if (success)
                 {
                     await this.RefreshArticlesAsync();
@@ -395,7 +394,7 @@
                 var result = await confirmDialog.ShowAsync();
                 if (result == ContentDialogResult.Primary)
                 {
-                    var success = this.newsService.DeleteUserArticle(articleId);
+                    var success = await this.newsService.DeleteUserArticle(articleId);
                     if (success)
                     {
                         await this.RefreshArticlesAsync();

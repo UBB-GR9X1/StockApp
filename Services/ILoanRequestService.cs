@@ -1,21 +1,19 @@
 ﻿namespace StockApp.Services
 {
     using System.Collections.Generic;
-    using Src.Model;
+    using System.Threading.Tasks;
     using StockApp.Models;
 
     public interface ILoanRequestService
     {
-        string GiveSuggestion(LoanRequest loanRequest);
+        Task<string> GiveSuggestion(LoanRequest loanRequest);
 
-        void SolveLoanRequest(LoanRequest loanRequest);
+        Task SolveLoanRequest(LoanRequest loanRequest);
 
-        void DenyLoanRequest(LoanRequest loanRequest);
+        Task DeleteLoanRequest(LoanRequest loanRequest);
 
-        List<LoanRequest> GetLoanRequests();
+        Task<List<LoanRequest>> GetLoanRequests();
 
-        List<LoanRequest> GetUnsolvedLoanRequests();
-
-        bool PastUnpaidLoans(User user, LoanService loanService);
+        Task<List<LoanRequest>> GetUnsolvedLoanRequests();
     }
 }

@@ -5,7 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:StockApp.Views.Pages"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:components="using:StockApp.Views.Components"
     mc:Ignorable="d"
     Title="BlankWindow1">
 
@@ -13,10 +13,21 @@
     <StackPanel Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20">
         <TextBlock Text="TipHistory" FontSize="24" FontWeight="Bold" Margin="0,0,0,20" HorizontalAlignment="Left"/>
 
-        <ItemsControl x:Name="TipHistoryContainer">
-        </ItemsControl>
-        <ItemsControl x:Name="MessageHistoryContainer">
-        </ItemsControl>
+        <ListBox x:Name="TipHistoryContainer" ItemsSource="{Binding TipHistory}" Width="1000">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <components:TipHistoryComponent DataContext="{Binding}" />
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <ListBox x:Name="MessageContainer" ItemsSource="{Binding MessageHistory}" Width="1000">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <components:MessageHistoryComponent DataContext="{Binding}" />
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
 
         <Frame Name="ViewFrame" x:FieldModifier="Public" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="20"/>
     </StackPanel>

@@ -1,11 +1,12 @@
 ﻿namespace StockApp.Services
 {
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using StockApp.Models;
 
     public interface ITransactionLogService
     {
-        List<TransactionLogTransaction>
+        Task<List<TransactionLogTransaction>>
             GetFilteredTransactions(TransactionFilterCriteria criteria);
 
         List<TransactionLogTransaction>

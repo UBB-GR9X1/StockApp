@@ -1,35 +1,43 @@
 namespace BankApi.Models
 {
     using System;
+    using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
 
+    /// <summary>
+    /// Represents a given tip that a user has received.
+    /// </summary>
     public class GivenTip
     {
+        /// <summary>
+        /// Gets or sets the unique identifier for this given tip.
+        /// </summary>
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
-        public string UserCnp { get; set; }
 
-        public int TipID { get; set; }
+        [Required]
+        public int TipId { get; set; }
 
-        public int MessageID { get; set; }
+        [Required]
 
-        public DateOnly Date { get; set; }
+        public string UserCNP { get; set; }
 
-        public GivenTip(int id, string userCNP, int tipID, int messageID, DateOnly date)
-        {
-            this.Id = id;
-            this.UserCnp = userCNP;
-            this.TipID = tipID;
-            this.MessageID = messageID;
-            this.Date = date;
-        }
+        /// <summary>
+        /// Gets or sets the CNP (personal identification number) of the user who received the tip.
+        /// </summary>
+        [Required]
+        public User User { get; set; }
 
-        public GivenTip()
-        {
-            this.Id = 0;
-            this.UserCnp = string.Empty;
-            this.TipID = 0;
-            this.MessageID = 0;
-            this.Date = new DateOnly();
-        }
+        /// <summary>
+        /// Gets or sets the date when the tip was given.
+        /// </summary>
+        public DateTime Date { get; set; } = DateTime.Now;
+
+        /// <summary>
+        /// Navigation property to the related Tip.
+        /// </summary>
+        public virtual Tip Tip { get; set; }
     }
 }

@@ -2,49 +2,43 @@
 {
     using System;
     using System.Collections.Generic;
-    using Src.Model;
+    using System.Threading.Tasks;
     using StockApp.Models;
     using StockApp.Repositories;
 
     public class LoanService : ILoanService
     {
         private readonly ILoanRepository loanRepository;
+        private readonly IUserRepository userRepository;
 
-        public LoanService(ILoanRepository loanRepository)
+        public LoanService(ILoanRepository loanRepository, IUserRepository userRepository)
         {
-            this.loanRepository = loanRepository;
+            this.loanRepository = loanRepository ?? throw new ArgumentNullException(nameof(loanRepository));
+            this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         }
 
-        public List<Loan> GetLoans()
+        public async Task<List<Loan>> GetLoansAsync()
         {
-            return this.loanRepository.GetLoans();
+            return await this.loanRepository.GetLoansAsync();
         }
 
-        public List<Loan> GetUserLoans(string userCNP)
+        public async Task<List<Loan>> GetUserLoansAsync(string userCNP)
         {
-            return this.loanRepository.GetUserLoans(userCNP);
+            return await this.loanRepository.GetUserLoansAsync(userCNP);
         }
 
-        public void AddLoan(LoanRequest loanRequest)
+        public async Task AddLoanAsync(LoanRequest loanRequest)
         {
-            UserRepository userRepository = new UserRepository();
+            User user = await userRepository.GetByCnpAsync(loanRequest.UserCnp) ?? throw new Exception("User not found");
 
-            User user = userRepository.GetUserByCnpAsync(loanRequest.UserCnp).Result;
-
-            if (user == null)
-            {
-                throw new Exception("User not found");
-            }
-
-            float interestRate = (float)user.RiskScore / user.CreditScore * 100;
-            int noMonths = (loanRequest.RepaymentDate.Year - loanRequest.ApplicationDate.Year) * 12 + loanRequest.RepaymentDate.Month - loanRequest.ApplicationDate.Month;
-            float monthlyPaymentAmount = (float)loanRequest.Amount * (1 + interestRate / 100) / noMonths;
+            decimal interestRate = (decimal)user.RiskScore / user.CreditScore * 100;
+            int noMonths = ((loanRequest.RepaymentDate.Year - loanRequest.ApplicationDate.Year) * 12) + loanRequest.RepaymentDate.Month - loanRequest.ApplicationDate.Month;
+            decimal monthlyPaymentAmount = (decimal)loanRequest.Amount * (1 + (interestRate / 100)) / noMonths;
             int monthlyPaymentsCompleted = 0;
             int repaidAmount = 0;
-            float penalty = 0;
+            decimal penalty = 0;
 
             Loan loan = new Loan(
-                loanRequest.Id,
                 loanRequest.UserCnp,
                 loanRequest.Amount,
                 loanRequest.ApplicationDate,
@@ -57,29 +51,29 @@
                 penalty,
                 "active");
 
-            this.loanRepository.AddLoan(loan);
+            await this.loanRepository.AddLoanAsync(loan);
         }
-        UserRepository userRepo = new();
 
-        public async void CheckLoans()
+        public async Task CheckLoansAsync()
         {
-            List<Loan> loanList = this.loanRepository.GetLoans();
+            List<Loan> loanList = await this.loanRepository.GetLoansAsync();
             foreach (Loan loan in loanList)
             {
                 int numberOfMonthsPassed = ((DateTime.Today.Year - loan.ApplicationDate.Year) * 12) + DateTime.Today.Month - loan.ApplicationDate.Month;
-                User user = await this.userRepo.GetUserByCnpAsync(loan.UserCnp);
+                User user = await this.userRepository.GetByCnpAsync(loan.UserCnp) ?? throw new Exception("User not found");
                 if (loan.MonthlyPaymentsCompleted >= loan.NumberOfMonths)
                 {
                     loan.Status = "completed";
-                    int newUserCreditScore = this.ComputeNewCreditScore(user, loan);
+                    int newUserCreditScore = ILoanService.ComputeNewCreditScore(user, loan);
 
-                    await this.userRepo.UpdateUserCreditScoreAsync(loan.UserCnp, newUserCreditScore);
+                    user.CreditScore = newUserCreditScore;
+                    await this.userRepository.UpdateAsync(user.Id, user);
                 }
 
                 if (numberOfMonthsPassed > loan.MonthlyPaymentsCompleted)
                 {
                     int numberOfOverdueDays = (DateTime.Today - loan.ApplicationDate.AddMonths(loan.MonthlyPaymentsCompleted)).Days;
-                    float penalty = 0.1f * numberOfOverdueDays;
+                    decimal penalty = (decimal)(0.1 * numberOfOverdueDays);
                     loan.Penalty = penalty;
                 }
                 else
@@ -90,64 +84,47 @@
                 if (DateTime.Today > loan.RepaymentDate && loan.Status == "active")
                 {
                     loan.Status = "overdue";
-                    int newUserCreditScore = this.ComputeNewCreditScore(user, loan);
+                    int newUserCreditScore = ILoanService.ComputeNewCreditScore(user, loan);
 
-                    await this.userRepo.UpdateUserCreditScoreAsync(loan.UserCnp, newUserCreditScore);
-                    this.UpdateHistoryForUser(loan.UserCnp, newUserCreditScore);
+                    user.CreditScore = newUserCreditScore;
+                    await this.userRepository.UpdateAsync(user.Id, user);
+                    await this.UpdateHistoryForUserAsync(loan.UserCnp, newUserCreditScore);
                 }
                 else if (loan.Status == "overdue")
                 {
                     if (loan.MonthlyPaymentsCompleted >= loan.NumberOfMonths)
                     {
                         loan.Status = "completed";
-                        int newUserCreditScore = this.ComputeNewCreditScore(user, loan);
+                        int newUserCreditScore = ILoanService.ComputeNewCreditScore(user, loan);
 
-                        await this.userRepo.UpdateUserCreditScoreAsync(loan.UserCnp, newUserCreditScore);
-                        this.UpdateHistoryForUser(loan.UserCnp, newUserCreditScore);
+                        user.CreditScore = newUserCreditScore;
+                        await this.userRepository.UpdateAsync(user.Id, user);
+                        await this.UpdateHistoryForUserAsync(loan.UserCnp, newUserCreditScore);
                     }
                 }
 
                 if (loan.Status == "completed")
                 {
-                    this.loanRepository.DeleteLoan(loan.Id);
+                    await this.loanRepository.DeleteLoanAsync(loan.Id);
                 }
                 else
                 {
-                    this.loanRepository.UpdateLoan(loan);
+                    await this.loanRepository.UpdateLoanAsync(loan);
                 }
             }
         }
 
-        public int ComputeNewCreditScore(User user, Loan loan)
+        public async Task UpdateHistoryForUserAsync(string userCNP, int newScore)
         {
-            int totalDaysInAdvance = (loan.RepaymentDate - DateTime.Today).Days;
-            if (totalDaysInAdvance > 30)
-            {
-                totalDaysInAdvance = 30;
-            }
-            else if (totalDaysInAdvance < -100)
-            {
-                totalDaysInAdvance = -100;
-            }
-
-            int newUserCreditScore = user.CreditScore + (int)loan.LoanAmount * 10 / user.Income + totalDaysInAdvance;
-            newUserCreditScore = Math.Min(newUserCreditScore, 700);
-            newUserCreditScore = Math.Max(newUserCreditScore, 100);
-
-            return newUserCreditScore;
+            await this.loanRepository.UpdateCreditScoreHistoryForUserAsync(userCNP, newScore);
         }
 
-        public void UpdateHistoryForUser(string userCNP, int newScore)
+        public async Task IncrementMonthlyPaymentsCompletedAsync(int loanID, decimal penalty)
         {
-            this.loanRepository.UpdateCreditScoreHistoryForUser(userCNP, newScore);
-        }
-
-        public void IncrementMonthlyPaymentsCompleted(int loanID, float penalty)
-        {
-            Loan loan = this.loanRepository.GetLoanById(loanID);
+            Loan loan = await this.loanRepository.GetLoanByIdAsync(loanID);
             loan.MonthlyPaymentsCompleted++;
             loan.RepaidAmount += loan.MonthlyPaymentAmount + penalty;
-            this.loanRepository.UpdateLoan(loan);
+            await this.loanRepository.UpdateLoanAsync(loan);
         }
     }
 }

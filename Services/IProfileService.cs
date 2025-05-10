@@ -1,26 +1,17 @@
-﻿namespace StockApp.Services
-{
-    using System.Collections.Generic;
-    using StockApp.Models;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using StockApp.Models;
 
+namespace StockApp.Services
+{
     public interface IProfileService
     {
-        string GetImage();
+        Task<User> CurrentUserProfile { get; }
 
-        string GetLoggedInUserCnp();
+        Task UpdateIsAdminAsync(bool newIsAdmin);
 
-        string GetUsername();
+        Task UpdateUserAsync(string newUsername, string newImage, string newDescription, bool newHidden);
 
-        string GetDescription();
-
-        bool IsHidden();
-
-        bool IsAdmin();
-
-        List<Stock> GetUserStocks();
-
-        void UpdateIsAdmin(bool newIsAdmin);
-
-        void UpdateUser(string newUsername, string newImage, string newDescription, bool newHidden);
+        Task<List<Stock>> GetUserStocksAsync();
     }
 }

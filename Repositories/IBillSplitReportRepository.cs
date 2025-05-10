@@ -1,36 +1,17 @@
-﻿namespace StockApp.Repositories
-{
-    using System.Collections.Generic;
-    using Src.Model;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using Src.Model;
 
+namespace StockApp.Repositories
+{
     public interface IBillSplitReportRepository
     {
-        List<BillSplitReport> GetBillSplitReports();
+        Task<List<BillSplitReport>> GetAllReportsAsync();
+        Task<BillSplitReport> GetReportByIdAsync(int id);
+        Task<BillSplitReport> AddReportAsync(BillSplitReport report);
+        Task<BillSplitReport> UpdateReportAsync(BillSplitReport report);
+        Task<bool> DeleteReportAsync(int id);
 
-        void DeleteBillSplitReport(int id);
-
-        void CreateBillSplitReport(BillSplitReport billSplitReport);
-
-        bool CheckLogsForSimilarPayments(BillSplitReport billSplitReport);
-
-        int GetCurrentBalance(BillSplitReport billSplitReport);
-
-        decimal SumTransactionsSinceReport(BillSplitReport billSplitReport);
-
-        bool CheckHistoryOfBillShares(BillSplitReport billSplitReport);
-
-        bool CheckFrequentTransfers(BillSplitReport billSplitReport);
-
-        int GetNumberOfOffenses(BillSplitReport billSplitReport);
-
-        int GetCurrentCreditScore(BillSplitReport billSplitReport);
-
-        void UpdateCreditScore(BillSplitReport billSplitReport, int newCreditScore);
-
-        void UpdateCreditScoreHistory(BillSplitReport billSplitReport, int newCreditScore);
-
-        void IncrementNoOfBillSharesPaid(BillSplitReport billSplitReport);
-
-        int GetDaysOverdue(BillSplitReport billSplitReport);
+        Task IncrementBillSharesPaidAsync(string userCnp);
     }
 }

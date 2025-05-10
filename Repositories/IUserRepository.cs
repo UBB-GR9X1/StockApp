@@ -6,36 +6,22 @@
 
     public interface IUserRepository
     {
-        string CurrentUserCNP { get; set; }
+        public static string CurrentUserCNP { get; set; } = App.Configuration.GetSection("CurrentUserCNP").Value ?? string.Empty;
 
-        bool IsGuest { get; }
+        public static bool IsGuest => string.IsNullOrEmpty(CurrentUserCNP);
 
-        /// <summary>
-        /// Creates a new user in the database.
-        /// </summary>
-        /// <param name="user">The user entity to create.</param>
-        /// <returns>A task representing the asynchronous operation with a success message.</returns>
-        /// <exception cref="UserRepositoryException">Thrown when there is an error creating the user.</exception>
-        Task<string> CreateUserAsync(User user);
+        Task<List<User>> GetAllAsync();
 
-        Task<User> GetUserByCnpAsync(string userCNP);
+        Task<User?> GetByIdAsync(int id);
 
-        Task<User> GetUserByUsernameAsync(string username);
+        Task<User?> GetByCnpAsync(string cnp);
 
-        Task UpdateUserAsync(User user);
+        Task<User?> GetByUsernameAsync(string username);
 
-        Task DeleteUserAsync(string userCNP);
+        Task<bool> CreateAsync(User user);
 
-        Task<List<User>> GetAllUsersAsync();
+        Task<bool> UpdateAsync(int id, User user);
 
-        Task PenalizeUserAsync(string cnp, int penaltyAmount);
-
-        Task IncrementOffensesCountAsync(string cnp);
-
-        Task UpdateUserCreditScoreAsync(string cnp, int creditScore);
-
-        Task UpdateUserROIAsync(string cnp, decimal roi);
-
-        Task UpdateUserRiskScoreAsync(string cnp, int riskScore);
+        Task<bool> DeleteAsync(int id);
     }
 }
