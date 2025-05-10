@@ -2,6 +2,7 @@ namespace StockApp.Pages
 {
     using Microsoft.UI.Xaml.Controls;
     using Microsoft.UI.Xaml.Input;
+    using StockApp.Models;
     using StockApp.ViewModels;
 
     public sealed partial class NewsListPage : Page
@@ -9,13 +10,14 @@ namespace StockApp.Pages
         /// <summary>
         /// The view model for the NewsListPage.
         /// </summary>
-        public NewsListViewModel ViewModel { get; } = new();
+        public NewsListViewModel ViewModel { get; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NewsListPage"/> class.
         /// </summary>
-        public NewsListPage()
+        public NewsListPage(NewsListViewModel newsListViewModel)
         {
+            this.ViewModel = newsListViewModel;
             this.InitializeComponent();
         }
 
@@ -37,5 +39,6 @@ namespace StockApp.Pages
                 this.ViewModel.RefreshCommand.Execute(null);
             }
         }
+
     }
 }

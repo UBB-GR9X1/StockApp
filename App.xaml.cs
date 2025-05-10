@@ -259,6 +259,9 @@ namespace StockApp
                     services.AddTransient<CreateProfilePageViewModel>();
                     services.AddTransient<TipHistoryViewModel>();
                     services.AddTransient<TipHistoryWindow>();
+                    services.AddTransient<NewsDetailViewModel>();
+                    services.AddTransient<NewsArticleView>();
+                    services.AddTransient<NewsListViewModel>();
                 }).Build();
         }
 

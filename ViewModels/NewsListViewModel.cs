@@ -5,6 +5,8 @@
     using System.Linq;
     using System.Threading.Tasks;
     using System.Windows.Input;
+    using Catel.MVVM;
+    using Microsoft.Extensions.DependencyInjection;
     using Microsoft.UI.Xaml.Controls;
     using StockApp.Commands;
     using StockApp.Models;
@@ -14,7 +16,7 @@
     public class NewsListViewModel : ViewModelBase
     {
         private readonly INewsService newsService;
-        private static readonly IUserService UserService = App.Host.Services.GetService(typeof(IUserService)) as IUserService ?? throw new InvalidOperationException("UserService not found");
+        private readonly IUserService userService;
 
         // properties
         private ObservableCollection<NewsArticle> articles = [];
@@ -33,7 +35,6 @@
 
         private NewsArticle? selectedArticle;
 
-        // user and auth properties
         private User currentUser;
 
         /// <summary>
@@ -129,8 +130,7 @@
                     this.selectedArticle = null;
                     this.OnPropertyChanged(nameof(this.SelectedArticle));
 
-                    // Then navigate
-                    NavigateToArticleDetail(articleId);
+                    this.ShowArticleInModalAsync(value).ConfigureAwait(false);
                 }
             }
         }
@@ -147,6 +147,19 @@
                 {
                     this.OnPropertyChanged(nameof(this.IsAdmin));
                     this.OnPropertyChanged(nameof(this.IsLoggedIn));
+                }
+            }
+        }
+
+        private NewsArticleView? detailsPage;
+        public NewsArticleView? DetailsPage
+        {
+            get => this.detailsPage;
+            set
+            {
+                if (this.SetProperty(ref this.detailsPage, value))
+                {
+                    this.OnPropertyChanged(nameof(this.DetailsPage));
                 }
             }
         }
@@ -198,10 +211,10 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="NewsListViewModel"/> class with specified services.
         /// </summary>
-        public NewsListViewModel(INewsService newsService)
+        public NewsListViewModel(INewsService newsService, IUserService userService)
         {
+            this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
             this.newsService = newsService ?? throw new ArgumentNullException(nameof(newsService));
-
             this.RefreshCommand = new StockNewsRelayCommand(() => this.RefreshArticles());
             this.CreateArticleCommand = new StockNewsRelayCommand(() => NavigateToCreateArticle());
             this.AdminPanelCommand = new StockNewsRelayCommand(() => NavigateToAdminPanel());
@@ -216,15 +229,12 @@
             this.Categories.Add("Economic News");
             this.Categories.Add("Functionality News");
             this.selectedCategory = "All";
-
+            this.Init().ConfigureAwait(false);
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="NewsListViewModel"/> class with default services.
-        /// </summary>
-        public NewsListViewModel()
-          : this(new NewsService())
+        private async Task Init()
         {
+            this.CurrentUser = await this.userService.GetCurrentUserAsync();
         }
 
         public void RefreshArticles()
@@ -310,16 +320,42 @@
             this.IsEmptyState = !this.Articles.Any();
         }
 
-        private static void NavigateToArticleDetail(string articleId)
-        {
-            if (string.IsNullOrWhiteSpace(articleId))
-            {
-                System.Diagnostics.Debug.WriteLine("NavigateToArticleDetail: ArticleId is null or empty");
-                return;
-            }
 
-            System.Diagnostics.Debug.WriteLine($"NavigateToArticleDetail: Navigating to article {articleId}");
-            NavigationService.Instance.NavigateToArticleDetail(articleId);
+        public async Task ShowArticleInModalAsync(NewsArticle article)
+        {
+            try
+            {
+                var dialog = new ContentDialog
+                {
+                    Title = "Article Details",
+                    XamlRoot = App.MainAppWindow!.MainAppFrame.XamlRoot,
+                    CloseButtonText = "Close",
+                    PrimaryButtonText = "Mark as Read",
+                    DefaultButton = ContentDialogButton.Primary,
+                };
+
+                // Create the NewsArticleView and bind the ViewModel  
+                var articleView = new NewsArticleView();
+                var detailViewModel = App.Host.Services.GetService<NewsDetailViewModel>() ?? throw new InvalidOperationException("NewsDetailViewModel not found");
+                detailViewModel.LoadArticle(article.ArticleId);
+                articleView.ViewModel = detailViewModel;
+
+                dialog.Content = articleView;
+
+                var result = await dialog.ShowAsync();
+
+                if (result == ContentDialogResult.Primary)
+                {
+                    this.newsService.MarkArticleAsRead(article.ArticleId);
+                    article.IsRead = true;
+                    this.OnPropertyChanged(nameof(this.Articles));
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error showing article in modal: {ex.Message}");
+                throw;
+            }
         }
 
         private static void NavigateToCreateArticle()

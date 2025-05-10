@@ -104,11 +104,6 @@
         }
 
         /// <summary>
-        /// Command to navigate back to the previous view.
-        /// </summary>
-        public ICommand BackCommand { get; }
-
-        /// <summary>
         /// Command to approve the current article.
         /// </summary>
         public ICommand ApproveCommand { get; }
@@ -133,7 +128,6 @@
             this.newsService = newsService ?? throw new ArgumentNullException(nameof(newsService));
             this.dispatcherQueue = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
 
-            this.BackCommand = new StockNewsRelayCommand(() => NavigationService.Instance.GoBack());
             this.ApproveCommand = new StockNewsRelayCommand(async () => await this.ApproveArticleAsync());
             this.RejectCommand = new StockNewsRelayCommand(async () => await this.RejectArticleAsync());
             this.DeleteCommand = new StockNewsRelayCommand(async () => await this.DeleteArticleAsync());

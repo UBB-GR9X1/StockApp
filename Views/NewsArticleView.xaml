@@ -27,13 +27,6 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Button Grid.Column="0" Command="{x:Bind ViewModel.BackCommand}" Margin="0,0,16,0">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon Glyph="&#xE72B;"/>
-                    <TextBlock Text="Back"/>
-                </StackPanel>
-            </Button>
-
             <StackPanel Grid.Column="1">
                 <TextBlock Text="{x:Bind ViewModel.IsAdminPreview, Mode=OneWay, Converter={StaticResource BoolToStringConverter}, ConverterParameter='Article Preview|Article'}" 
                            Style="{StaticResource TitleTextBlockStyle}" 
