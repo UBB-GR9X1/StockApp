@@ -1,70 +1,74 @@
 namespace StockApp.Views.Components
 {
     using System;
+    using System.ComponentModel;
+    using Microsoft.Extensions.DependencyInjection;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
+    using StockApp.Models;
     using StockApp.Services;
 
+    /// <summary>
+    /// Represents a component for managing loan-related operations.
+    /// </summary>
     public sealed partial class LoanComponent : Page
     {
+        public static readonly DependencyProperty LoanProperty =
+            DependencyProperty.Register(nameof(Loan), typeof(Loan), typeof(LoanComponent), new PropertyMetadata(null, OnLoanPropertyChanged));
+
+        private Loan loan;
+
+        public Loan Loan
+        {
+            get => this.loan;
+            set
+            {
+                if (this.loan != value)
+                {
+                    this.loan = value;
+                    this.OnPropertyChanged(nameof(this.Loan));
+                }
+            }
+        }
+
+        private static void OnLoanPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is LoanComponent component)
+            {
+                component.Loan = e.NewValue as Loan;
+            }
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected void OnPropertyChanged(string propertyName)
+        {
+            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
         private readonly ILoanService loanServices;
 
-        public event EventHandler LoanUpdated;
+        /// <summary>
+        /// Occurs when the loan is updated.
+        /// </summary>
+        public event EventHandler? LoanUpdated;
 
-        private int loanID;
-        private string userCNP;
-        private decimal loanAmount;
-        private DateTime applicationDate;
-        private DateTime repaymentDate;
-        private decimal interestRate;
-        private int numberOfMonths;
-        private decimal monthlyPaymentAmount;
-        private string status;
-        private int monthlyPaymentsCompleted;
-        private decimal repaidAmount;
-        private decimal penalty;
-
-        public LoanComponent(ILoanService loanServices)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LoanComponent"/> class.
+        /// </summary>
+        public LoanComponent()
         {
-            this.loanServices = loanServices;
+            this.loanServices = App.Host.Services.GetService<ILoanService>() ?? throw new InvalidOperationException("LoanService not registered");
             this.InitializeComponent();
         }
 
-        public void SetLoanData(int loanID, string userCNP, decimal loanAmount, DateTime applicationDate,
-                                DateTime repaymentDate, decimal interestRate, int noMonths, decimal monthlyPaymentAmount,
-                                string state, int monthlyPaymentsCompleted, decimal repaidAmount, decimal penalty)
+        public async void OnSolveClick(object sender, RoutedEventArgs e)
         {
-            this.loanID = loanID;
-            this.userCNP = userCNP;
-            this.loanAmount = loanAmount;
-            this.applicationDate = applicationDate;
-            this.repaymentDate = repaymentDate;
-            this.interestRate = interestRate;
-            this.numberOfMonths = noMonths;
-            this.monthlyPaymentAmount = monthlyPaymentAmount;
-            this.status = state;
-            this.monthlyPaymentsCompleted = monthlyPaymentsCompleted;
-            this.repaidAmount = repaidAmount;
-            this.penalty = penalty;
-
-            this.LoanIDTextBlock.Text = $"Loan ID: {loanID}";
-            this.UserCNPTextBlock.Text = $"User CNP: {userCNP}";
-            this.LoanAmountTextBlock.Text = $"Amount: {loanAmount}";
-            this.ApplicationDateTextBlock.Text = $"Applied: {applicationDate:yyyy-MM-dd}";
-            this.RepaymentDateTextBlock.Text = $"Repay By: {repaymentDate:yyyy-MM-dd}";
-            this.InterestRateTextBlock.Text = $"Interest: {interestRate}%";
-            this.NoMonthsTextBlock.Text = $"Duration: {noMonths} months";
-            this.MonthlyPaymentAmountTextBlock.Text = $"Monthly Payment: {monthlyPaymentAmount}";
-            this.StateTextBlock.Text = $"State: {state}";
-            this.MonthlyPaymentsCompletedTextBlock.Text = $"Payments Done: {monthlyPaymentsCompleted}";
-            this.RepaidAmountTextBlock.Text = $"Repaid: {repaidAmount}";
-            this.PenaltyTextBlock.Text = $"Penalty: {penalty}";
-        }
-
-        private async void OnSolveClick(object sender, RoutedEventArgs e)
-        {
-            await this.loanServices.IncrementMonthlyPaymentsCompletedAsync(this.loanID, this.penalty);
-            this.LoanUpdated?.Invoke(this, EventArgs.Empty);
+            if (this.Loan != null)
+            {
+                await this.loanServices.IncrementMonthlyPaymentsCompletedAsync(this.Loan.Id, this.Loan.Penalty);
+                this.LoanUpdated?.Invoke(this, EventArgs.Empty);
+            }
         }
     }
 }

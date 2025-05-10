@@ -5,7 +5,6 @@ namespace StockApp.Views.Pages
     using Microsoft.UI.Xaml.Controls;
     using Src.Model;
     using StockApp.ViewModels;
-    using StockApp.Views.Components;
 
     /// <summary>
     /// Represents the page for displaying and managing bill split reports.
@@ -13,7 +12,6 @@ namespace StockApp.Views.Pages
     public sealed partial class BillSplitReportPage : Page
     {
         private readonly BillSplitReportViewModel viewModel;
-        private readonly Func<BillSplitReportComponent> billSplitReportComponentFactory;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BillSplitReportPage"/> class.
@@ -22,12 +20,10 @@ namespace StockApp.Views.Pages
         /// <param name="billSplitReportComponentFactory">The factory for creating bill split report components.</param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="viewModel"/> or <paramref name="billSplitReportComponentFactory"/> is null.</exception>
         public BillSplitReportPage(
-            BillSplitReportViewModel viewModel,
-            Func<BillSplitReportComponent> billSplitReportComponentFactory)
+            BillSplitReportViewModel viewModel)
         {
             this.viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
             this.DataContext = viewModel;
-            this.billSplitReportComponentFactory = billSplitReportComponentFactory ?? throw new ArgumentNullException(nameof(billSplitReportComponentFactory));
             this.Loaded += async (sender, args) =>
             {
                 await viewModel.LoadBillSplitReportsAsync();
@@ -65,9 +61,9 @@ namespace StockApp.Views.Pages
         {
             try
             {
-                var component = billSplitReportComponentFactory();
-                component.XamlRoot = this.XamlRoot;
-                await component.ShowCreateDialogAsync();
+                //var component = billSplitReportComponentFactory();
+                //component.XamlRoot = this.XamlRoot;
+                //await component.ShowCreateDialogAsync();
                 // The ViewModel will update the UI when the report is created
             }
             catch (Exception ex)
