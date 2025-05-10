@@ -9,13 +9,13 @@ namespace StockApp.Views.Pages
         {
             this.InitializeComponent();
             this.DataContext = viewModel;
-            //this.Loaded += (s, e) =>
-            //{
-            //    if (viewModel.LoadLoansCommand.CanExecute(null))
-            //    {
-            //        viewModel.LoadLoansCommand.Execute(null);
-            //    }
-            //};
+            this.Loaded += (s, e) =>
+            {
+                if (viewModel.LoadLoansCommand.CanExecute(null))
+                {
+                    viewModel.LoadLoansCommand.Execute(null);
+                }
+            };
         }
     }
 }

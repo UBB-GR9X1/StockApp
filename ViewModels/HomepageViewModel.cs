@@ -19,6 +19,7 @@
         private readonly IUserService userService;
 
         private ObservableCollection<HomepageStock> filteredStocks = [];
+        private ObservableCollection<HomepageStock> filteredFavoriteStocks = [];
         private string searchQuery = string.Empty;
         private string selectedSortOption = string.Empty;
         private bool isGuestUser;
@@ -49,6 +50,16 @@
             private set
             {
                 this.filteredStocks = value;
+                this.OnPropertyChanged();
+            }
+        }
+
+        public ObservableCollection<HomepageStock> FilteredFavoriteStocks
+        {
+            get => this.filteredFavoriteStocks;
+            private set
+            {
+                this.filteredFavoriteStocks = value;
                 this.OnPropertyChanged();
             }
         }
@@ -88,6 +99,10 @@
             var stocks = await this.homepageService.GetFilteredAndSortedStocksAsync(this.SearchQuery, this.SelectedSortOption, false);
             this.filteredStocks.Clear();
             stocks.ForEach(this.filteredStocks.Add);
+
+            var favoriteStocks = await this.homepageService.GetFilteredAndSortedStocksAsync(this.SearchQuery, this.SelectedSortOption, true);
+            this.filteredFavoriteStocks.Clear();
+            favoriteStocks.ForEach(this.filteredFavoriteStocks.Add);
         }
 
         private async Task ApplyFilterAndSortAsync()
@@ -97,6 +112,13 @@
             foreach (var stock in stocks)
             {
                 this.FilteredStocks.Add(stock);
+            }
+
+            var favoriteStocks = await this.homepageService.GetFilteredAndSortedStocksAsync(this.SearchQuery, this.SelectedSortOption, true);
+            this.FilteredFavoriteStocks.Clear();
+            foreach (var stock in favoriteStocks)
+            {
+                this.FilteredFavoriteStocks.Add(stock);
             }
         }
 

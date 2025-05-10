@@ -192,6 +192,7 @@ namespace StockApp
                     services.AddScoped<ICreateStockService, CreateStockService>();
                     services.AddScoped<IStockPageService, StockPageService>();
                     services.AddScoped<IHistoryService, HistoryService>();
+                    services.AddScoped<INewsService, NewsService>();
 
                     services.AddSingleton<MainWindow>();
 
@@ -201,10 +202,10 @@ namespace StockApp
                     services.AddTransient<BillSplitReportComponent>();
                     services.AddTransient<BillSplitReportPage>();
                     services.AddTransient<ChatReportComponent>();
+                    services.AddTransient<LoanRequestComponent>();
                     services.AddTransient<LoanComponent>();
                     services.AddTransient<BillSplitReportComponent>();
                     services.AddTransient<LoansView>();
-                    services.AddTransient<LoanRequestComponent>();
                     services.AddTransient<LoanRequestView>();
                     services.AddTransient<UserInfoComponent>();
                     services.AddTransient<UsersView>();
@@ -233,6 +234,11 @@ namespace StockApp
                     services.AddTransient<NewsArticleView>();
                     services.AddTransient<LoansViewModel>();
                     services.AddTransient<ChatReportView>();
+                    //FIXME: remove \/\/\/\/
+                    services.AddTransient<Func<LoanRequestComponent>>(sp => () => sp.GetRequiredService<LoanRequestComponent>());
+                    services.AddTransient<Func<ChatReportComponent>>(sp => () => sp.GetRequiredService<ChatReportComponent>());
+                    services.AddTransient<Func<UserInfoComponent>>(sp => () => sp.GetRequiredService<UserInfoComponent>());
+
                 }).Build();
         }
 
