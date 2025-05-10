@@ -29,7 +29,7 @@
             this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
 
             this.IsGuestUser = this.userService.IsGuest();
-            this.LoadStocksAsync();
+            _ = this.LoadStocksAsync();
 
             this.FavoriteCommand = new RelayCommand(async obj => await this.ToggleFavoriteAsync(obj as HomepageStock));
             this.SearchCommand = new RelayCommand(async _ => await this.ApplyFilterAndSortAsync());
@@ -87,10 +87,7 @@
         {
             var stocks = await this.homepageService.GetFilteredAndSortedStocksAsync(this.SearchQuery, this.SelectedSortOption, false);
             this.filteredStocks.Clear();
-            foreach (var stock in stocks)
-            {
-                this.filteredStocks.Add(stock);
-            }
+            stocks.ForEach(this.filteredStocks.Add);
         }
 
         private async Task ApplyFilterAndSortAsync()

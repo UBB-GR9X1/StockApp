@@ -1,6 +1,6 @@
 ﻿namespace StockApp.Services
 {
-    using System.Collections.ObjectModel;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using StockApp.Models;
@@ -15,7 +15,7 @@
             this.homepageStocksRepo = homepageStocksRepository;
         }
 
-        public async Task<ObservableCollection<HomepageStock>> GetFilteredAndSortedStocksAsync(string query, string sortOption, bool favoritesOnly)
+        public async Task<List<HomepageStock>> GetFilteredAndSortedStocksAsync(string query, string sortOption, bool favoritesOnly)
         {
             var allStocks = await this.homepageStocksRepo.GetAllStocksAsync();
             var filteredStocks = allStocks.Where(stock =>
@@ -29,13 +29,10 @@
 
             return sortOption switch
             {
-                "Sort by Name" => new ObservableCollection<HomepageStock>(filteredStocks.OrderBy(stock => stock.StockDetails.Name)),
-                "Sort by Price" => new ObservableCollection<HomepageStock>(filteredStocks.OrderBy(stock => stock.StockDetails.Price)),
-                "Sort by Change" => new ObservableCollection<HomepageStock>(filteredStocks.OrderBy(stock =>
-                {
-                    return stock.Change;
-                })),
-                _ => new ObservableCollection<HomepageStock>(filteredStocks)
+                "Sort by Name" => filteredStocks.OrderBy(stock => stock.StockDetails.Name).ToList(),
+                "Sort by Price" => filteredStocks.OrderBy(stock => stock.StockDetails.Price).ToList(),
+                "Sort by Change" => filteredStocks.OrderBy(stock => stock.Change).ToList(),
+                _ => filteredStocks.ToList()
             };
         }
 

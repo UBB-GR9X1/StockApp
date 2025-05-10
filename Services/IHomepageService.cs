@@ -1,6 +1,6 @@
 ﻿namespace StockApp.Services
 {
-    using System.Collections.ObjectModel;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using StockApp.Models;
 
@@ -10,7 +10,7 @@
 
         Task RemoveFromFavoritesAsync(HomepageStock stock);
 
-        Task<ObservableCollection<HomepageStock>> GetFilteredAndSortedStocksAsync(string query, string sortOption, bool favoritesOnly);
+        Task<List<HomepageStock>> GetFilteredAndSortedStocksAsync(string query, string sortOption, bool favoritesOnly);
 
     }
 }
