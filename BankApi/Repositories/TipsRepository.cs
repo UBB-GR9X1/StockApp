@@ -57,14 +57,15 @@ namespace BankApi.Repositories
 
         // Provide low-credit bracket tip
         public Task<GivenTip> GiveLowBracketTipAsync(string userCnp) =>
-            GiveTipToUserAsync(userCnp, "Low-credit");
+
+            GiveTipToUserAsync(userCnp, "0-600");
 
         // Provide medium-credit bracket tip
         public Task<GivenTip> GiveMediumBracketTipAsync(string userCnp) =>
-            GiveTipToUserAsync(userCnp, "Medium-credit");
+            GiveTipToUserAsync(userCnp, "600-700");
 
         // Provide high-credit bracket tip
         public Task<GivenTip> GiveHighBracketTipAsync(string userCnp) =>
-            GiveTipToUserAsync(userCnp, "High-credit");
+            GiveTipToUserAsync(userCnp, "700-850");
     }
 }

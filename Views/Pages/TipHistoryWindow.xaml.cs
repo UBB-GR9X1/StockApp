@@ -10,9 +10,9 @@ namespace StockApp.Views.Pages
 
         public TipHistoryWindow(TipHistoryViewModel tipHistoryViewModel)
         {
-            this.InitializeComponent();
             this.viewModel = tipHistoryViewModel;
-            this.TipHistoryContainer.DataContext = this.viewModel;
+            this.InitializeComponent();
+            this.MainPannel.DataContext = this.viewModel;
         }
 
         public async void LoadUser(User user)

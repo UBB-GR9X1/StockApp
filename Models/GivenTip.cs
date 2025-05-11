@@ -8,7 +8,7 @@ namespace StockApp.Models
     {
         private int id;
         private string userCnp = string.Empty;
-        private DateOnly date;
+        private DateTime date;
         private Tip tip;
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -39,7 +39,7 @@ namespace StockApp.Models
             }
         }
 
-        public DateOnly Date
+        public DateTime Date
         {
             get => this.date;
             set

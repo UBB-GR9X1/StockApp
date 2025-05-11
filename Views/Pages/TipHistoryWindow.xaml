@@ -10,26 +10,31 @@
     Title="BlankWindow1">
 
 
-    <StackPanel Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20">
+    <StackPanel Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20" x:Name="MainPannel">
         <TextBlock Text="TipHistory" FontSize="24" FontWeight="Bold" Margin="0,0,0,20" HorizontalAlignment="Left"/>
-
-        <ListBox x:Name="TipHistoryContainer" ItemsSource="{Binding TipHistory}" Width="1000">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    
-                    <TextBlock Text="{Binding TipText}" />
-                </DataTemplate> 
-            </ListBox.ItemTemplate>
-        </ListBox>
-
-        <ListBox x:Name="MessageContainer" ItemsSource="{Binding MessageHistory}" Width="1000">
+        <Button Content="Add a tip"
+            Command="{Binding AddTipCommand}"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top"
+            Margin="0,10,0,0"
+            Padding="10,5"
+            Background="#539BF5"
+            Foreground="White"
+            FontWeight="Bold"
+            Width="150">
+            <Button.Style>
+                <Style TargetType="Button">
+                    <Setter Property="CornerRadius" Value="8"/>
+                </Style>
+            </Button.Style>
+        </Button>
+        <ListBox ItemsSource="{Binding MessageHistory}" Width="1000">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <components:MessageHistoryComponent DataContext="{Binding}" />
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-
         <Frame Name="ViewFrame" x:FieldModifier="Public" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="20"/>
     </StackPanel>
 </Window>
