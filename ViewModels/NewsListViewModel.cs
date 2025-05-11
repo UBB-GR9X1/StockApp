@@ -6,6 +6,7 @@
     using System.Threading.Tasks;
     using System.Windows.Input;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
     using StockApp.Commands;
     using StockApp.Models;
@@ -215,8 +216,8 @@
             this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
             this.newsService = newsService ?? throw new ArgumentNullException(nameof(newsService));
             this.RefreshCommand = new StockNewsRelayCommand(() => this.RefreshArticles());
-            this.CreateArticleCommand = new StockNewsRelayCommand(() => NavigateToCreateArticle());
-            this.AdminPanelCommand = new StockNewsRelayCommand(() => NavigateToAdminPanel());
+            this.CreateArticleCommand = new StockNewsRelayCommand(async () => await this.OpenCreateArticleDialogAsync());
+            this.AdminPanelCommand = new StockNewsRelayCommand(async () => await this.OpenAdminPanelDialogAsync());
             this.LoginCommand = new StockNewsRelayCommand(async () => await this.ShowLoginDialogAsync());
             this.ClearSearchCommand = new StockNewsRelayCommand(() => this.SearchQuery = string.Empty);
 
@@ -353,14 +354,85 @@
             }
         }
 
-        private static void NavigateToCreateArticle()
+        private async Task OpenCreateArticleDialogAsync()
         {
-            NavigationService.Instance.Navigate(typeof(ArticleCreationView));
+            var dialog = new ContentDialog
+            {
+                Title = "Create New Article",
+                XamlRoot = App.MainAppWindow!.MainAppFrame.XamlRoot,
+                CloseButtonText = "Cancel",
+                PrimaryButtonText = "Preview",
+                SecondaryButtonText = "Create",
+                DefaultButton = ContentDialogButton.Primary,
+                FullSizeDesired = true,
+                Margin = new Thickness(20, 0, 20, 0),
+                Width = 600,
+            };
+            var createArticleView = App.Host.Services.GetService<ArticleCreationView>() ?? throw new InvalidOperationException("ArticleCreationView not found");
+            dialog.Content = createArticleView;
+            dialog.PrimaryButtonCommand = new StockNewsRelayCommand(async () =>
+            {
+                if (dialog.Content is ArticleCreationView articleCreationView)
+                {
+                    NewsArticle newsArticlePreview = await articleCreationView.ViewModel.GetPreviewArticle();
+
+                    if (newsArticlePreview != null)
+                    {
+                        var previewDialog = new ContentDialog
+                        {
+                            Title = "Preview Article",
+                            XamlRoot = App.MainAppWindow!.MainAppFrame.XamlRoot,
+                            CloseButtonText = "Close",
+                            DefaultButton = ContentDialogButton.Primary,
+                            FullSizeDesired = true,
+                            Margin = new Thickness(20, 0, 20, 0),
+                            Width = 600,
+                        };
+                        if (this.IsAdmin)
+                        {
+                            previewDialog.PrimaryButtonText = "Create";
+                            previewDialog.PrimaryButtonCommand = new StockNewsRelayCommand(async () =>
+                            {
+                                await articleCreationView.ViewModel.CreateArticleAsync();
+                                await ShowErrorAsync("Article created successfully!", "Sucess");
+                            });
+                        }
+
+                        var previewView = new NewsArticleView();
+                        var detailViewModel = App.Host.Services.GetService<NewsDetailViewModel>() ?? throw new InvalidOperationException("NewsDetailViewModel not found");
+                        detailViewModel.Article = newsArticlePreview;
+                        previewView.ViewModel = detailViewModel;
+                        previewDialog.Content = previewView;
+                        await previewDialog.ShowAsync();
+                    }
+                }
+            });
+            dialog.SecondaryButtonCommand = new StockNewsRelayCommand(async () =>
+            {
+                if (dialog.Content is ArticleCreationView articleCreationView)
+                {
+                    await articleCreationView.ViewModel.CreateArticleAsync();
+                    await ShowErrorAsync("Article created successfully!", "Sucess");
+                }
+            });
+            await dialog.ShowAsync();
         }
 
-        private static void NavigateToAdminPanel()
+        private async Task OpenAdminPanelDialogAsync()
         {
-            NavigationService.Instance.Navigate(typeof(AdminNewsControlView));
+            var dialog = new ContentDialog
+            {
+                Title = "Admin Panel",
+                XamlRoot = App.MainAppWindow!.MainAppFrame.XamlRoot,
+                CloseButtonText = "Close",
+                PrimaryButtonText = "Open",
+                FullSizeDesired = true,
+                Margin = new Thickness(20, 0, 20, 0),
+                Width = 600,
+            };
+            var adminPanelView = App.Host.Services.GetService<AdminNewsControlView>() ?? throw new InvalidOperationException("AdminPanelView not found");
+            dialog.Content = adminPanelView;
+            await dialog.ShowAsync();
         }
 
         private async Task ShowLoginDialogAsync()
@@ -427,7 +499,27 @@
                     Title = "Error",
                     Content = message,
                     CloseButtonText = "OK",
-                    XamlRoot = App.CurrentWindow.Content.XamlRoot,
+                    XamlRoot = App.MainAppWindow!.MainAppFrame.XamlRoot,
+                };
+
+                await dialog.ShowAsync();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error showing error dialog: {ex.Message}");
+            }
+        }
+
+        private static async Task ShowErrorAsync(string message, string title)
+        {
+            try
+            {
+                var dialog = new ContentDialog
+                {
+                    Title = title,
+                    Content = message,
+                    CloseButtonText = "OK",
+                    XamlRoot = App.MainAppWindow!.MainAppFrame.XamlRoot,
                 };
 
                 await dialog.ShowAsync();

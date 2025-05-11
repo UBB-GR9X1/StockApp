@@ -25,6 +25,7 @@ namespace StockApp.Services
             return await _repo.GetAllStocksAsync();
         }
 
+
         /*───────────────────  Commands  ────────────────────*/
 
         public async Task AddStockAsync(BaseStock stock, int initialPrice = 100)

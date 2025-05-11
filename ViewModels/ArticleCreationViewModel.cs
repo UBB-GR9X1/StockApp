@@ -18,8 +18,9 @@
     /// </summary>
     public class ArticleCreationViewModel : ViewModelBase
     {
-        private readonly INewsService _newsService;
-        private readonly IBaseStocksService _stocksService;
+        private readonly INewsService newsService;
+        private readonly IStockService stocksService;
+        private readonly IUserService userService;
 
         private string title;
 
@@ -146,11 +147,11 @@
         /// <param name="dispatcher">Dispatcher for UI thread invocation.</param>
         /// <param name="appState">Global application state.</param>
         /// <param name="stocksService">Service for base stock data.</param>
-        public ArticleCreationViewModel(INewsService newsService, IBaseStocksService stocksService)
+        public ArticleCreationViewModel(INewsService newsService, IStockService stocksService, IUserService userService)
         {
-            _newsService = newsService ?? throw new ArgumentNullException(nameof(newsService));
-            _stocksService = stocksService ?? throw new ArgumentNullException(nameof(stocksService));
-
+            this.newsService = newsService ?? throw new ArgumentNullException(nameof(newsService));
+            this.stocksService = stocksService ?? throw new ArgumentNullException(nameof(stocksService));
+            this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
             // Initialize commands
             this.ClearCommand = new StockNewsRelayCommand(() => this.ClearForm());
             this.PreviewCommand = new StockNewsRelayCommand(async () => await this.PreviewArticleAsync());
@@ -254,14 +255,8 @@
             try
             {
                 // Parse and validate the related stocks list
-                List<string> relatedStocks = this.ParseRelatedStocks();
+                List<Stock> relatedStocks = await this.ParseRelatedStocks();
 
-                bool continueSubmission = await this.ValidateStocksAsync(relatedStocks);
-                if (!continueSubmission)
-                {
-                    this.IsLoading = false;
-                    return;
-                }
                 throw new NotImplementedException("Submission functionality is not implemented yet.");
                 // Build the UserArticle to submit
                 //UserArticle article = new(
@@ -354,7 +349,7 @@
                 return true;
             }
 
-            var allStocks = await _stocksService.GetAllStocksAsync()
+            var allStocks = await stocksService.GetAllStocksAsync()
                 ?? throw new InvalidOperationException("Stocks service returned null");
 
             var invalidStocks = new List<string>();
@@ -387,9 +382,9 @@
 
                 string invalidStocksMessage = string.Join(", ", invalidStocks);
                 string availableStocksMessage = string.Join("\n", availableStocksList);
-                if (allStocks.Count > 20)
+                if (allStocks.Count() > 20)
                 {
-                    availableStocksMessage += $"\n(and {allStocks.Count - 20} more...)";
+                    availableStocksMessage += $"\n(and {allStocks.Count() - 20} more...)";
                 }
 
                 string message =
@@ -414,7 +409,7 @@
             return true;
         }
 
-        private List<string> ParseRelatedStocks()
+        private async Task<List<Stock>> ParseRelatedStocks()
         {
             // Split the comma-separated input into a cleaned list
             if (string.IsNullOrWhiteSpace(this.RelatedStocksText))
@@ -422,13 +417,20 @@
                 return [];
             }
 
-            return [.. this.RelatedStocksText
+            var stockSymbols = this.RelatedStocksText
                 .Split(',')
                 .Select(s => s.Trim())
-                .Where(s => !string.IsNullOrWhiteSpace(s))];
+                .Where(s => !string.IsNullOrWhiteSpace(s))
+                .ToList();
+
+            // Convert to a list of Stock objects
+            var stocks = await this.stocksService.GetAllStocksAsync();
+            return stocks.Where(stock => stockSymbols.Contains(stock.Name, StringComparer.OrdinalIgnoreCase) ||
+                               stockSymbols.Contains(stock.Symbol, StringComparer.OrdinalIgnoreCase))
+                .ToList();
         }
 
-        private NewsArticle CreateArticle()
+        public async Task CreateArticleAsync()
         {
             throw new NotImplementedException("Article creation logic is not implemented yet.");
             //return new NewsArticle(
@@ -470,20 +472,6 @@
             }
         }
 
-        private async Task<bool> ValidateStockNames()
-        {
-            if (string.IsNullOrEmpty(RelatedStocksText))
-            {
-                return true;
-            }
-
-            var stockNames = ParseRelatedStocks();
-            var allStocks = await _stocksService.GetAllStocksAsync();
-            var allStockNames = allStocks.Select(s => s.Name).ToList();
-
-            return stockNames.All(name => allStockNames.Contains(name));
-        }
-
         private bool ShouldEnableButton()
         {
             if (string.IsNullOrEmpty(Title) || string.IsNullOrEmpty(Content))
@@ -498,6 +486,21 @@
             }
 
             return true;
+        }
+
+        public async Task<NewsArticle> GetPreviewArticle()
+        {
+            return new()
+            {
+                ArticleId = Guid.NewGuid().ToString(),
+                Title = this.Title,
+                Summary = this.Summary,
+                Content = this.Content,
+                Source = $"User: {userService.GetCurrentUserCNP()}",
+                PublishedDate = DateTime.Now,
+                RelatedStocks = await this.ParseRelatedStocks(),
+                Status = Status.Pending,
+            };
         }
     }
 }

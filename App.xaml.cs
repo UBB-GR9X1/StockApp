@@ -88,6 +88,7 @@ namespace StockApp
                     services.AddScoped<IMessagesRepository, MessageProxyRepository>();
                     services.AddScoped<IChatReportRepository, ChatReportProxyRepostiory>();
                     services.AddScoped<INewsRepository, NewsProxyRepository>();
+                    services.AddScoped<IStockRepository, StockProxyRepository>();
 
                     //FIXME: port \/\/\/\/
                     services.AddSingleton<IStockPageRepository, StockPageProxyRepository>();
@@ -176,6 +177,10 @@ namespace StockApp
                     {
                         client.BaseAddress = new Uri("https://localhost:7001/");
                     });
+                    services.AddHttpClient<IStockRepository, StockProxyRepository>(client =>
+                    {
+                        client.BaseAddress = new Uri("https://localhost:7001/");
+                    });
 
 
                     // Other Services
@@ -198,6 +203,7 @@ namespace StockApp
                     services.AddScoped<IStockPageService, StockPageService>();
                     services.AddScoped<IHistoryService, HistoryService>();
                     services.AddScoped<INewsService, NewsService>();
+                    services.AddScoped<IStockService, StockService>();
 
                     services.AddSingleton<MainWindow>();
 
@@ -226,6 +232,8 @@ namespace StockApp
                     services.AddTransient<NewsDetailViewModel>();
                     services.AddTransient<NewsListViewModel>();
                     services.AddTransient<NewsListPage>();
+                    services.AddTransient<ArticleCreationViewModel>();
+                    services.AddTransient<AdminNewsViewModel>();
 
                     // Pages
                     services.AddTransient<CreateStockPage>();
@@ -239,6 +247,8 @@ namespace StockApp
                     services.AddTransient<NewsArticleView>();
                     services.AddTransient<LoansViewModel>();
                     services.AddTransient<ChatReportView>();
+                    services.AddTransient<ArticleCreationView>();
+                    services.AddTransient<AdminNewsControlView>();
                     //FIXME: remove \/\/\/\/
                     services.AddTransient<Func<LoanRequestComponent>>(sp => () => sp.GetRequiredService<LoanRequestComponent>());
                     services.AddTransient<Func<ChatReportComponent>>(sp => () => sp.GetRequiredService<ChatReportComponent>());

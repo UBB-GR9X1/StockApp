@@ -1,0 +1,19 @@
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using StockApp.Models;
+
+namespace StockApp.Repositories
+{
+    public interface IStockRepository
+    {
+        Task<Stock> CreateAsync(Stock stock);
+
+        Task<bool> DeleteAsync(int id);
+
+        Task<IEnumerable<Stock>> GetAllAsync();
+
+        Task<Stock?> GetByIdAsync(int id);
+
+        Task<Stock?> UpdateAsync(int id, Stock updatedStock);
+    }
+}

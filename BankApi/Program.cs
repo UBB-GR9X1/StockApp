@@ -36,6 +36,7 @@ builder.Services.AddScoped<INewsRepository, NewsRepository>();
 builder.Services.AddScoped<IStockPageRepository, StockPageRepository>();
 builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
 builder.Services.AddScoped<IStockPageRepository, StockPageRepository>();
+builder.Services.AddScoped<IStockRepository, StockRepository>();
 
 // Add CORS
 builder.Services.AddCors(options =>

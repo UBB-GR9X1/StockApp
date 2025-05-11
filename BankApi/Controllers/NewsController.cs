@@ -103,7 +103,7 @@ namespace BankApi.Controllers
             }
         }
 
-        [HttpGet("GetNewsArticlesByAuthorCNPAsync")]
+        [HttpGet("GetNewsArticlesByAuthorCNP")]
         public async Task<IActionResult> GetNewsArticlesByAuthorCNPAsync(string authorCNP)
         {
             try

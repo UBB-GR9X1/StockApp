@@ -146,7 +146,7 @@
             }
 
             User user = await this.userRepository.GetByCnpAsync(authorCNP) ?? throw new Exception("User not found");
-            if (user.IsModerator)
+            if (!user.IsModerator)
             {
                 throw new UnauthorizedAccessException("User must be an admin to access user articles");
             }
