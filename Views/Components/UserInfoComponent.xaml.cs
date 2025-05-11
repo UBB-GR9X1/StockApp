@@ -4,7 +4,6 @@ namespace StockApp.Views.Components
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
-    using Src.Data;
     using StockApp.Models;
     using StockApp.Services;
     using StockApp.Views.Pages;
@@ -43,7 +42,6 @@ namespace StockApp.Views.Components
         {
             if (this.User != null)
             {
-                DatabaseConnection dbConnection = new DatabaseConnection();
                 TipHistoryWindow tipHistoryWindow = App.Host.Services.GetService<TipHistoryWindow>();
                 tipHistoryWindow.LoadUser(this.User);
                 tipHistoryWindow.Activate();

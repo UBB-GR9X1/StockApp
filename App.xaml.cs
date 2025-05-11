@@ -5,13 +5,10 @@ namespace StockApp
 {
     using System;
     using System.Collections.Generic;
-    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
     using Microsoft.UI.Xaml;
-    using Src.Data;
-    using StockApp.Database;
     using StockApp.Pages;
     using StockApp.Repositories;
     using StockApp.Repositories.Api;
@@ -54,17 +51,14 @@ namespace StockApp
                     var configBuilder = new ConfigurationBuilder()
                         .AddUserSecrets<App>()
                         .AddEnvironmentVariables()
-                        .AddInMemoryCollection(new Dictionary<string, string> {
-                            { "ApiBaseUrl", "https://localhost:7001/" },
+                        .AddInMemoryCollection(new Dictionary<string, string?> {
+                            {
+                            "ApiBaseUrl", "https://localhost:7001/"
+                            },
                         });
 
                     var config = configBuilder.Build();
                     services.AddSingleton<IConfiguration>(config);
-                    services.AddSingleton(new DatabaseConnection());
-
-                    // Configure EF Core
-                    services.AddDbContext<AppDbContext>(options =>
-                        options.UseSqlServer(ConnectionString));
 
                     // Repositories
                     services.AddScoped<IAlertRepository, AlertProxyRepository>();
@@ -278,14 +272,6 @@ namespace StockApp
             .SetBasePath(AppContext.BaseDirectory)
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
             .Build();
-
-        /// <summary>
-        /// Gets ConnectionString string for the database.
-        /// </summary>
-        /// <exception cref="InvalidOperationException">Thrown when the connection string is not set in appsettings.json.</exception>
-        public static string ConnectionString { get; } =
-            Configuration.GetConnectionString("StockApp_DB") ??
-            throw new InvalidOperationException("Connection string is not set in appsettings.json");
 
         /// <summary>
         /// Invoked when the application is launched normally by the end user.  Other entry points

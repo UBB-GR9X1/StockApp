@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Src.Data;
     using StockApp.Models;
     using StockApp.Repositories;
 
@@ -20,7 +19,6 @@
 
         public async void GiveMessageToUser(string userCNP)
         {
-            DatabaseConnection dbConn = new DatabaseConnection();
             User user = await this.userRepository.GetByCnpAsync(userCNP) ?? throw new Exception("User not found");
             try
             {

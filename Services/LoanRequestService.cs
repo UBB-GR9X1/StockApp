@@ -3,8 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Src.Data;
-    using Src.Model;
     using StockApp.Models;
     using StockApp.Repositories;
 
@@ -64,7 +62,7 @@
             await loanRequestRepository.SolveLoanRequestAsync(loanRequest);
         }
 
-        public  async Task DeleteLoanRequest(LoanRequest loanRequest)
+        public async Task DeleteLoanRequest(LoanRequest loanRequest)
         {
             await loanRequestRepository.DeleteLoanRequestAsync(loanRequest);
         }

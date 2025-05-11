@@ -1,14 +1,8 @@
 ﻿namespace StockApp.Views.Pages
 {
     using System;
-    using System.Collections.Generic;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
-    using Src.Data;
-    using Src.Model;
-    using StockApp.Repositories;
-    using StockApp.Services;
-    using StockApp.Views.Components;
     using StockApp.ViewModels;
 
     public sealed partial class InvestmentsView : Page

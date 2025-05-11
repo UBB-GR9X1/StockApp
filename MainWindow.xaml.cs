@@ -4,7 +4,6 @@ namespace StockApp
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
-    using StockApp.Database;
     using StockApp.Pages;
     using StockApp.Repositories;
     using StockApp.Views;
@@ -27,7 +26,6 @@ namespace StockApp
         public MainWindow(IServiceProvider serviceProvider)
         {
             this.InitializeComponent();
-            DatabaseHelper.InitializeDatabase();
             this.serviceProvider = serviceProvider;
 
             this.MainFrame.Content = this.serviceProvider.GetRequiredService<HomepageView>();
