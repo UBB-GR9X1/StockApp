@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
     using StockApp.Models;
     using StockApp.Repositories;
@@ -122,13 +121,12 @@
         /// <inheritdoc/>
         public async Task<bool> SellStockAsync(int quantity)
         {
-            var stockHistory = await this.GetStockHistoryAsync();
-            int stockPrice = stockHistory.Last();
-            int totalPrice = stockPrice * quantity;
+            var selectedStock = await this.stockRepo.GetStockAsync(this.selectedStockName);
+            int totalPrice = selectedStock.Price * quantity;
             int ownedStockCount = await this.stockRepo.GetOwnedStocksAsync(IUserRepository.CurrentUserCNP, this.selectedStockName);
             if (ownedStockCount >= quantity)
             {
-                int newPrice = stockPrice + ((this.randomNumberGenerator.Next(0, 10) - 5) * quantity);
+                int newPrice = selectedStock.Price + ((this.randomNumberGenerator.Next(0, 10) - 5) * quantity);
                 newPrice = Math.Max(newPrice, 20);
 
                 await this.stockRepo.AddStockValueAsync(this.selectedStockName, newPrice);
@@ -144,7 +142,7 @@
                         this.selectedStockName,
                         "SELL",
                         quantity,
-                        stockPrice,
+                        selectedStock.Price,
                         DateTime.UtcNow,
                         user));
 
