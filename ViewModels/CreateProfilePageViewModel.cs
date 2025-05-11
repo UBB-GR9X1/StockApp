@@ -8,7 +8,6 @@
     using Microsoft.UI.Xaml.Controls;
     using StockApp.Commands;
     using StockApp.Models;
-    using StockApp.Pages;
     using StockApp.Services;
 
     public class CreateProfilePageViewModel : INotifyPropertyChanged
@@ -40,7 +39,9 @@
 
         private void GoToProfilePage(object parameter)
         {
-            NavigationService.Instance.Navigate(typeof(ProfilePage));
+            //FIXME: navigate to the profile page
+            throw new NotImplementedException("Not implemented");
+            //NavigationService.Instance.Navigate(typeof(ProfilePage));
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -139,8 +140,8 @@
                 this.userService.SetCurrentUserCNP(user.CNP);
                 await this.ShowSuccessDialog("Profile created successfully!");
 
-                // Navigate to profile page after successful creation
-                NavigationService.Instance.Navigate(typeof(ProfilePage));
+                //FIXME: Navigate to profile page after successful creation
+                throw new NotImplementedException("Not implemented");
             }
             catch (Exception ex)
             {

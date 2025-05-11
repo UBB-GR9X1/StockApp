@@ -20,21 +20,6 @@
         }
 
         /// <summary>
-        /// Updates the user's gem balance in the database.
-        /// </summary>
-        /// <param name="userCNP">CNP of the user whose balance is to be updated.</param>
-        /// <param name="newGemBalance">New gem balance to set.</param>
-        public async Task UpdateUserGemsAsync(string userCNP, int newGemBalance)
-        {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.CNP == userCNP);
-            if (user != null)
-            {
-                user.GemBalance = newGemBalance;
-                await _context.SaveChangesAsync();
-            }
-        }
-
-        /// <summary>
         /// Adds or updates the quantity of a user's stock holding.
         /// </summary>
         /// <param name="userCNP">CNP of the user whose balance is to be updated.</param>
@@ -47,7 +32,7 @@
 
             if (userStock != null)
             {
-                userStock.Quantity += quantity;
+                userStock.Quantity = quantity;
             }
             else
             {
@@ -86,18 +71,36 @@
         /// <param name="userCNP">CNP of the user whose stock is to be retrieved.</param>
         /// <param name="stockName">Name of the stock.</param>
         /// <returns>A <see cref="Stock"/> instance with populated fields.</returns>
-        public async Task<Stock> GetStockAsync(string userCNP, string stockName)
+        public async Task<Stock> GetStockAsync(string stockName)
         {
-            var stock = await _context.UserStocks
-                .Include(us => us.Stock)
-                .FirstOrDefaultAsync(us => us.UserCnp == userCNP && us.Stock.Name == stockName) ?? throw new InvalidOperationException($"Stock with name '{stockName}' not found.");
-            return new Stock
+            return await _context.Stocks
+                .FirstOrDefaultAsync(s => s.Name.ToLower() == stockName.ToLower().Trim()) ?? throw new Exception("Stock not found.");
+        }
+
+        /// <summary>
+        /// Retrieves a <see cref="UserStock"/> by name, including the latest price and user quantity.
+        /// </summary>
+        /// <param name="userCNP">CNP of the user whose stock is to be retrieved.</param>
+        /// <param name="stockName">Name of the stock.</param>
+        /// <returns>A <see cref="UserStock"/> instance with populated fields.</returns>
+        public async Task<UserStock> GetUserStockAsync(string userCNP, string stockName)
+        {
+            UserStock? stock = await _context.UserStocks
+               .Include(us => us.Stock)
+               .Where(u => u.UserCnp == userCNP && u.Stock.Name.ToLower() == stockName.ToLower().Trim())
+               .FirstOrDefaultAsync();
+            if (stock == null)
             {
-                Name = stock.StockName,
-                Symbol = stock.Stock.Symbol,
-                Price = stock.Stock.Price,
-                Quantity = stock.Quantity
-            };
+                var res = await _context.UserStocks
+                    .AddAsync(new UserStock
+                    {
+                        UserCnp = userCNP,
+                        StockName = stockName,
+                        Quantity = 0
+                    });
+                return res.Entity;
+            }
+            return stock;
         }
 
         /// <summary>

@@ -1,6 +1,7 @@
 ﻿namespace StockApp.Views
 {
     using System;
+    using Microsoft.Extensions.DependencyInjection;
     using Microsoft.UI.Xaml.Controls;
     using StockApp.Models;
     using StockApp.Pages;
@@ -40,9 +41,17 @@
             // Navigate to the stock page using the selected stock's name
             if (App.MainAppWindow != null && App.MainAppWindow.MainAppFrame.Content is Page currentPage)
             {
-                StockDetailsDTO stockDetailsDTO =
-                    new StockDetailsDTO(selectedStock.StockDetails, currentPage);
-                App.MainAppWindow.MainAppFrame.Navigate(typeof(StockPage), stockDetailsDTO);
+                App.MainAppWindow.MainAppFrame.Content = App.Host.Services.GetService<StockPage>()
+                    ?? throw new InvalidOperationException("StockPage is not registered in the service provider");
+                if (App.MainAppWindow.MainAppFrame.Content is StockPage stockPage)
+                {
+                    stockPage.ViewModel.SelectedStock = selectedStock.StockDetails;
+                    stockPage.PreviousPage = currentPage;
+                }
+                else
+                {
+                    throw new InvalidOperationException("Failed to navigate to StockPage");
+                }
             }
         }
     }

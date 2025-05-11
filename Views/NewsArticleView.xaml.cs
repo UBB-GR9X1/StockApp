@@ -3,9 +3,6 @@ namespace StockApp.Views
     using System;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
-    using Microsoft.UI.Xaml.Navigation;
-    using StockApp.Pages;
-    using StockApp.Services;
     using StockApp.ViewModels;
 
     public sealed partial class NewsArticleView : Page
@@ -51,8 +48,8 @@ namespace StockApp.Views
             {
                 throw new ArgumentException("Button content is not a valid stock name", nameof(sender));
             }
-
-            NavigationService.Instance.Navigate(typeof(StockPage), stockName);
+            //FIXME: navigate to the stock page
+            throw new NotImplementedException("Not implemented");
         }
     }
 }

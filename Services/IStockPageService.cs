@@ -12,6 +12,8 @@
 
         Task<int> GetOwnedStocksAsync();
 
+        Task<UserStock> GetUserStockAsync();
+
         Task<User> GetStockAuthorAsync();
 
         Task<List<int>> GetStockHistoryAsync();

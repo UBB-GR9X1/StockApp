@@ -6,37 +6,42 @@
     using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using System.Windows.Input;
+    using Microsoft.UI.Xaml.Controls;
     using StockApp.Commands;
     using StockApp.Models;
     using StockApp.Services;
-
     /// <summary>
     /// ViewModel responsible for managing alerts: creating, saving, deleting, and loading alert entries.
     /// </summary>
     public class AlertViewModel
     {
         private readonly IAlertService alertService;
-        private readonly IDialogService dialogService;
         private string newAlertName = string.Empty;
         private decimal? alertUpperBound;
         private decimal? alertLowerBound;
         private bool alertValid = false;
 
+        public Page? PreviousPage { get; set; }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="AlertViewModel"/> class with specified services.
         /// </summary>
         /// <param name="alertService">Service for CRUD operations on alerts.</param>
-        /// <param name="dialogService">Service for showing dialogs and messages to the user.</param>
-        public AlertViewModel(IAlertService alertService, IDialogService dialogService)
+        public AlertViewModel(IAlertService alertService)
         {
             this.alertService = alertService ?? throw new ArgumentNullException(nameof(alertService));
-            this.dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
 
             // Initialize commands
             this.CreateAlertCommand = new RelayCommand(async _ => await this.CreateAlert(), this.IsAlertValid);
             this.SaveAlertsCommand = new RelayCommand(async _ => await this.SaveAlerts());
             this.DeleteAlertCommand = new RelayCommand(async p => await this.DeleteAlert(p));
-            this.CloseAppCommand = new RelayCommand(_ => NavigationService.Instance.GoBack());
+            this.BackCommand = new RelayCommand(_ =>
+            {
+                if (this.PreviousPage != null)
+                {
+                    App.MainAppWindow!.MainAppFrame.Content = this.PreviousPage;
+                }
+            });
 
             // Load existing alerts into the collection
             this.LoadAlerts();
@@ -63,9 +68,9 @@
         public ICommand DeleteAlertCommand { get; }
 
         /// <summary>
-        /// Gets the command to close the application.
+        /// Gets the command to go back to the previous page.
         /// </summary>
-        public ICommand CloseAppCommand { get; }
+        public ICommand BackCommand { get; }
 
         /// <summary>
         /// Gets the collection of alerts displayed in the UI.
@@ -197,11 +202,11 @@
                     lowerBound: lowerBound,
                     toggleOnOff: true);
                 this.Alerts.Add(newAlert);
-                await this.dialogService.ShowMessageAsync("Success", "Alert created successfully!");
+                await this.ShowMessageAsync("Success", "Alert created successfully!");
             }
             catch (Exception exception)
             {
-                await this.dialogService.ShowMessageAsync("Error", exception.Message);
+                await this.ShowMessageAsync("Error", exception.Message);
             }
         }
 
@@ -233,11 +238,11 @@
                         alert.ToggleOnOff);
                 }
 
-                await this.dialogService.ShowMessageAsync("Success", "All alerts saved successfully!");
+                await this.ShowMessageAsync("Success", "All alerts saved successfully!");
             }
             catch (Exception exception)
             {
-                await this.dialogService.ShowMessageAsync("Error", exception.Message);
+                await this.ShowMessageAsync("Error", exception.Message);
             }
         }
 
@@ -251,11 +256,11 @@
             {
                 await this.alertService.RemoveAlertAsync(alertToDelete.AlertId);
                 this.Alerts.Remove(alertToDelete);
-                await this.dialogService.ShowMessageAsync("Success", "Alert deleted successfully!");
+                await this.ShowMessageAsync("Success", "Alert deleted successfully!");
             }
             else
             {
-                await this.dialogService.ShowMessageAsync("Error", "Please select an alert to delete.");
+                await this.ShowMessageAsync("Error", "Please select an alert to delete.");
             }
         }
 
@@ -269,6 +274,22 @@
             {
                 this.Alerts.Add(alert);
             }
+        }
+
+        /// <summary>
+        /// Shows a message dialog with the specified title and message.
+        /// </summary>
+        private async Task ShowMessageAsync(string title, string message)
+        {
+            ContentDialog dialog = new ContentDialog
+            {
+                Title = title,
+                Content = message,
+                CloseButtonText = "OK",
+                DefaultButton = ContentDialogButton.Close,
+                XamlRoot = App.MainAppWindow!.MainAppFrame.XamlRoot,
+            };
+            await dialog.ShowAsync();
         }
     }
 }

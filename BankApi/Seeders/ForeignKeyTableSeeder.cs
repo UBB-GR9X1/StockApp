@@ -2,8 +2,9 @@
 {
     using Microsoft.Data.SqlClient;
 
-    public abstract class ForeignKeyTableSeeder(IConfiguration configuration) : TableSeeder(configuration)
+    public abstract class ForeignKeyTableSeeder<FKType>(IConfiguration configuration, string ColumnName = "Id") : TableSeeder(configuration)
     {
+        private readonly string ColumName = ColumnName;
         public override async Task SeedAsync()
         {
             try
@@ -23,34 +24,44 @@
 
         protected abstract string GetReferencedTableName();
 
-        protected abstract string GetQueryWithForeignKeys(List<int> foreignKeys);
+        protected abstract string GetQueryWithForeignKeys(List<FKType> foreignKeys);
 
-        private async Task<List<int>> GetForeignKeys()
+        private async Task<List<FKType>> GetForeignKeys()
         {
-            List<int> ids = [];
+            List<FKType> fks = new();
             string referencedTableName = this.GetReferencedTableName();
 
-            // Fetch existing User IDs dynamically
             using SqlConnection conn = new(this.connectionString);
             await conn.OpenAsync();
 
-            using SqlCommand cmd = new($"SELECT Id FROM {referencedTableName} ORDER BY Id ASC", conn);
+            using SqlCommand cmd = new($"SELECT {ColumName} FROM {referencedTableName} ORDER BY {ColumName} ASC", conn);
             using SqlDataReader reader = await cmd.ExecuteReaderAsync();
 
             while (reader.Read())
             {
-                ids.Add(reader.GetInt32(0));
+                if (typeof(FKType) == typeof(int))
+                {
+                    fks.Add((FKType)(object)reader.GetInt32(0));
+                }
+                else if (typeof(FKType) == typeof(string))
+                {
+                    fks.Add((FKType)(object)reader.GetString(0));
+                }
+                else
+                {
+                    throw new InvalidOperationException("Unsupported FKType. Only int and string are supported.");
+                }
             }
 
-            // Ensure we have at least 5 users before proceeding
-            if (ids.Count < 5)
+            // Ensure we have at least 5 records before proceeding
+            if (fks.Count < 5)
             {
                 throw new InvalidOperationException($"Not enough records in the {referencedTableName} table to seed.");
             }
 
-            return ids;
+            return fks;
         }
-        
+
         private async Task<string> GetQueryAsync()
         {
             var foreignKeys = await this.GetForeignKeys();

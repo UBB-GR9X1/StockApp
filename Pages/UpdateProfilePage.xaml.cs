@@ -5,7 +5,6 @@ namespace StockApp.Pages
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
     using Microsoft.UI.Xaml.Navigation;
-    using StockApp.Services;
     using StockApp.ViewModels;
 
     public sealed partial class UpdateProfilePage : Page
@@ -22,11 +21,6 @@ namespace StockApp.Pages
         {
             base.OnNavigatedTo(e);
             this.DataContext = this.viewModelUpdate;
-        }
-
-        private void GoToProfilePage(object sender, RoutedEventArgs e)
-        {
-            NavigationService.Instance.GoBack();
         }
 
         private async void GetAdminPassword(object sender, RoutedEventArgs e)

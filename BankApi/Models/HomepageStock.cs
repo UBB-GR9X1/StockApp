@@ -1,6 +1,7 @@
 ﻿namespace BankApi.Models
 {
     using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
 
     public class HomepageStock
     {
@@ -12,6 +13,9 @@
 
         [Required]
         public Stock StockDetails { get; set; } = new Stock();
+
+        [NotMapped]
+        public bool IsFavorite { get; set; }
 
         public decimal Change { get; set; }
     }

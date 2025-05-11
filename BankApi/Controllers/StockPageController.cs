@@ -25,12 +25,16 @@ namespace BankApi.Controllers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        [HttpPost("AddOrUpdateUserStock")]
-        public async Task<IActionResult> AddOrUpdateUserStockAsync(string userCNP, string stockName, int quantity)
+        [HttpPost("UserStock")]
+        public async Task<IActionResult> AddOrUpdateUserStockAsync([FromBody] UserStockRequest request)
         {
+            if (request == null || string.IsNullOrWhiteSpace(request.userCNP) || string.IsNullOrWhiteSpace(request.stockName) || request.quantity < 0)
+            {
+                return BadRequest("Invalid user stock request.");
+            }
             try
             {
-                await _repository.AddOrUpdateUserStockAsync(userCNP, stockName, quantity);
+                await _repository.AddOrUpdateUserStockAsync(request.userCNP, request.stockName, request.quantity);
                 return Ok("Stock updated successfully.");
             }
             catch (Exception ex)
@@ -40,12 +44,24 @@ namespace BankApi.Controllers
             }
         }
 
-        [HttpPost("AddStockValue")]
-        public async Task<IActionResult> AddStockValueAsync(string stockName, int price)
+        public class UserStockRequest
         {
+            public string userCNP { get; set; }
+            public string stockName { get; set; }
+            public int quantity { get; set; }
+        }
+
+        [HttpPost("StockValue")]
+        public async Task<IActionResult> AddStockValueAsync([FromBody] StockValueRequest request)
+        {
+            if (request == null || string.IsNullOrWhiteSpace(request.StockName) || request.Price <= 0)
+            {
+                return BadRequest("Invalid stock value request.");
+            }
+
             try
             {
-                await _repository.AddStockValueAsync(stockName, price);
+                await _repository.AddStockValueAsync(request.StockName, request.Price);
                 return Ok("Stock value added successfully.");
             }
             catch (Exception ex)
@@ -55,7 +71,13 @@ namespace BankApi.Controllers
             }
         }
 
-        [HttpGet("GetFavorite")]
+        public class StockValueRequest
+        {
+            public string StockName { get; set; }
+            public int Price { get; set; }
+        }
+
+        [HttpGet("Favorite")]
         public async Task<IActionResult> GetFavoriteAsync(string userCNP, string stockName)
         {
             try
@@ -70,7 +92,7 @@ namespace BankApi.Controllers
             }
         }
 
-        [HttpGet("GetOwnedStocks")]
+        [HttpGet("OwnedStocks")]
         public async Task<IActionResult> GetOwnedStocksAsync(string userCNP, string stockName)
         {
             try
@@ -85,12 +107,12 @@ namespace BankApi.Controllers
             }
         }
 
-        [HttpGet("GetStock")]
-        public async Task<IActionResult> GetStockAsync(string userCNP, string stockName)
+        [HttpGet("Stock")]
+        public async Task<IActionResult> GetStockAsync(string stockName)
         {
             try
             {
-                var stock = await _repository.GetStockAsync(userCNP, stockName);
+                var stock = await _repository.GetStockAsync(stockName);
                 return Ok(stock);
             }
             catch (Exception ex)
@@ -100,7 +122,22 @@ namespace BankApi.Controllers
             }
         }
 
-        [HttpGet("GetStockHistory")]
+        [HttpGet("UserStock")]
+        public async Task<IActionResult> GetUserStockAsync(string userCNP, string stockName)
+        {
+            try
+            {
+                var stock = await _repository.GetUserStockAsync(userCNP, stockName);
+                return Ok(stock);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving user stock.");
+                return StatusCode(500, "Internal server error.");
+            }
+        }
+
+        [HttpGet("StockHistory")]
         public async Task<IActionResult> GetStockHistoryAsync(string stockName)
         {
             try
@@ -116,11 +153,15 @@ namespace BankApi.Controllers
         }
 
         [HttpPost("ToggleFavorite")]
-        public async Task<IActionResult> ToggleFavoriteAsync(string userCNP, string stockName, bool state)
+        public async Task<IActionResult> ToggleFavoriteAsync([FromBody] ToggleFavoriteRequest request)
         {
+            if (request == null || string.IsNullOrWhiteSpace(request.userCNP) || string.IsNullOrWhiteSpace(request.stockName))
+            {
+                return BadRequest("Invalid toggle favorite request.");
+            }
             try
             {
-                await _repository.ToggleFavoriteAsync(userCNP, stockName, state);
+                await _repository.ToggleFavoriteAsync(request.userCNP, request.stockName, request.state);
                 return Ok("Favorite status updated successfully.");
             }
             catch (Exception ex)
@@ -129,20 +170,11 @@ namespace BankApi.Controllers
                 return StatusCode(500, "Internal server error.");
             }
         }
-
-        [HttpPost("UpdateUserGems")]
-        public async Task<IActionResult> UpdateUserGemsAsync(string userCNP, int newGemBalance)
+        public class ToggleFavoriteRequest
         {
-            try
-            {
-                await _repository.UpdateUserGemsAsync(userCNP, newGemBalance);
-                return Ok("User gems updated successfully.");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error updating user gems.");
-                return StatusCode(500, "Internal server error.");
-            }
+            public string userCNP { get; set; }
+            public string stockName { get; set; }
+            public bool state { get; set; }
         }
     }
 }

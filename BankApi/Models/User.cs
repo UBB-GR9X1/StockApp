@@ -6,6 +6,7 @@ namespace BankApi.Models
     public class User
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
         [Required]
@@ -62,7 +63,7 @@ namespace BankApi.Models
         public int CreditScore { get; set; }
 
         [Required]
-        public DateOnly Birthday { get; set; }
+        public DateTime Birthday { get; set; }
 
         [MaxLength(20)]
         public string ZodiacSign { get; set; } = string.Empty;

@@ -7,9 +7,9 @@
     xmlns:local="using:StockApp.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     DataContext="{Binding ViewModel, RelativeSource={RelativeSource Self}}"
-    mc:Ignorable="d">
-
-    <Grid Padding="10">
+    mc:Ignorable="d"
+    Width="1000">
+    <Grid Padding="10" >
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -76,8 +76,8 @@
             <Button Content="Save All"
                     Command="{Binding SaveAlertsCommand}" 
                     Width="100" Margin="5"/>
-            <Button Content="Close"
-                    Command="{Binding CloseAppCommand}" 
+            <Button Content="Back"
+                    Command="{Binding BackCommand}" 
                     Width="100" Margin="5"/>
         </StackPanel>
     </Grid>

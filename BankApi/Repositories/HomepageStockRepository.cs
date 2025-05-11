@@ -20,15 +20,23 @@
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<List<HomepageStock>> GetAllAsync()
+        public async Task<List<HomepageStock>> GetAllAsync(string userCNP)
         {
             try
             {
-                var a = await _context.HomepageStocks
+                var stocks = await _context.HomepageStocks
                     .Include(hs => hs.StockDetails)
+                    .ThenInclude(sd => sd.Favorites.Where(f => f.UserCNP == userCNP))
                     .OrderBy(s => s.Id)
                     .ToListAsync();
-                return a;
+
+                // Map IsFavorite based on whether Favorites is empty or not for the given userCNP  
+                foreach (var stock in stocks)
+                {
+                    stock.IsFavorite = stock.StockDetails.Favorites.Any(f => f.UserCNP == userCNP);
+                }
+
+                return stocks;
             }
             catch (Exception ex)
             {
@@ -37,13 +45,16 @@
             }
         }
 
-        public async Task<HomepageStock?> GetByIdAsync(int id)
+        public async Task<HomepageStock?> GetByIdAsync(int id, string userCNP)
         {
             try
             {
-                return await _context.HomepageStocks
+                var stock = await _context.HomepageStocks
                     .Include(hs => hs.StockDetails)
-                    .FirstOrDefaultAsync(hs => hs.Id == id);
+                    .ThenInclude(sd => sd.Favorites.Where(f => f.UserCNP == userCNP))
+                    .FirstOrDefaultAsync(hs => hs.Id == id) ?? throw new KeyNotFoundException($"Homepage stock with ID {id} not found");
+                stock.IsFavorite = stock.StockDetails.Favorites.Any(f => f.UserCNP == userCNP);
+                return stock;
             }
             catch (Exception ex)
             {

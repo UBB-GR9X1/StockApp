@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BankApi.Migrations
 {
     [DbContext(typeof(ApiDbContext))]
-    [Migration("20250509132642_MakeTipUserFKString")]
-    partial class MakeTipUserFKString
+    [Migration("20250511163136_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -213,6 +213,26 @@ namespace BankApi.Migrations
                     b.ToTable("CreditScoreHistories");
                 });
 
+            modelBuilder.Entity("BankApi.Models.FavoriteStock", b =>
+                {
+                    b.Property<string>("UserCNP")
+                        .HasMaxLength(13)
+                        .HasColumnType("nvarchar(13)");
+
+                    b.Property<string>("StockName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("Id")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserCNP", "StockName");
+
+                    b.HasIndex("StockName");
+
+                    b.ToTable("FavoriteStocks");
+                });
+
             modelBuilder.Entity("BankApi.Models.GemStore", b =>
                 {
                     b.Property<string>("Cnp")
@@ -406,6 +426,94 @@ namespace BankApi.Migrations
                     b.ToTable("LoanRequests");
                 });
 
+            modelBuilder.Entity("BankApi.Models.NewsArticle", b =>
+                {
+                    b.Property<string>("ArticleId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("AuthorCNP")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(13)");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsWatchlistRelated")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("PublishedDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Summary")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Topic")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ArticleId");
+
+                    b.HasIndex("AuthorCNP");
+
+                    b.ToTable("NewsArticles");
+                });
+
+            modelBuilder.Entity("BankApi.Models.StockValue", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("DateTime")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<int>("Price")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("int");
+
+                    b.Property<string>("StockName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StockName");
+
+                    b.ToTable("StockValues");
+                });
+
             modelBuilder.Entity("BankApi.Models.Tip", b =>
                 {
                     b.Property<int>("Id")
@@ -437,10 +545,17 @@ namespace BankApi.Migrations
             modelBuilder.Entity("BankApi.Models.TransactionLogTransaction", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("Amount")
                         .HasColumnType("int");
+
+                    b.Property<string>("AuthorCNP")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(13)");
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
@@ -464,6 +579,8 @@ namespace BankApi.Migrations
                         .HasColumnType("nvarchar(4)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AuthorCNP");
 
                     b.ToTable("TransactionLogTransactions");
                 });
@@ -508,8 +625,8 @@ namespace BankApi.Migrations
                         .HasColumnType("decimal(18,2)")
                         .HasDefaultValue(0m);
 
-                    b.Property<DateOnly>("Birthday")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("Birthday")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("CNP")
                         .IsRequired()
@@ -639,13 +756,39 @@ namespace BankApi.Migrations
                 {
                     b.HasBaseType("BankApi.Models.BaseStock");
 
+                    b.Property<string>("NewsArticleArticleId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<int>("Price")
                         .HasColumnType("int");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
+                    b.HasIndex("NewsArticleArticleId");
+
                     b.HasDiscriminator().HasValue("Stock");
+                });
+
+            modelBuilder.Entity("BankApi.Models.FavoriteStock", b =>
+                {
+                    b.HasOne("BankApi.Models.Stock", "Stock")
+                        .WithMany()
+                        .HasForeignKey("StockName")
+                        .HasPrincipalKey("Name")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BankApi.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserCNP")
+                        .HasPrincipalKey("CNP")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Stock");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("BankApi.Models.GivenTip", b =>
@@ -679,11 +822,36 @@ namespace BankApi.Migrations
                     b.Navigation("StockDetails");
                 });
 
+            modelBuilder.Entity("BankApi.Models.NewsArticle", b =>
+                {
+                    b.HasOne("BankApi.Models.User", "Author")
+                        .WithMany()
+                        .HasForeignKey("AuthorCNP")
+                        .HasPrincipalKey("CNP")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Author");
+                });
+
+            modelBuilder.Entity("BankApi.Models.StockValue", b =>
+                {
+                    b.HasOne("BankApi.Models.Stock", "Stock")
+                        .WithMany()
+                        .HasForeignKey("StockName")
+                        .HasPrincipalKey("Name")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Stock");
+                });
+
             modelBuilder.Entity("BankApi.Models.TransactionLogTransaction", b =>
                 {
                     b.HasOne("BankApi.Models.User", "Author")
                         .WithMany()
-                        .HasForeignKey("Id")
+                        .HasForeignKey("AuthorCNP")
+                        .HasPrincipalKey("CNP")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -699,7 +867,33 @@ namespace BankApi.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("BankApi.Models.User", "User")
+                        .WithMany("OwnedStocks")
+                        .HasForeignKey("UserCnp")
+                        .HasPrincipalKey("CNP")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Stock");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("BankApi.Models.Stock", b =>
+                {
+                    b.HasOne("BankApi.Models.NewsArticle", null)
+                        .WithMany("RelatedStocks")
+                        .HasForeignKey("NewsArticleArticleId");
+                });
+
+            modelBuilder.Entity("BankApi.Models.NewsArticle", b =>
+                {
+                    b.Navigation("RelatedStocks");
+                });
+
+            modelBuilder.Entity("BankApi.Models.User", b =>
+                {
+                    b.Navigation("OwnedStocks");
                 });
 #pragma warning restore 612, 618
         }

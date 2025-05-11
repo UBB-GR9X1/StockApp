@@ -17,13 +17,13 @@
 
         public async Task<List<HomepageStock>> GetAllStocksAsync()
         {
-            var result = await _httpClient.GetFromJsonAsync<List<HomepageStock>>("api/HomepageStock");
+            var result = await _httpClient.GetFromJsonAsync<List<HomepageStock>>($"api/HomepageStock?userCNP={IUserRepository.CurrentUserCNP}");
             return result ?? new List<HomepageStock>();
         }
 
         public async Task<HomepageStock> GetStockByIdAsync(int id)
         {
-            var result = await _httpClient.GetFromJsonAsync<HomepageStock>($"api/HomepageStock/{id}");
+            var result = await _httpClient.GetFromJsonAsync<HomepageStock>($"api/HomepageStock/{id}?userCNP={IUserRepository.CurrentUserCNP}");
             return result ?? throw new KeyNotFoundException("Stock not found.");
         }
 

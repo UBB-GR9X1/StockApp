@@ -50,212 +50,217 @@ namespace BankApi.Data
                 entity.Property(s => s.Symbol)
                       .IsRequired();
 
-                modelBuilder.Entity<BaseStock>()
-                    .Property(s => s.AuthorCNP)
-                    .IsRequired();
+                entity.HasMany(s => s.Favorites)
+                      .WithOne()
+                      .HasForeignKey(fs => fs.StockName)
+                      .HasPrincipalKey(s => s.Name)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
 
-                // User configuration
-                modelBuilder.Entity<User>(entity =>
-                {
-                    entity.HasKey(e => e.Id);
-                    entity.HasIndex(e => e.CNP).IsUnique();
-                    entity.Property(e => e.CNP)
-                          .IsRequired()
-                          .HasMaxLength(13);
-                    entity.Property(e => e.Username)
-                          .IsRequired()
-                          .HasMaxLength(50);
-                    entity.Property(e => e.FirstName)
-                          .IsRequired()
-                          .HasMaxLength(50);
-                    entity.Property(e => e.LastName)
-                          .IsRequired()
-                          .HasMaxLength(50);
-                    entity.Property(e => e.Email)
-                          .IsRequired()
-                          .HasMaxLength(100);
-                    entity.Property(e => e.HashedPassword)
-                          .IsRequired();
-                    entity.Property(e => e.Description)
-                          .HasMaxLength(500);
-                    entity.Property(e => e.Image)
-                          .HasMaxLength(255);
-                    entity.Property(e => e.PhoneNumber)
-                          .HasMaxLength(20);
-                    entity.Property(e => e.GemBalance)
-                          .HasDefaultValue(0);
-                    entity.Property(e => e.NumberOfOffenses)
-                          .HasDefaultValue(0);
-                    entity.Property(e => e.RiskScore)
-                          .HasDefaultValue(0);
-                    entity.Property(e => e.ROI)
-                          .HasPrecision(18, 2)
-                          .HasDefaultValue(0);
-                    entity.Property(e => e.CreditScore)
-                          .HasDefaultValue(0);
-                    entity.Property(e => e.Birthday)
-                          .IsRequired();
-                    entity.Property(e => e.ZodiacSign)
-                          .HasMaxLength(50);
-                    entity.Property(e => e.ZodiacAttribute)
-                          .HasMaxLength(50);
-                    entity.Property(e => e.NumberOfBillSharesPaid)
-                          .HasDefaultValue(0);
-                    entity.Property(e => e.Income)
-                          .HasDefaultValue(0);
-                    entity.Property(e => e.Balance)
-                          .HasPrecision(18, 2)
-                          .HasDefaultValue(0);
-                    entity.HasMany(e => e.OwnedStocks)
-                          .WithOne()
-                          .HasForeignKey(e => e.UserCnp)
-                          .OnDelete(DeleteBehavior.Cascade);
-                });
+            modelBuilder.Entity<BaseStock>()
+                .Property(s => s.AuthorCNP)
+                .IsRequired();
+            // User configuration
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasIndex(e => e.CNP).IsUnique();
+                entity.Property(e => e.CNP)
+                      .IsRequired()
+                      .HasMaxLength(13);
+                entity.Property(e => e.Username)
+                      .IsRequired()
+                      .HasMaxLength(50);
+                entity.Property(e => e.FirstName)
+                      .IsRequired()
+                      .HasMaxLength(50);
+                entity.Property(e => e.LastName)
+                      .IsRequired()
+                      .HasMaxLength(50);
+                entity.Property(e => e.Email)
+                      .IsRequired()
+                      .HasMaxLength(100);
+                entity.Property(e => e.HashedPassword)
+                      .IsRequired();
+                entity.Property(e => e.Description)
+                      .HasMaxLength(500);
+                entity.Property(e => e.Image)
+                      .HasMaxLength(255);
+                entity.Property(e => e.PhoneNumber)
+                      .HasMaxLength(20);
+                entity.Property(e => e.GemBalance)
+                      .HasDefaultValue(0);
+                entity.Property(e => e.NumberOfOffenses)
+                      .HasDefaultValue(0);
+                entity.Property(e => e.RiskScore)
+                      .HasDefaultValue(0);
+                entity.Property(e => e.ROI)
+                      .HasPrecision(18, 2)
+                      .HasDefaultValue(0);
+                entity.Property(e => e.CreditScore)
+                      .HasDefaultValue(0);
+                entity.Property(e => e.Birthday)
+                      .IsRequired();
+                entity.Property(e => e.ZodiacSign)
+                      .HasMaxLength(50);
+                entity.Property(e => e.ZodiacAttribute)
+                      .HasMaxLength(50);
+                entity.Property(e => e.NumberOfBillSharesPaid)
+                      .HasDefaultValue(0);
+                entity.Property(e => e.Income)
+                      .HasDefaultValue(0);
+                entity.Property(e => e.Balance)
+                      .HasPrecision(18, 2)
+                      .HasDefaultValue(0);
+                entity.HasMany(e => e.OwnedStocks)
+                      .WithOne()
+                      .HasForeignKey(e => e.UserCnp)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
 
-                // HomepageStock configuration
-                modelBuilder.Entity<HomepageStock>(entity =>
-                {
-                    entity.HasKey(e => e.Id);
+            // HomepageStock configuration
+            modelBuilder.Entity<HomepageStock>(entity =>
+            {
+                entity.HasKey(e => e.Id);
 
-                    entity.Property(e => e.Symbol)
-                          .IsRequired()
-                          .HasMaxLength(10);
+                entity.Property(e => e.Symbol)
+                      .IsRequired()
+                      .HasMaxLength(10);
 
-                    entity.Property(e => e.Change)
-                          .HasPrecision(18, 2);
+                entity.Property(e => e.Change)
+                      .HasPrecision(18, 2);
 
-                    entity.HasOne(e => e.StockDetails)
-                          .WithOne()
-                          .HasForeignKey<HomepageStock>(e => e.Id);
-                });
+                entity.HasOne(e => e.StockDetails)
+                      .WithOne()
+                      .HasForeignKey<HomepageStock>(e => e.Id);
+            });
 
-                // Configure ChatReport entity
-                modelBuilder.Entity<ChatReport>(entity =>
-                {
-                    entity.HasKey(e => e.Id);
+            // Configure ChatReport entity
+            modelBuilder.Entity<ChatReport>(entity =>
+            {
+                entity.HasKey(e => e.Id);
 
-                    entity.Property(e => e.ReportedUserCnp)
-                  .IsRequired()
-                  .HasMaxLength(15);
+                entity.Property(e => e.ReportedUserCnp)
+              .IsRequired()
+              .HasMaxLength(15);
 
-                    entity.Property(e => e.ReportedMessage)
-                  .IsRequired();
-                });
+                entity.Property(e => e.ReportedMessage)
+              .IsRequired();
+            });
 
-                // Alert configuration
-                modelBuilder.Entity<Alert>(entity =>
-                {
-                    entity.HasIndex(a => a.StockName);
+            // Alert configuration
+            modelBuilder.Entity<Alert>(entity =>
+            {
+                entity.HasIndex(a => a.StockName);
 
-                    entity.Property(a => a.LowerBound)
-                          .HasPrecision(18, 4);
+                entity.Property(a => a.LowerBound)
+                      .HasPrecision(18, 4);
 
-                    entity.Property(a => a.UpperBound)
-                          .HasPrecision(18, 4);
-                });
+                entity.Property(a => a.UpperBound)
+                      .HasPrecision(18, 4);
+            });
 
-                // TriggeredAlert configuration
-                modelBuilder.Entity<TriggeredAlert>(entity =>
-                {
-                    entity.HasIndex(ta => ta.StockName);
-                });
+            // TriggeredAlert configuration
+            modelBuilder.Entity<TriggeredAlert>(entity =>
+            {
+                entity.HasIndex(ta => ta.StockName);
+            });
 
-                // ActivityLog configuration
-                modelBuilder.Entity<ActivityLog>(entity =>
-                {
-                    entity.HasKey(e => e.Id);
+            // ActivityLog configuration
+            modelBuilder.Entity<ActivityLog>(entity =>
+            {
+                entity.HasKey(e => e.Id);
 
-                    entity.Property(e => e.UserCnp)
-                        .IsRequired()
-                        .HasMaxLength(13);
-
-                    entity.Property(e => e.ActivityName)
-                        .IsRequired()
-                        .HasMaxLength(100);
-
-                    entity.Property(e => e.LastModifiedAmount)
-                        .IsRequired();
-
-                    entity.Property(e => e.CreatedAt)
-                        .IsRequired()
-                        .HasDefaultValueSql("GETUTCDATE()");
-                });
-
-                // GemStore configuration
-                modelBuilder.Entity<GemStore>(entity =>
-                {
-                    entity.ToTable("GemStores");
-
-                    entity.HasKey(e => e.Cnp);
-
-                    entity.Property(e => e.Cnp)
-                        .IsRequired()
-                        .HasMaxLength(13);
-
-                    entity.Property(e => e.GemBalance)
-                        .IsRequired();
-
-                    entity.Property(e => e.IsGuest)
-                        .IsRequired();
-
-                    entity.Property(e => e.LastUpdated)
-                        .IsRequired();
-                });
-
-                modelBuilder.Entity<Investment>(entity =>
-                {
-                    entity.HasKey(e => e.Id);
-                    entity.Property(e => e.InvestorCnp).IsRequired().HasMaxLength(13);
-                    entity.Property(e => e.Details).IsRequired();
-                    entity.Property(e => e.AmountInvested).HasPrecision(18, 2);
-                    entity.Property(e => e.AmountReturned).HasPrecision(18, 2);
-                    entity.Property(e => e.InvestmentDate).IsRequired();
-                });
-                // Configure BillSplitReport entity
-                modelBuilder.Entity<BillSplitReport>()
-                    .HasKey(b => b.Id);
-
-                modelBuilder.Entity<BillSplitReport>()
-                    .Property(b => b.ReportedUserCnp)
-                    .IsRequired();
-
-                modelBuilder.Entity<BillSplitReport>()
-                    .Property(b => b.ReportingUserCnp)
-                    .IsRequired();
-
-                modelBuilder.Entity<BillSplitReport>()
-                    .Property(b => b.DateOfTransaction)
-                    .IsRequired();
-
-                modelBuilder.Entity<BillSplitReport>()
-                    .Property(b => b.BillShare)
+                entity.Property(e => e.UserCnp)
                     .IsRequired()
-                    .HasPrecision(18, 2); // Specify precision and scale for the decimal property
+                    .HasMaxLength(13);
 
-                modelBuilder.Entity<UserStock>(entity =>
-                {
-                    entity.HasKey(e => new { e.UserCnp, e.StockName });
-                    entity.Property(e => e.UserCnp).IsRequired().HasMaxLength(13);
-                    entity.Property(e => e.StockName).IsRequired().HasMaxLength(100);
-                    entity.Property(e => e.Quantity).IsRequired();
-                    entity.HasOne(e => e.Stock)
-                          .WithMany()
-                          .HasForeignKey(e => e.StockName)
-                          .HasPrincipalKey(s => s.Name);
-                    entity.HasOne(e => e.User)
-                          .WithMany(u => u.OwnedStocks)
-                          .HasForeignKey(e => e.UserCnp)
-                          .HasPrincipalKey(u => u.CNP)
-                          .OnDelete(DeleteBehavior.Cascade);
-                });
+                entity.Property(e => e.ActivityName)
+                    .IsRequired()
+                    .HasMaxLength(100);
 
-                modelBuilder.Entity<CreditScoreHistory>(entity =>
-                {
-                    entity.HasKey(e => e.Id);
-                    entity.Property(e => e.UserCnp).IsRequired().HasMaxLength(13);
-                    entity.Property(e => e.Date).IsRequired();
-                    entity.Property(e => e.Score).IsRequired();
-                });
+                entity.Property(e => e.LastModifiedAmount)
+                    .IsRequired();
+
+                entity.Property(e => e.CreatedAt)
+                    .IsRequired()
+                    .HasDefaultValueSql("GETUTCDATE()");
+            });
+
+            // GemStore configuration
+            modelBuilder.Entity<GemStore>(entity =>
+            {
+                entity.ToTable("GemStores");
+
+                entity.HasKey(e => e.Cnp);
+
+                entity.Property(e => e.Cnp)
+                    .IsRequired()
+                    .HasMaxLength(13);
+
+                entity.Property(e => e.GemBalance)
+                    .IsRequired();
+
+                entity.Property(e => e.IsGuest)
+                    .IsRequired();
+
+                entity.Property(e => e.LastUpdated)
+                    .IsRequired();
+            });
+
+            modelBuilder.Entity<Investment>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.InvestorCnp).IsRequired().HasMaxLength(13);
+                entity.Property(e => e.Details).IsRequired();
+                entity.Property(e => e.AmountInvested).HasPrecision(18, 2);
+                entity.Property(e => e.AmountReturned).HasPrecision(18, 2);
+                entity.Property(e => e.InvestmentDate).IsRequired();
+            });
+            // Configure BillSplitReport entity
+            modelBuilder.Entity<BillSplitReport>()
+                .HasKey(b => b.Id);
+
+            modelBuilder.Entity<BillSplitReport>()
+                .Property(b => b.ReportedUserCnp)
+                .IsRequired();
+
+            modelBuilder.Entity<BillSplitReport>()
+                .Property(b => b.ReportingUserCnp)
+                .IsRequired();
+
+            modelBuilder.Entity<BillSplitReport>()
+                .Property(b => b.DateOfTransaction)
+                .IsRequired();
+
+            modelBuilder.Entity<BillSplitReport>()
+                .Property(b => b.BillShare)
+                .IsRequired()
+                .HasPrecision(18, 2); // Specify precision and scale for the decimal property
+
+            modelBuilder.Entity<UserStock>(entity =>
+            {
+                entity.HasKey(e => new { e.UserCnp, e.StockName });
+                entity.Property(e => e.UserCnp).IsRequired().HasMaxLength(13);
+                entity.Property(e => e.StockName).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.Quantity).IsRequired();
+                entity.HasOne(e => e.Stock)
+                      .WithMany()
+                      .HasForeignKey(e => e.StockName)
+                      .HasPrincipalKey(s => s.Name);
+                entity.HasOne(e => e.User)
+                      .WithMany(u => u.OwnedStocks)
+                      .HasForeignKey(e => e.UserCnp)
+                      .HasPrincipalKey(u => u.CNP)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<CreditScoreHistory>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.UserCnp).IsRequired().HasMaxLength(13);
+                entity.Property(e => e.Date).IsRequired();
+                entity.Property(e => e.Score).IsRequired();
             });
 
             modelBuilder.Entity<LoanRequest>(entity =>
@@ -267,25 +272,26 @@ namespace BankApi.Data
                     .HasMaxLength(13);
 
                 entity.Property(e => e.Amount)
-                    .IsRequired();
+                            .IsRequired();
 
                 entity.Property(e => e.ApplicationDate)
-                    .IsRequired()
-                    .HasDefaultValueSql("GETUTCDATE()");
+                            .IsRequired()
+                            .HasDefaultValueSql("GETUTCDATE()");
 
                 entity.Property(e => e.RepaymentDate)
-                    .IsRequired();
+                            .IsRequired();
 
                 entity.Property(e => e.Status)
-                    .IsRequired()
-                    .HasMaxLength(100);
+                            .IsRequired()
+                            .HasMaxLength(100);
             });
 
             modelBuilder.Entity<TransactionLogTransaction>(entity =>
             {
                 entity.HasOne(e => e.Author)
                     .WithMany()
-                    .HasForeignKey(e => e.Id)
+                    .HasForeignKey(e => e.AuthorCNP)
+                    .HasPrincipalKey(e => e.CNP)
                     .OnDelete(DeleteBehavior.Cascade);
             });
 

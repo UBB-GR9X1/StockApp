@@ -1,9 +1,6 @@
 using BankApi.Models;
 using BankApi.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace BankApi.Controllers
 {

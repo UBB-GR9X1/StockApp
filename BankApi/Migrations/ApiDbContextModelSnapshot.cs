@@ -542,10 +542,17 @@ namespace BankApi.Migrations
             modelBuilder.Entity("BankApi.Models.TransactionLogTransaction", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("Amount")
                         .HasColumnType("int");
+
+                    b.Property<string>("AuthorCNP")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(13)");
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
@@ -569,6 +576,8 @@ namespace BankApi.Migrations
                         .HasColumnType("nvarchar(4)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AuthorCNP");
 
                     b.ToTable("TransactionLogTransactions");
                 });
@@ -613,8 +622,8 @@ namespace BankApi.Migrations
                         .HasColumnType("decimal(18,2)")
                         .HasDefaultValue(0m);
 
-                    b.Property<DateOnly>("Birthday")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("Birthday")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("CNP")
                         .IsRequired()
@@ -760,6 +769,13 @@ namespace BankApi.Migrations
 
             modelBuilder.Entity("BankApi.Models.FavoriteStock", b =>
                 {
+                    b.HasOne("BankApi.Models.BaseStock", null)
+                        .WithMany("Favorites")
+                        .HasForeignKey("StockName")
+                        .HasPrincipalKey("Name")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("BankApi.Models.Stock", "Stock")
                         .WithMany()
                         .HasForeignKey("StockName")
@@ -838,7 +854,8 @@ namespace BankApi.Migrations
                 {
                     b.HasOne("BankApi.Models.User", "Author")
                         .WithMany()
-                        .HasForeignKey("Id")
+                        .HasForeignKey("AuthorCNP")
+                        .HasPrincipalKey("CNP")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -871,6 +888,11 @@ namespace BankApi.Migrations
                     b.HasOne("BankApi.Models.NewsArticle", null)
                         .WithMany("RelatedStocks")
                         .HasForeignKey("NewsArticleArticleId");
+                });
+
+            modelBuilder.Entity("BankApi.Models.BaseStock", b =>
+                {
+                    b.Navigation("Favorites");
                 });
 
             modelBuilder.Entity("BankApi.Models.NewsArticle", b =>

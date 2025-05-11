@@ -94,7 +94,7 @@
             }
         }
 
-        private async Task LoadStocksAsync()
+        public async Task LoadStocksAsync()
         {
             var stocks = await this.homepageService.GetFilteredAndSortedStocksAsync(this.SearchQuery, this.SelectedSortOption, false);
             this.filteredStocks.Clear();

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace BankApi.Models
 {
@@ -33,5 +34,10 @@ namespace BankApi.Models
         [Required]
         [MaxLength(13)]
         public string AuthorCNP { get; set; } = string.Empty;
+
+
+        [Required]
+        [JsonIgnore]
+        public ICollection<FavoriteStock> Favorites { get; set; } = [];
     }
 }

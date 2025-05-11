@@ -5,29 +5,29 @@ namespace StockApp.Pages
     using System.Windows.Input;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
-    using Microsoft.UI.Xaml.Navigation;
     using StockApp.Commands;
-    using StockApp.Models;
-    using StockApp.Services;
     using StockApp.ViewModels;
+    using StockApp.Views;
 
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
     public sealed partial class StockPage : Page
     {
-        private StockPageViewModel viewModel;
-        private Page previousPage;
-
         private ICommand command { get; }
 
+        public Page? PreviousPage { get; set; }
+
+        public StockPageViewModel ViewModel { get; set; }
+
         /// <summary>
-        /// Constructor for the StockPage class.
+        /// Initializes a new instance of the <see cref="StockPage"/> class.
         /// </summary>
+        /// <param name="stockPageViewModel">The ViewModel for this Page.</param>
         public StockPage(StockPageViewModel stockPageViewModel)
         {
-            this.viewModel = stockPageViewModel;
-            this.DataContext = this.viewModel;
+            this.ViewModel = stockPageViewModel;
+            this.DataContext = this.ViewModel;
             this.InitializeComponent();
             this.command = new StockNewsRelayCommand(() => this.AuthorButtonClick());
         }
@@ -37,41 +37,29 @@ namespace StockApp.Pages
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        public void ReturnButtonClick(object sender, RoutedEventArgs e)
+        public async void ReturnButtonClick(object sender, RoutedEventArgs e)
         {
-            //NavigationService.Instance.GoBack();
-            Frame rootFrame = App.MainAppWindow.MainAppFrame;
-            rootFrame.Content = this.previousPage;
+            if (this.PreviousPage is HomepageView homepage)
+            {
+                await homepage.ViewModel.LoadStocksAsync();
+            }
+
+            App.MainAppWindow!.MainAppFrame.Content = this.PreviousPage ?? throw new InvalidOperationException("Previous page is not set");
         }
 
         /// <summary>
         /// Handles the click event for the author button.
         /// </summary>
         /// <exception cref="InvalidOperationException"></exception>
-        public void AuthorButtonClick()
+        public async void AuthorButtonClick()
         {
-            if (this.viewModel == null)
+            if (this.ViewModel == null)
             {
                 throw new InvalidOperationException("ViewModel is not initialized");
             }
 
-            NavigationService.Instance.Navigate(typeof(ProfilePage), this.viewModel.GetStockAuthor());
-        }
-
-        protected override void OnNavigatedTo(NavigationEventArgs e)
-        {
-            base.OnNavigatedTo(e);
-
-            // Retrieve the stock name passed during navigation
-            if (e.Parameter is StockDetailsDTO stockDetailsDTO)
-            {
-                this.viewModel.SelectedStock = stockDetailsDTO.StockDetails;
-                this.previousPage = stockDetailsDTO.PreviousPage;
-            }
-            else
-            {
-                throw new InvalidOperationException("Parameter is not of type Stock");
-            }
+            ContentDialog dialog = await this.ViewModel.GetProfileDialog();
+            await dialog.ShowAsync();
         }
 
         /// <summary>
@@ -79,9 +67,9 @@ namespace StockApp.Pages
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        public void FavoriteButtonClick(object sender, RoutedEventArgs e)
+        public async void FavoriteButtonClick(object sender, RoutedEventArgs e)
         {
-            this.viewModel.ToggleFavorite();
+            await this.ViewModel.ToggleFavorite();
         }
 
         /// <summary>
@@ -89,10 +77,9 @@ namespace StockApp.Pages
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        public void AlertsButtonClick(object sender, RoutedEventArgs e)
+        public async void AlertsButtonClick(object sender, RoutedEventArgs e)
         {
-            throw new NotImplementedException("Alerts feature is not implemented yet.");
-            //NavigationService.Instance.Navigate(typeof(AlertsView), this.viewModel!.SelectedStock);
+            this.ViewModel.OpenAlertsView();
         }
 
         /// <summary>
@@ -102,14 +89,14 @@ namespace StockApp.Pages
         /// <param name="e"></param>
         public async void BuyButtonClick(object sender, RoutedEventArgs e)
         {
-            if (this.viewModel?.IsGuest ?? true)
+            if (!this.ViewModel?.IsAuthenticated ?? true)
             {
                 await this.ShowDialogAsync("Login Required", "You need to be logged in to buy stocks.");
                 return;
             }
 
             int quantity = (int)this.QuantityInput.Value;
-            bool success = await this.viewModel.BuyStock(quantity);
+            bool success = await this.ViewModel.BuyStock(quantity);
             this.QuantityInput.Value = 1;
 
             if (!success)
@@ -125,14 +112,20 @@ namespace StockApp.Pages
         /// <param name="e"></param>
         public async void SellButtonClick(object sender, RoutedEventArgs e)
         {
-            if (this.viewModel?.IsGuest ?? true)
+            if (!this.ViewModel?.IsAuthenticated ?? true)
             {
                 await this.ShowDialogAsync("Login Required", "You need to be logged in to sell stocks.");
                 return;
             }
 
             int quantity = (int)this.QuantityInput.Value;
-            bool success = await this.viewModel.SellStock(quantity);
+            if (quantity <= 0)
+            {
+                await this.ShowDialogAsync("Invalid Quantity", "You must sell at least one stock.");
+                return;
+            }
+
+            bool success = await this.ViewModel.SellStock(quantity);
             this.QuantityInput.Value = 1;
 
             if (!success)

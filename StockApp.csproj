@@ -27,6 +27,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Remove="Test\TestPage.xaml" />
+    <None Remove="Views\Components\UserProfileComponent.xaml" />
     <None Remove="Views\Pages\CreateProfilePage.xaml" />
   </ItemGroup>
 
@@ -131,6 +132,9 @@
     <None Update="SqlScripts\ResetDatabase.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Page Update="Views\Components\UserProfileComponent.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Update="Views\Pages\CreateProfilePage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>

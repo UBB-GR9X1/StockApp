@@ -44,9 +44,14 @@
         public DateTime Date { get; }
 
         /// <summary>
-        /// Gets the CNP identifier of the user who executed the transaction.
+        /// Gets the User who executed the transaction.
         /// </summary>
-        public string Author { get; }
+        public User Author { get; }
+
+        /// <summary>
+        /// Gets the CNP of the User who executed the transaction.
+        /// </summary>
+        public string AuthorCNP { get; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TransactionLogTransaction"/> class.
@@ -57,7 +62,7 @@
         /// <param name="amount">The number of shares; must be greater than zero.</param>
         /// <param name="pricePerStock">The price per share; must be greater than zero.</param>
         /// <param name="date">The date and time when the transaction occurred.</param>
-        /// <param name="author">The CNP of the user who performed the transaction; cannot be null or whitespace.</param>
+        /// <param name="author">The User performed the transaction; cannot be null or whitespace.</param>
         public TransactionLogTransaction(
             string stockSymbol,
             string stockName,
@@ -65,7 +70,7 @@
             int amount,
             int pricePerStock,
             DateTime date,
-            string author)
+            User author)
         {
             // Validate that the stock symbol is provided
             if (string.IsNullOrWhiteSpace(stockSymbol))
@@ -97,12 +102,6 @@
                 throw new ArgumentException("PricePerStock > 0");
             }
 
-            // Validate that the author identifier is provided
-            if (string.IsNullOrWhiteSpace(author))
-            {
-                throw new ArgumentException("Author required");
-            }
-
             this.StockSymbol = stockSymbol;
             this.StockName = stockName;
             this.Type = type;
@@ -110,6 +109,7 @@
             this.PricePerStock = pricePerStock;
             this.Date = date;
             this.Author = author;
+            this.AuthorCNP = author.CNP;
         }
     }
 }

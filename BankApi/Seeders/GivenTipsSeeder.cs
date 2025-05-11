@@ -1,6 +1,6 @@
 ﻿namespace BankApi.Seeders
 {
-    public class GivenTipsSeeder(IConfiguration configuration) : ForeignKeyTableSeeder(configuration)
+    public class GivenTipsSeeder(IConfiguration configuration) : ForeignKeyTableSeeder<int>(configuration, "id")
     {
         protected override string GetReferencedTableName() => "Tips";
 

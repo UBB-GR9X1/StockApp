@@ -5,13 +5,10 @@
     using System.Collections.ObjectModel;
     using System.Linq;
     using System.Threading.Tasks;
-    using System.Windows.Input;
     using Microsoft.UI.Xaml.Controls;
     using StockApp;
-    using StockApp.Commands;
     using StockApp.Models;
     using StockApp.Services;
-    using StockApp.Views;
 
     /// <summary>
     /// ViewModel for creating, previewing, and submitting user‐authored news articles.
@@ -124,22 +121,6 @@
                 this.HasError = !string.IsNullOrEmpty(value);
             }
         }
-
-        /// <summary>
-        /// Command to clear the article creation form.
-        /// </summary>
-        public ICommand ClearCommand { get; }
-
-        /// <summary>
-        /// Command to preview the article before submission.
-        /// </summary>
-        public ICommand PreviewCommand { get; }
-
-        /// <summary>
-        /// Command to submit the article for review.
-        /// </summary>
-        public ICommand SubmitCommand { get; }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="ArticleCreationViewModel"/> class with dependencies.
         /// </summary>
@@ -152,10 +133,6 @@
             this.newsService = newsService ?? throw new ArgumentNullException(nameof(newsService));
             this.stocksService = stocksService ?? throw new ArgumentNullException(nameof(stocksService));
             this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
-            // Initialize commands
-            this.ClearCommand = new StockNewsRelayCommand(() => this.ClearForm());
-            this.PreviewCommand = new StockNewsRelayCommand(async () => await this.PreviewArticleAsync());
-            this.SubmitCommand = new StockNewsRelayCommand(async () => await this.SubmitArticleAsync());
 
             // Initialize topic list
             this.Topics.Add("Stock News");
@@ -166,80 +143,6 @@
 
             // Set default selected topic
             this.selectedTopic = "Stock News";
-        }
-
-        /// <summary>
-        /// Clears all form fields and resets state.
-        /// </summary>
-        private void ClearForm()
-        {
-            this.Title = string.Empty;
-            this.Summary = string.Empty;
-            this.Content = string.Empty;
-            this.SelectedTopic = "Stock News";
-            this.RelatedStocksText = string.Empty;
-            this.ErrorMessage = string.Empty;
-        }
-
-        private async Task PreviewArticleAsync()
-        {
-            if (!this.ValidateForm())
-            {
-                return;
-            }
-
-            try
-            {
-                this.IsLoading = true;
-
-                // Create a unique ID for this preview
-                var previewId = Guid.NewGuid().ToString();
-                throw new NotImplementedException("Preview functionality is not implemented yet.");
-                // Build the NewsArticle for display
-                //NewsArticle article = new(
-                //    previewId,
-                //    this.Title,
-                //    this.Summary ?? string.Empty,
-                //    this.Content,
-                //    $"User: {this.appState.CurrentUser?.Username ?? "Anonymous"}",
-                //    DateTime.Now,
-                //    this.ParseRelatedStocks(),
-                //    Status.Pending)
-                //{
-                //    IsRead = false,
-                //    IsWatchlistRelated = false,
-                //};
-
-                //// Build a temporary UserArticle for preview context
-                //UserArticle userArticle = new(
-                //   previewId,
-                //   this.Title,
-                //   this.Summary ?? string.Empty,
-                //   this.Content,
-                //   this.appState.CurrentUser ?? throw new InvalidOperationException("User not found"),
-                //   DateTime.Now,
-                //   "Preview",
-                //   this.SelectedTopic,
-                //   this.ParseRelatedStocks());
-
-                // Store preview in the homepageService
-                //this.newsService.StorePreviewArticle(article, userArticle);
-
-                // Navigate to the preview view
-                NavigationService.Instance.Navigate(
-                    typeof(NewsArticleView),
-                    $"preview:{previewId}");
-            }
-            catch (Exception ex)
-            {
-                // Log and display an error if preview fails
-                System.Diagnostics.Debug.WriteLine($"Error previewing article: {ex.Message}");
-                this.ErrorMessage = "An error occurred while trying to preview the article.";
-            }
-            finally
-            {
-                this.IsLoading = false;
-            }
         }
 
         private async Task SubmitArticleAsync()
@@ -470,22 +373,6 @@
                 // If dialog fails, write to debug output
                 System.Diagnostics.Debug.WriteLine($"Error showing error dialog: {ex.Message}");
             }
-        }
-
-        private bool ShouldEnableButton()
-        {
-            if (string.IsNullOrEmpty(Title) || string.IsNullOrEmpty(Content))
-            {
-                return false;
-            }
-
-            // Check if RelatedStocksText contains comma-separated entries
-            if (!string.IsNullOrEmpty(RelatedStocksText) && RelatedStocksText.Split(',').Length > 5)
-            {
-                return false;
-            }
-
-            return true;
         }
 
         public async Task<NewsArticle> GetPreviewArticle()

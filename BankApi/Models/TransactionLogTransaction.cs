@@ -14,6 +14,8 @@
         /// Gets or sets the unique identifier for the transaction.
         /// </summary>
         [Key]
+        [ScaffoldColumn(false)]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
         /// <summary>
@@ -60,6 +62,9 @@
         /// </summary>
         [Required]
         public DateTime Date { get; set; }
+
+        [Required]
+        public string AuthorCNP { get; set; }
 
         /// <summary>
         /// Gets or sets the user who performed the transaction.

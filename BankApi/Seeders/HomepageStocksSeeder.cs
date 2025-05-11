@@ -1,6 +1,6 @@
 ﻿namespace BankApi.Seeders
 {
-    public class HomepageStocksSeeder(IConfiguration configuration) : ForeignKeyTableSeeder(configuration)
+    public class HomepageStocksSeeder(IConfiguration configuration) : ForeignKeyTableSeeder<int>(configuration)
     {
         protected override string GetReferencedTableName() => "BaseStocks";
 

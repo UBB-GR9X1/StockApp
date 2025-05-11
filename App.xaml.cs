@@ -70,7 +70,6 @@ namespace StockApp
                     services.AddScoped<IAlertRepository, AlertProxyRepository>();
                     services.AddScoped<ITransactionRepository, TransactionProxyRepository>();
                     services.AddScoped<ITransactionLogService, TransactionLogService>();
-                    services.AddScoped<TransactionLogViewModel>();
                     services.AddScoped<IInvestmentsRepository, InvestmentsProxyRepository>();
                     services.AddScoped<IBillSplitReportRepository, BillSplitReportProxyRepository>();
                     services.AddScoped<ITransactionRepository, TransactionProxyRepository>();
@@ -181,7 +180,10 @@ namespace StockApp
                     {
                         client.BaseAddress = new Uri("https://localhost:7001/");
                     });
-
+                    services.AddHttpClient<IStockPageRepository, StockPageProxyRepository>(client =>
+                    {
+                        client.BaseAddress = new Uri("https://localhost:7001/");
+                    });
 
                     // Other Services
                     services.AddScoped<IBaseStocksService, BaseStocksService>();
@@ -204,7 +206,7 @@ namespace StockApp
                     services.AddScoped<IHistoryService, HistoryService>();
                     services.AddScoped<INewsService, NewsService>();
                     services.AddScoped<IStockService, StockService>();
-
+                    services.AddScoped<IAlertService, AlertService>();
                     services.AddSingleton<MainWindow>();
 
                     // UI Components
@@ -220,8 +222,10 @@ namespace StockApp
                     services.AddTransient<LoanRequestView>();
                     services.AddTransient<UserInfoComponent>();
                     services.AddTransient<UsersView>();
-                    // ViewModels
+                    services.AddTransient<UserProfileComponent>();
+                    services.AddTransient<AlertsView>();
 
+                    // ViewModels
                     services.AddTransient<StoreViewModel>();
                     services.AddTransient<ProfilePageViewModel>();
                     services.AddTransient<InvestmentsViewModel>();
@@ -234,6 +238,10 @@ namespace StockApp
                     services.AddTransient<NewsListPage>();
                     services.AddTransient<ArticleCreationViewModel>();
                     services.AddTransient<AdminNewsViewModel>();
+                    services.AddTransient<StockPageViewModel>();
+                    services.AddTransient<TransactionLogViewModel>();
+                    services.AddTransient<UserProfileComponentViewModel>();
+                    services.AddTransient<AlertViewModel>();
 
                     // Pages
                     services.AddTransient<CreateStockPage>();
@@ -249,6 +257,7 @@ namespace StockApp
                     services.AddTransient<ChatReportView>();
                     services.AddTransient<ArticleCreationView>();
                     services.AddTransient<AdminNewsControlView>();
+                    services.AddTransient<StockPage>();
                     //FIXME: remove \/\/\/\/
                     services.AddTransient<Func<LoanRequestComponent>>(sp => () => sp.GetRequiredService<LoanRequestComponent>());
                     services.AddTransient<Func<ChatReportComponent>>(sp => () => sp.GetRequiredService<ChatReportComponent>());

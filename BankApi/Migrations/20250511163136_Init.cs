@@ -46,25 +46,6 @@ namespace BankApi.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "BaseStocks",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Symbol = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
-                    AuthorCNP = table.Column<string>(type: "nvarchar(13)", maxLength: 13, nullable: false),
-                    Discriminator = table.Column<string>(type: "nvarchar(13)", maxLength: 13, nullable: false),
-                    Price = table.Column<int>(type: "int", nullable: true),
-                    Quantity = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_BaseStocks", x => x.Id);
-                    table.UniqueConstraint("AK_BaseStocks_Name", x => x.Name);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "BillSplitReports",
                 columns: table => new
                 {
@@ -234,7 +215,7 @@ namespace BankApi.Migrations
                     RiskScore = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
                     ROI = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false, defaultValue: 0m),
                     CreditScore = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
-                    Birthday = table.Column<DateOnly>(type: "date", nullable: false),
+                    Birthday = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ZodiacSign = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     ZodiacAttribute = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     NumberOfBillSharesPaid = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
@@ -244,6 +225,137 @@ namespace BankApi.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Users", x => x.Id);
+                    table.UniqueConstraint("AK_Users_CNP", x => x.CNP);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "GivenTips",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    TipId = table.Column<int>(type: "int", nullable: false),
+                    UserCNP = table.Column<string>(type: "nvarchar(13)", maxLength: 13, nullable: false),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_GivenTips", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_GivenTips_Tips_TipId",
+                        column: x => x.TipId,
+                        principalTable: "Tips",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_GivenTips_Users_UserCNP",
+                        column: x => x.UserCNP,
+                        principalTable: "Users",
+                        principalColumn: "CNP",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "NewsArticles",
+                columns: table => new
+                {
+                    ArticleId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Summary = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Source = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    PublishedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    IsRead = table.Column<bool>(type: "bit", nullable: false),
+                    IsWatchlistRelated = table.Column<bool>(type: "bit", nullable: false),
+                    Category = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    AuthorCNP = table.Column<string>(type: "nvarchar(13)", nullable: false),
+                    Topic = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_NewsArticles", x => x.ArticleId);
+                    table.ForeignKey(
+                        name: "FK_NewsArticles_Users_AuthorCNP",
+                        column: x => x.AuthorCNP,
+                        principalTable: "Users",
+                        principalColumn: "CNP",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TransactionLogTransactions",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    StockSymbol = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                    StockName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Type = table.Column<string>(type: "nvarchar(4)", maxLength: 4, nullable: false),
+                    Amount = table.Column<int>(type: "int", nullable: false),
+                    PricePerStock = table.Column<int>(type: "int", nullable: false),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    AuthorCNP = table.Column<string>(type: "nvarchar(13)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TransactionLogTransactions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TransactionLogTransactions_Users_AuthorCNP",
+                        column: x => x.AuthorCNP,
+                        principalTable: "Users",
+                        principalColumn: "CNP",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "BaseStocks",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Symbol = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                    AuthorCNP = table.Column<string>(type: "nvarchar(13)", maxLength: 13, nullable: false),
+                    Discriminator = table.Column<string>(type: "nvarchar(13)", maxLength: 13, nullable: false),
+                    Price = table.Column<int>(type: "int", nullable: true),
+                    Quantity = table.Column<int>(type: "int", nullable: true),
+                    NewsArticleArticleId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BaseStocks", x => x.Id);
+                    table.UniqueConstraint("AK_BaseStocks_Name", x => x.Name);
+                    table.ForeignKey(
+                        name: "FK_BaseStocks_NewsArticles_NewsArticleArticleId",
+                        column: x => x.NewsArticleArticleId,
+                        principalTable: "NewsArticles",
+                        principalColumn: "ArticleId");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "FavoriteStocks",
+                columns: table => new
+                {
+                    UserCNP = table.Column<string>(type: "nvarchar(13)", maxLength: 13, nullable: false),
+                    StockName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FavoriteStocks", x => new { x.UserCNP, x.StockName });
+                    table.ForeignKey(
+                        name: "FK_FavoriteStocks_BaseStocks_StockName",
+                        column: x => x.StockName,
+                        principalTable: "BaseStocks",
+                        principalColumn: "Name",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_FavoriteStocks_Users_UserCNP",
+                        column: x => x.UserCNP,
+                        principalTable: "Users",
+                        principalColumn: "CNP",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -266,6 +378,27 @@ namespace BankApi.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "StockValues",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    StockName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Price = table.Column<int>(type: "int", precision: 18, scale: 4, nullable: false),
+                    DateTime = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StockValues", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_StockValues_BaseStocks_StockName",
+                        column: x => x.StockName,
+                        principalTable: "BaseStocks",
+                        principalColumn: "Name",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "UserStocks",
                 columns: table => new
                 {
@@ -282,55 +415,11 @@ namespace BankApi.Migrations
                         principalTable: "BaseStocks",
                         principalColumn: "Name",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "GivenTips",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    TipId = table.Column<int>(type: "int", nullable: false),
-                    UserCNP = table.Column<int>(type: "int", maxLength: 13, nullable: false),
-                    Date = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()")
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_GivenTips", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_GivenTips_Tips_TipId",
-                        column: x => x.TipId,
-                        principalTable: "Tips",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_GivenTips_Users_UserCNP",
-                        column: x => x.UserCNP,
+                        name: "FK_UserStocks_Users_UserCnp",
+                        column: x => x.UserCnp,
                         principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "TransactionLogTransactions",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false),
-                    StockSymbol = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
-                    StockName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Type = table.Column<string>(type: "nvarchar(4)", maxLength: 4, nullable: false),
-                    Amount = table.Column<int>(type: "int", nullable: false),
-                    PricePerStock = table.Column<int>(type: "int", nullable: false),
-                    Date = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TransactionLogTransactions", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_TransactionLogTransactions_Users_Id",
-                        column: x => x.Id,
-                        principalTable: "Users",
-                        principalColumn: "Id",
+                        principalColumn: "CNP",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -346,6 +435,16 @@ namespace BankApi.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_BaseStocks_NewsArticleArticleId",
+                table: "BaseStocks",
+                column: "NewsArticleArticleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FavoriteStocks_StockName",
+                table: "FavoriteStocks",
+                column: "StockName");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_GivenTips_TipId",
                 table: "GivenTips",
                 column: "TipId");
@@ -354,6 +453,21 @@ namespace BankApi.Migrations
                 name: "IX_GivenTips_UserCNP",
                 table: "GivenTips",
                 column: "UserCNP");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_NewsArticles_AuthorCNP",
+                table: "NewsArticles",
+                column: "AuthorCNP");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StockValues_StockName",
+                table: "StockValues",
+                column: "StockName");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TransactionLogTransactions_AuthorCNP",
+                table: "TransactionLogTransactions",
+                column: "AuthorCNP");
 
             migrationBuilder.CreateIndex(
                 name: "IX_TriggeredAlerts_StockName",
@@ -391,6 +505,9 @@ namespace BankApi.Migrations
                 name: "CreditScoreHistories");
 
             migrationBuilder.DropTable(
+                name: "FavoriteStocks");
+
+            migrationBuilder.DropTable(
                 name: "GemStores");
 
             migrationBuilder.DropTable(
@@ -409,6 +526,9 @@ namespace BankApi.Migrations
                 name: "Loans");
 
             migrationBuilder.DropTable(
+                name: "StockValues");
+
+            migrationBuilder.DropTable(
                 name: "TransactionLogTransactions");
 
             migrationBuilder.DropTable(
@@ -421,10 +541,13 @@ namespace BankApi.Migrations
                 name: "Tips");
 
             migrationBuilder.DropTable(
-                name: "Users");
+                name: "BaseStocks");
 
             migrationBuilder.DropTable(
-                name: "BaseStocks");
+                name: "NewsArticles");
+
+            migrationBuilder.DropTable(
+                name: "Users");
         }
     }
 }

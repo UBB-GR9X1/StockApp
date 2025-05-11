@@ -1,13 +1,13 @@
 ﻿namespace BankApi.Repositories
 {
-    using BankApi.Models;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using BankApi.Models;
 
     public interface IHomepageStockRepository
     {
-        Task<List<HomepageStock>> GetAllAsync();
-        Task<HomepageStock?> GetByIdAsync(int id);
+        Task<List<HomepageStock>> GetAllAsync(string userCNP);
+        Task<HomepageStock?> GetByIdAsync(int id, string userCNP);
         Task<HomepageStock?> GetBySymbolAsync(string symbol);
         Task<HomepageStock> CreateAsync(HomepageStock stock);
         Task<bool> UpdateAsync(int id, HomepageStock stock);

@@ -11,7 +11,6 @@
     mc:Ignorable="d">
     <Page.Resources>
         <converters:ChangeToColorConverter x:Key="ChangeToColorConverter" />
-        <converters:FavoriteToStarConverter x:Key="FavoriteToStarConverter" />
     </Page.Resources>
     <!-- Main layout -->
     <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -54,11 +53,6 @@
            Foreground="{Binding Change, Converter={StaticResource ChangeToColorConverter}}"  
            Width="200" />
                             <TextBlock Text="{x:Bind Change}" Foreground="{x:Bind Change, Converter={StaticResource ChangeToColorConverter}}" Width="200" />
-                            <Button Content="★"
-                                    Width="100"
-                                    Command="{Binding DataContext.FavoriteCommand, ElementName=FavoritesList}"
-                                    CommandParameter="{x:Bind StockDetails}"
-                                    IsEnabled="{Binding DataContext.CanModifyFavorites, ElementName=FavoritesList}" />
                         </StackPanel>
                     </DataTemplate>
                 </ListView.ItemTemplate>
@@ -80,11 +74,7 @@
                                       Foreground="{x:Bind Change, Converter={StaticResource ChangeToColorConverter}}"  
                                       Width="200" />
 
-                            <Button Content="{x:Bind IsFavorite, Converter={StaticResource FavoriteToStarConverter}}"  
-                                   Width="100"  
-                                   Command="{Binding DataContext.FavoriteCommand, ElementName=FavoritesList}"  
-                                   CommandParameter="{x:Bind}"  
-                                   IsEnabled="{Binding DataContext.CanModifyFavorites, ElementName=FavoritesList}" />  
+                            
                        </StackPanel>  
                    </DataTemplate>  
                 </ListView.ItemTemplate>

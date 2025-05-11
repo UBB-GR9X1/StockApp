@@ -18,11 +18,11 @@ namespace BankApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<HomepageStock>>> GetAllHomepageStocks()
+        public async Task<ActionResult<List<HomepageStock>>> GetAllHomepageStocks(string userCNP)
         {
             try
             {
-                var stocks = await _repository.GetAllAsync();
+                var stocks = await _repository.GetAllAsync(userCNP);
                 return Ok(stocks);
             }
             catch (Exception ex)
@@ -33,11 +33,11 @@ namespace BankApi.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<HomepageStock>> GetHomepageStockById(int id)
+        public async Task<ActionResult<HomepageStock>> GetHomepageStockById(int id, string userCNP)
         {
             try
             {
-                var stock = await _repository.GetByIdAsync(id);
+                var stock = await _repository.GetByIdAsync(id, userCNP);
                 if (stock == null)
                 {
                     return NotFound($"Homepage stock with ID {id} not found");

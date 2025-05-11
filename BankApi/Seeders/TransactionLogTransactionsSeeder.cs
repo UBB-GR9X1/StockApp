@@ -1,16 +1,16 @@
 ﻿namespace BankApi.Seeders
 {
-    public class TransactionLogTransactionsSeeder(IConfiguration configuration) : ForeignKeyTableSeeder(configuration)
+    public class TransactionLogTransactionsSeeder(IConfiguration configuration) : ForeignKeyTableSeeder<string>(configuration, "CNP")
     {
         protected override string GetReferencedTableName() => "Users";
 
-        protected override string GetQueryWithForeignKeys(List<int> foreignKeys)
+        protected override string GetQueryWithForeignKeys(List<string> foreignKeys)
         {
             return $@"
                 IF NOT EXISTS (SELECT 1 FROM TransactionLogTransactions) 
                 BEGIN
                     INSERT INTO TransactionLogTransactions 
-                        (Id, StockSymbol, StockName, Type, Amount, PricePerStock, Date)
+                        (AuthorCNP, StockSymbol, StockName, Type, Amount, PricePerStock, Date)
                     VALUES
                         ({foreignKeys[0]}, 'AAPL', 'Apple Inc.', 'BUY', 10, 150, '2025-04-01'),
                         ({foreignKeys[1]}, 'GOOGL', 'Alphabet Inc.', 'SELL', 5, 2800, '2025-03-15'),

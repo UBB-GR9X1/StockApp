@@ -253,7 +253,6 @@
                     };
 
                     await dialog.ShowAsync();
-                    NavigationService.Instance.GoBack();
                 }
             }
             catch (Exception ex)
@@ -303,7 +302,6 @@
                         XamlRoot = App.CurrentWindow.Content.XamlRoot,
                     };
                     await dialog.ShowAsync();
-                    NavigationService.Instance.GoBack();
                 }
             }
             catch (Exception ex)
@@ -360,7 +358,6 @@
                             XamlRoot = App.CurrentWindow.Content.XamlRoot,
                         };
                         await dialog.ShowAsync();
-                        NavigationService.Instance.GoBack();
                     }
                 }
             }
