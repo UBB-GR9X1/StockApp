@@ -7,7 +7,6 @@ namespace StockApp
     using StockApp.Pages;
     using StockApp.Repositories;
     using StockApp.Views;
-    using StockApp.Views.Components;
     using StockApp.Views.Pages;
 
     /// <summary>
@@ -44,7 +43,6 @@ namespace StockApp
                     "Loans" => this.serviceProvider.GetRequiredService<LoansView>(),
                     "UsersList" => this.serviceProvider.GetRequiredService<UsersView>(),
                     "BillSplitReports" => this.serviceProvider.GetRequiredService<BillSplitReportPage>(),
-                    "Zodiac" => this.serviceProvider.GetRequiredService<ZodiacFeatureView>(),
                     "Investments" => this.serviceProvider.GetRequiredService<InvestmentsView>(),
                     "HomePage" => this.serviceProvider.GetRequiredService<HomepageView>(),
                     "NewsListPage" => this.serviceProvider.GetRequiredService<NewsListPage>(),

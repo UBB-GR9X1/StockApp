@@ -4,12 +4,13 @@ namespace StockApp.Pages
     using System.Threading.Tasks;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
-    using Microsoft.UI.Xaml.Navigation;
     using StockApp.ViewModels;
 
     public sealed partial class UpdateProfilePage : Page
     {
         private UpdateProfilePageViewModel viewModelUpdate;
+
+        public Page? PreviousPage { get; set; }
 
         public UpdateProfilePage(UpdateProfilePageViewModel viewModelUpdate)
         {
@@ -17,10 +18,17 @@ namespace StockApp.Pages
             this.viewModelUpdate = viewModelUpdate ?? throw new ArgumentNullException(nameof(viewModelUpdate));
         }
 
-        protected override void OnNavigatedTo(NavigationEventArgs e)
+        public async void NavigateBack(object sender, RoutedEventArgs e)
         {
-            base.OnNavigatedTo(e);
-            this.DataContext = this.viewModelUpdate;
+            if (this.PreviousPage != null)
+            {
+                if (this.PreviousPage is ProfilePage profile)
+                {
+                    await profile.ViewModel.LoadProfileData();
+                }
+
+                App.MainAppWindow!.MainAppFrame.Content = this.PreviousPage;
+            }
         }
 
         private async void GetAdminPassword(object sender, RoutedEventArgs e)

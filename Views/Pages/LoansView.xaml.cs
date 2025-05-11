@@ -5,8 +5,11 @@ namespace StockApp.Views.Pages
 
     public sealed partial class LoansView : Page
     {
+        private readonly LoansViewModel viewModel;
+
         public LoansView(LoansViewModel viewModel)
         {
+            this.viewModel = viewModel;
             this.InitializeComponent();
             this.DataContext = viewModel;
             this.Loaded += (s, e) =>
@@ -16,6 +19,11 @@ namespace StockApp.Views.Pages
                     viewModel.LoadLoansCommand.Execute(null);
                 }
             };
+        }
+
+        private void LoanComponent_LoanUpdated(object sender, System.EventArgs e)
+        {
+            this.viewModel.OnLoansUpdatedCommand.Execute(null);
         }
     }
 }

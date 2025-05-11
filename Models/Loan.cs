@@ -107,6 +107,7 @@
                 {
                     this.numberOfMonths = value;
                     this.OnPropertyChanged(nameof(this.NumberOfMonths));
+                    this.OnPropertyChanged(nameof(this.CanPay));
                 }
             }
         }
@@ -133,6 +134,7 @@
                 {
                     this.status = value;
                     this.OnPropertyChanged(nameof(this.Status));
+                    this.OnPropertyChanged(nameof(this.CanPay));
                 }
             }
         }
@@ -146,6 +148,8 @@
                 {
                     this.monthlyPaymentsCompleted = value;
                     this.OnPropertyChanged(nameof(this.MonthlyPaymentsCompleted));
+                    this.OnPropertyChanged(nameof(this.CanPay));
+
                 }
             }
         }
@@ -175,6 +179,8 @@
                 }
             }
         }
+
+        public bool CanPay => this.MonthlyPaymentsCompleted < this.NumberOfMonths && this.Status == "Approved";
 
         public Loan() { }
 

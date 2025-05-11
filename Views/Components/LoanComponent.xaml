@@ -40,7 +40,7 @@
             </TextBlock>
             <TextBlock>
              <Run Text="Monthly Payment: "/>
-             <Run Text="{Binding MonthlyPayment, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+             <Run Text="{Binding MonthlyPaymentAmount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             </TextBlock>
             <TextBlock>
              <Run Text="State: "/>
@@ -52,7 +52,7 @@
             </TextBlock>
             <TextBlock>
              <Run Text="Repaid: "/>
-             <Run Text="{Binding Repaid, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+             <Run Text="{Binding RepaidAmount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             </TextBlock>
             <TextBlock>
              <Run Text="Penalty: "/>
@@ -71,6 +71,7 @@
              BorderBrush="Transparent"
              Grid.Row="1"
              HorizontalAlignment="Right"
+             IsEnabled="{Binding CanPay, UpdateSourceTrigger=PropertyChanged}"
              VerticalAlignment="Bottom">
             <Button.Style>
                 <Style TargetType="Button">

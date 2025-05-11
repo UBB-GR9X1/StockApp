@@ -48,7 +48,7 @@ namespace BankApi.Controllers
         }
 
         [HttpPut("{cnp}")]
-        public async Task<ActionResult<User>> UpdateProfile(string cnp, [FromBody] User profile)
+        public async Task<ActionResult<User>> UpdateProfile(string cnp, [FromBody] ApiUpdateUser profile)
         {
             try
             {
@@ -57,7 +57,20 @@ namespace BankApi.Controllers
                     return BadRequest("CNP mismatch");
                 }
 
-                var updatedProfile = await _profileRepository.UpdateProfileAsync(profile);
+                var existingProfile = await _profileRepository.GetProfileByCnpAsync(cnp);
+
+                if (existingProfile == null)
+                {
+                    return NotFound($"Profile with CNP {cnp} not found.");
+                }
+
+                existingProfile.Username = profile.Name;
+                existingProfile.Image = profile.ProfilePicture;
+                existingProfile.Description = profile.Description;
+                existingProfile.IsHidden = profile.IsHidden;
+                existingProfile.GemBalance = profile.GemBalance;
+
+                var updatedProfile = await _profileRepository.UpdateProfileAsync(existingProfile);
                 return Ok(updatedProfile);
             }
             catch (KeyNotFoundException ex)
@@ -115,5 +128,18 @@ namespace BankApi.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
     }
+    public class ApiUpdateUser
+    {
+        public string CNP { get; set; }
+        public string Name { get; set; }
+        public string ProfilePicture { get; set; }
+        public string Description { get; set; }
+        public bool IsHidden { get; set; }
+        public bool IsAdmin { get; set; }
+        public int GemBalance { get; set; }
+        public DateTime LastUpdated { get; set; }
+    }
+
 }

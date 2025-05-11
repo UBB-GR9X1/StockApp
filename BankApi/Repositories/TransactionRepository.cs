@@ -25,7 +25,7 @@ namespace BankApi.Repositories
         /// </summary>
         public async Task<List<TransactionLogTransaction>> getAllTransactions()
         {
-            return await _context.TransactionLogTransactions.ToListAsync();
+            return await _context.TransactionLogTransactions.Include(t => t.Author).ToListAsync();
         }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace BankApi.Repositories
             }
 
             // Build the query dynamically based on the filter criteria
-            IQueryable<TransactionLogTransaction> query = _context.TransactionLogTransactions;
+            IQueryable<TransactionLogTransaction> query = _context.TransactionLogTransactions.Include(t => t.Author);
 
             if (!string.IsNullOrEmpty(criteria.StockName))
             {

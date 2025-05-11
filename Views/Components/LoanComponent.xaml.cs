@@ -31,6 +31,7 @@ namespace StockApp.Views.Components
             }
         }
 
+
         private static void OnLoanPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is LoanComponent component)

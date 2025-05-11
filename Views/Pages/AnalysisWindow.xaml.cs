@@ -78,15 +78,16 @@ namespace StockApp.Views.Pages
             {
                 if (history.Count == 0)
                 {
+                    this.CreditScorePlotView.Model = new PlotModel { Title = "No credit history", }; ;
                     return;
                 }
 
-                var plotModel = new PlotModel { Title = string.Empty };
+                var plotModel = new PlotModel { Title = string.Empty, };
 
                 var barSeries = new BarSeries
                 {
                     Title = "Credit Score",
-                    StrokeThickness = 1
+                    StrokeThickness = 1,
                 };
 
                 for (int i = 0; i < history.Count; i++)
@@ -122,8 +123,8 @@ namespace StockApp.Views.Pages
 
                 var categoryAxis = new CategoryAxis
                 {
-                    Position = AxisPosition.Bottom,
-                    Title = "Time"
+                    Position = AxisPosition.Left,
+                    Title = "Time",
                 };
 
                 for (int i = 0; i < history.Count; i++)
@@ -135,10 +136,10 @@ namespace StockApp.Views.Pages
 
                 var valueAxis = new LinearAxis
                 {
-                    Position = AxisPosition.Left,
+                    Position = AxisPosition.Bottom,
                     Title = "Score",
                     Minimum = 0,
-                    Maximum = 100
+                    Maximum = 800,
                 };
 
                 plotModel.Axes.Add(valueAxis);
@@ -152,7 +153,7 @@ namespace StockApp.Views.Pages
                     Title = "Error",
                     Content = $"Error loading history: {exception.Message}",
                     CloseButtonText = "OK",
-                    XamlRoot = this.Content.XamlRoot
+                    XamlRoot = this.Content.XamlRoot,
                 };
                 _ = dialog.ShowAsync();
             }

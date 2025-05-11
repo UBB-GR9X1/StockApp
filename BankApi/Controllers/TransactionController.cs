@@ -27,7 +27,7 @@ namespace BankApi.Controllers
         /// </summary>
         /// <returns>A list of all transactions.</returns>
         [HttpGet]
-        public async Task<IActionResult> GetAllTransactions()
+        public async Task<ActionResult<List<TransactionLogTransaction>>> GetAllTransactions()
         {
             try
             {
@@ -46,7 +46,7 @@ namespace BankApi.Controllers
         /// <param name="criteria">The filter criteria.</param>
         /// <returns>A list of transactions matching the criteria.</returns>
         [HttpPost("filter")]
-        public async Task<IActionResult> GetTransactionsByFilter([FromBody] TransactionFilterCriteria criteria)
+        public async Task<ActionResult<List<TransactionLogTransaction>>> GetTransactionsByFilter([FromBody] TransactionFilterCriteria criteria)
         {
             if (criteria == null)
             {

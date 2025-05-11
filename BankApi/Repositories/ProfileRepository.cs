@@ -28,7 +28,7 @@ namespace BankApi.Repositories
 
         public async Task<User> UpdateProfileAsync(User profile)
         {
-            var existingProfile = await _context.Users.FindAsync(profile.CNP);
+            var existingProfile = await _context.Users.FirstOrDefaultAsync(p => p.CNP == profile.CNP);
             if (existingProfile == null)
             {
                 throw new KeyNotFoundException($"Profile with CNP {profile.CNP} not found.");
@@ -74,9 +74,17 @@ namespace BankApi.Repositories
         public async Task<List<Stock>> GetUserStocksAsync(string cnp)
         {
             return await _context.UserStocks
-                .Where(us => us.UserCnp == cnp)
+                .Where(us => us.UserCnp == cnp && us.Quantity > 0)
                 .Include(us => us.Stock)
-                .Select(us => us.Stock)
+                .Select(us => new Stock
+                {
+                    Id = us.Stock.Id,
+                    Name = us.Stock.Name,
+                    Symbol = us.Stock.Symbol,
+                    AuthorCNP = us.Stock.AuthorCNP,
+                    Price = us.Stock.Price,
+                    Quantity = us.Quantity
+                })
                 .ToListAsync();
         }
 

@@ -236,6 +236,7 @@ namespace StockApp
                     services.AddTransient<TransactionLogViewModel>();
                     services.AddTransient<UserProfileComponentViewModel>();
                     services.AddTransient<AlertViewModel>();
+                    services.AddTransient<UpdateProfilePageViewModel>();
 
                     // Pages
                     services.AddTransient<CreateStockPage>();
@@ -252,6 +253,7 @@ namespace StockApp
                     services.AddTransient<ArticleCreationView>();
                     services.AddTransient<AdminNewsControlView>();
                     services.AddTransient<StockPage>();
+                    services.AddTransient<UpdateProfilePage>();
                     //FIXME: remove \/\/\/\/
                     services.AddTransient<Func<LoanRequestComponent>>(sp => () => sp.GetRequiredService<LoanRequestComponent>());
                     services.AddTransient<Func<ChatReportComponent>>(sp => () => sp.GetRequiredService<ChatReportComponent>());

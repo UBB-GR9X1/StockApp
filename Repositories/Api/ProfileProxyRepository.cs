@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
@@ -53,15 +52,7 @@ namespace StockApp.Repositories.Api
             var cnp = IUserRepository.CurrentUserCNP;
             var response = await _httpClient.GetAsync($"{BaseUrl}/{cnp}/stocks");
             response.EnsureSuccessStatusCode();
-            var apiStocks = await response.Content.ReadFromJsonAsync<List<ApiStock>>() ?? new List<ApiStock>();
-
-            return apiStocks.Select(s => new Stock(
-                name: s.Name,
-                symbol: s.Symbol,
-                authorCNP: s.AuthorCnp,
-                price: s.CurrentPrice,
-                quantity: s.UserStocks.FirstOrDefault()?.Quantity ?? 0
-            )).ToList();
+            return await response.Content.ReadFromJsonAsync<List<Stock>>() ?? new List<Stock>();
         }
 
         private class ApiProfile
@@ -81,19 +72,6 @@ namespace StockApp.Repositories.Api
             public int GemBalance { get; set; }
 
             public DateTime LastUpdated { get; set; }
-        }
-
-        private class ApiStock
-        {
-            public string Name { get; set; } = string.Empty;
-
-            public string Symbol { get; set; } = string.Empty;
-
-            public int CurrentPrice { get; set; }
-
-            public string AuthorCnp { get; set; } = string.Empty;
-
-            public List<ApiUserStock> UserStocks { get; set; } = new();
         }
 
         private class ApiUserStock

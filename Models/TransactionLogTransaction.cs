@@ -102,6 +102,11 @@
                 throw new ArgumentException("PricePerStock > 0");
             }
 
+            if (author == null)
+            {
+                throw new ArgumentException("Author required");
+            }
+
             this.StockSymbol = stockSymbol;
             this.StockName = stockName;
             this.Type = type;

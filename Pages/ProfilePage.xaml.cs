@@ -2,6 +2,7 @@ namespace StockApp.Pages
 {
     using System;
     using System.Windows.Input;
+    using Microsoft.Extensions.DependencyInjection;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
     using StockApp.Commands;
@@ -15,6 +16,8 @@ namespace StockApp.Pages
     public sealed partial class ProfilePage : Page
     {
         private readonly ProfilePageViewModel viewModel;
+
+        public ProfilePageViewModel ViewModel => this.viewModel;
 
         /// <summary>
         /// Gets the command for updating the profile.
@@ -71,7 +74,10 @@ namespace StockApp.Pages
                 this.ShowErrorMessage("No user profile available");
                 return;
             }
-            throw new NotImplementedException("Navigation to update page is not implemented");
+
+            UpdateProfilePage updateProfilePage = App.Host.Services.GetService<UpdateProfilePage>() ?? throw new InvalidOperationException("UpdateProfilePage is not available");
+            updateProfilePage.PreviousPage = this;
+            App.MainAppWindow!.MainAppFrame.Content = updateProfilePage;
         }
 
         /// <summary>

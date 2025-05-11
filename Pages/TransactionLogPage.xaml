@@ -14,12 +14,12 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <!-- Header (Title + Back Button + Export Section) -->
-        <Grid Grid.Row="0" Margin="0,0,0,30">
+        <Grid Grid.Row="0" Margin="0,0,0,30" MinHeight="30" MaxHeight="30">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*"/>
                 <!-- Left (Back Button) -->
@@ -44,7 +44,7 @@
         </Grid>
 
         <!-- Filters and Sorting -->
-        <Grid Grid.Row="1" Margin="0,0,0,20">
+        <Grid Grid.Row="1" Margin="0,0,0,20" MinHeight="30" MaxHeight="30">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
@@ -75,39 +75,7 @@
                 <ComboBoxItem Content="SELL"/>
             </ComboBox>
         </Grid>
-
-        <!-- Transactions Table -->
-        <StackPanel Grid.Row="2">
-            <!-- Column Headers -->
-            <StackPanel Orientation="Horizontal" Background="LightGray" Padding="5">
-                <TextBlock Text="Stock Name" Width="120" FontWeight="Bold"/>
-                <TextBlock Text="Type" Width="100" FontWeight="Bold"/>
-                <TextBlock Text="Amount" Width="80" FontWeight="Bold"/>
-                <TextBlock Text="Total Value" Width="100" FontWeight="Bold"/>
-                <TextBlock Text="Date" Width="150" FontWeight="Bold"/>
-                <TextBlock Text="Author" Width="120" FontWeight="Bold"/>
-            </StackPanel>
-
-            <!-- Transactions List -->
-            <ListView ItemsSource="{Binding Transactions}" BorderThickness="1" BorderBrush="Gray">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <StackPanel Orientation="Horizontal" Padding="5">
-                            <TextBlock Text="{Binding StockName}" Width="120"/>
-                            <TextBlock Text="{Binding Type}" Width="100"/>
-                            <TextBlock Text="{Binding Amount}" Width="80"/>
-                            <TextBlock Text="{Binding TotalValue}" Width="100"/>
-                            <TextBlock Text="{Binding Date}" Width="150"/>
-                            <TextBlock Text="{Binding Author}" Width="120"/>
-                        </StackPanel>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-        </StackPanel>
-
-
-        <!-- Filters at Bottom -->
-        <Grid Grid.Row="3" Margin="0,20,0,0">
+        <Grid Grid.Row="2" Margin="0,20,0,0" MinHeight="50" MaxHeight="50">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <!-- Min/Max Total Value (Far Left) -->
@@ -138,16 +106,45 @@
                 <StackPanel Grid.Column="0" Margin="0,0,15,0">
                     <TextBlock Text="Start Date"/>
                     <DatePicker SelectedDate="{x:Bind viewModel.StartDateOffset, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  
-                               MaxYear="{x:Bind viewModel.EndDateOffset, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                          MaxYear="{x:Bind viewModel.EndDateOffset, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="1">
                     <TextBlock Text="End Date"/>
                     <DatePicker SelectedDate="{x:Bind viewModel.EndDateOffset, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  
-                                MinYear="{x:Bind viewModel.StartDateOffset, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                           MinYear="{x:Bind viewModel.StartDateOffset, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
                 </StackPanel>
             </Grid>
         </Grid>
+        
+        <!-- Transactions Table -->
+        <StackPanel Grid.Row="3">
+            <!-- Column Headers -->
+            <StackPanel Orientation="Horizontal" Background="LightGray" Padding="5">
+                <TextBlock Text="Stock Name" Width="120" FontWeight="Bold"/>
+                <TextBlock Text="Type" Width="100" FontWeight="Bold"/>
+                <TextBlock Text="Amount" Width="80" FontWeight="Bold"/>
+                <TextBlock Text="Total Value" Width="100" FontWeight="Bold"/>
+                <TextBlock Text="Date" Width="150" FontWeight="Bold"/>
+                <TextBlock Text="Author" Width="120" FontWeight="Bold"/>
+            </StackPanel>
+
+            <!-- Transactions List -->
+               <ListView ItemsSource="{Binding Transactions}" BorderThickness="1" BorderBrush="Gray" ScrollViewer.VerticalScrollBarVisibility="Visible" Height="900">  
+                   <ListView.ItemTemplate>  
+                       <DataTemplate>  
+                           <StackPanel Orientation="Horizontal" Padding="5">  
+                               <TextBlock Text="{Binding StockName}" Width="120"/>  
+                               <TextBlock Text="{Binding Type}" Width="100"/>  
+                               <TextBlock Text="{Binding Amount}" Width="80"/>  
+                               <TextBlock Text="{Binding TotalValue}" Width="100"/>  
+                               <TextBlock Text="{Binding Date}" Width="150"/>  
+                               <TextBlock Text="{Binding Author}" Width="120"/>  
+                           </StackPanel>  
+                       </DataTemplate>  
+                   </ListView.ItemTemplate>  
+               </ListView>  
+        </StackPanel>
     </Grid>
 </Page>

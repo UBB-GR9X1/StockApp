@@ -19,12 +19,15 @@
 
         public ICommand LoadLoansCommand { get; private set; }
 
+        public ICommand OnLoansUpdatedCommand { get; private set; }
+
         public bool IsLoading { get; private set; } = false;
 
         public LoansViewModel(ILoanService loansService)
         {
             this.loansService = loansService;
             this.LoadLoansCommand = new RelayCommand(async (object sender) => await this.LoadLoans(), (object sender) => !this.IsLoading);
+            this.OnLoansUpdatedCommand = new RelayCommand(async (object sender) => await this.LoadLoans(), (object sender) => !this.IsLoading);
         }
 
         private async Task LoadLoans()

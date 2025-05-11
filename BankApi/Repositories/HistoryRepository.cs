@@ -84,9 +84,8 @@ namespace BankApi.Repositories
             if (string.IsNullOrWhiteSpace(userCnp))
                 throw new ArgumentException("User CNP cannot be empty", nameof(userCnp));
 
-            var oneWeekAgo = DateTime.Now.AddDays(-7);
             return await _context.CreditScoreHistories
-                .Where(h => h.UserCnp == userCnp && h.Date >= oneWeekAgo)
+                .Where(h => h.UserCnp == userCnp)
                 .OrderByDescending(h => h.Date)
                 .ToListAsync();
         }

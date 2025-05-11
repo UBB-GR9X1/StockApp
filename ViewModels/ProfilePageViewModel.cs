@@ -139,7 +139,7 @@
             }
         }
 
-        private async Task LoadProfileData()
+        public async Task LoadProfileData()
         {
             try
             {
