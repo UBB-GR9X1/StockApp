@@ -8,11 +8,11 @@
     using Src.Model;
     using HttpClient = System.Net.Http.HttpClient;
 
-    public class ChatReportRepoProxy : IChatReportRepository
+    public class ChatReportProxyRepostiory : IChatReportRepository
     {
         private readonly HttpClient _httpClient;
 
-        public ChatReportRepoProxy(HttpClient httpClient)
+        public ChatReportProxyRepostiory(HttpClient httpClient)
         {
             _httpClient = httpClient;
         }
@@ -78,7 +78,7 @@
                 }
 
                 var response = await _httpClient.GetAsync($"api/ChatReport/tips-count/{userCnp}");
-                
+
                 if (response == null)
                 {
                     System.Diagnostics.Debug.WriteLine("NULL RESPONSE from tips-count API call");
@@ -90,7 +90,7 @@
                     System.Diagnostics.Debug.WriteLine($"Error response from tips-count API: {response.StatusCode}");
                     return 0;
                 }
-                
+
                 var count = await response.Content.ReadFromJsonAsync<int>();
                 return count;
             }
@@ -113,7 +113,7 @@
 
                 var payload = new { UserCnp = userCnp, Amount = amount };
                 var response = await _httpClient.PostAsJsonAsync("api/ChatReport/activity-log", payload);
-                
+
                 if (!response.IsSuccessStatusCode)
                 {
                     System.Diagnostics.Debug.WriteLine($"Error updating activity log: {response.StatusCode}");

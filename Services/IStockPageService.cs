@@ -6,29 +6,26 @@
 
     public interface IStockPageService
     {
-        bool BuyStock(int quantity);
+        Task<bool> BuyStockAsync(int quantity);
 
-        bool GetFavorite();
+        Task<bool> GetFavoriteAsync();
 
-        int GetOwnedStocks();
+        Task<int> GetOwnedStocksAsync();
 
-        Task<User> GetStockAuthor();
+        Task<User> GetStockAuthorAsync();
 
-        List<int> GetStockHistory();
+        Task<List<int>> GetStockHistoryAsync();
 
-        string GetStockName();
+        Task<string> GetStockNameAsync();
 
-        string GetStockSymbol();
+        Task<string> GetStockSymbolAsync();
 
-        int GetUserBalance();
-
-        bool IsGuest();
+        Task<int> GetUserBalanceAsync();
 
         void SelectStock(Stock stock);
 
-        bool SellStock(int quantity);
+        Task<bool> SellStockAsync(int quantity);
 
-        void ToggleFavorite(bool state);
-
+        Task ToggleFavoriteAsync(bool state);
     }
 }

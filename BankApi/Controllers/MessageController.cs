@@ -9,7 +9,6 @@ namespace BankApi.Controllers
     public class MessageController : ControllerBase
     {
         private readonly IMessagesRepository _messagesRepository;
-
         public MessageController(IMessagesRepository messagesRepository)
         {
             _messagesRepository = messagesRepository ?? throw new ArgumentNullException(nameof(messagesRepository));

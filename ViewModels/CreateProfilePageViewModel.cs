@@ -1,15 +1,15 @@
-﻿    using System;
+﻿namespace StockApp.ViewModels
+{
+    using System;
     using System.ComponentModel;
     using System.Runtime.CompilerServices;
+    using System.Threading.Tasks;
     using System.Windows.Input;
-using Microsoft.UI.Xaml.Controls;
+    using Microsoft.UI.Xaml.Controls;
     using StockApp.Commands;
     using StockApp.Models;
+    using StockApp.Pages;
     using StockApp.Services;
-using System.Threading.Tasks;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Windowing;
-using StockApp.Pages;
 
     public class CreateProfilePageViewModel : INotifyPropertyChanged
     {
@@ -28,6 +28,7 @@ using StockApp.Pages;
         private string zodiacAttribute = string.Empty;
 
         public ICommand CreateProfileCommand { get; set; }
+
         public ICommand GoToProfilePageCommand { get; set; }
 
         public CreateProfilePageViewModel(IUserService userService)
@@ -132,18 +133,18 @@ using StockApp.Pages;
                 NumberOfOffenses = 0,
             };
 
-            try 
+            try
             {
-                string result = await userService.CreateUser(user);
-                userRepository.CurrentUserCNP = user.CNP;
-                await ShowSuccessDialog(result);
-                
+                await this.userService.CreateUser(user);
+                this.userService.SetCurrentUserCNP(user.CNP);
+                await this.ShowSuccessDialog("Profile created successfully!");
+
                 // Navigate to profile page after successful creation
                 NavigationService.Instance.Navigate(typeof(ProfilePage));
             }
             catch (Exception ex)
             {
-                await ShowErrorDialog(ex.Message);
+                await this.ShowErrorDialog(ex.Message);
             }
         }
 
@@ -160,7 +161,7 @@ using StockApp.Pages;
                 Content = message,
                 CloseButtonText = "OK",
                 DefaultButton = ContentDialogButton.Close,
-                XamlRoot = App.MainAppWindow.Content.XamlRoot
+                XamlRoot = App.MainAppWindow.MainAppFrame.XamlRoot,
             };
             await dialog.ShowAsync();
         }
@@ -178,7 +179,7 @@ using StockApp.Pages;
                 Content = message,
                 CloseButtonText = "OK",
                 DefaultButton = ContentDialogButton.Close,
-                XamlRoot = App.MainAppWindow.Content.XamlRoot
+                XamlRoot = App.MainAppWindow.MainAppFrame.XamlRoot,
             };
             await dialog.ShowAsync();
         }

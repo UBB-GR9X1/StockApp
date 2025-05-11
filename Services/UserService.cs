@@ -15,6 +15,16 @@
             this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         }
 
+        public void SetCurrentUserCNP(string cnp)
+        {
+            if (string.IsNullOrWhiteSpace(cnp))
+            {
+                throw new ArgumentException("CNP cannot be empty");
+            }
+
+            IUserRepository.CurrentUserCNP = cnp;
+        }
+
         public async Task<User> GetUserByCnpAsync(string cnp)
         {
             if (string.IsNullOrWhiteSpace(cnp))
@@ -30,7 +40,7 @@
             return this.userRepository.GetAllAsync();
         }
 
-        public async Task<string> CreateUser(User user)
+        public async Task CreateUser(User user)
         {
             if (user == null)
             {

@@ -26,7 +26,7 @@
         public async Task<List<TransactionLogTransaction>> GetFilteredTransactions(TransactionFilterCriteria criteria)
         {
             criteria.Validate();
-            return await this.transactionRepository.GetByFilterCriteria(criteria);
+            return await this.transactionRepository.GetByFilterCriteriaAsync(criteria);
         }
 
         /// <summary>

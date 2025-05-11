@@ -8,10 +8,6 @@
     using LiveChartsCore;
     using LiveChartsCore.SkiaSharpView;
     using LiveChartsCore.SkiaSharpView.Painting;
-    using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.UI;
-    using Microsoft.UI.Xaml.Controls;
-    using Microsoft.UI.Xaml.Media;
     using SkiaSharp;
     using StockApp.Models;
     using StockApp.Services;
@@ -21,74 +17,48 @@
     /// </summary>
     public class StockPageViewModel : INotifyPropertyChanged
     {
-        private string stockName;
-        private string stockSymbol;
         private readonly IStockPageService stockPageService;
-        private bool isFavorite = false;
-        private string favoriteButtonColor = "#ffff5c";
-        private bool isGuest = false;
-        private string guestVisibility = "Visible";
+        private readonly IUserService userService;
         private int userGems = 0;
-        private string userGemsText = "0 ❇️ Gems";
-
-        private readonly TextBlock priceLabel;
-        private readonly TextBlock increaseLabel;
-        private readonly TextBlock ownedStocks;
+        private Stock? selectedStock;
 
         public ISeries[] Series { get; set; } = [];
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StockPageViewModel"/> class with dependencies.
         /// </summary>
-        /// <param name="service">Service for retrieving stock data.</param>
-        /// <param name="selectedStock">The stock object selected by the user.</param>
-        /// <param name="priceLabel">Adapter for displaying the current price.</param>
-        /// <param name="increaseLabel">Adapter for displaying price change percentage.</param>
-        /// <param name="ownedStocks">Adapter for displaying number of owned stocks.</param>
-        /// <param name="stockChart">Adapter for displaying the stock history chart.</param>
-        public StockPageViewModel(
-            Stock selectedStock,
-            TextBlock priceLabel,
-            TextBlock increaseLabel,
-            TextBlock ownedStocks)
+        /// <param name="stockPageService">The stock page service.</param>
+        /// <param name="userService">The user service.</param>
+        public StockPageViewModel(IUserService userService, IStockPageService stockPageService)
         {
-            this.stockPageService = App.Host.Services.GetService<IStockPageService>() ?? throw new ArgumentNullException(nameof(IStockPageService));
-            this.priceLabel = priceLabel ?? throw new ArgumentNullException(nameof(priceLabel));
-            this.increaseLabel = increaseLabel ?? throw new ArgumentNullException(nameof(increaseLabel));
-            this.ownedStocks = ownedStocks ?? throw new ArgumentNullException(nameof(ownedStocks));
-
-            this.stockPageService.SelectStock(selectedStock);
-            this.isGuest = this.stockPageService.IsGuest();
-            this.stockName = this.stockPageService.GetStockName();
-            this.stockSymbol = this.stockPageService.GetStockSymbol();
-            this.UpdateStockValue();
-            this.isFavorite = this.stockPageService.GetFavorite();
+            this.stockPageService = stockPageService ?? throw new ArgumentNullException(nameof(IStockPageService));
+            this.userService = userService ?? throw new ArgumentNullException(nameof(IUserService));
         }
 
         /// <summary>
         /// Updates all displayed stock values, including price, change percentage, owned count, and chart.
         /// </summary>
-        public void UpdateStockValue()
+        public async Task UpdateStockValue()
         {
-            if (!this.stockPageService.IsGuest())
+            if (!this.userService.IsGuest())
             {
-                this.userGems = this.stockPageService.GetUserBalance();
-                this.ownedStocks.Text = "Owned: " + this.stockPageService.GetOwnedStocks().ToString();
+                this.UserGems = await this.stockPageService.GetUserBalanceAsync();
+                //this.ownedStocks.Text = "Owned: " + this.stockPageService.GetOwnedStocksAsync().ToString();
             }
 
-            List<int> stockHistory = this.stockPageService.GetStockHistory();
-            this.priceLabel.Text = stockHistory.Last().ToString() + " ❇️ Gems";
+            List<int> stockHistory = await this.stockPageService.GetStockHistoryAsync();
+            //this.priceLabel.Text = stockHistory.Last().ToString() + " ❇️ Gems";
             if (stockHistory.Count > 1)
             {
                 int increasePerc = (stockHistory.Last() - stockHistory[^2]) * 100 / stockHistory[^2];
-                this.increaseLabel.Text = increasePerc + "%";
+                //this.increaseLabel.Text = increasePerc + "%";
                 if (increasePerc > 0)
                 {
-                    this.increaseLabel.Foreground = new SolidColorBrush(Colors.Green);
+                    //this.increaseLabel.Foreground = new SolidColorBrush(Colors.Green);
                 }
                 else
                 {
-                    this.increaseLabel.Foreground = new SolidColorBrush(Colors.IndianRed);
+                    //this.increaseLabel.Foreground = new SolidColorBrush(Colors.IndianRed);
                 }
             }
 
@@ -106,75 +76,16 @@
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether this stock is in the user's favorites.
+        /// Gets or sets the selected stock.
         /// </summary>
-        public bool IsFavorite
+        public Stock? SelectedStock
         {
-            get => this.isFavorite;
+            get => this.selectedStock;
             set
             {
-                if (this.isFavorite == value)
-                {
-                    return;
-                }
-
-                this.isFavorite = value;
-                this.stockPageService.ToggleFavorite(this.isFavorite);
-                if (this.isFavorite)
-                {
-                    this.favoriteButtonColor = "#ff0000"; // Red color for favorite
-                }
-                else
-                {
-                    this.favoriteButtonColor = "#ffff5c"; // Default color
-                }
-
-                this.OnPropertyChanged(nameof(this.IsFavorite));
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the color of the favorite button.
-        /// </summary>
-        public string FavoriteButtonColor
-        {
-            get => this.favoriteButtonColor;
-            set
-            {
-                this.favoriteButtonColor = value;
-                this.OnPropertyChanged(nameof(this.FavoriteButtonColor));
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the display name of the stock.
-        /// </summary>
-        public string StockName
-        {
-            get => this.stockName;
-            set
-            {
-                if (this.stockName != value)
-                {
-                    this.stockName = value;
-                    this.OnPropertyChanged(nameof(this.StockName));
-                }
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the trading symbol of the stock.
-        /// </summary>
-        public string StockSymbol
-        {
-            get => this.stockSymbol;
-            set
-            {
-                if (this.stockSymbol != value)
-                {
-                    this.stockSymbol = value;
-                    this.OnPropertyChanged(nameof(this.StockSymbol));
-                }
+                this.selectedStock = value;
+                this.stockPageService.SelectStock(this.selectedStock);
+                this.OnPropertyChanged(nameof(this.SelectedStock));
             }
         }
 
@@ -188,35 +99,14 @@
         /// </summary>
         public void ToggleFavorite()
         {
-            this.IsFavorite = !this.IsFavorite;
+            throw new NotImplementedException("ToggleFavorite method is not implemented.");
+            //this.IsFavorite = !this.IsFavorite;
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the user is a guest.
+        /// Gets a value indicating whether the user is a guest.
         /// </summary>
-        public bool IsGuest
-        {
-            get => this.isGuest;
-            set
-            {
-                this.isGuest = value;
-                this.guestVisibility = this.isGuest ? "Collapsed" : "Visible";
-                this.OnPropertyChanged(nameof(this.IsGuest));
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the visibility of guest-only UI elements.
-        /// </summary>
-        public string GuestVisibility
-        {
-            get => this.guestVisibility;
-            set
-            {
-                this.guestVisibility = value;
-                this.OnPropertyChanged(nameof(this.GuestVisibility));
-            }
-        }
+        public bool IsGuest => this.userService.IsGuest();
 
         /// <summary>
         /// Gets or sets the user's current gem balance.
@@ -227,21 +117,7 @@
             set
             {
                 this.userGems = value;
-                this.userGemsText = $"{this.userGems} ❇️ Gems";
                 this.OnPropertyChanged(nameof(this.UserGems));
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the display text for the user's gem balance.
-        /// </summary>
-        public string UserGemsText
-        {
-            get => this.userGemsText;
-            set
-            {
-                this.userGemsText = value;
-                this.OnPropertyChanged(nameof(this.UserGemsText));
             }
         }
 
@@ -250,10 +126,10 @@
         /// </summary>
         /// <param name="quantity">The number of shares to buy.</param>
         /// <returns><c>true</c> if the purchase succeeded; otherwise, <c>false</c>.</returns>
-        public bool BuyStock(int quantity)
+        public async Task<bool> BuyStock(int quantity)
         {
-            bool res = this.stockPageService.BuyStock(quantity);
-            this.UpdateStockValue();
+            bool res = await this.stockPageService.BuyStockAsync(quantity);
+            await this.UpdateStockValue();
             return res;
         }
 
@@ -262,10 +138,10 @@
         /// </summary>
         /// <param name="quantity">The number of shares to sell.</param>
         /// <returns><c>true</c> if the sale succeeded; otherwise, <c>false</c>.</returns>
-        public bool SellStock(int quantity)
+        public async Task<bool> SellStock(int quantity)
         {
-            bool res = this.stockPageService.SellStock(quantity);
-            this.UpdateStockValue();
+            bool res = await this.stockPageService.SellStockAsync(quantity);
+            await this.UpdateStockValue();
             return res;
         }
 
@@ -275,7 +151,7 @@
         /// <returns>A <see cref="User"/> object representing the author.</returns>
         public async Task<User> GetStockAuthor()
         {
-            return await this.stockPageService.GetStockAuthor();
+            return await this.stockPageService.GetStockAuthorAsync();
         }
 
         /// <summary>

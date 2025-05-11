@@ -8,8 +8,6 @@
     {
         Task<string> GenerateUsernameAsync();
 
-        Task<User> GetUserProfileAsync(string authorCNP);
-
         Task UpdateMyUserAsync(string newUsername, string newImage, string newDescription, bool newHidden);
 
         Task UpdateRepoIsAdminAsync(bool isAdmin);

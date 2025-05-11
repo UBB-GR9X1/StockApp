@@ -1,8 +1,6 @@
-using BankApi.Models;
 using BankApi.Data;
+using BankApi.Models;
 using Microsoft.EntityFrameworkCore;
-using StockApp.Repositories;
-
 
 namespace BankApi.Repositories
 {
@@ -27,7 +25,7 @@ namespace BankApi.Repositories
         /// </summary>
         public async Task<List<TransactionLogTransaction>> getAllTransactions()
         {
-                return await _context.TransactionLogTransactions.ToListAsync();
+            return await _context.TransactionLogTransactions.ToListAsync();
         }
 
         /// <summary>

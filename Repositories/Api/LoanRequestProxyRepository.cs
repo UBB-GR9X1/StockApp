@@ -7,11 +7,11 @@ using StockApp.Models;
 
 namespace StockApp.Repositories.Api
 {
-    public class LoanRequestProxyRepo : ILoanRequestRepository
+    public class LoanRequestProxyRepository : ILoanRequestRepository
     {
         private readonly HttpClient _httpClient;
 
-        public LoanRequestProxyRepo(HttpClient httpClient)
+        public LoanRequestProxyRepository(HttpClient httpClient)
         {
             this._httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         }

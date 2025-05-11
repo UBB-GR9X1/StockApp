@@ -1,4 +1,4 @@
-﻿namespace StockApp.Repositories
+﻿namespace BankApi.Repositories
 {
     using System;
     using System.Collections.Generic;

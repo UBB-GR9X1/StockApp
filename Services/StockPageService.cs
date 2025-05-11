@@ -10,23 +10,21 @@
     public class StockPageService : IStockPageService
     {
         private readonly IStockPageRepository stockRepo;
-        private string selectedStockName;
         private readonly IUserRepository userRepo;
+        private readonly ITransactionRepository transactionRepo;
+        private string selectedStockName;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StockPageService"/> class.
         /// </summary>
-        public StockPageService(IStockPageRepository stockRepo, IUserRepository userRepo)
+        public StockPageService(IStockPageRepository stockRepo, IUserRepository userRepo, ITransactionRepository transactionRepo)
         {
             this.stockRepo = stockRepo ?? throw new ArgumentNullException(nameof(stockRepo));
             this.userRepo = userRepo ?? throw new ArgumentNullException(nameof(userRepo));
+            this.transactionRepo = transactionRepo ?? throw new ArgumentNullException(nameof(transactionRepo));
         }
 
-        /// <summary>
-        /// Selects a stock for the user to view or interact with.
-        /// </summary>
-        /// <param name="stock"></param>
-        /// <exception cref="Exception"></exception>
+        /// <inheritdoc/>
         public void SelectStock(Stock stock)
         {
             if (stock == null)
@@ -37,99 +35,67 @@
             this.selectedStockName = stock.Name;
         }
 
-        /// <summary>
-        /// Checks if the user is a guest.
-        /// </summary>
-        /// <returns></returns>
-        public bool IsGuest()
+        /// <inheritdoc/>
+        public async Task<string> GetStockNameAsync()
         {
-            return this.stockRepo.IsGuest;
+            var stock = await this.stockRepo.GetStockAsync(IUserRepository.CurrentUserCNP, this.selectedStockName);
+            return stock.Name;
         }
 
-        /// <summary>
-        /// Gets the name of the selected stock.
-        /// </summary>
-        /// <returns></returns>
-        public string GetStockName()
+        /// <inheritdoc/>
+        public async Task<string> GetStockSymbolAsync()
         {
-            return this.stockRepo.GetStock(this.selectedStockName).Name;
+            var stock = await this.stockRepo.GetStockAsync(IUserRepository.CurrentUserCNP, this.selectedStockName);
+            return stock.Symbol;
         }
 
-        /// <summary>
-        /// Gets the symbol of the selected stock.
-        /// </summary>
-        /// <returns></returns>
-        public string GetStockSymbol()
+        /// <inheritdoc/>
+        public async Task<int> GetUserBalanceAsync()
         {
-            return this.stockRepo.GetStock(this.selectedStockName).Symbol;
+            var user = await this.userRepo.GetByCnpAsync(IUserRepository.CurrentUserCNP);
+            return user?.GemBalance ?? throw new Exception("User not found.");
         }
 
-        /// <summary>
-        /// Gets the price of the selected stock.
-        /// </summary>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        public int GetUserBalance()
+        /// <inheritdoc/>
+        public async Task<List<int>> GetStockHistoryAsync()
         {
-            return this.stockRepo.User?.GemBalance ?? throw new Exception("User not found.");
+            return await this.stockRepo.GetStockHistoryAsync(this.selectedStockName);
         }
 
-        /// <summary>
-        /// Gets the history of stock prices for the selected stock.
-        /// </summary>
-        /// <returns></returns>
-        public List<int> GetStockHistory()
+        /// <inheritdoc/>
+        public async Task<int> GetOwnedStocksAsync()
         {
-            List<int> res = this.stockRepo.GetStockHistory(this.selectedStockName);
-
-            // res.Reverse();
-            return res;
+            return await this.stockRepo.GetOwnedStocksAsync(IUserRepository.CurrentUserCNP, this.selectedStockName);
         }
 
-        /// <summary>
-        /// Gets the number of stocks owned by the user.
-        /// </summary>
-        /// <returns></returns>
-        public int GetOwnedStocks()
+        /// <inheritdoc/>
+        public async Task<bool> BuyStockAsync(int quantity)
         {
-            return this.stockRepo.GetOwnedStocks(this.selectedStockName);
-        }
-
-        /// <summary>
-        /// Buys a specified quantity of the selected stock.
-        /// </summary>
-        /// <param name="quantity"></param>
-        /// <returns></returns>
-        public bool BuyStock(int quantity)
-        {
-            List<int> stockHistory = this.GetStockHistory();
+            var stockHistory = await this.GetStockHistoryAsync();
             int stockPrice = stockHistory.Last();
-
             int totalPrice = stockPrice * quantity;
 
-            if (this.stockRepo.User?.GemBalance >= totalPrice)
+            var user = await this.userRepo.GetByCnpAsync(IUserRepository.CurrentUserCNP);
+            if (user?.GemBalance >= totalPrice)
             {
-                this.stockRepo.UpdateUserGems(this.stockRepo.User.GemBalance - totalPrice);
+                await this.stockRepo.UpdateUserGemsAsync(IUserRepository.CurrentUserCNP, user.GemBalance - totalPrice);
+
                 Random r = new Random();
-                int new_price = stockPrice + ((r.Next(0, 20) - 5) * quantity);
-                if (new_price < 20)
-                {
-                    new_price = 20;
-                }
+                int newPrice = stockPrice + ((r.Next(0, 20) - 5) * quantity);
+                newPrice = Math.Max(newPrice, 20);
 
-                this.stockRepo.AddStockValue(this.selectedStockName, new_price);
-                this.stockRepo.AddOrUpdateUserStock(this.selectedStockName, quantity);
+                await this.stockRepo.AddStockValueAsync(this.selectedStockName, newPrice);
+                await this.stockRepo.AddOrUpdateUserStockAsync(IUserRepository.CurrentUserCNP, this.selectedStockName, quantity);
 
-                TransactionRepository repository = new TransactionRepository();
-                repository.AddTransaction(
+                await transactionRepo.AddTransactionAsync(
                     new TransactionLogTransaction(
-                        this.stockRepo.GetStock(this.selectedStockName).Symbol,
+                        (await this.stockRepo.GetStockAsync(IUserRepository.CurrentUserCNP, this.selectedStockName)).Symbol,
                         this.selectedStockName,
                         "BUY",
                         quantity,
                         stockPrice,
                         DateTime.UtcNow,
-                        this.stockRepo.User.CNP));
+                        IUserRepository.CurrentUserCNP));
 
                 return true;
             }
@@ -137,39 +103,34 @@
             return false;
         }
 
-        /// <summary>
-        /// Sells a specified quantity of the selected stock.
-        /// </summary>
-        /// <param name="quantity"></param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        public bool SellStock(int quantity)
+        /// <inheritdoc/>
+        public async Task<bool> SellStockAsync(int quantity)
         {
-            List<int> stockHistory = this.GetStockHistory();
+            var stockHistory = await this.GetStockHistoryAsync();
             int stockPrice = stockHistory.Last();
             int totalPrice = stockPrice * quantity;
-            if (this.stockRepo.GetOwnedStocks(this.selectedStockName) >= quantity)
+
+            if (await this.stockRepo.GetOwnedStocksAsync(IUserRepository.CurrentUserCNP, this.selectedStockName) >= quantity)
             {
                 Random r = new Random();
-                int new_price = stockPrice + ((r.Next(0, 10) - 5) * quantity);
-                if (new_price < 20)
-                {
-                    new_price = 20;
-                }
+                int newPrice = stockPrice + ((r.Next(0, 10) - 5) * quantity);
+                newPrice = Math.Max(newPrice, 20);
 
-                this.stockRepo.AddStockValue(this.selectedStockName, new_price);
-                this.stockRepo.AddOrUpdateUserStock(this.selectedStockName, -quantity);
-                this.stockRepo.UpdateUserGems(this.stockRepo.User?.GemBalance + totalPrice ?? throw new Exception("User not found."));
+                await this.stockRepo.AddStockValueAsync(this.selectedStockName, newPrice);
+                await this.stockRepo.AddOrUpdateUserStockAsync(IUserRepository.CurrentUserCNP, this.selectedStockName, -quantity);
 
-                TransactionRepository repository = new TransactionRepository();
-                repository.AddTransaction(new TransactionLogTransaction(
-                    this.stockRepo.GetStock(this.selectedStockName).Symbol,
-                    this.selectedStockName,
-                    "SELL",
-                    quantity,
-                    stockPrice,
-                    DateTime.UtcNow,
-                    this.stockRepo.User?.CNP ?? throw new Exception("User not found.")));
+                var user = await this.userRepo.GetByCnpAsync(IUserRepository.CurrentUserCNP);
+                await this.stockRepo.UpdateUserGemsAsync(IUserRepository.CurrentUserCNP, user?.GemBalance + totalPrice ?? throw new Exception("User not found."));
+
+                await this.transactionRepo.AddTransactionAsync(
+                    new TransactionLogTransaction(
+                        (await this.stockRepo.GetStockAsync(IUserRepository.CurrentUserCNP, this.selectedStockName)).Symbol,
+                        this.selectedStockName,
+                        "SELL",
+                        quantity,
+                        stockPrice,
+                        DateTime.UtcNow,
+                        IUserRepository.CurrentUserCNP));
 
                 return true;
             }
@@ -177,32 +138,23 @@
             return false;
         }
 
-        /// <summary>
-        /// Gets the favorite status of the selected stock.
-        /// </summary>
-        /// <returns></returns>
-        public bool GetFavorite()
+        /// <inheritdoc/>
+        public async Task<bool> GetFavoriteAsync()
         {
-            return this.stockRepo.GetFavorite(this.selectedStockName);
+            return await this.stockRepo.GetFavoriteAsync(IUserRepository.CurrentUserCNP, this.selectedStockName);
         }
 
-        /// <summary>
-        /// Toggles the favorite status of the selected stock.
-        /// </summary>
-        /// <param name="state"></param>
-        public void ToggleFavorite(bool state)
+        /// <inheritdoc/>
+        public async Task ToggleFavoriteAsync(bool state)
         {
-            this.stockRepo.ToggleFavorite(this.selectedStockName, state);
+            await this.stockRepo.ToggleFavoriteAsync(IUserRepository.CurrentUserCNP, this.selectedStockName, state);
         }
 
-        /// <summary>
-        /// Gets the author of the selected stock.
-        /// </summary>
-        /// <returns></returns>
-        public async Task<User> GetStockAuthor()
+        /// <inheritdoc/>
+        public async Task<User> GetStockAuthorAsync()
         {
-            string authorCNP = this.stockRepo.GetStock(this.selectedStockName).AuthorCNP;
-            return await this.userRepo.GetByCnpAsync(authorCNP) ?? throw new Exception("User not found.");
+            var stock = await this.stockRepo.GetStockAsync(IUserRepository.CurrentUserCNP, this.selectedStockName);
+            return await this.userRepo.GetByCnpAsync(stock.AuthorCNP) ?? throw new Exception("User not found.");
         }
     }
 }

@@ -17,7 +17,6 @@
     public class NewsDetailViewModel : ViewModelBase
     {
         private readonly INewsService newsService;
-        private readonly IDispatcher dispatcherQueue;
         private string currentArticleId;
         private bool isPreviewMode;
         private string previewId;
@@ -26,7 +25,7 @@
         private bool isLoading;
         private bool hasRelatedStocks;
         private bool isAdminPreview;
-        private string articleStatus;
+        private Status articleStatus;
         private bool canApprove;
         private bool canReject;
 
@@ -79,7 +78,7 @@
         /// <summary>
         /// Gets or sets the current status of the article (e.g., "Pending", "Approved").
         /// </summary>
-        public string ArticleStatus
+        public Status ArticleStatus
         {
             get => this.articleStatus;
             set => this.SetProperty(ref this.articleStatus, value);
@@ -123,22 +122,13 @@
         /// </summary>
         /// <param name="newsService">Service for retrieving and modifying news articles.</param>
         /// <param name="dispatcher">Dispatcher for UI thread operations.</param>
-        public NewsDetailViewModel(INewsService newsService, IDispatcher dispatcher)
+        public NewsDetailViewModel(INewsService newsService)
         {
             this.newsService = newsService ?? throw new ArgumentNullException(nameof(newsService));
-            this.dispatcherQueue = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
 
             this.ApproveCommand = new StockNewsRelayCommand(async () => await this.ApproveArticleAsync());
             this.RejectCommand = new StockNewsRelayCommand(async () => await this.RejectArticleAsync());
             this.DeleteCommand = new StockNewsRelayCommand(async () => await this.DeleteArticleAsync());
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="NewsDetailViewModel"/> class with default implementations.
-        /// </summary>
-        public NewsDetailViewModel()
-          : this(new NewsService(), new DispatcherAdapter())
-        {
         }
 
         /// <summary>
@@ -168,41 +158,28 @@
                     this.currentArticleId = this.previewId;
                     this.IsAdminPreview = true;
 
-                    var userArticle = this.newsService.GetUserArticleForPreview(this.previewId);
+                    var userArticle = await this.newsService.GetNewsArticleByIdAsync(this.previewId);
                     if (userArticle != null)
                     {
                         this.ArticleStatus = userArticle.Status;
-                        this.CanApprove = userArticle.Status != "Approved";
-                        this.CanReject = userArticle.Status != "Rejected";
+                        this.CanApprove = userArticle.Status != Status.Approved;
+                        this.CanReject = userArticle.Status != Status.Rejected;
                     }
 
-                    var article = this.newsService.GetNewsArticleById(articleId);
+                    var article = await this.newsService.GetNewsArticleByIdAsync(articleId);
 
-                    this.dispatcherQueue.TryEnqueue(() =>
+                    if (article != null)
                     {
-                        if (article != null)
-                        {
-                            this.Article = article;
-                            this.HasRelatedStocks = article.RelatedStocks?.Any() == true; // Inline: check for related stocks
-                        }
-                        else
-                        {
-                            // FIXME: Provide fallback Article for missing preview
-                            // Update the fallback NewsArticle instantiation to include all required parameters
-                            this.Article = new NewsArticle(
-                                articleId: "N/A",
-                                title: "Article Not Found",
-                                summary: "The requested article could not be found.",
-                                content: "This article may have been removed.",
-                                source: "Unknown",
-                                publishedDate: DateTime.MinValue,
-                                relatedStocks: [],
-                                status: Status.Pending);
-                            this.HasRelatedStocks = false;
-                        }
+                        this.Article = article;
+                        this.HasRelatedStocks = article.RelatedStocks?.Any() == true; // Inline: check for related stocks
+                    }
+                    else
+                    {
+                        // FIXME: Provide fallback Article for missing preview
+                        throw new NotImplementedException("Preview article preview missing not implemented");
+                    }
 
-                        this.IsLoading = false;
-                    });
+                    this.IsLoading = false;
                 }
                 else
                 {
@@ -210,17 +187,17 @@
                     this.currentArticleId = articleId;
                     this.IsAdminPreview = false;
 
-                    var regularArticle = this.newsService.GetNewsArticleById(articleId);
+                    var regularArticle = await this.newsService.GetNewsArticleByIdAsync(articleId);
 
                     if (regularArticle != null)
                     {
                         this.Article = regularArticle;
-                        this.HasRelatedStocks = regularArticle.RelatedStocks?.Any() == true;
+                        this.HasRelatedStocks = regularArticle.RelatedStocks.Any() == true;
 
                         // Inline: mark article as read once loaded
                         try
                         {
-                            this.newsService.MarkArticleAsRead(articleId);
+                            await this.newsService.MarkArticleAsReadAsync(articleId);
                         }
                         catch (Exception ex)
                         {
@@ -231,16 +208,8 @@
                     else
                     {
                         // Provide fallback for missing article
-                        this.Article = new NewsArticle(
-                                articleId: "N/A",
-                                title: "Article Not Found",
-                                summary: "The requested article could not be found.",
-                                content: "This article may have been removed.",
-                                source: "Unknown",
-                                publishedDate: DateTime.MinValue,
-                                relatedStocks: [],
-                                status: Status.Pending);
-                        this.HasRelatedStocks = false;
+                        // add a dialog here smh
+                        throw new Exception("Article not found.");
                     }
 
                     this.IsLoading = false;
@@ -268,10 +237,10 @@
 
             try
             {
-                var success = await this.newsService.ApproveUserArticle(this.previewId);
+                var success = await this.newsService.ApproveUserArticleAsync(this.previewId);
                 if (success)
                 {
-                    this.ArticleStatus = "Approved";
+                    this.ArticleStatus = Status.Approved;
                     this.CanApprove = false;
                     this.CanReject = true;
 
@@ -319,10 +288,10 @@
 
             try
             {
-                var success = await this.newsService.RejectUserArticle(this.previewId);
+                var success = await this.newsService.RejectUserArticleAsync(this.previewId);
                 if (success)
                 {
-                    this.ArticleStatus = "Rejected";
+                    this.ArticleStatus = Status.Rejected;
                     this.CanApprove = true;
                     this.CanReject = false;
 
@@ -380,7 +349,7 @@
                 {
                     this.IsLoading = true;
 
-                    var success = await this.newsService.DeleteUserArticle(this.previewId);
+                    var success = await this.newsService.DeleteUserArticleAsync(this.previewId);
                     if (success)
                     {
                         var dialog = new ContentDialog

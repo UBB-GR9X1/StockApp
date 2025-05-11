@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
 
     /// <summary>
     /// Represents an article created by a user, including metadata and related stocks.
@@ -28,9 +27,9 @@
             string content,
             User author,
             DateTime submissionDate,
-            string status,
+            Status status,
             string topic,
-            IEnumerable<string> relatedStocks)
+            IEnumerable<Stock> relatedStocks)
         {
             this.ArticleId = articleId;
             this.Title = title;
@@ -78,7 +77,7 @@
         /// <summary>
         /// Gets or sets the current status of the article.
         /// </summary>
-        public string Status { get; set; }
+        public Status Status { get; set; }
 
         /// <summary>
         /// Gets or sets the topic or category of the article.
@@ -88,6 +87,6 @@
         /// <summary>
         /// Gets or sets the list of related stock symbols or names.
         /// </summary>
-        public List<string> RelatedStocks { get; set; }
+        public List<Stock> RelatedStocks { get; set; }
     }
 }

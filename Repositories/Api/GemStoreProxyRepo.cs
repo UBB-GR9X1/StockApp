@@ -3,7 +3,7 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 
-namespace StockApp.Repositories
+namespace StockApp.Repositories.Api
 {
     public class GemStoreProxyRepo : IGemStoreRepository
     {

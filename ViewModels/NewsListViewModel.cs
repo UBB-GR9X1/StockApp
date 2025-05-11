@@ -5,7 +5,6 @@
     using System.Linq;
     using System.Threading.Tasks;
     using System.Windows.Input;
-    using Catel.MVVM;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.UI.Xaml.Controls;
     using StockApp.Commands;
@@ -219,7 +218,6 @@
             this.CreateArticleCommand = new StockNewsRelayCommand(() => NavigateToCreateArticle());
             this.AdminPanelCommand = new StockNewsRelayCommand(() => NavigateToAdminPanel());
             this.LoginCommand = new StockNewsRelayCommand(async () => await this.ShowLoginDialogAsync());
-            this.LogoutCommand = new StockNewsRelayCommand(() => this.LogoutUser());
             this.ClearSearchCommand = new StockNewsRelayCommand(() => this.SearchQuery = string.Empty);
 
             this.Categories.Add("All");
@@ -249,10 +247,7 @@
 
             try
             {
-                var articles = this.newsService.GetNewsArticles();
-
-                // store the full list of articles for filtering
-                this.newsService.UpdateCachedArticles(articles);
+                var articles = this.newsService.GetNewsArticlesAsync();
 
                 // apply filters to the new data
                 this.FilterArticles();
@@ -269,7 +264,7 @@
             }
         }
 
-        private void FilterArticles()
+        private async Task FilterArticles()
         {
             if (this.Articles == null)
             {
@@ -278,7 +273,7 @@
             }
 
             // get all articles from the original source
-            var allArticles = this.newsService.GetCachedArticles();
+            var allArticles = await this.newsService.GetNewsArticlesAsync();
             if (allArticles == null || !allArticles.Any())
             {
                 this.Articles.Clear();
@@ -302,7 +297,7 @@
                     a.Title.Contains(query, StringComparison.CurrentCultureIgnoreCase) ||
                     a.Summary.Contains(query, StringComparison.CurrentCultureIgnoreCase) ||
                     a.Content.Contains(query, StringComparison.CurrentCultureIgnoreCase) ||
-                    (a.RelatedStocks != null && a.RelatedStocks.Any(s => s.Contains(query, StringComparison.CurrentCultureIgnoreCase))))];
+                    (a.RelatedStocks != null && a.RelatedStocks.Any(s => s.Name.Contains(query, StringComparison.CurrentCultureIgnoreCase))))];
             }
 
             // Inline: Sort watchlist items first, then by date (newest first)
@@ -346,7 +341,7 @@
 
                 if (result == ContentDialogResult.Primary)
                 {
-                    this.newsService.MarkArticleAsRead(article.ArticleId);
+                    await this.newsService.MarkArticleAsReadAsync(article.ArticleId);
                     article.IsRead = true;
                     this.OnPropertyChanged(nameof(this.Articles));
                 }
@@ -413,72 +408,13 @@
                         return;
                     }
 
-                    await this.LoginUserAsync(username, password);
+                    throw new NotImplementedException("Login logic not implemented");
                 }
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error showing login dialog: {ex.Message}");
                 await ShowErrorDialogAsync("An error occurred while trying to show the login dialog.");
-            }
-        }
-
-        private async Task LoginUserAsync(string username, string password)
-        {
-            try
-            {
-                this.IsLoading = true;
-
-                var user = await this.newsService.LoginAsync(username, password);
-
-                if (user != null)
-                {
-                    this.CurrentUser = user;
-                    //this.appState.CurrentUser = (User)user;
-
-                    // success message
-                    var dialog = new ContentDialog
-                    {
-                        Title = "Success",
-                        Content = $"Welcome, {user.Username}!",
-                        CloseButtonText = "OK",
-                        XamlRoot = App.CurrentWindow.Content.XamlRoot,
-                    };
-
-                    await dialog.ShowAsync();
-
-                    // refresh articles to show user-specific content
-                    this.RefreshArticles();
-                }
-                else
-                {
-                    await ShowErrorDialogAsync("Invalid username or password.");
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Error logging in: {ex.Message}");
-                await ShowErrorDialogAsync("An error occurred while trying to log in.");
-            }
-            finally
-            {
-                this.IsLoading = false;
-            }
-        }
-
-        private void LogoutUser()
-        {
-            try
-            {
-                this.newsService.Logout();
-                this.CurrentUser = null;
-
-                // refresh articles to show non-user-specific content
-                this.RefreshArticles();
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Error logging out: {ex.Message}");
             }
         }
 

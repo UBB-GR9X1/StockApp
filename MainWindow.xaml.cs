@@ -19,6 +19,7 @@ namespace StockApp
         private readonly IServiceProvider serviceProvider;
 
         public Frame MainAppFrame => this.MainFrame;
+
         public bool CreateProfileButtonVisibility => IUserRepository.CurrentUserCNP == null;
 
         public static bool ProfileButtonVisibility => IUserRepository.CurrentUserCNP != null;
@@ -28,9 +29,6 @@ namespace StockApp
             this.InitializeComponent();
             DatabaseHelper.InitializeDatabase();
             this.serviceProvider = serviceProvider;
-
-            // Initialize NavigationService with the main frame
-            NavigationService.Initialize(new FrameAdapter(this.MainFrame));
 
             this.MainFrame.Content = this.serviceProvider.GetRequiredService<HomepageView>();
         }

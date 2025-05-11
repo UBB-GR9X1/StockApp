@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using StockApp.Models;
+﻿using BankApi.Models;
 
-namespace StockApp.Repositories
+namespace BankApi.Repositories
 {
     public interface IStockPageRepository
     {

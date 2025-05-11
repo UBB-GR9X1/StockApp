@@ -29,6 +29,9 @@ namespace BankApi.Data
         public DbSet<Loan> Loans { get; set; } = null!;
         public DbSet<LoanRequest> LoanRequests { get; set; }
         public DbSet<Tip> Tips { get; set; }
+        public DbSet<StockValue> StockValues { get; set; } = null!;
+        public DbSet<FavoriteStock> FavoriteStocks { get; set; } = null!;
+        public DbSet<NewsArticle> NewsArticles { get; set; } = null!;
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -103,6 +106,10 @@ namespace BankApi.Data
                     entity.Property(e => e.Balance)
                           .HasPrecision(18, 2)
                           .HasDefaultValue(0);
+                    entity.HasMany(e => e.OwnedStocks)
+                          .WithOne()
+                          .HasForeignKey(e => e.UserCnp)
+                          .OnDelete(DeleteBehavior.Cascade);
                 });
 
                 // HomepageStock configuration
@@ -235,6 +242,11 @@ namespace BankApi.Data
                           .WithMany()
                           .HasForeignKey(e => e.StockName)
                           .HasPrincipalKey(s => s.Name);
+                    entity.HasOne(e => e.User)
+                          .WithMany(u => u.OwnedStocks)
+                          .HasForeignKey(e => e.UserCnp)
+                          .HasPrincipalKey(u => u.CNP)
+                          .OnDelete(DeleteBehavior.Cascade);
                 });
 
                 modelBuilder.Entity<CreditScoreHistory>(entity =>
@@ -310,6 +322,61 @@ namespace BankApi.Data
                     .OnDelete(DeleteBehavior.Cascade);
 
                 entity.Property(e => e.Date)
+                    .IsRequired()
+                    .HasDefaultValueSql("GETUTCDATE()");
+            });
+
+            modelBuilder.Entity<StockValue>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasOne(e => e.Stock)
+                    .WithMany()
+                    .HasForeignKey(e => e.StockName)
+                    .HasPrincipalKey(s => s.Name)
+                    .OnDelete(DeleteBehavior.Cascade);
+                entity.Property(e => e.Price)
+                    .IsRequired()
+                    .HasPrecision(18, 4);
+                entity.Property(e => e.DateTime)
+                    .IsRequired()
+                    .HasDefaultValueSql("GETUTCDATE()");
+            });
+
+            modelBuilder.Entity<FavoriteStock>(entity =>
+            {
+                entity.HasKey(e => new { e.UserCNP, e.StockName });
+                entity.Property(e => e.UserCNP)
+                    .IsRequired()
+                    .HasMaxLength(13);
+                entity.Property(e => e.StockName)
+                    .IsRequired()
+                    .HasMaxLength(100);
+                entity.HasOne(e => e.User)
+                    .WithMany()
+                    .HasForeignKey(e => e.UserCNP)
+                    .HasPrincipalKey(u => u.CNP)
+                    .OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(e => e.Stock)
+                    .WithMany()
+                    .HasForeignKey(e => e.StockName)
+                    .HasPrincipalKey(s => s.Name)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<NewsArticle>(entity =>
+            {
+                entity.HasKey(e => e.ArticleId);
+                entity.Property(e => e.Title)
+                    .IsRequired()
+                    .HasMaxLength(200);
+                entity.Property(e => e.Content)
+                    .IsRequired();
+                entity.HasOne(e => e.Author)
+                    .WithMany()
+                    .HasForeignKey(e => e.AuthorCNP)
+                    .HasPrincipalKey(u => u.CNP)
+                    .OnDelete(DeleteBehavior.Cascade);
+                entity.Property(e => e.PublishedDate)
                     .IsRequired()
                     .HasDefaultValueSql("GETUTCDATE()");
             });

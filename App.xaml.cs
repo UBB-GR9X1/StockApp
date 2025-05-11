@@ -67,32 +67,33 @@ namespace StockApp
                         options.UseSqlServer(ConnectionString));
 
                     // Repositories
-                    services.AddScoped<IAlertRepository, AlertProxyRepo>();
+                    services.AddScoped<IAlertRepository, AlertProxyRepository>();
                     services.AddScoped<ITransactionRepository, TransactionProxyRepository>();
                     services.AddScoped<ITransactionLogService, TransactionLogService>();
                     services.AddScoped<TransactionLogViewModel>();
                     services.AddScoped<IInvestmentsRepository, InvestmentsProxyRepository>();
                     services.AddScoped<IBillSplitReportRepository, BillSplitReportProxyRepository>();
                     services.AddScoped<ITransactionRepository, TransactionProxyRepository>();
-                    services.AddScoped<IChatReportRepository, ChatReportRepoProxy>();
+                    services.AddScoped<IChatReportRepository, ChatReportProxyRepostiory>();
                     services.AddScoped<ILoanRepository, LoanProxyRepository>();
-                    services.AddScoped<ILoanRequestRepository, LoanRequestProxyRepo>();
-                    services.AddScoped<IActivityRepo, ActivityProxyRepo>();
+                    services.AddScoped<ILoanRequestRepository, LoanRequestProxyRepository>();
+                    services.AddScoped<IActivityRepo, ActivityProxyRepository>();
                     services.AddScoped<IGemStoreRepository, GemStoreProxyRepo>();
                     services.AddScoped<IUserRepository, UserProxyRepository>();
-                    services.AddScoped<IProfileRepository, ProfileProxyRepo>();
+                    services.AddScoped<IProfileRepository, ProfileProxyRepository>();
                     services.AddScoped<IBaseStocksRepository, BaseStocksProxyRepository>();
                     services.AddScoped<IHistoryRepository, HistoryProxyRepository>();
                     services.AddScoped<IHomepageStocksRepository, HomepageStocksProxyRepository>();
                     services.AddScoped<ITipsRepository, TipsProxyRepository>();
                     services.AddScoped<IMessagesRepository, MessageProxyRepository>();
-                    services.AddSingleton<IChatReportRepository, ChatReportRepoProxy>();
+                    services.AddScoped<IChatReportRepository, ChatReportProxyRepostiory>();
+                    services.AddScoped<INewsRepository, NewsProxyRepository>();
 
                     //FIXME: port \/\/\/\/
-                    services.AddSingleton<IStockPageRepository, StockPageRepository>();
+                    services.AddSingleton<IStockPageRepository, StockPageProxyRepository>();
 
                     // HttpClient for API communication
-                    services.AddHttpClient<IChatReportRepository, ChatReportRepoProxy>(client =>
+                    services.AddHttpClient<IChatReportRepository, ChatReportProxyRepostiory>(client =>
                     {
                         client.BaseAddress = new Uri(config["ApiBaseUrl"]);
                     });
@@ -100,12 +101,12 @@ namespace StockApp
                     {
                         client.BaseAddress = new Uri("https://localhost:7001/");
                     });
-                    services.AddHttpClient<IAlertRepository, AlertProxyRepo>(client =>
+                    services.AddHttpClient<IAlertRepository, AlertProxyRepository>(client =>
                     {
                         client.BaseAddress = new Uri("https://localhost:7001/");
                     });
 
-                    services.AddHttpClient<IActivityRepo, ActivityProxyRepo>(client =>
+                    services.AddHttpClient<IActivityRepo, ActivityProxyRepository>(client =>
                     {
                         client.BaseAddress = new Uri(config["ApiBaseUrl"]);
                     });
@@ -128,7 +129,7 @@ namespace StockApp
                         client.BaseAddress = new Uri("https://localhost:7001/");
                         client.Timeout = TimeSpan.FromSeconds(6);
                     });
-                    services.AddHttpClient<ILoanRequestRepository, LoanRequestProxyRepo>(client =>
+                    services.AddHttpClient<ILoanRequestRepository, LoanRequestProxyRepository>(client =>
                     {
                         client.BaseAddress = new Uri("https://localhost:7001/");
                     });
@@ -137,7 +138,7 @@ namespace StockApp
                         client.BaseAddress = new Uri("https://localhost:7001/");
                     });
 
-                    services.AddHttpClient<IProfileRepository, ProfileProxyRepo>(client =>
+                    services.AddHttpClient<IProfileRepository, ProfileProxyRepository>(client =>
                     {
                         client.BaseAddress = new Uri("https://localhost:7001/");
                     });
@@ -167,7 +168,11 @@ namespace StockApp
                         client.BaseAddress = new Uri("https://localhost:7001/");
                     });
 
-                    services.AddHttpClient<IChatReportRepository, ChatReportRepoProxy>(client =>
+                    services.AddHttpClient<IChatReportRepository, ChatReportProxyRepostiory>(client =>
+                    {
+                        client.BaseAddress = new Uri("https://localhost:7001/");
+                    });
+                    services.AddHttpClient<INewsRepository, NewsProxyRepository>(client =>
                     {
                         client.BaseAddress = new Uri("https://localhost:7001/");
                     });

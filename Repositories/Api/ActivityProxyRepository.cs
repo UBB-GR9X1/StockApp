@@ -7,11 +7,11 @@ namespace StockApp.Repositories.Api
     using System.Threading.Tasks;
     using StockApp.Models;
 
-    public class ActivityProxyRepo : IActivityRepo
+    public class ActivityProxyRepository : IActivityRepo
     {
         private readonly HttpClient _httpClient;
 
-        public ActivityProxyRepo(HttpClient httpClient)
+        public ActivityProxyRepository(HttpClient httpClient)
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         }

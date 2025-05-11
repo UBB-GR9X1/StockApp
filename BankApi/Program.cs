@@ -1,7 +1,6 @@
 using BankApi.Data;
 using BankApi.Repositories;
 using Microsoft.EntityFrameworkCore;
-using StockApp.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,6 +31,10 @@ builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
 builder.Services.AddScoped<IMessagesRepository, MessagesRepository>();
 builder.Services.AddScoped<ITipsRepository, TipsRepository>();
+builder.Services.AddScoped<INewsRepository, NewsRepository>();
+builder.Services.AddScoped<IStockPageRepository, StockPageRepository>();
+builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
+builder.Services.AddScoped<IStockPageRepository, StockPageRepository>();
 
 // Add CORS
 builder.Services.AddCors(options =>

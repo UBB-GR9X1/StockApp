@@ -6,38 +6,24 @@ namespace StockApp.Services
 {
     public interface INewsService
     {
-        Task<bool> ApproveUserArticle(string articleId);
+        Task<bool> ApproveUserArticleAsync(string articleId);
 
-        bool CreateArticle(NewsArticle article);
+        Task<bool> CreateArticleAsync(NewsArticle article);
 
-        Task<bool> DeleteUserArticle(string articleId);
+        Task<bool> DeleteUserArticleAsync(string articleId);
 
-        List<NewsArticle> GetCachedArticles();
+        Task<NewsArticle> GetNewsArticleByIdAsync(string articleId);
 
-        Task<User> GetCurrentUser();
+        Task<List<NewsArticle>> GetNewsArticlesAsync();
 
-        NewsArticle GetNewsArticleById(string articleId);
+        Task<List<Stock>> GetRelatedStocksForArticleAsync(string articleId);
 
-        List<NewsArticle> GetNewsArticles();
+        Task<List<NewsArticle>> GetUserArticlesAsync(string authorCNP, Status status = Status.All, string topic = "All");
 
-        List<string> GetRelatedStocksForArticle(string articleId);
+        Task<bool> MarkArticleAsReadAsync(string articleId);
 
-        UserArticle GetUserArticleForPreview(string articleId);
+        Task<bool> RejectUserArticleAsync(string articleId);
 
-        Task<List<UserArticle>> GetUserArticles(string status = null, string topic = null);
-
-        Task<User> LoginAsync(string username, string password);
-
-        void Logout();
-
-        bool MarkArticleAsRead(string articleId);
-
-        Task<bool> RejectUserArticle(string articleId);
-
-        void StorePreviewArticle(NewsArticle article, UserArticle userArticle);
-
-        Task<bool> SubmitUserArticle(UserArticle article);
-
-        void UpdateCachedArticles(List<NewsArticle> articles);
+        Task<bool> SubmitUserArticleAsync(NewsArticle article);
     }
 }

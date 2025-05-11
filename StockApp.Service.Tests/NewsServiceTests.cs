@@ -1,14 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using StockApp.Database;
 using StockApp.Models;
 using StockApp.Repositories;
 using StockApp.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace StockApp.Service.Tests
 {
@@ -39,7 +38,7 @@ namespace StockApp.Service.Tests
             // Mock INewsRepository implementation for NewsService
             var mockNewsRepo = new Mock<INewsRepository>();
             mockNewsRepo.Setup(r => r.GetAllUserArticles()).Returns(new List<UserArticle>());
-            
+
             // Create service with DbContext
             _service = new NewsService(_mockDbContext.Object);
 
@@ -76,7 +75,7 @@ namespace StockApp.Service.Tests
             _mockRepo.As<INewsRepository>().Setup(r => r.GetNewsArticleById(It.IsAny<string>())).Returns(article);
 
             // Act  
-            var result = _service.GetNewsArticleById("a1");
+            var result = _service.GetNewsArticleByIdAsync("a1");
 
             // Assert  
             Assert.AreEqual(article.Title, result.Title);

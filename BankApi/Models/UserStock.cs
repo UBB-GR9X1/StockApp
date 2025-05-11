@@ -23,5 +23,7 @@ namespace BankApi.Models
         public int Quantity { get; set; }
 
         public Stock Stock { get; set; } = null!;
+
+        public User User { get; set; } = null!;
     }
 }

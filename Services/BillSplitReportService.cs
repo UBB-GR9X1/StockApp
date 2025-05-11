@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Src.Model;
 using StockApp.Models;
 using StockApp.Repositories;
+using StockApp.Repositories.Api;
 
 namespace StockApp.Services
 {

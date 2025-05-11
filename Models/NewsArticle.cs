@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
 
     /// <summary>
     /// Represents a news article about stocks, including metadata and content.
@@ -27,8 +26,9 @@
             string summary,
             string content,
             string source,
+            string topic,
             DateTime publishedDate,
-            IEnumerable<string> relatedStocks,
+            IEnumerable<Stock> relatedStocks,
             Status status = Status.Pending)
         {
             this.ArticleId = articleId;
@@ -37,10 +37,15 @@
             this.Content = content;
             this.Source = source;
             this.PublishedDate = publishedDate;
-
+            this.Topic = topic;
             // Copy the incoming sequence to a List for mutability and indexing
             this.RelatedStocks = [.. relatedStocks];
             this.Status = status;
+        }
+
+        public NewsArticle()
+        {
+            this.RelatedStocks = [];
         }
 
         /// <summary>
@@ -91,11 +96,21 @@
         /// <summary>
         /// Gets or sets the list of related stock symbols or names.
         /// </summary>
-        public List<string> RelatedStocks { get; set; }
+        public List<Stock> RelatedStocks { get; set; }
 
         /// <summary>
         /// Gets or sets the current status of the article.
         /// </summary>
         public Status Status { get; set; }
+
+        /// <summary>
+        /// Gets or sets the topic of the article.
+        /// </summary>
+        public string Topic { get; set; }
+
+        /// <summary>
+        /// Gets or sets the author of the article.
+        /// </summary>
+        public User Author { get; set; } = null!;
     }
 }

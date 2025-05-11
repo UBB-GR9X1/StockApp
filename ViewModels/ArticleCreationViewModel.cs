@@ -6,15 +6,12 @@
     using System.Linq;
     using System.Threading.Tasks;
     using System.Windows.Input;
-    using Microsoft.Extensions.DependencyInjection;
     using Microsoft.UI.Xaml.Controls;
     using StockApp;
     using StockApp.Commands;
     using StockApp.Models;
-    using StockApp.Repositories;
     using StockApp.Services;
     using StockApp.Views;
-    using StockApp.Database;
 
     /// <summary>
     /// ViewModel for creating, previewing, and submitting user‐authored news articles.
@@ -23,8 +20,6 @@
     {
         private readonly INewsService _newsService;
         private readonly IBaseStocksService _stocksService;
-        private readonly AppDbContext _dbContext;
-        private readonly IDispatcher dispatcherQueue;
 
         private string title;
 
@@ -130,11 +125,6 @@
         }
 
         /// <summary>
-        /// Command to navigate back to the previous view.
-        /// </summary>
-        public ICommand BackCommand { get; }
-
-        /// <summary>
         /// Command to clear the article creation form.
         /// </summary>
         public ICommand ClearCommand { get; }
@@ -156,19 +146,12 @@
         /// <param name="dispatcher">Dispatcher for UI thread invocation.</param>
         /// <param name="appState">Global application state.</param>
         /// <param name="stocksService">Service for base stock data.</param>
-        public ArticleCreationViewModel(
-            INewsService newsService,
-            IDispatcher dispatcher,
-            AppDbContext dbContext,
-            IBaseStocksService stocksService)
+        public ArticleCreationViewModel(INewsService newsService, IBaseStocksService stocksService)
         {
             _newsService = newsService ?? throw new ArgumentNullException(nameof(newsService));
-            _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             _stocksService = stocksService ?? throw new ArgumentNullException(nameof(stocksService));
-            this.dispatcherQueue = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
 
             // Initialize commands
-            this.BackCommand = new StockNewsRelayCommand(() => NavigationService.Instance.GoBack());
             this.ClearCommand = new StockNewsRelayCommand(() => this.ClearForm());
             this.PreviewCommand = new StockNewsRelayCommand(async () => await this.PreviewArticleAsync());
             this.SubmitCommand = new StockNewsRelayCommand(async () => await this.SubmitArticleAsync());
@@ -182,18 +165,6 @@
 
             // Set default selected topic
             this.selectedTopic = "Stock News";
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ArticleCreationViewModel"/> class using default implementations.
-        /// </summary>
-        public ArticleCreationViewModel()
-          : this(
-              new NewsService(),
-              new DispatcherAdapter(),
-              new AppDbContext(),
-              App.Host.Services.GetRequiredService<IBaseStocksService>())
-        {
         }
 
         /// <summary>

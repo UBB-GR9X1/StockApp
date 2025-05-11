@@ -10,14 +10,13 @@ namespace StockApp.Pages
     using StockApp.Models;
     using StockApp.Services;
     using StockApp.ViewModels;
-    using StockApp.Views;
 
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
     public sealed partial class StockPage : Page
     {
-        private StockPageViewModel? viewModel;
+        private StockPageViewModel viewModel;
         private Page previousPage;
 
         private ICommand command { get; }
@@ -25,8 +24,10 @@ namespace StockApp.Pages
         /// <summary>
         /// Constructor for the StockPage class.
         /// </summary>
-        public StockPage()
+        public StockPage(StockPageViewModel stockPageViewModel)
         {
+            this.viewModel = stockPageViewModel;
+            this.DataContext = this.viewModel;
             this.InitializeComponent();
             this.command = new StockNewsRelayCommand(() => this.AuthorButtonClick());
         }
@@ -64,8 +65,7 @@ namespace StockApp.Pages
             // Retrieve the stock name passed during navigation
             if (e.Parameter is StockDetailsDTO stockDetailsDTO)
             {
-                this.viewModel = new StockPageViewModel(stockDetailsDTO.StockDetails, this.PriceLabel, this.IncreaseLabel, this.OwnedStocks);
-                this.DataContext = this.viewModel;
+                this.viewModel.SelectedStock = stockDetailsDTO.StockDetails;
                 this.previousPage = stockDetailsDTO.PreviousPage;
             }
             else
@@ -91,7 +91,8 @@ namespace StockApp.Pages
         /// <param name="e"></param>
         public void AlertsButtonClick(object sender, RoutedEventArgs e)
         {
-            NavigationService.Instance.Navigate(typeof(AlertsView), this.viewModel.StockName);
+            throw new NotImplementedException("Alerts feature is not implemented yet.");
+            //NavigationService.Instance.Navigate(typeof(AlertsView), this.viewModel!.SelectedStock);
         }
 
         /// <summary>
@@ -108,7 +109,7 @@ namespace StockApp.Pages
             }
 
             int quantity = (int)this.QuantityInput.Value;
-            bool success = this.viewModel.BuyStock(quantity);
+            bool success = await this.viewModel.BuyStock(quantity);
             this.QuantityInput.Value = 1;
 
             if (!success)
@@ -131,7 +132,7 @@ namespace StockApp.Pages
             }
 
             int quantity = (int)this.QuantityInput.Value;
-            bool success = this.viewModel.SellStock(quantity);
+            bool success = await this.viewModel.SellStock(quantity);
             this.QuantityInput.Value = 1;
 
             if (!success)

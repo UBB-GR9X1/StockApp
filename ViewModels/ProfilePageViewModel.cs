@@ -18,10 +18,16 @@
     public class ProfilePageViewModel : INotifyPropertyChanged
     {
         private readonly IProfileService profileService;
+        private readonly IUserService userService;
         private BitmapImage imageSource;
         private string username = string.Empty;
         private string description = string.Empty;
-        private List<Stock> userStocks = new();
+        private List<Stock> userStocks = [];
+        private Stock? selectedStock;
+        private bool isAdmin = false;
+        private bool isHidden = false;
+
+        public bool IsGuest => this.userService.IsGuest();
 
         /// <summary>
         /// Gets or sets the profile image source.
@@ -75,15 +81,56 @@
             }
         }
 
+        public Stock? SelectedStock
+        {
+            get => this.selectedStock;
+            set
+            {
+                this.selectedStock = value;
+                this.OnPropertyChanged(nameof(this.SelectedStock));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the profile is hidden.
+        /// </summary>
+        public bool IsAdmin
+        {
+            get => this.isAdmin;
+            set
+            {
+                this.isAdmin = value;
+                this.OnPropertyChanged(nameof(this.isAdmin));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the profile is hidden.
+        /// </summary>
+        public bool IsHidden
+        {
+            get => this.isHidden;
+            set
+            {
+                this.isHidden = value;
+                this.OnPropertyChanged(nameof(this.IsHidden));
+            }
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ProfilePageViewModel"/> class with the default profile service and loads the profile image.
         /// </summary>
-        public ProfilePageViewModel(IProfileService profileService)
+        public ProfilePageViewModel(IProfileService profileService, IUserService userService)
         {
+            this.profileService = profileService ?? throw new ArgumentNullException(nameof(profileService));
+            this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
             try
             {
                 this.profileService = profileService ?? throw new ArgumentNullException(nameof(profileService));
-                this.LoadProfileData();
+                if (!this.userService.IsGuest())
+                {
+                    _ = this.LoadProfileData();
+                }
             }
             catch (Exception ex)
             {
@@ -92,24 +139,22 @@
             }
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ProfilePageViewModel"/> class with the specified profile service.
-        /// </summary>
-        /// <param name="profileService">Service used to retrieve profile data.</param>
-        public ProfilePageViewModel(IProfileService profileService)
-        {
-            this.profileService = profileService ?? throw new ArgumentNullException(nameof(profileService));
-            this.LoadProfileData();
-        }
-
-        private void LoadProfileData()
+        private async Task LoadProfileData()
         {
             try
             {
-                this.Username = this.profileService.GetUsername();
-                this.Description = this.profileService.GetDescription();
-                this.UserStocks = this.profileService.GetUserStocks();
-                this.LoadProfileImage();
+                User currentUser = await this.userService.GetCurrentUserAsync();
+
+                this.Username = currentUser.Username;
+                this.Description = currentUser.Description;
+                this.IsAdmin = currentUser.IsModerator;
+                this.IsHidden = currentUser.IsHidden;
+                this.UserStocks = await this.profileService.GetUserStocksAsync();
+
+                if (!string.IsNullOrEmpty(currentUser.Image) && Uri.IsWellFormedUriString(currentUser.Image, UriKind.Absolute))
+                {
+                    this.ImageSource = new BitmapImage(new Uri(currentUser.Image));
+                }
             }
             catch (Exception ex)
             {
@@ -117,69 +162,6 @@
                 throw;
             }
         }
-
-        /// <summary>
-        /// Loads the profile image from the profile service.
-        /// </summary>
-        private void LoadProfileImage()
-        {
-            try
-            {
-                string imageUrl = this.profileService.GetImage();
-                if (!string.IsNullOrEmpty(imageUrl))
-                {
-                    this.ImageSource = new BitmapImage(new Uri(imageUrl));
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Error loading image: {ex.Message}");
-                // Don't throw here, as image loading failure shouldn't break the whole profile
-            }
-
-        /// <summary>
-        /// Gets the CNP of the currently logged-in user.
-        /// </summary>
-        /// <returns>The user's CNP as a string.</returns>
-        /// <returns>The user's CNP as a string.</returns>
-
-        /// <summary>
-        /// Gets the username of the currently logged-in user.
-        /// </summary>
-        /// <returns>The username.</returns>
-        /// <returns>The username.</returns>
-
-        /// <summary>
-        /// Gets the description of the user.
-        /// </summary>
-        /// <returns>The user description.</returns>
-        /// <returns>The user description.</returns>
-
-        /// <summary>
-        /// Determines whether the user's profile is hidden.
-        /// </summary>
-        /// <returns><c>true</c> if the profile is hidden; otherwise, <c>false</c>.</returns>
-        public async Task<bool> IsHiddenAsync()
-        {
-            var user = await this.profileService.CurrentUserProfile;
-            return user.IsHidden;
-        }
-
-        /// <summary>
-        /// Determines whether the user has administrative privileges.
-        /// </summary>
-        /// <returns><c>true</c> if the user is an admin; otherwise, <c>false</c>.</returns>
-        public async Task<bool> IsAdminAsync()
-        {
-            var user = await this.profileService.CurrentUserProfile;
-            return user.IsModerator;
-        }
-
-        /// <summary>
-        /// Gets the list of stocks associated with the user.
-        /// </summary>
-        /// <returns>A list of <see cref="Stock"/> objects.</returns>
-        /// <returns>A list of <see cref="Stock"/> objects.</returns>
 
         /// <summary>
         /// Updates the administrative mode of the user.

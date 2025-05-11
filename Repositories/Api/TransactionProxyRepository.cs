@@ -1,4 +1,4 @@
-﻿namespace StockApp.Repositories
+﻿namespace StockApp.Repositories.Api
 {
     using System;
     using System.Collections.Generic;
@@ -16,7 +16,7 @@
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         }
 
-        public async Task AddTransaction(TransactionLogTransaction transaction)
+        public async Task AddTransactionAsync(TransactionLogTransaction transaction)
         {
             try
             {
@@ -35,7 +35,7 @@
             }
         }
 
-        public async Task<List<TransactionLogTransaction>> getAllTransactions()
+        public async Task<List<TransactionLogTransaction>> GetAllTransactionsAsync()
         {
             try
             {
@@ -48,7 +48,7 @@
             }
         }
 
-        public async Task<List<TransactionLogTransaction>> GetByFilterCriteria(TransactionFilterCriteria criteria)
+        public async Task<List<TransactionLogTransaction>> GetByFilterCriteriaAsync(TransactionFilterCriteria criteria)
         {
             if (criteria == null)
             {

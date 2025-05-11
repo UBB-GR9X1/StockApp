@@ -1,8 +1,6 @@
 ﻿using BankApi.Models;
 using BankApi.Repositories;
 using Microsoft.AspNetCore.Mvc;
-//using StockApp.Models;
-using StockApp.Repositories;
 
 namespace BankApi.Controllers
 {

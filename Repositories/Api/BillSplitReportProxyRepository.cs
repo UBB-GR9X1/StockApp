@@ -6,7 +6,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Src.Model;
 
-namespace StockApp.Repositories
+namespace StockApp.Repositories.Api
 {
     /// <summary>
     /// Proxy repository that implements IBillSplitReportRepository to make calls to the BankAPI

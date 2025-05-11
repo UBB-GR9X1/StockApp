@@ -16,10 +16,6 @@
         <converters:DateTimeOffsetToDateTimeConverter x:Key="DateTimeOffsetToDateTimeConverter"/>
     </Page.Resources>
 
-    <Page.DataContext>
-        <local1:CreateProfilePageViewModel />
-    </Page.DataContext>
-
     <Grid>
         <StackPanel Padding="50" Spacing="30" Background="#FFF5EE" BorderBrush="#FF69B4" BorderThickness="10">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="150" Background="#FFF5EE" Padding="20">

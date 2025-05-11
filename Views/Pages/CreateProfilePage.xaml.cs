@@ -13,10 +13,10 @@ namespace StockApp.Views.Pages
     {
         private readonly CreateProfilePageViewModel viewModel;
 
-        public CreateProfilePage()
+        public CreateProfilePage(CreateProfilePageViewModel createProfilePageViewModel)
         {
             this.InitializeComponent();
-            this.viewModel = new CreateProfilePageViewModel();
+            this.viewModel = createProfilePageViewModel;
             this.DataContext = this.viewModel;
         }
     }

@@ -18,6 +18,7 @@
 
         Task<List<User>> GetUsers();
 
-        Task<string> CreateUser(User user);
+        void SetCurrentUserCNP(string cnp);
+
     }
 }

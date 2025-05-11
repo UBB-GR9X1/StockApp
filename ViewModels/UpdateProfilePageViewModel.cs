@@ -13,9 +13,10 @@
     /// Initializes a new instance of the <see cref="UpdateProfilePageViewModel"/> class with a specified homepageService.
     /// </remarks>
     /// <param name="service">Service used to retrieve and update profile information.</param>
-    public class UpdateProfilePageViewModel(IProfileService profileService, IStoreService storeService)
+    public class UpdateProfilePageViewModel(IProfileService profileService, IUserService userService)
     {
         private readonly IProfileService profileService = profileService ?? throw new ArgumentNullException(nameof(profileService));
+        private readonly IUserService userService = userService ?? throw new ArgumentNullException(nameof(profileService));
 
         /// <summary>
         /// Gets the URL of the user's profile image.
@@ -24,7 +25,7 @@
         public async Task<string> GetImage()
         {
             // Inline: delegate image retrieval to service
-            return (await this.profileService.CurrentUserProfile).Image;
+            return (await this.userService.GetCurrentUserAsync()).Image;
         }
 
         /// <summary>
@@ -34,7 +35,7 @@
         public async Task<string> GetUsername()
         {
             // Inline: delegate username retrieval to service
-            return (await this.profileService.CurrentUserProfile).Username;
+            return (await this.userService.GetCurrentUserAsync()).Username;
         }
 
         /// <summary>
@@ -44,7 +45,7 @@
         public async Task<string> GetDescription()
         {
             // Inline: delegate description retrieval to service
-            return (await this.profileService.CurrentUserProfile).Description;
+            return (await this.userService.GetCurrentUserAsync()).Description;
         }
 
         /// <summary>
@@ -54,7 +55,7 @@
         public async Task<bool> IsHidden()
         {
             // Inline: delegate visibility check to service
-            return (await this.profileService.CurrentUserProfile).IsHidden;
+            return (await this.userService.GetCurrentUserAsync()).IsHidden;
         }
 
         /// <summary>
@@ -64,7 +65,7 @@
         public async Task<bool> IsAdmin()
         {
             // Inline: delegate admin check to service
-            return (await this.profileService.CurrentUserProfile).IsModerator;
+            return (await this.userService.GetCurrentUserAsync()).IsModerator;
         }
 
         /// <summary>

@@ -1,6 +1,7 @@
 ﻿namespace StockApp.ViewModels
 {
     using System;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
@@ -10,7 +11,6 @@
     using StockApp.Commands;
     using StockApp.Models;
     using StockApp.Services;
-    using StockApp.Views;
 
     /// <summary>
     /// ViewModel for the admin news moderation screen, handling retrieval,
@@ -19,37 +19,32 @@
     public class AdminNewsViewModel : ViewModelBase
     {
         private readonly INewsService newsService;
-        private readonly IDispatcher dispatcherQueue;
+        private readonly IUserService userService;
 
-        private ObservableCollection<UserArticle> userArticles = [];
+        private ObservableCollection<NewsArticle> newsArticles = [];
         private bool isLoading;
-        private ObservableCollection<string> statuses = [];
-        private string selectedStatus;
+        private ObservableCollection<Status> statuses = [];
+        private Status selectedStatus;
         private ObservableCollection<string> topics = [];
         private string selectedTopic;
-        private UserArticle? selectedArticle;
+        private NewsArticle? selectedArticle;
         private bool isEmptyState;
 
-        /// <summary>
-        /// Initializes a new instance of <see cref="AdminNewsViewModel"/> with the specified homepageService and dispatcher.
-        /// </summary>
-        /// <param name="service">Service for retrieving and modifying news articles.</param>
-        /// <param name="dispatcherQueue">Dispatcher used for UI thread operations.</param>
-        public AdminNewsViewModel(
-            INewsService service,
-            IDispatcher dispatcherQueue)
+        public ObservableCollection<NewsArticle> NewsArticles
         {
-            this.newsService = service ?? throw new ArgumentNullException(nameof(service));
-            this.dispatcherQueue = dispatcherQueue ?? throw new ArgumentNullException(nameof(dispatcherQueue));
-            this.InitializeCommandsAndFilters();
+            get => this.newsArticles;
+            set => this.SetProperty(ref this.newsArticles, value);
         }
 
         /// <summary>
-        /// Initializes a new instance of <see cref="AdminNewsViewModel"/> using default implementations.
+        /// Initializes a new instance of the <see cref="AdminNewsViewModel"/> class.
         /// </summary>
-        public AdminNewsViewModel()
-            : this(new NewsService(), new DispatcherAdapter())
+        /// <param name="service">Service for retrieving and modifying news articles.</param>
+        public AdminNewsViewModel(INewsService service, IUserService userService)
         {
+            this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
+            this.newsService = service ?? throw new ArgumentNullException(nameof(service));
+            this.InitializeCommandsAndFilters();
         }
 
         /// <summary>
@@ -62,14 +57,14 @@
             this.ApproveCommand = new RelayCommandGeneric<string>(async (id) => await this.ApproveArticleAsync(id));
             this.RejectCommand = new RelayCommandGeneric<string>(async (id) => await this.RejectArticleAsync(id));
             this.DeleteCommand = new RelayCommandGeneric<string>(async (id) => await this.DeleteArticleAsync(id));
-            this.BackCommand = new StockNewsRelayCommand(() => NavigationService.Instance.GoBack());
-            this.PreviewCommand = new RelayCommandGeneric<UserArticle>((article) => this.NavigateToPreview(article));
+            this.PreviewCommand = new RelayCommandGeneric<NewsArticle>(async (article) => await this.NavigateToPreview(article));
 
             // Populate status filter options
-            this.Statuses.Add("All");
-            this.Statuses.Add("Pending");
-            this.Statuses.Add("Approved");
-            this.Statuses.Add("Rejected");
+
+            this.Statuses.Add(Status.All);
+            this.Statuses.Add(Status.Pending);
+            this.Statuses.Add(Status.Approved);
+            this.Statuses.Add(Status.Rejected);
 
             // Populate topic filter options
             this.Topics.Add("All");
@@ -80,17 +75,8 @@
             this.Topics.Add("Economic News");
 
             // Set default selections
-            this.selectedStatus = "All";
+            this.selectedStatus = Status.All;
             this.selectedTopic = "All";
-        }
-
-        /// <summary>
-        /// Gets or sets the collection of user articles to display.
-        /// </summary>
-        public ObservableCollection<UserArticle> UserArticles
-        {
-            get => this.userArticles;
-            set => this.SetProperty(ref this.userArticles, value);
         }
 
         /// <summary>
@@ -105,7 +91,7 @@
         /// <summary>
         /// Gets or sets the available statuses for filtering.
         /// </summary>
-        public ObservableCollection<string> Statuses
+        public ObservableCollection<Status> Statuses
         {
             get => this.statuses;
             set => this.SetProperty(ref this.statuses, value);
@@ -115,16 +101,12 @@
         /// Gets or sets the currently selected status filter.
         /// Changing this triggers an article refresh.
         /// </summary>
-        public string SelectedStatus
+        public Status SelectedStatus
         {
             get => this.selectedStatus;
             set
             {
-                if (this.SetProperty(ref this.selectedStatus, value))
-                {
-                    // Refresh articles when the filter changes
-                    this.RefreshArticlesAsync();
-                }
+                _ = this.RefreshArticlesAsync();
             }
         }
 
@@ -148,8 +130,7 @@
             {
                 if (this.SetProperty(ref this.selectedTopic, value))
                 {
-                    // Refresh articles when the filter changes
-                    this.RefreshArticlesAsync();
+                    _ = this.RefreshArticlesAsync();
                 }
             }
         }
@@ -158,7 +139,7 @@
         /// Gets or sets the article selected by the user for preview.
         /// Selecting an article navigates to the preview view.
         /// </summary>
-        public UserArticle? SelectedArticle
+        public NewsArticle? SelectedArticle
         {
             get => this.selectedArticle;
             set
@@ -204,11 +185,6 @@
         public ICommand DeleteCommand { get; private set; }
 
         /// <summary>
-        /// Gets the command to navigate back.
-        /// </summary>
-        public ICommand BackCommand { get; private set; }
-
-        /// <summary>
         /// Gets the command to preview an article.
         /// </summary>
         public ICommand PreviewCommand { get; private set; }
@@ -231,23 +207,10 @@
 
             try
             {
-                // Determine filter values (null means no filter for "All")
-                string? status = this.SelectedStatus == "All" ? null : this.SelectedStatus;
-                string? topic = this.SelectedTopic == "All" ? null : this.SelectedTopic;
-
-                var articles = await this.newsService.GetUserArticles(status, topic);
-
-                // Update the collection on the UI thread
-                this.dispatcherQueue.TryEnqueue(() =>
-                {
-                    this.UserArticles.Clear();
-                    foreach (var article in articles)
-                    {
-                        this.UserArticles.Add(article);
-                    }
-
-                    this.IsEmptyState = this.UserArticles.Count == 0;
-                });
+                List<NewsArticle> articles = await this.newsService.GetUserArticlesAsync(this.userService.GetCurrentUserCNP(), this.SelectedStatus, this.SelectedTopic);
+                this.newsArticles.Clear();
+                articles.ForEach(this.newsArticles.Add);
+                this.IsEmptyState = this.newsArticles.Count == 0;
             }
             catch
             {
@@ -266,31 +229,14 @@
         /// and navigates to the preview view.
         /// </summary>
         /// <param name="article">The user article to preview.</param>
-        private void NavigateToPreview(UserArticle article)
+        private async Task NavigateToPreview(NewsArticle article)
         {
             if (article == null)
             {
                 return;
             }
-
-            // Prepare a preview NewsArticle from the user-submitted article
-            var previewArticle = new NewsArticle(
-                articleId: article.ArticleId,
-                title: article.Title,
-                summary: article.Summary,
-                content: article.Content,
-                source: $"User: {article.Author.Username}",
-                publishedDate: article.SubmissionDate,
-                relatedStocks: article.RelatedStocks,
-                status: Enum.TryParse<Status>(article.Status, out var status) ? status : Status.Pending);
-
-            // Store the preview for later retrieval
-            this.newsService.StorePreviewArticle(previewArticle, article);
-
-            // Navigate to the article view in preview mode
-            NavigationService.Instance.Navigate(
-                typeof(NewsArticleView),
-                $"preview:{article.ArticleId}");
+            throw new NotImplementedException("Navigation to preview is not implemented yet.");
+            //FIXME go to preview page
         }
 
         /// <summary>
@@ -301,7 +247,7 @@
         {
             try
             {
-                var success = await this.newsService.ApproveUserArticle(articleId);
+                var success = await this.newsService.ApproveUserArticleAsync(articleId);
                 if (success)
                 {
                     await this.RefreshArticlesAsync();
@@ -341,7 +287,7 @@
         {
             try
             {
-                var success = await this.newsService.RejectUserArticle(articleId);
+                var success = await this.newsService.RejectUserArticleAsync(articleId);
                 if (success)
                 {
                     await this.RefreshArticlesAsync();
@@ -394,7 +340,7 @@
                 var result = await confirmDialog.ShowAsync();
                 if (result == ContentDialogResult.Primary)
                 {
-                    var success = await this.newsService.DeleteUserArticle(articleId);
+                    var success = await this.newsService.DeleteUserArticleAsync(articleId);
                     if (success)
                     {
                         await this.RefreshArticlesAsync();

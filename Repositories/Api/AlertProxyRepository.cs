@@ -1,5 +1,5 @@
 // StockApp/Services/AlertProxyRepo.cs
-namespace StockApp.Services
+namespace StockApp.Repositories.Api
 {
     using System;
     using System.Collections.Generic;
@@ -13,13 +13,13 @@ namespace StockApp.Services
     /// <summary>
     /// Proxy repository that implements IAlertRepository to make calls to the BankAPI
     /// </summary>
-    public class AlertProxyRepo : IAlertRepository
+    public class AlertProxyRepository : IAlertRepository
     {
         private readonly HttpClient _httpClient;
         private readonly string _baseUrl = "https://localhost:7001/api/Alerts";
         private readonly JsonSerializerOptions _jsonOptions;
 
-        public AlertProxyRepo(HttpClient httpClient)
+        public AlertProxyRepository(HttpClient httpClient)
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _jsonOptions = new JsonSerializerOptions

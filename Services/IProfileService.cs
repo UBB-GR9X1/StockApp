@@ -6,8 +6,6 @@ namespace StockApp.Services
 {
     public interface IProfileService
     {
-        Task<User> CurrentUserProfile { get; }
-
         Task UpdateIsAdminAsync(bool newIsAdmin);
 
         Task UpdateUserAsync(string newUsername, string newImage, string newDescription, bool newHidden);

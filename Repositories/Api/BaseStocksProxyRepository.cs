@@ -6,7 +6,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using StockApp.Models;
 
-namespace StockApp.Repositories
+namespace StockApp.Repositories.Api
 {
     /// <summary>
     /// Proxy repository that implements <see cref="IBaseStocksRepository"/> and

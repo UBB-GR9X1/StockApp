@@ -6,14 +6,14 @@ using System.Net.Http.Json;
 using System.Threading.Tasks;
 using StockApp.Models;
 
-namespace StockApp.Repositories
+namespace StockApp.Repositories.Api
 {
-    public class ProfileProxyRepo : IProfileRepository
+    public class ProfileProxyRepository : IProfileRepository
     {
         private readonly HttpClient _httpClient;
         private const string BaseUrl = "api/Profile";
 
-        public ProfileProxyRepo(HttpClient httpClient)
+        public ProfileProxyRepository(HttpClient httpClient)
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _httpClient.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
@@ -26,27 +26,11 @@ namespace StockApp.Repositories
             return await response.Content.ReadFromJsonAsync<string>() ?? throw new Exception("Failed to generate username");
         }
 
-        public async Task<User> GetUserProfileAsync(string authorCnp)
-        {
-            var response = await _httpClient.GetAsync($"{BaseUrl}/{authorCnp}");
-            response.EnsureSuccessStatusCode();
-            var profile = await response.Content.ReadFromJsonAsync<ApiProfile>() ?? throw new Exception("Failed to get profile");
-
-            return new User(
-                cnp: profile.Cnp,
-                username: profile.Name,
-                description: profile.Description,
-                isModerator: profile.IsAdmin,
-                image: profile.ProfilePicture,
-                isHidden: profile.IsHidden,
-                gem_balance: profile.GemBalance);
-        }
-
         public async Task UpdateMyUserAsync(string newUsername, string newImage, string newDescription, bool newHidden)
         {
             var profile = new ApiProfile
             {
-                Cnp = _httpClient.DefaultRequestHeaders.GetValues("X-User-CNP").First(),
+                Cnp = IUserRepository.CurrentUserCNP,
                 Name = newUsername,
                 ProfilePicture = newImage,
                 Description = newDescription,
@@ -59,14 +43,14 @@ namespace StockApp.Repositories
 
         public async Task UpdateRepoIsAdminAsync(bool isAdmin)
         {
-            var cnp = _httpClient.DefaultRequestHeaders.GetValues("X-User-CNP").First();
+            var cnp = IUserRepository.CurrentUserCNP;
             var response = await _httpClient.PutAsJsonAsync($"{BaseUrl}/{cnp}/admin", isAdmin);
             response.EnsureSuccessStatusCode();
         }
 
         public async Task<List<Stock>> UserStocksAsync()
         {
-            var cnp = _httpClient.DefaultRequestHeaders.GetValues("X-User-CNP").First();
+            var cnp = IUserRepository.CurrentUserCNP;
             var response = await _httpClient.GetAsync($"{BaseUrl}/{cnp}/stocks");
             response.EnsureSuccessStatusCode();
             var apiStocks = await response.Content.ReadFromJsonAsync<List<ApiStock>>() ?? new List<ApiStock>();
