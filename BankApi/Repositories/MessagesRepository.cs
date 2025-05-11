@@ -48,7 +48,7 @@
             }
 
             var randomMessage = await _context.Tips
-                .Where(m => m.Type == "Congrats-message")
+                .Where(m => m.Type == "Punishment")
                 .OrderBy(m => Guid.NewGuid())
                 .FirstOrDefaultAsync();
 
@@ -77,7 +77,7 @@
             }
 
             var randomMessage = await _context.Tips
-                .Where(m => m.Type == "Roast-message")
+                .Where(m => m.Type == "Roast")
                 .OrderBy(m => Guid.NewGuid())
                 .FirstOrDefaultAsync();
 
