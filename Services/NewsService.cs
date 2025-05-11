@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using Microsoft.Extensions.Logging;
     using StockApp.Exceptions;
     using StockApp.Models;
     using StockApp.Repositories;
@@ -17,7 +16,6 @@
         private readonly IUserRepository userRepository;
         private readonly INewsRepository newsRepository;
         private readonly IBaseStocksService stocksService;
-        private readonly ILogger<NewsService> logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NewsService"/> class
@@ -25,12 +23,11 @@
         /// </summary>
         /// <param name="dbContext">The database context.</param>
         /// <param name="stocksService">The stocks service.</param>
-        public NewsService(IUserRepository userRepository, IBaseStocksService baseStocksService, INewsRepository newsRepository, ILogger<NewsService> logger)
+        public NewsService(IUserRepository userRepository, IBaseStocksService baseStocksService, INewsRepository newsRepository)
         {
             this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             this.stocksService = baseStocksService ?? throw new ArgumentNullException(nameof(baseStocksService));
             this.newsRepository = newsRepository ?? throw new ArgumentNullException(nameof(newsRepository));
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         /// <summary>

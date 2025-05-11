@@ -4,7 +4,6 @@
     using System.Diagnostics;
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
-    using Microsoft.Data.SqlClient;
     using Microsoft.Extensions.DependencyInjection;
     using StockApp.Exceptions;
     using StockApp.Models;
@@ -93,10 +92,6 @@
             catch (InvalidOperationException opEx)
             {
                 throw new StockPersistenceException("Failed to add stock due to a persistence operation error.", opEx);
-            }
-            catch (SqlException sqlEx)
-            {
-                throw new StockPersistenceException("Database error occurred while adding the stock.", sqlEx);
             }
         }
 
