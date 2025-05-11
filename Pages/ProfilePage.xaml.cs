@@ -6,7 +6,6 @@ namespace StockApp.Pages
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
     using StockApp.Commands;
-    using StockApp.Models;
     using StockApp.ViewModels;
     using Windows.UI.Popups;
 
@@ -94,8 +93,10 @@ namespace StockApp.Pages
                 return;
             }
 
-            StockDetailsDTO stockDetailsDTO = new(this.viewModel.SelectedStock, this);
-            App.MainAppWindow!.MainAppFrame.Navigate(typeof(StockPage), stockDetailsDTO);
+            StockPage stockPage = App.Host.Services.GetService<StockPage>() ?? throw new InvalidOperationException("StockPage is not available");
+            stockPage.PreviousPage = this;
+            stockPage.ViewModel.SelectedStock = this.viewModel.SelectedStock;
+            App.MainAppWindow!.MainAppFrame.Content = stockPage;
         }
     }
 }
