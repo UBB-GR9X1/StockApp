@@ -16,8 +16,9 @@
         <ListBox x:Name="TipHistoryContainer" ItemsSource="{Binding TipHistory}" Width="1000">
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <components:TipHistoryComponent DataContext="{Binding}" />
-                </DataTemplate>
+                    
+                    <TextBlock Text="{Binding TipText}" />
+                </DataTemplate> 
             </ListBox.ItemTemplate>
         </ListBox>
 
