@@ -6,8 +6,11 @@
     using System.Threading.Tasks;
     using System.Windows.Input;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.UI;
+    using Microsoft.UI.Text;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
+    using Microsoft.UI.Xaml.Media;
     using StockApp.Commands;
     using StockApp.Models;
     using StockApp.Services;
@@ -130,7 +133,7 @@
                     this.selectedArticle = null;
                     this.OnPropertyChanged(nameof(this.SelectedArticle));
 
-                    this.ShowArticleInModalAsync(value).ConfigureAwait(false);
+                    _ = this.ShowArticleInModalAsync(value);
                 }
             }
         }
@@ -321,22 +324,65 @@
         {
             try
             {
-                var dialog = new ContentDialog
+                ContentDialog dialog = new()
                 {
-                    Title = "Article Details",
+                    Title = article.Title,
                     XamlRoot = App.MainAppWindow!.MainAppFrame.XamlRoot,
                     CloseButtonText = "Close",
                     PrimaryButtonText = "Mark as Read",
                     DefaultButton = ContentDialogButton.Primary,
+                    Height = 500,
+                    Width = 400,
+                    Content = new ScrollViewer
+                    {
+                        Height = 500,
+                        Width = 400,
+                        Content = new StackPanel
+                        {
+                            Children =
+                            {
+                                new TextBlock { Text = $"Summary: {article.Summary}", TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 10) },
+                                new StackPanel
+                                {
+                                    Children =
+                                    {
+                                        new TextBlock
+                                        {
+                                            Text = $"Content:",
+                                            TextWrapping = TextWrapping.Wrap,
+                                            Margin = new Thickness(0, 0, 0, 10),
+                                        },
+                                        new Border
+                                        {
+                                           BorderThickness = new Thickness(1),
+                                           BorderBrush = new SolidColorBrush(Colors.Gray),
+                                           CornerRadius = new CornerRadius(5),
+                                           Padding = new Thickness(14),
+                                           Child = new TextBlock
+                                           {
+                                               Text = article.Content,
+                                               TextWrapping = TextWrapping.Wrap,
+                                               Margin = new Thickness(0, 0, 0, 10),
+                                           },
+                                        },
+                                    },
+                                },
+                                new TextBlock
+                                {
+                                    Text = $"Topic: {article.Topic}",
+                                    Margin = new Thickness(0, 0, 0, 10),
+                                },
+                                new TextBlock { Text = $"Published Date: {article.PublishedDate}", Margin = new Thickness(0, 0, 0, 10) },
+                                new TextBlock { Text = "Related Stocks:", FontWeight = FontWeights.Bold, Margin = new Thickness(0, 0, 0, 5) },
+                                new ItemsControl
+                                {
+                                    ItemsSource = article.RelatedStocks.Select(stock => $"{stock.Name} ({stock.Symbol})"),
+                                    Margin = new Thickness(0, 0, 0, 10),
+                                },
+                            },
+                        },
+                    },
                 };
-
-                // Create the NewsArticleView and bind the ViewModel  
-                var articleView = new NewsArticleView();
-                var detailViewModel = App.Host.Services.GetService<NewsDetailViewModel>() ?? throw new InvalidOperationException("NewsDetailViewModel not found");
-                detailViewModel.LoadArticle(article.ArticleId);
-                articleView.ViewModel = detailViewModel;
-
-                dialog.Content = articleView;
 
                 var result = await dialog.ShowAsync();
 

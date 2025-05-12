@@ -2,6 +2,8 @@
 namespace BankApi.Models
 {
     using System.ComponentModel.DataAnnotations;
+    using System.Text.Json.Serialization;
+
     /// <summary>
     /// Represents a stock holding, including its name, symbol, author, price per share, and quantity.
     /// </summary>
@@ -32,6 +34,7 @@ namespace BankApi.Models
         /// </summary>
         public Stock() { }
 
+        [JsonIgnore]
         public List<NewsArticle> NewsArticles { get; set; }
 
         /// <summary>

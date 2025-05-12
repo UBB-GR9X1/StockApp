@@ -148,72 +148,27 @@
 
             try
             {
-                System.Diagnostics.Debug.WriteLine($"LoadArticle: Loading article with ID: {articleId}");
-
                 // Determine if this is a preview mode request
-                if (articleId.StartsWith("preview:"))
+                this.isPreviewMode = false;
+                this.currentArticleId = articleId;
+                this.IsAdminPreview = false;
+
+                var regularArticle = await this.newsService.GetNewsArticleByIdAsync(articleId);
+
+                if (regularArticle != null)
                 {
-                    this.isPreviewMode = true;
-                    this.previewId = articleId.Substring(8); // Inline: strip "preview:" prefix
-                    this.currentArticleId = this.previewId;
-                    this.IsAdminPreview = true;
-
-                    var userArticle = await this.newsService.GetNewsArticleByIdAsync(this.previewId);
-                    if (userArticle != null)
-                    {
-                        this.ArticleStatus = userArticle.Status;
-                        this.CanApprove = userArticle.Status != Status.Approved;
-                        this.CanReject = userArticle.Status != Status.Rejected;
-                    }
-
-                    var article = await this.newsService.GetNewsArticleByIdAsync(articleId);
-
-                    if (article != null)
-                    {
-                        this.Article = article;
-                        this.HasRelatedStocks = article.RelatedStocks?.Any() == true; // Inline: check for related stocks
-                    }
-                    else
-                    {
-                        // FIXME: Provide fallback Article for missing preview
-                        throw new NotImplementedException("Preview article preview missing not implemented");
-                    }
-
-                    this.IsLoading = false;
+                    this.Article = regularArticle;
+                    this.HasRelatedStocks = regularArticle.RelatedStocks.Any() == true;
+                    await this.newsService.MarkArticleAsReadAsync(articleId);
                 }
                 else
                 {
-                    this.isPreviewMode = false;
-                    this.currentArticleId = articleId;
-                    this.IsAdminPreview = false;
-
-                    var regularArticle = await this.newsService.GetNewsArticleByIdAsync(articleId);
-
-                    if (regularArticle != null)
-                    {
-                        this.Article = regularArticle;
-                        this.HasRelatedStocks = regularArticle.RelatedStocks.Any() == true;
-
-                        // Inline: mark article as read once loaded
-                        try
-                        {
-                            await this.newsService.MarkArticleAsReadAsync(articleId);
-                        }
-                        catch (Exception ex)
-                        {
-                            // Inline: log failure to mark as read
-                            System.Diagnostics.Debug.WriteLine($"Error marking article as read: {ex.Message}");
-                        }
-                    }
-                    else
-                    {
-                        // Provide fallback for missing article
-                        // add a dialog here smh
-                        throw new Exception("Article not found.");
-                    }
-
-                    this.IsLoading = false;
+                    // Provide fallback for missing article
+                    // add a dialog here smh
+                    throw new Exception("Article not found.");
                 }
+
+                this.IsLoading = false;
             }
             catch (Exception ex)
             {

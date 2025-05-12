@@ -21,8 +21,8 @@
         {
             try
             {
+                // Ensure RelatedStocks are properly tracked
                 var relatedStocks = new List<Stock>();
-
                 foreach (var stock in newsArticle.RelatedStocks.ToList())
                 {
                     var trackedStock = this._dbContext.Stocks.Local
@@ -30,19 +30,16 @@
 
                     if (trackedStock != null)
                     {
-                        // Use the tracked instance
                         relatedStocks.Add(trackedStock);
                     }
                     else
                     {
                         var existingStock = await this._dbContext.Stocks
-                            .AsNoTracking()
                             .FirstOrDefaultAsync(s => s.Name == stock.Name);
 
                         if (existingStock != null)
                         {
-                            // Attach the existing stock and use it
-                            this._dbContext.Stocks.Attach(existingStock);
+                            this._dbContext.Entry(existingStock).State = EntityState.Unchanged;
                             relatedStocks.Add(existingStock);
                         }
                         else
@@ -51,11 +48,9 @@
                         }
                     }
                 }
-
-                // Replace the RelatedStocks collection with the resolved list
                 newsArticle.RelatedStocks = relatedStocks;
 
-                // Attach the author to avoid tracking conflicts
+                // Ensure Author is properly tracked
                 var trackedAuthor = this._dbContext.Users.Local
                     .FirstOrDefault(u => u.Id == newsArticle.Author.Id);
 
@@ -65,9 +60,27 @@
                 }
                 else
                 {
-                    this._dbContext.Users.Attach(newsArticle.Author);
+                    var existingAuthor = await this._dbContext.Users
+                        .FirstOrDefaultAsync(u => u.Id == newsArticle.Author.Id);
+
+                    if (existingAuthor != null)
+                    {
+                        this._dbContext.Entry(existingAuthor).State = EntityState.Unchanged;
+                        newsArticle.Author = existingAuthor;
+                    }
+                    else
+                    {
+                        throw new Exception($"Author with ID {newsArticle.Author.Id} does not exist in the database.");
+                    }
                 }
 
+                // Ensure ArticleId is set
+                if (string.IsNullOrEmpty(newsArticle.ArticleId))
+                {
+                    newsArticle.ArticleId = Guid.NewGuid().ToString();
+                }
+
+                // Check if the article already exists
                 var existingArticle = await this._dbContext.NewsArticles
                     .AsNoTracking()
                     .FirstOrDefaultAsync(a => a.ArticleId == newsArticle.ArticleId);
@@ -78,6 +91,7 @@
                     return;
                 }
 
+                // Add the new article
                 await this._dbContext.NewsArticles.AddAsync(newsArticle);
                 await this._dbContext.SaveChangesAsync();
             }

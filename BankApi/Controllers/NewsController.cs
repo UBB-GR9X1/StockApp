@@ -42,7 +42,13 @@ namespace BankApi.Controllers
                     Source = newsArticle.Source,
                     Topic = newsArticle.Topic,
                     PublishedDate = newsArticle.PublishedDate,
-                    RelatedStocks = newsArticle.RelatedStocks,
+                    RelatedStocks = [.. newsArticle.RelatedStocks.Select(rs => new Stock
+                    {
+                        Name = rs.Name,
+                        Symbol = rs.Symbol,
+                        Price = (int)rs.Price,
+                        Quantity = rs.Quantity
+                    })],
                     Status = newsArticle.Status,
                     Category = newsArticle.Category,
                     Author = newsArticle.Author,
@@ -73,7 +79,13 @@ namespace BankApi.Controllers
                     Source = newsArticle.Source,
                     Topic = newsArticle.Topic,
                     PublishedDate = newsArticle.PublishedDate,
-                    RelatedStocks = newsArticle.RelatedStocks,
+                    RelatedStocks = [.. newsArticle.RelatedStocks.Select(rs => new Stock
+                    {
+                        Name = rs.Name,
+                        Symbol = rs.Symbol,
+                        Price = (int)rs.Price,
+                        Quantity = rs.Quantity
+                    })],
                     Status = newsArticle.Status,
                     Category = newsArticle.Category,
                     Author = newsArticle.Author,
@@ -180,8 +192,8 @@ namespace BankApi.Controllers
             }
         }
 
-        [HttpPost("MarkArticleAsRead/{articleId}")]
-        public async Task<IActionResult> MarkArticleAsReadAsync(string articleId)
+        [HttpPost("MarkArticleAsRead")]
+        public async Task<IActionResult> MarkArticleAsReadAsync([FromBody] string articleId)
         {
             try
             {
@@ -206,10 +218,19 @@ namespace BankApi.Controllers
             public bool IsRead { get; set; }
             public bool IsWatchlistRelated { get; set; }
             public string Category { get; set; }
-            public List<Stock> RelatedStocks { get; set; }
+            public List<RelatedStock> RelatedStocks { get; set; }
             public Status Status { get; set; }
             public string Topic { get; set; }
-            public User Author { get; set; } = null!;
+            public User Author { get; set; }
+
+            public class RelatedStock
+            {
+                public decimal Price { get; set; }
+                public int Quantity { get; set; }
+                public string Name { get; set; }
+                public string Symbol { get; set; }
+                public string AuthorCNP { get; set; }
+            }
         }
     }
 }
