@@ -121,7 +121,6 @@ namespace StockApp
                     services.AddHttpClient<IHomepageStocksRepository, HomepageStocksProxyRepository>(client =>
                     {
                         client.BaseAddress = new Uri("https://localhost:7001/");
-                        client.Timeout = TimeSpan.FromSeconds(6);
                     });
                     services.AddHttpClient<ILoanRequestRepository, LoanRequestProxyRepository>(client =>
                     {

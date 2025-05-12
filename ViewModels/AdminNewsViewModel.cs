@@ -3,9 +3,12 @@
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.Linq;
     using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using System.Windows.Input;
+    using Microsoft.UI.Text;
+    using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
     using StockApp;
     using StockApp.Commands;
@@ -36,6 +39,8 @@
             set => this.SetProperty(ref this.newsArticles, value);
         }
 
+        public Page PageRef { get; set; }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="AdminNewsViewModel"/> class.
         /// </summary>
@@ -57,7 +62,7 @@
             this.ApproveCommand = new RelayCommandGeneric<string>(async (id) => await this.ApproveArticleAsync(id));
             this.RejectCommand = new RelayCommandGeneric<string>(async (id) => await this.RejectArticleAsync(id));
             this.DeleteCommand = new RelayCommandGeneric<string>(async (id) => await this.DeleteArticleAsync(id));
-            this.PreviewCommand = new RelayCommandGeneric<NewsArticle>(async (article) => await this.NavigateToPreview(article));
+            this.PreviewCommand = new RelayCommandGeneric<NewsArticle>(this.NavigateToPreview);
 
             // Populate status filter options
 
@@ -225,18 +230,75 @@
         }
 
         /// <summary>
-        /// Converts a <see cref="UserArticle"/> into a <see cref="NewsArticle"/> preview
-        /// and navigates to the preview view.
+        /// Converts a <see cref="NewsArticle"/> into a preview model and navigates to the preview view.
+        /// Allows approving or rejecting the article.
         /// </summary>
         /// <param name="article">The user article to preview.</param>
-        private async Task NavigateToPreview(NewsArticle article)
+        private void NavigateToPreview(NewsArticle article)
         {
             if (article == null)
             {
                 return;
             }
-            throw new NotImplementedException("Navigation to preview is not implemented yet.");
-            //FIXME go to preview page
+
+            var oldContent = this.PageRef.Content;
+
+            ICommand approveCommand = new RelayCommand(async (object sender) =>
+            {
+                await this.ApproveArticleAsync(article.ArticleId);
+                this.PageRef.Content = oldContent;
+            });
+            ICommand rejectCommand = new RelayCommand(async (object sender) =>
+            {
+                await this.RejectArticleAsync(article.ArticleId);
+                this.PageRef.Content = oldContent;
+            });
+
+            this.PageRef.Content = new ScrollViewer
+            {
+                Content = new StackPanel
+                {
+                    Children =
+                       {
+                           new TextBlock { Text = $"Title: {article.Title}", FontWeight = FontWeights.Bold, Margin = new Thickness(0, 0, 0, 10) },
+                           new TextBlock { Text = $"Summary: {article.Summary}", TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 10) },
+                           new TextBlock { Text = $"Content: {article.Content}", TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 10) },
+                           new TextBlock { Text = $"Topic: {article.Topic}", Margin = new Thickness(0, 0, 0, 10) },
+                           new TextBlock { Text = $"Published Date: {article.PublishedDate}", Margin = new Thickness(0, 0, 0, 10) },
+                           new TextBlock { Text = "Related Stocks:", FontWeight = FontWeights.Bold, Margin = new Thickness(0, 0, 0, 5) },
+                           new ItemsControl
+                           {
+                               ItemsSource = article.RelatedStocks.Select(stock => $"{stock.Name} ({stock.Symbol})"),
+                               Margin = new Thickness(0, 0, 0, 10),
+                           },
+                           new StackPanel
+                           {
+                               Orientation = Orientation.Horizontal,
+                               HorizontalAlignment = HorizontalAlignment.Right,
+                               Children =
+                               {
+                                    new Button
+                                    {
+                                        Content = "Approve",
+                                        Command = approveCommand,
+                                        Margin = new Thickness(0, 0, 10, 0),
+                                    },
+                                    new Button
+                                    {
+                                        Content = "Reject",
+                                        Command = rejectCommand,
+                                    },
+                                    new Button
+                                    {
+                                    Content = "Back",
+                                    Command = new RelayCommand((object sender) => this.PageRef.Content = oldContent),
+                                    Margin = new Thickness(10, 0, 0, 0),
+                                    },
+                               },
+                           },
+                       },
+                },
+            };
         }
 
         /// <summary>
@@ -245,37 +307,10 @@
         /// <param name="articleId">The identifier of the article to approve.</param>
         private async Task ApproveArticleAsync(string articleId)
         {
-            try
+            var success = await this.newsService.ApproveUserArticleAsync(articleId);
+            if (success)
             {
-                var success = await this.newsService.ApproveUserArticleAsync(articleId);
-                if (success)
-                {
-                    await this.RefreshArticlesAsync();
-
-                    // Show success dialog
-                    var dialog = new ContentDialog
-                    {
-                        Title = "Success",
-                        Content = "Article has been approved and will now appear in the news list.",
-                        CloseButtonText = "OK",
-                        XamlRoot = App.CurrentWindow.Content.XamlRoot,
-                    };
-
-                    await dialog.ShowAsync();
-                }
-            }
-            catch
-            {
-                // Show error dialog on failure
-                var dialog = new ContentDialog
-                {
-                    Title = "Error",
-                    Content = "Failed to approve article. Please try again.",
-                    CloseButtonText = "OK",
-                    XamlRoot = App.CurrentWindow.Content.XamlRoot,
-                };
-
-                await dialog.ShowAsync();
+                await this.RefreshArticlesAsync();
             }
         }
 
@@ -325,51 +360,10 @@
         /// <param name="articleId">The identifier of the article to delete.</param>
         private async Task DeleteArticleAsync(string articleId)
         {
-            try
+            var success = await this.newsService.DeleteUserArticleAsync(articleId);
+            if (success)
             {
-                // Confirm deletion with the user
-                var confirmDialog = new ContentDialog
-                {
-                    Title = "Confirm Deletion",
-                    Content = "Are you sure you want to delete this article? This action cannot be undone.",
-                    PrimaryButtonText = "Delete",
-                    CloseButtonText = "Cancel",
-                    XamlRoot = App.CurrentWindow.Content.XamlRoot,
-                };
-
-                var result = await confirmDialog.ShowAsync();
-                if (result == ContentDialogResult.Primary)
-                {
-                    var success = await this.newsService.DeleteUserArticleAsync(articleId);
-                    if (success)
-                    {
-                        await this.RefreshArticlesAsync();
-
-                        // Show success dialog
-                        var dialog = new ContentDialog
-                        {
-                            Title = "Success",
-                            Content = "Article has been deleted.",
-                            CloseButtonText = "OK",
-                            XamlRoot = App.CurrentWindow.Content.XamlRoot,
-                        };
-
-                        await dialog.ShowAsync();
-                    }
-                }
-            }
-            catch
-            {
-                // Show error dialog on failure
-                var dialog = new ContentDialog
-                {
-                    Title = "Error",
-                    Content = "Failed to delete article. Please try again.",
-                    CloseButtonText = "OK",
-                    XamlRoot = App.CurrentWindow.Content.XamlRoot,
-                };
-
-                await dialog.ShowAsync();
+                await this.RefreshArticlesAsync();
             }
         }
 

@@ -335,20 +335,63 @@
 
         public async Task CreateArticleAsync()
         {
-            throw new NotImplementedException("Article creation logic is not implemented yet.");
-            //return new NewsArticle(
-            //    articleId: Guid.NewGuid().ToString(),
-            //    title: this.Title,
-            //    summary: this.Summary,
-            //    content: this.Content,
-            //    source: $"User: {this.appState.CurrentUser?.Username ?? "Anonymous"}",
-            //    publishedDate: DateTime.Now,
-            //    relatedStocks: this.ParseRelatedStocks(),
-            //    status: Status.Pending)
-            //{
-            //    IsRead = false,
-            //    IsWatchlistRelated = false,
-            //};
+            if (!this.ValidateForm())
+            {
+                return;
+            }
+            this.IsLoading = true;
+            this.ErrorMessage = string.Empty;
+            try
+            {
+                // Parse and validate the related stocks list
+                List<Stock> relatedStocks = await this.ParseRelatedStocks();
+                if (!await this.ValidateStocksAsync(relatedStocks.Select(s => s.Name).ToList()))
+                {
+                    return;
+                }
+                // Build the UserArticle to submit
+                NewsArticle article = new()
+                {
+                    ArticleId = Guid.NewGuid().ToString(),
+                    Title = this.Title,
+                    Summary = this.Summary ?? string.Empty,
+                    Content = this.Content,
+                    Source = $"User: {userService.GetCurrentUserCNP()}",
+                    PublishedDate = DateTime.Now,
+                    Topic = this.SelectedTopic,
+                    RelatedStocks = relatedStocks,
+                    Status = Status.Pending,
+                    Author = await userService.GetCurrentUserAsync(),
+                    IsRead = false,
+                    Category = this.SelectedTopic,
+                };
+                // Submit the article
+                bool success = await this.newsService.SubmitUserArticleAsync(article);
+                if (success)
+                {
+                    // Show confirmation and clear form once done
+                    var dialog = new ContentDialog
+                    {
+                        Title = "Success",
+                        Content = "Your article has been submitted for review.",
+                        CloseButtonText = "OK",
+                        XamlRoot = App.MainAppWindow!.MainAppFrame.XamlRoot,
+                    };
+                    await dialog.ShowAsync();
+                }
+                else
+                {
+                    ShowErrorDialog("Failed to submit article. Please try again later.");
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowErrorDialog($"An error occurred: {ex.Message}");
+            }
+            finally
+            {
+                this.IsLoading = false;
+            }
         }
 
         /// <summary>

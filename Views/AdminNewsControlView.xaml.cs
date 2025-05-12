@@ -15,6 +15,7 @@ namespace StockApp.Views
             this.ViewModel = adminNewsViewModel ?? throw new ArgumentNullException(nameof(adminNewsViewModel));
             this.DataContext = this.ViewModel;
             this.InitializeComponent();
+            this.ViewModel.PageRef = this.AdminPage;
             this.Loaded += this.OnLoaded;
         }
 

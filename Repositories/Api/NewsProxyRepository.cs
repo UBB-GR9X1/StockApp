@@ -67,7 +67,7 @@ namespace StockApp.Repositories.Api
 
         public async Task MarkArticleAsReadAsync(string articleId)
         {
-            var response = await this._httpClient.PostAsJsonAsync("api/News/MarkArticleAsRead", new { articleId });
+            var response = await this._httpClient.PostAsJsonAsync($"api/News/MarkArticleAsRead/{articleId}", new { });
             response.EnsureSuccessStatusCode();
         }
     }

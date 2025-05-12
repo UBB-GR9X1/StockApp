@@ -188,7 +188,7 @@
             }
 
             User user = await this.userRepository.GetByCnpAsync(IUserRepository.CurrentUserCNP) ?? throw new Exception("User not found");
-            if (user.IsModerator)
+            if (!user.IsModerator)
             {
                 throw new UnauthorizedAccessException("User must be an admin to access user articles");
             }
@@ -227,7 +227,7 @@
             }
 
             User user = await this.userRepository.GetByCnpAsync(IUserRepository.CurrentUserCNP) ?? throw new Exception("User not found");
-            if (user.IsModerator)
+            if (!user.IsModerator)
             {
                 throw new UnauthorizedAccessException("User must be an admin to access user articles");
             }
@@ -266,7 +266,7 @@
             }
 
             User user = await this.userRepository.GetByCnpAsync(IUserRepository.CurrentUserCNP) ?? throw new Exception("User not found");
-            if (user.IsModerator)
+            if (!user.IsModerator)
             {
                 throw new UnauthorizedAccessException("User must be an admin to access user articles");
             }
@@ -302,7 +302,7 @@
             }
 
             User user = await this.userRepository.GetByCnpAsync(IUserRepository.CurrentUserCNP) ?? throw new Exception("User not found");
-            if (user.IsModerator)
+            if (!user.IsModerator)
             {
                 throw new UnauthorizedAccessException("User must be an admin to access user articles");
             }

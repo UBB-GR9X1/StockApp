@@ -433,6 +433,7 @@
             var adminPanelView = App.Host.Services.GetService<AdminNewsControlView>() ?? throw new InvalidOperationException("AdminPanelView not found");
             dialog.Content = adminPanelView;
             await dialog.ShowAsync();
+            this.RefreshArticles();
         }
 
         private async Task ShowLoginDialogAsync()

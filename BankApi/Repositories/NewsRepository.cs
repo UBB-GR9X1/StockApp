@@ -21,6 +21,35 @@
         {
             try
             {
+                foreach (var stock in newsArticle.RelatedStocks)
+                {
+                    var trackedStock = this._dbContext.Stocks.Local
+                        .FirstOrDefault(s => s.Name == stock.Name);
+
+                    if (trackedStock != null)
+                    {
+                        // Use the already tracked instance
+                        stock.Id = trackedStock.Id;
+                    }
+                    else
+                    {
+                        var existingStock = await this._dbContext.Stocks
+                            .AsNoTracking()
+                            .FirstOrDefaultAsync(s => s.Name == stock.Name);
+
+                        if (existingStock != null)
+                        {
+                            this._dbContext.Stocks.Attach(existingStock);
+                        }
+                        else
+                        {
+                            throw new Exception($"Stock with name {stock.Name} does not exist in the database.");
+                        }
+                    }
+                }
+
+                this._dbContext.Users.Attach(newsArticle.Author);
+
                 var existingArticle = await this._dbContext.NewsArticles
                     .AsNoTracking()
                     .FirstOrDefaultAsync(a => a.ArticleId == newsArticle.ArticleId);
@@ -39,7 +68,6 @@
                 throw new Exception("Error while adding news article.", ex);
             }
         }
-
         public async Task UpdateNewsArticleAsync(NewsArticle newsArticle)
         {
             try
@@ -88,6 +116,7 @@
             {
                 var article = await this._dbContext.NewsArticles
                     .Include(a => a.RelatedStocks)
+                    .Include(u => u.Author)
                     .FirstOrDefaultAsync(a => a.ArticleId == articleId);
 
                 if (article == null)
@@ -109,6 +138,7 @@
             {
                 return await this._dbContext.NewsArticles
                     .Include(a => a.RelatedStocks)
+                    .Include(u => u.Author)
                     .ToListAsync();
             }
             catch (Exception ex)
@@ -124,6 +154,7 @@
                 return await this._dbContext.NewsArticles
                     .Where(a => a.AuthorCNP == authorCNP)
                     .Include(a => a.RelatedStocks)
+                    .Include(u => u.Author)
                     .ToListAsync();
             }
             catch (Exception ex)
@@ -139,6 +170,7 @@
                 return await this._dbContext.NewsArticles
                     .Where(a => a.Category == category)
                     .Include(a => a.RelatedStocks)
+                    .Include(u => u.Author)
                     .ToListAsync();
             }
             catch (Exception ex)
@@ -154,6 +186,7 @@
                 return await this._dbContext.NewsArticles
                     .Where(a => a.RelatedStocks.Any(rs => rs.Name == stockName))
                     .Include(a => a.RelatedStocks)
+                    .Include(u => u.Author)
                     .ToListAsync();
             }
             catch (Exception ex)

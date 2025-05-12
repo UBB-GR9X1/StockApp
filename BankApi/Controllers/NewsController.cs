@@ -29,11 +29,27 @@ namespace BankApi.Controllers
         }
 
         [HttpPost("AddNewsArticle")]
-        public async Task<IActionResult> AddNewsArticleAsync(NewsArticle newsArticle)
+        public async Task<IActionResult> AddNewsArticleAsync([FromBody] NewsArticleApi newsArticle)
         {
             try
             {
-                await _repository.AddNewsArticleAsync(newsArticle);
+                NewsArticle actualArticle = new()
+                {
+                    ArticleId = newsArticle.ArticleId,
+                    Title = newsArticle.Title,
+                    Summary = newsArticle.Summary,
+                    Content = newsArticle.Content,
+                    Source = newsArticle.Source,
+                    Topic = newsArticle.Topic,
+                    PublishedDate = newsArticle.PublishedDate,
+                    RelatedStocks = newsArticle.RelatedStocks,
+                    Status = newsArticle.Status,
+                    Category = newsArticle.Category,
+                    Author = newsArticle.Author,
+                    AuthorCNP = newsArticle.Author.CNP,
+                    IsRead = newsArticle.IsRead
+                };
+                await _repository.AddNewsArticleAsync(actualArticle);
                 return Ok("News article added successfully.");
             }
             catch (Exception ex)
@@ -44,11 +60,27 @@ namespace BankApi.Controllers
         }
 
         [HttpPut("UpdateNewsArticle")]
-        public async Task<IActionResult> UpdateNewsArticleAsync(NewsArticle newsArticle)
+        public async Task<IActionResult> UpdateNewsArticleAsync([FromBody] NewsArticleApi newsArticle)
         {
             try
             {
-                await _repository.UpdateNewsArticleAsync(newsArticle);
+                NewsArticle updatatedArticle = new()
+                {
+                    ArticleId = newsArticle.ArticleId,
+                    Title = newsArticle.Title,
+                    Summary = newsArticle.Summary,
+                    Content = newsArticle.Content,
+                    Source = newsArticle.Source,
+                    Topic = newsArticle.Topic,
+                    PublishedDate = newsArticle.PublishedDate,
+                    RelatedStocks = newsArticle.RelatedStocks,
+                    Status = newsArticle.Status,
+                    Category = newsArticle.Category,
+                    Author = newsArticle.Author,
+                    AuthorCNP = newsArticle.Author.CNP,
+                    IsRead = newsArticle.IsRead
+                };
+                await _repository.UpdateNewsArticleAsync(updatatedArticle);
                 return Ok("News article updated successfully.");
             }
             catch (Exception ex)
@@ -74,7 +106,7 @@ namespace BankApi.Controllers
         }
 
         [HttpGet("GetNewsArticleById")]
-        public async Task<IActionResult> GetNewsArticleByIdAsync(string articleId)
+        public async Task<ActionResult<NewsArticle>> GetNewsArticleByIdAsync(string articleId)
         {
             try
             {
@@ -89,7 +121,7 @@ namespace BankApi.Controllers
         }
 
         [HttpGet("GetAllNewsArticles")]
-        public async Task<IActionResult> GetAllNewsArticlesAsync()
+        public async Task<ActionResult<List<NewsArticle>>> GetAllNewsArticlesAsync()
         {
             try
             {
@@ -104,7 +136,7 @@ namespace BankApi.Controllers
         }
 
         [HttpGet("GetNewsArticlesByAuthorCNP")]
-        public async Task<IActionResult> GetNewsArticlesByAuthorCNPAsync(string authorCNP)
+        public async Task<ActionResult<List<NewsArticle>>> GetNewsArticlesByAuthorCNPAsync(string authorCNP)
         {
             try
             {
@@ -119,7 +151,7 @@ namespace BankApi.Controllers
         }
 
         [HttpGet("GetNewsArticlesByCategory")]
-        public async Task<IActionResult> GetNewsArticlesByCategoryAsync(string category)
+        public async Task<ActionResult<List<NewsArticle>>> GetNewsArticlesByCategoryAsync(string category)
         {
             try
             {
@@ -134,7 +166,7 @@ namespace BankApi.Controllers
         }
 
         [HttpGet("GetNewsArticlesByStock")]
-        public async Task<IActionResult> GetNewsArticlesByStockAsync(string stockName)
+        public async Task<ActionResult<List<NewsArticle>>> GetNewsArticlesByStockAsync(string stockName)
         {
             try
             {
@@ -148,7 +180,7 @@ namespace BankApi.Controllers
             }
         }
 
-        [HttpPost("MarkArticleAsRead")]
+        [HttpPost("MarkArticleAsRead/{articleId}")]
         public async Task<IActionResult> MarkArticleAsReadAsync(string articleId)
         {
             try
@@ -161,6 +193,23 @@ namespace BankApi.Controllers
                 _logger.LogError(ex, "Error marking article as read.");
                 return StatusCode(500, "Internal server error.");
             }
+        }
+
+        public class NewsArticleApi
+        {
+            public string ArticleId { get; set; }
+            public string Title { get; set; }
+            public string Summary { get; set; }
+            public string Content { get; set; }
+            public string Source { get; set; }
+            public DateTime PublishedDate { get; set; }
+            public bool IsRead { get; set; }
+            public bool IsWatchlistRelated { get; set; }
+            public string Category { get; set; }
+            public List<Stock> RelatedStocks { get; set; }
+            public Status Status { get; set; }
+            public string Topic { get; set; }
+            public User Author { get; set; } = null!;
         }
     }
 }
