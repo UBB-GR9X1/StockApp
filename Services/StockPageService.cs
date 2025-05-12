@@ -89,7 +89,7 @@
             var selectedStock = await this.stockRepo.GetStockAsync(this.selectedStockName);
             int stockPrice = selectedStock.Price;
             int totalPrice = stockPrice * quantity;
-
+            int ownedStockCount = await this.stockRepo.GetOwnedStocksAsync(IUserRepository.CurrentUserCNP, this.selectedStockName);
             var user = await this.userRepo.GetByCnpAsync(IUserRepository.CurrentUserCNP);
             if (user?.GemBalance >= totalPrice)
             {
@@ -100,7 +100,7 @@
                 newPrice = Math.Max(newPrice, 20);
 
                 await this.stockRepo.AddStockValueAsync(this.selectedStockName, newPrice);
-                await this.stockRepo.AddOrUpdateUserStockAsync(IUserRepository.CurrentUserCNP, this.selectedStockName, quantity);
+                await this.stockRepo.AddOrUpdateUserStockAsync(IUserRepository.CurrentUserCNP, this.selectedStockName, ownedStockCount + quantity);
 
                 await this.transactionRepo.AddTransactionAsync(
                     new TransactionLogTransaction(
