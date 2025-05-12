@@ -21,15 +21,17 @@
         {
             try
             {
-                foreach (var stock in newsArticle.RelatedStocks)
+                var relatedStocks = new List<Stock>();
+
+                foreach (var stock in newsArticle.RelatedStocks.ToList())
                 {
                     var trackedStock = this._dbContext.Stocks.Local
                         .FirstOrDefault(s => s.Name == stock.Name);
 
                     if (trackedStock != null)
                     {
-                        // Use the already tracked instance
-                        stock.Id = trackedStock.Id;
+                        // Use the tracked instance
+                        relatedStocks.Add(trackedStock);
                     }
                     else
                     {
@@ -39,7 +41,9 @@
 
                         if (existingStock != null)
                         {
+                            // Attach the existing stock and use it
                             this._dbContext.Stocks.Attach(existingStock);
+                            relatedStocks.Add(existingStock);
                         }
                         else
                         {
@@ -48,7 +52,21 @@
                     }
                 }
 
-                this._dbContext.Users.Attach(newsArticle.Author);
+                // Replace the RelatedStocks collection with the resolved list
+                newsArticle.RelatedStocks = relatedStocks;
+
+                // Attach the author to avoid tracking conflicts
+                var trackedAuthor = this._dbContext.Users.Local
+                    .FirstOrDefault(u => u.Id == newsArticle.Author.Id);
+
+                if (trackedAuthor != null)
+                {
+                    newsArticle.Author = trackedAuthor;
+                }
+                else
+                {
+                    this._dbContext.Users.Attach(newsArticle.Author);
+                }
 
                 var existingArticle = await this._dbContext.NewsArticles
                     .AsNoTracking()

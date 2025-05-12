@@ -32,6 +32,8 @@ namespace BankApi.Models
         /// </summary>
         public Stock() { }
 
+        public List<NewsArticle> NewsArticles { get; set; }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Stock"/> class.
         /// </summary>

@@ -10,7 +10,6 @@
     using Microsoft.UI.Text;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
-    using StockApp;
     using StockApp.Commands;
     using StockApp.Models;
     using StockApp.Services;
@@ -320,37 +319,11 @@
         /// <param name="articleId">The identifier of the article to reject.</param>
         private async Task RejectArticleAsync(string articleId)
         {
-            try
+            var success = await this.newsService.RejectUserArticleAsync(articleId);
+            if (success)
             {
-                var success = await this.newsService.RejectUserArticleAsync(articleId);
-                if (success)
-                {
-                    await this.RefreshArticlesAsync();
+                await this.RefreshArticlesAsync();
 
-                    // Show success dialog
-                    var dialog = new ContentDialog
-                    {
-                        Title = "Success",
-                        Content = "Article has been rejected.",
-                        CloseButtonText = "OK",
-                        XamlRoot = App.CurrentWindow.Content.XamlRoot,
-                    };
-
-                    await dialog.ShowAsync();
-                }
-            }
-            catch
-            {
-                // Show error dialog on failure
-                var dialog = new ContentDialog
-                {
-                    Title = "Error",
-                    Content = "Failed to reject article. Please try again.",
-                    CloseButtonText = "OK",
-                    XamlRoot = App.CurrentWindow.Content.XamlRoot,
-                };
-
-                await dialog.ShowAsync();
             }
         }
 

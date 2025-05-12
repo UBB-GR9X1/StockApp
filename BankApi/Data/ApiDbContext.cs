@@ -382,6 +382,21 @@ namespace BankApi.Data
                     .HasForeignKey(e => e.AuthorCNP)
                     .HasPrincipalKey(u => u.CNP)
                     .OnDelete(DeleteBehavior.Cascade);
+                entity.HasMany(e => e.RelatedStocks)
+                   .WithMany(s => s.NewsArticles)
+                   .UsingEntity(j =>
+                   {
+                       j.ToTable("NewsArticleStocks");
+                       j.HasOne(typeof(NewsArticle))
+                           .WithMany()
+                           .HasForeignKey("ArticleId")
+                           .OnDelete(DeleteBehavior.Restrict); // Prevent cascade delete to avoid cycles or multiple cascade paths
+                       j.HasOne(typeof(Stock))
+                           .WithMany()
+                           .HasForeignKey("StockId")
+                           .OnDelete(DeleteBehavior.Restrict); // Prevent cascade delete to avoid cycles or multiple cascade paths
+                       j.HasKey("ArticleId", "StockId"); // Ensure composite key is defined
+                   });
                 entity.Property(e => e.PublishedDate)
                     .IsRequired()
                     .HasDefaultValueSql("GETUTCDATE()");

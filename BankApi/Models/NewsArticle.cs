@@ -105,7 +105,7 @@
         /// <summary>
         /// Gets or sets the list of related stock symbols or names.
         /// </summary>
-        public IEnumerable<Stock> RelatedStocks { get; set; }
+        public List<Stock> RelatedStocks { get; set; }
 
         /// <summary>
         /// Gets or sets the current status of the article.
