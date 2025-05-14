@@ -33,7 +33,7 @@
                 Title = title,
                 Content = content,
                 CloseButtonText = "OK",
-                XamlRoot = App.CurrentWindow.Content.XamlRoot, // Set the correct XamlRoot
+                XamlRoot = App.MainAppWindow!.MainAppFrame.XamlRoot,
             };
 
             await messageDialog.ShowAsync();
