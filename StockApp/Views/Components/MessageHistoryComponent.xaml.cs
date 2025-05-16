@@ -2,7 +2,7 @@ namespace StockApp.Views.Components
 {
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
-    using StockApp.Models;
+    using Common.Models;
 
     public sealed partial class MessageHistoryComponent : Page
     {

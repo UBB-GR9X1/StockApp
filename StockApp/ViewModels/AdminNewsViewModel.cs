@@ -11,8 +11,8 @@
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
     using StockApp.Commands;
-    using StockApp.Models;
-    using StockApp.Services;
+    using Common.Models;
+    using Common.Services;
 
     /// <summary>
     /// ViewModel for the admin news moderation screen, handling retrieval,

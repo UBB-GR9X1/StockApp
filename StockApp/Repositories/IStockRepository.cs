@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using StockApp.Models;
+using Common.Models;
 
 namespace StockApp.Repositories
 {

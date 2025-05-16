@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-using StockApp.Models;
+using Common.Models;
 
 namespace StockApp.Repositories.Api
 {
@@ -22,13 +22,13 @@ namespace StockApp.Repositories.Api
             {
                 Console.WriteLine($"Calling GET {_httpClient.BaseAddress}api/Loan");
                 var response = await _httpClient.GetAsync("api/Loan");
-                
+
                 if (!response.IsSuccessStatusCode)
                 {
                     var content = await response.Content.ReadAsStringAsync();
                     Console.WriteLine($"Error response: {(int)response.StatusCode} {response.ReasonPhrase} - {content}");
                 }
-                
+
                 response.EnsureSuccessStatusCode();
                 return await response.Content.ReadFromJsonAsync<List<Loan>>();
             }
@@ -45,13 +45,13 @@ namespace StockApp.Repositories.Api
             {
                 Console.WriteLine($"Calling GET {_httpClient.BaseAddress}api/Loan/{loanID}");
                 var response = await _httpClient.GetAsync($"api/Loan/{loanID}");
-                
+
                 if (!response.IsSuccessStatusCode)
                 {
                     var content = await response.Content.ReadAsStringAsync();
                     Console.WriteLine($"Error response: {(int)response.StatusCode} {response.ReasonPhrase} - {content}");
                 }
-                
+
                 response.EnsureSuccessStatusCode();
                 return await response.Content.ReadFromJsonAsync<Loan>();
             }
@@ -68,13 +68,13 @@ namespace StockApp.Repositories.Api
             {
                 Console.WriteLine($"Calling POST {_httpClient.BaseAddress}api/Loan");
                 var response = await _httpClient.PostAsJsonAsync("api/Loan", loan);
-                
+
                 if (!response.IsSuccessStatusCode)
                 {
                     var content = await response.Content.ReadAsStringAsync();
                     Console.WriteLine($"Error response: {(int)response.StatusCode} {response.ReasonPhrase} - {content}");
                 }
-                
+
                 response.EnsureSuccessStatusCode();
             }
             catch (Exception ex)
@@ -90,13 +90,13 @@ namespace StockApp.Repositories.Api
             {
                 Console.WriteLine($"Calling PUT {_httpClient.BaseAddress}api/Loan/{loan.Id}");
                 var response = await _httpClient.PutAsJsonAsync($"api/Loan/{loan.Id}", loan);
-                
+
                 if (!response.IsSuccessStatusCode)
                 {
                     var content = await response.Content.ReadAsStringAsync();
                     Console.WriteLine($"Error response: {(int)response.StatusCode} {response.ReasonPhrase} - {content}");
                 }
-                
+
                 response.EnsureSuccessStatusCode();
             }
             catch (Exception ex)
@@ -112,13 +112,13 @@ namespace StockApp.Repositories.Api
             {
                 Console.WriteLine($"Calling DELETE {_httpClient.BaseAddress}api/Loan/{loanID}");
                 var response = await _httpClient.DeleteAsync($"api/Loan/{loanID}");
-                
+
                 if (!response.IsSuccessStatusCode)
                 {
                     var content = await response.Content.ReadAsStringAsync();
                     Console.WriteLine($"Error response: {(int)response.StatusCode} {response.ReasonPhrase} - {content}");
                 }
-                
+
                 response.EnsureSuccessStatusCode();
             }
             catch (Exception ex)
@@ -134,13 +134,13 @@ namespace StockApp.Repositories.Api
             {
                 Console.WriteLine($"Calling GET {_httpClient.BaseAddress}api/Loan?userCnp={userCNP}");
                 var response = await _httpClient.GetAsync($"api/Loan?userCnp={userCNP}");
-                
+
                 if (!response.IsSuccessStatusCode)
                 {
                     var content = await response.Content.ReadAsStringAsync();
                     Console.WriteLine($"Error response: {(int)response.StatusCode} {response.ReasonPhrase} - {content}");
                 }
-                
+
                 response.EnsureSuccessStatusCode();
                 return await response.Content.ReadFromJsonAsync<List<Loan>>();
             }
@@ -157,13 +157,13 @@ namespace StockApp.Repositories.Api
             {
                 Console.WriteLine($"Calling PATCH {_httpClient.BaseAddress}api/User/{userCNP}/creditScore?newScore={newScore}");
                 var response = await _httpClient.PatchAsync($"api/User/{userCNP}/creditScore?newScore={newScore}", null);
-                
+
                 if (!response.IsSuccessStatusCode)
                 {
                     var content = await response.Content.ReadAsStringAsync();
                     Console.WriteLine($"Error response: {(int)response.StatusCode} {response.ReasonPhrase} - {content}");
                 }
-                
+
                 response.EnsureSuccessStatusCode();
             }
             catch (Exception ex)

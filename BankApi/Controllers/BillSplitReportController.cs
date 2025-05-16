@@ -1,11 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using BankApi.Models;
 using BankApi.Repositories;
-using Microsoft.AspNetCore.Http;
+using Common.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace BankApi.Controllers
 {
@@ -83,10 +78,10 @@ namespace BankApi.Controllers
                 }
 
                 var createdReport = await _repository.AddReportAsync(report);
-                
+
                 return CreatedAtAction(
-                    nameof(GetReportById), 
-                    new { id = createdReport.Id }, 
+                    nameof(GetReportById),
+                    new { id = createdReport.Id },
                     createdReport);
             }
             catch (Exception ex)
@@ -146,12 +141,12 @@ namespace BankApi.Controllers
             try
             {
                 var success = await _repository.DeleteReportAsync(id);
-                
+
                 if (!success)
                 {
                     return NotFound($"Report with ID '{id}' not found");
                 }
-                
+
                 return NoContent();
             }
             catch (Exception ex)
@@ -161,4 +156,4 @@ namespace BankApi.Controllers
             }
         }
     }
-} 
+}

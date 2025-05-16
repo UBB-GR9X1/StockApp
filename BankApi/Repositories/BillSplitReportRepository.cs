@@ -1,11 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using BankApi.Data;
-using BankApi.Models;
+using Common.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace BankApi.Repositories
 {
@@ -38,12 +33,12 @@ namespace BankApi.Repositories
             try
             {
                 var report = await _dbContext.BillSplitReports.FindAsync(id);
-                
+
                 if (report == null)
                 {
                     throw new KeyNotFoundException($"Bill split report with ID {id} not found");
                 }
-                
+
                 return report;
             }
             catch (Exception ex) when (!(ex is KeyNotFoundException))
@@ -73,7 +68,7 @@ namespace BankApi.Repositories
             try
             {
                 var existingReport = await _dbContext.BillSplitReports.FindAsync(report.Id);
-                
+
                 if (existingReport == null)
                 {
                     throw new KeyNotFoundException($"Bill split report with ID {report.Id} not found");
@@ -81,7 +76,7 @@ namespace BankApi.Repositories
 
                 _dbContext.Entry(existingReport).CurrentValues.SetValues(report);
                 await _dbContext.SaveChangesAsync();
-                
+
                 return existingReport;
             }
             catch (Exception ex) when (!(ex is KeyNotFoundException))
@@ -96,15 +91,15 @@ namespace BankApi.Repositories
             try
             {
                 var report = await _dbContext.BillSplitReports.FindAsync(id);
-                
+
                 if (report == null)
                 {
                     return false;
                 }
-                
+
                 _dbContext.BillSplitReports.Remove(report);
                 await _dbContext.SaveChangesAsync();
-                
+
                 return true;
             }
             catch (Exception ex)
@@ -123,7 +118,7 @@ namespace BankApi.Repositories
                 // for compatibility with the original interface
                 var user = await _dbContext.Database.ExecuteSqlRawAsync(
                     "SELECT Balance FROM Users WHERE CNP = {0}", userCnp);
-                
+
                 return user;
             }
             catch (Exception ex)
@@ -140,7 +135,7 @@ namespace BankApi.Repositories
                 // This would typically query a TransactionLogs table
                 var result = await _dbContext.Database.ExecuteSqlInterpolatedAsync(
                     $"SELECT SUM(Amount) FROM TransactionLogs WHERE SenderCnp = {userCnp} AND TransactionDate > {sinceDate}");
-                
+
                 return (float)result;
             }
             catch (Exception ex)
@@ -157,7 +152,7 @@ namespace BankApi.Repositories
                 // This would typically query a Users table with a CreditScore column
                 var score = await _dbContext.Database.ExecuteSqlInterpolatedAsync(
                     $"SELECT CreditScore FROM Users WHERE CNP = {userCnp}");
-                
+
                 return score;
             }
             catch (Exception ex)
@@ -197,4 +192,4 @@ namespace BankApi.Repositories
             }
         }
     }
-} 
+}

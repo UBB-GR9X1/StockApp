@@ -1,4 +1,4 @@
-using BankApi.Models;
+using Common.Models;
 
 namespace BankApi.Repositories
 {
@@ -14,4 +14,4 @@ namespace BankApi.Repositories
         Task<IEnumerable<CreditScoreHistory>> GetHistoryMonthlyAsync(string userCnp);
         Task<IEnumerable<CreditScoreHistory>> GetHistoryYearlyAsync(string userCnp);
     }
-} 
+}

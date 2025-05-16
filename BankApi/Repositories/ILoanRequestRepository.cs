@@ -1,6 +1,4 @@
-using System;
-using System.Collections.Generic;
-using BankApi.Models;
+using Common.Models;
 
 namespace BankApi.Repositories
 {

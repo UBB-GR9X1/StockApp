@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-using Src.Model;
-using StockApp.Repositories;
+using Common.Models;
 
 namespace StockApp.Repositories.Api
 {
@@ -46,4 +45,4 @@ namespace StockApp.Repositories.Api
             response.EnsureSuccessStatusCode();
         }
     }
-} 
+}

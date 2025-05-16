@@ -1,6 +1,4 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using BankApi.Models;
+using Common.Models;
 
 namespace BankApi.Repositories
 {
@@ -12,4 +10,4 @@ namespace BankApi.Repositories
         Task<ActivityLog> GetActivityByIdAsync(int id);
         Task<bool> DeleteActivityAsync(int id);
     }
-} 
+}

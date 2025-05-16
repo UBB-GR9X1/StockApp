@@ -3,9 +3,9 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using StockApp.Models;
+    using Common.Models;
     using StockApp.Repositories;
-    using StockApp.Services;
+    using Common.Services;
 
     public class StockPageService : IStockPageService
     {

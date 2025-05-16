@@ -7,7 +7,7 @@ namespace StockApp.Repositories.Api
     using System.Net.Http.Json;
     using System.Text.Json;
     using System.Threading.Tasks;
-    using StockApp.Models;
+    using Common.Models;
     using StockApp.Repositories;
 
     /// <summary>

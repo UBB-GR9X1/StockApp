@@ -1,6 +1,4 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using BankApi.Models;
+using Common.Models;
 
 namespace BankApi.Repositories
 {
@@ -11,7 +9,7 @@ namespace BankApi.Repositories
         Task<BillSplitReport> AddReportAsync(BillSplitReport report);
         Task<BillSplitReport> UpdateReportAsync(BillSplitReport report);
         Task<bool> DeleteReportAsync(int id);
-        
+
         // Additional business logic methods
         Task<int> GetCurrentBalanceAsync(string userCnp);
         Task<float> SumTransactionsSinceReportAsync(string userCnp, System.DateTime sinceDate);
@@ -19,4 +17,4 @@ namespace BankApi.Repositories
         Task UpdateCreditScoreAsync(string userCnp, int newCreditScore);
         Task IncrementBillSharesPaidAsync(string userCnp);
     }
-} 
+}

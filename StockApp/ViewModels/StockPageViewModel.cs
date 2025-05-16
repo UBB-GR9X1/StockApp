@@ -12,8 +12,8 @@
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.UI.Xaml.Controls;
     using SkiaSharp;
-    using StockApp.Models;
-    using StockApp.Services;
+    using Common.Models;
+    using Common.Services;
     using StockApp.Views;
     using StockApp.Views.Components;
 

@@ -7,8 +7,8 @@
     using System.Windows.Input;
     using Microsoft.UI.Xaml.Controls;
     using StockApp.Commands;
-    using StockApp.Models;
-    using StockApp.Services;
+    using Common.Models;
+    using Common.Services;
 
     /// <summary>
     /// ViewModel for displaying details of a news article, handling loading,

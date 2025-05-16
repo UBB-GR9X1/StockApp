@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Src.Model;
+    using Common.Models;
 
     public interface IChatReportRepository
     {

@@ -1,7 +1,7 @@
 namespace StockApp.Views.Components
 {
     using Microsoft.UI.Xaml.Controls;
-    using Src.Model;
+    using Common.Models;
 
     public sealed partial class InvestmentComponent : Page
     {

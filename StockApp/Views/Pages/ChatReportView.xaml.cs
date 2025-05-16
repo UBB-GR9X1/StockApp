@@ -3,8 +3,8 @@ namespace StockApp.Views.Pages
     using System;
     using System.Collections.Generic;
     using Microsoft.UI.Xaml.Controls;
-    using Src.Model;
-    using StockApp.Services;
+    using Common.Models;
+    using Common.Services;
     using StockApp.Views.Components;
     using System.Threading.Tasks;
 

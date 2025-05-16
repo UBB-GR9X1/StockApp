@@ -1,9 +1,9 @@
 namespace StockApp.Pages
 {
     using System;
+    using Common.Models;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
-    using StockApp.Models;
     using StockApp.ViewModels;
 
     public sealed partial class GemStoreWindow : Page

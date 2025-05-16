@@ -7,8 +7,8 @@
     using System.Threading.Tasks;
     using Microsoft.UI.Xaml.Controls;
     using StockApp;
-    using StockApp.Models;
-    using StockApp.Services;
+    using Common.Models;
+    using Common.Services;
 
     /// <summary>
     /// ViewModel for creating, previewing, and submitting user‐authored news articles.

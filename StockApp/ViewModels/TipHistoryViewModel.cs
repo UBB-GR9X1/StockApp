@@ -4,7 +4,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using StockApp.Commands;
-using StockApp.Models;
+using Common.Models;
 using StockApp.Repositories;
 
 namespace StockApp.ViewModels

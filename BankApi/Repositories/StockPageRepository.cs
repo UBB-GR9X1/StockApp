@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using BankApi.Data;
-    using BankApi.Models;
+    using Common.Models;
     using Microsoft.EntityFrameworkCore;
 
     /// <summary>

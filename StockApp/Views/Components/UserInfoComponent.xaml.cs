@@ -4,8 +4,8 @@ namespace StockApp.Views.Components
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
-    using StockApp.Models;
-    using StockApp.Services;
+    using Common.Models;
+    using Common.Services;
     using StockApp.Views.Pages;
 
     public sealed partial class UserInfoComponent : Page

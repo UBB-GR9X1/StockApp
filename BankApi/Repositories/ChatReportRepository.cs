@@ -5,7 +5,7 @@
     using System.Data;
     using System.Threading.Tasks;
     using BankApi.Data;
-    using BankApi.Models;
+    using Common.Models;
     using Microsoft.EntityFrameworkCore;
 
     public class ChatReportRepository : IChatReportRepository

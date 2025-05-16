@@ -1,7 +1,7 @@
 ﻿namespace StockApp.ViewModels
 {
     using System.ComponentModel;
-    using StockApp.Models;
+    using Common.Models;
 
     /// <summary>
     /// ViewModel for the User Profile Component.

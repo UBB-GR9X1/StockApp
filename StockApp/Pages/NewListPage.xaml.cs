@@ -2,7 +2,7 @@ namespace StockApp.Pages
 {
     using Microsoft.UI.Xaml.Controls;
     using Microsoft.UI.Xaml.Input;
-    using StockApp.Models;
+    using Common.Models;
     using StockApp.ViewModels;
 
     public sealed partial class NewsListPage : Page

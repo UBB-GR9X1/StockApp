@@ -2,7 +2,7 @@ namespace BankApi.Repositories
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using BankApi.Models;
+    using Common.Models;
 
     public interface IBaseStocksRepository
     {

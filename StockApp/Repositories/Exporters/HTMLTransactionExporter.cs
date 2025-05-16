@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Text;
-    using StockApp.Models;
+    using Common.Models;
 
     public class HTMLTransactionExporter : ITransactionExporter
     {

@@ -4,8 +4,8 @@ namespace StockApp.Views.Components
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
     using Src.Helpers;
-    using Src.Model;
-    using StockApp.Services;
+    using Common.Models;
+    using Common.Services;
 
     public sealed partial class ChatReportComponent : Page
     {

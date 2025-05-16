@@ -3,8 +3,9 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using Common.Models;
+    using Common.Services;
     using StockApp.Exceptions;
-    using StockApp.Models;
     using StockApp.Repositories;
 
     public class HistoryService : IHistoryService

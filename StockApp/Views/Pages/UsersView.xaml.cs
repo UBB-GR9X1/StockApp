@@ -3,8 +3,8 @@ namespace StockApp.Views.Pages
     using System;
     using System.Collections.Generic;
     using Microsoft.UI.Xaml.Controls;
-    using StockApp.Models;
-    using StockApp.Services;
+    using Common.Models;
+    using Common.Services;
     using StockApp.Views.Components;
 
     public sealed partial class UsersView : Page

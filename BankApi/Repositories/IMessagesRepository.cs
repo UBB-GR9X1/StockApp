@@ -1,4 +1,4 @@
-﻿using BankApi.Models;
+﻿using Common.Models;
 
 namespace BankApi.Repositories
 {

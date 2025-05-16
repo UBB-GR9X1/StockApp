@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Data;
     using BankApi.Data;
-    using BankApi.Models;
+    using Common.Models;
     using Microsoft.EntityFrameworkCore;
 
     public class LoanRepository : ILoanRepository

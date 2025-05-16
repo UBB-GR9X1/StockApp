@@ -5,8 +5,8 @@
     using System.ComponentModel;
     using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
-    using StockApp.Models;
-    using StockApp.Services;
+    using Common.Models;
+    using Common.Services;
 
     public class UserViewModel : INotifyPropertyChanged
     {

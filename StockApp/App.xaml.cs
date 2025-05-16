@@ -12,7 +12,7 @@ namespace StockApp
     using StockApp.Pages;
     using StockApp.Repositories;
     using StockApp.Repositories.Api;
-    using StockApp.Services;
+    using Common.Services;
     using StockApp.Services.Api;
     using StockApp.ViewModels;
     using StockApp.Views;

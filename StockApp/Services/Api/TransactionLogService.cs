@@ -4,11 +4,11 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using Common.Models;
+    using Common.Services;
     using StockApp.Exceptions;
-    using StockApp.Models;
     using StockApp.Repositories;
     using StockApp.Repositories.Exporters;
-    using StockApp.Services;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="TransactionLogService"/> class.

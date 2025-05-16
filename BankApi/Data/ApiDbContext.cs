@@ -1,4 +1,4 @@
-using BankApi.Models;
+using Common.Models;
 using Microsoft.EntityFrameworkCore;
 //using StockApp.Models; // IMPORTANT: Added StockApp.Models because HomepageStock is from StockApp.Models
 

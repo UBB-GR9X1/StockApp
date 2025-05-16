@@ -1,15 +1,16 @@
 namespace StockApp.Views.Components
 {
     using System;
+    using Common.Models;
+    using Common.Services;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
-    using StockApp.Models;
-    using StockApp.Services;
 
     public sealed partial class LoanRequestComponent : Page
     {
         private readonly ILoanRequestService loanRequestService;
         private readonly ILoanService loanServices;
+        private readonly IUserService userService;
 
         public event EventHandler LoanRequestSolved;
 
@@ -27,25 +28,43 @@ namespace StockApp.Views.Components
 
         public string Suggestion { get; set; }
 
-        public LoanRequestComponent(ILoanRequestService loanRequestService, ILoanService loanService)
+        public LoanRequestComponent(ILoanRequestService loanRequestService, ILoanService loanService, IUserService userService)
         {
             this.loanRequestService = loanRequestService;
             this.loanServices = loanService;
+            this.userService = userService;
             this.InitializeComponent();
         }
 
         private async void OnDenyClick(object sender, RoutedEventArgs e)
         {
-            LoanRequest loanRequest = new LoanRequest(this.RequestID, this.RequestingUserCNP, this.RequestedAmount, this.ApplicationDate, this.RepaymentDate, this.State);
-            this.loanRequestService.DeleteLoanRequest(loanRequest);
+            LoanRequest loanRequest = new()
+            {
+                Id = this.RequestID,
+                UserCnp = this.RequestingUserCNP,
+                Amount = this.RequestedAmount,
+                ApplicationDate = this.ApplicationDate,
+                RepaymentDate = this.RepaymentDate,
+                Status = this.State,
+            };
+            await this.loanRequestService.DeleteLoanRequest(loanRequest);
             this.LoanRequestSolved?.Invoke(this, EventArgs.Empty);
         }
 
         private async void OnApproveClick(object sender, RoutedEventArgs e)
         {
-            LoanRequest loanRequest = new LoanRequest(this.RequestID, this.RequestingUserCNP, this.RequestedAmount, this.ApplicationDate, this.RepaymentDate, this.State);
+            LoanRequest loanRequest = new()
+            {
+                Id = this.RequestID,
+                UserCnp = this.userService.GetCurrentUserCNP(),
+                Amount = this.RequestedAmount,
+                ApplicationDate = this.ApplicationDate,
+                RepaymentDate = this.RepaymentDate,
+                Status = this.State,
+            };
+
             await this.loanServices.AddLoanAsync(loanRequest);
-            this.loanRequestService.SolveLoanRequest(loanRequest);
+            await this.loanRequestService.SolveLoanRequest(loanRequest);
             this.LoanRequestSolved?.Invoke(this, EventArgs.Empty);
         }
 

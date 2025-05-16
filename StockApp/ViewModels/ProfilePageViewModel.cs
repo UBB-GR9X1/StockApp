@@ -5,8 +5,8 @@
     using System.ComponentModel;
     using System.Threading.Tasks;
     using Microsoft.UI.Xaml.Media.Imaging;
-    using StockApp.Models;
-    using StockApp.Services;
+    using Common.Models;
+    using Common.Services;
 
     /// <summary>
     /// View model for the profile page, managing the user's profile image and information.

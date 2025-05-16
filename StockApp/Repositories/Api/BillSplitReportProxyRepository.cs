@@ -4,7 +4,7 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Src.Model;
+using Common.Models;
 
 namespace StockApp.Repositories.Api
 {
@@ -171,12 +171,12 @@ namespace StockApp.Repositories.Api
         }
 
         /// <inheritdoc/>
-        public async Task<float> SumTransactionsSinceReportAsync(string userCnp, DateTime sinceDate)
+        public async Task<decimal> SumTransactionsSinceReportAsync(string userCnp, DateTime sinceDate)
         {
             try
             {
                 var url = $"{_baseUrl}/transactions/{userCnp}?since={sinceDate:yyyy-MM-dd}";
-                return await _httpClient.GetFromJsonAsync<float>(url, _jsonOptions);
+                return await _httpClient.GetFromJsonAsync<decimal>(url, _jsonOptions);
             }
             catch (Exception ex)
             {

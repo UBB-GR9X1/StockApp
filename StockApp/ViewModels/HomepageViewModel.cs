@@ -7,8 +7,8 @@
     using System.Threading.Tasks;
     using System.Windows.Input;
     using StockApp.Commands;
-    using StockApp.Models;
-    using StockApp.Services;
+    using Common.Models;
+    using Common.Services;
 
     /// <summary>
     /// ViewModel for the homepage, managing stock display, filtering, sorting, and navigation.

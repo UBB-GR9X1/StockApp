@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using StockApp.Models;
+using Common.Models;
+using Common.Services;
 using StockApp.Repositories;
 
 namespace StockApp.Services.Api

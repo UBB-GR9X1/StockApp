@@ -5,7 +5,7 @@
     using System.Linq;
     using System.Threading.Tasks;
     using BankApi.Data;
-    using BankApi.Models;
+    using Common.Models;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
 

@@ -1,7 +1,7 @@
 namespace StockApp.Views.Pages
 {
     using Microsoft.UI.Xaml;
-    using StockApp.Models;
+    using Common.Models;
     using StockApp.ViewModels;
 
     public sealed partial class TipHistoryWindow : Window

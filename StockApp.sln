@@ -18,6 +18,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BankApi", "BankApi\BankApi.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockApp", "StockApp\StockApp.csproj", "{B88B3A79-56BF-AF71-8351-669F60B4886A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csproj", "{906F8880-4B7C-4134-8D2F-5EEC03FFB234}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM64 = Debug|ARM64
@@ -91,6 +93,18 @@ Global
 		{B88B3A79-56BF-AF71-8351-669F60B4886A}.Release|x86.ActiveCfg = Release|x86
 		{B88B3A79-56BF-AF71-8351-669F60B4886A}.Release|x86.Build.0 = Release|x86
 		{B88B3A79-56BF-AF71-8351-669F60B4886A}.Release|x86.Deploy.0 = Release|x86
+		{906F8880-4B7C-4134-8D2F-5EEC03FFB234}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{906F8880-4B7C-4134-8D2F-5EEC03FFB234}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{906F8880-4B7C-4134-8D2F-5EEC03FFB234}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{906F8880-4B7C-4134-8D2F-5EEC03FFB234}.Debug|x64.Build.0 = Debug|Any CPU
+		{906F8880-4B7C-4134-8D2F-5EEC03FFB234}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{906F8880-4B7C-4134-8D2F-5EEC03FFB234}.Debug|x86.Build.0 = Debug|Any CPU
+		{906F8880-4B7C-4134-8D2F-5EEC03FFB234}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{906F8880-4B7C-4134-8D2F-5EEC03FFB234}.Release|ARM64.Build.0 = Release|Any CPU
+		{906F8880-4B7C-4134-8D2F-5EEC03FFB234}.Release|x64.ActiveCfg = Release|Any CPU
+		{906F8880-4B7C-4134-8D2F-5EEC03FFB234}.Release|x64.Build.0 = Release|Any CPU
+		{906F8880-4B7C-4134-8D2F-5EEC03FFB234}.Release|x86.ActiveCfg = Release|Any CPU
+		{906F8880-4B7C-4134-8D2F-5EEC03FFB234}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -6,7 +6,7 @@ namespace StockApp.Repositories.Api
     using System.Net.Http;
     using System.Net.Http.Json;
     using System.Threading.Tasks;
-    using StockApp.Models;
+    using Common.Models;
 
     internal class MessageProxyRepository : IMessagesRepository
     {

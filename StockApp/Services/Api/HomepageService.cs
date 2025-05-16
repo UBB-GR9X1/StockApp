@@ -3,7 +3,8 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using StockApp.Models;
+    using Common.Models;
+    using Common.Services;
     using StockApp.Repositories;
 
     public class HomepageService : IHomepageService

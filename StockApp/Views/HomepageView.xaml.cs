@@ -3,7 +3,7 @@
     using System;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.UI.Xaml.Controls;
-    using StockApp.Models;
+    using Common.Models;
     using StockApp.Pages;
     using StockApp.ViewModels;
 

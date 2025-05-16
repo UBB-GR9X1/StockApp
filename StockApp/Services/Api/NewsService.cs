@@ -5,9 +5,9 @@
     using System.Linq;
     using System.Threading.Tasks;
     using StockApp.Exceptions;
-    using StockApp.Models;
+    using Common.Models;
     using StockApp.Repositories;
-    using StockApp.Services;
+    using Common.Services;
 
     /// <summary>
     /// Provides business logic for managing news and user-submitted articles.

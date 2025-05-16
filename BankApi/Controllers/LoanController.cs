@@ -1,5 +1,5 @@
 using BankApi.Data;
-using BankApi.Models;
+using Common.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 

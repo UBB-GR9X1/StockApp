@@ -1,7 +1,5 @@
 // BankApi/Repositories/IAlertRepository.cs
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using BankApi.Models;
+using Common.Models;
 
 namespace BankApi.Repositories
 {

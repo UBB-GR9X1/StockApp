@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
-using Src.Model;
-using StockApp.Models;
+using Common.Models;
+using Common.Services;
 using StockApp.Repositories;
-using StockApp.Services;
 
 namespace StockApp.ViewModels
 {

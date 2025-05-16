@@ -1,7 +1,7 @@
 <Page
     x:Class="StockApp.Pages.GemStoreWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:models="using:StockApp.Models">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:models="using:Common.Models">
 
     <Grid x:Name="rootGrid" Margin="20" Background="#081708">
         <Grid.RowDefinitions>

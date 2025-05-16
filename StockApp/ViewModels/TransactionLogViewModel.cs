@@ -7,9 +7,9 @@
     using System.Linq;
     using System.Windows.Input;
     using Microsoft.UI.Xaml.Controls;
-    using StockApp.Models;
+    using Common.Models;
     using StockApp.Repositories;
-    using StockApp.Services;
+    using Common.Services;
 
     /// <summary>
     /// ViewModel for displaying and exporting the transaction log with filtering and sorting capabilities.

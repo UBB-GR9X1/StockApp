@@ -11,8 +11,8 @@ namespace StockApp.ViewModels
     using System.Threading.Tasks;
     using System.Windows.Input;
     using StockApp.Commands;
-    using StockApp.Models;
-    using StockApp.Services;
+    using Common.Models;
+    using Common.Services;
 
     public class CreateStockViewModel : INotifyPropertyChanged
     {

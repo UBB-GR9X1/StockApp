@@ -3,7 +3,8 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using StockApp.Models;
+    using Common.Models;
+    using Common.Services;
     using StockApp.Repositories;
 
     public class LoanService : ILoanService
@@ -32,24 +33,26 @@
             User user = await userRepository.GetByCnpAsync(loanRequest.UserCnp) ?? throw new Exception("User not found");
 
             decimal interestRate = (decimal)user.RiskScore / user.CreditScore * 100;
-            int noMonths = (loanRequest.RepaymentDate.Year - loanRequest.ApplicationDate.Year) * 12 + loanRequest.RepaymentDate.Month - loanRequest.ApplicationDate.Month;
-            decimal monthlyPaymentAmount = loanRequest.Amount * (1 + interestRate / 100) / noMonths;
+            int noMonths = ((loanRequest.RepaymentDate.Year - loanRequest.ApplicationDate.Year) * 12) + loanRequest.RepaymentDate.Month - loanRequest.ApplicationDate.Month;
+            decimal monthlyPaymentAmount = loanRequest.Amount * ((1 + (interestRate / 100)) / noMonths);
             int monthlyPaymentsCompleted = 0;
             int repaidAmount = 0;
             decimal penalty = 0;
 
-            Loan loan = new Loan(
-                loanRequest.UserCnp,
-                loanRequest.Amount,
-                loanRequest.ApplicationDate,
-                loanRequest.RepaymentDate,
-                interestRate,
-                noMonths,
-                monthlyPaymentAmount,
-                monthlyPaymentsCompleted,
-                repaidAmount,
-                penalty,
-                "active");
+            Loan loan = new()
+            {
+                UserCnp = loanRequest.UserCnp,
+                LoanAmount = loanRequest.Amount,
+                ApplicationDate = loanRequest.ApplicationDate,
+                RepaymentDate = loanRequest.RepaymentDate,
+                MonthlyPaymentAmount = monthlyPaymentAmount,
+                MonthlyPaymentsCompleted = monthlyPaymentsCompleted,
+                NumberOfMonths = noMonths,
+                Status = "active",
+                Penalty = penalty,
+                RepaidAmount = repaidAmount,
+                InterestRate = interestRate,
+            };
 
             await loanRepository.AddLoanAsync(loan);
         }

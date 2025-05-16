@@ -1,10 +1,9 @@
 using System;
+using System.Threading.Tasks;
+using Common.Models;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Src.Model;
-using StockApp.Models;
 using StockApp.ViewModels;
-using System.Threading.Tasks;
 
 namespace StockApp.Views.Components
 {
@@ -23,7 +22,7 @@ namespace StockApp.Views.Components
         public string ReporterUserFirstName { get; set; }
         public string ReporterUserLastName { get; set; }
         public DateTime DateTransaction { get; set; }
-        private float BillShare { get; set; }
+        private decimal BillShare { get; set; }
 
         public BillSplitReportComponent(BillSplitReportViewModel viewModel)
         {

@@ -5,7 +5,7 @@
     using System.Net.Http;
     using System.Net.Http.Json;
     using System.Threading.Tasks;
-    using Src.Model;
+    using Common.Models;
     using HttpClient = System.Net.Http.HttpClient;
 
     public class ChatReportProxyRepostiory : IChatReportRepository

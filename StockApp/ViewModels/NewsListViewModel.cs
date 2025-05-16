@@ -12,8 +12,8 @@
     using Microsoft.UI.Xaml.Controls;
     using Microsoft.UI.Xaml.Media;
     using StockApp.Commands;
-    using StockApp.Models;
-    using StockApp.Services;
+    using Common.Models;
+    using Common.Services;
     using StockApp.Views;
 
     public class NewsListViewModel : ViewModelBase

@@ -6,7 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewModel="using:StockApp.ViewModels"
-    xmlns:model="using:StockApp.Models" xmlns:converters="using:StockApp.Views.Converters"
+    xmlns:model="using:Common.Models" xmlns:converters="using:StockApp.Views.Converters"
     DataContext="{Binding ViewModel, RelativeSource={RelativeSource Self}}"
     mc:Ignorable="d">
     <Page.Resources>

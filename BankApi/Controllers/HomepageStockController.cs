@@ -1,5 +1,5 @@
-﻿using BankApi.Models;
-using BankApi.Repositories;
+﻿using BankApi.Repositories;
+using Common.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BankApi.Controllers

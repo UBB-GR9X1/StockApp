@@ -1,7 +1,7 @@
 ﻿namespace StockApp.Repositories.Exporters
 {
     using System.Collections.Generic;
-    using StockApp.Models;
+    using Common.Models;
 
     public interface ITransactionExporter
     {

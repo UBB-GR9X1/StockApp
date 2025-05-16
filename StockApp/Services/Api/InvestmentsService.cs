@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using Src.Model;
-using StockApp.Models;
+using Common.Models;
+using Common.Services;
 using StockApp.Repositories;
 
 namespace StockApp.Services.Api
@@ -150,8 +150,8 @@ namespace StockApp.Services.Api
 
             var totalInvested = investments.Sum(i => i.AmountInvested);
 
-            var safeInvestmentThreshold = 0.1f;
-            var riskyInvestmentThreshold = 0.3f;
+            decimal safeInvestmentThreshold = 0.1M;
+            decimal riskyInvestmentThreshold = 0.3M;
             if (totalInvested / user.Income < safeInvestmentThreshold)
             {
                 riskScoreChange -= 5;

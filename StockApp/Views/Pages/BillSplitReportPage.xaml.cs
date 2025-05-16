@@ -3,7 +3,7 @@ namespace StockApp.Views.Pages
     using System;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
-    using Src.Model;
+    using Common.Models;
     using StockApp.ViewModels;
 
     /// <summary>

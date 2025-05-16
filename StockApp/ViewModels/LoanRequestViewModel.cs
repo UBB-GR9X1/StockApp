@@ -3,8 +3,8 @@
     using System;
     using System.Collections.ObjectModel;
     using System.Threading.Tasks;
-    using StockApp.Models;
-    using StockApp.Services;
+    using Common.Models;
+    using Common.Services;
 
     public class LoanRequestViewModel
     {

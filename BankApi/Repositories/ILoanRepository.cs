@@ -1,7 +1,7 @@
 ﻿namespace BankApi.Repositories
 {
     using System.Collections.Generic;
-    using BankApi.Models;
+    using Common.Models;
 
     public interface ILoanRepository
     {

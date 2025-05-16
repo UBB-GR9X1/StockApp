@@ -5,7 +5,7 @@
     using System.Net.Http;
     using System.Net.Http.Json;
     using System.Threading.Tasks;
-    using StockApp.Models;
+    using Common.Models;
 
     public class TransactionProxyRepository : ITransactionRepository
     {

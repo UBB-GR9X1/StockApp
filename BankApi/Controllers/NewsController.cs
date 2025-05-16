@@ -2,8 +2,8 @@ namespace BankApi.Controllers
 {
     using System;
     using System.Threading.Tasks;
-    using BankApi.Models;
     using BankApi.Repositories;
+    using Common.Models;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Logging;
 

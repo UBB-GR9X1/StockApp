@@ -1,12 +1,7 @@
 // BankApi/Controllers/AlertsController.cs
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using BankApi.Models;
 using BankApi.Repositories;
-using Microsoft.AspNetCore.Http;
+using Common.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace BankApi.Controllers
 {
@@ -84,9 +79,9 @@ namespace BankApi.Controllers
                 }
 
                 var createdAlert = await _repository.AddAlertAsync(alert);
-                
-                return CreatedAtAction(nameof(GetAlertById), 
-                    new { id = createdAlert.AlertId }, 
+
+                return CreatedAtAction(nameof(GetAlertById),
+                    new { id = createdAlert.AlertId },
                     createdAlert);
             }
             catch (Exception ex)
@@ -146,12 +141,12 @@ namespace BankApi.Controllers
             try
             {
                 var success = await _repository.DeleteAlertAsync(id);
-                
+
                 if (!success)
                 {
                     return NotFound($"Alert with ID {id} not found");
                 }
-                
+
                 return NoContent();
             }
             catch (Exception ex)
@@ -210,12 +205,12 @@ namespace BankApi.Controllers
                 }
 
                 var triggeredAlert = await _repository.TriggerAlertAsync(request.StockName, request.CurrentPrice);
-                
+
                 if (triggeredAlert == null)
                 {
                     return Ok(new { Message = "No alert was triggered" });
                 }
-                
+
                 return Ok(triggeredAlert);
             }
             catch (Exception ex)

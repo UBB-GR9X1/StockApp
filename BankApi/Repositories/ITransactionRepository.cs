@@ -1,6 +1,4 @@
-using BankApi.Data;
-using BankApi.Models;
-using Microsoft.EntityFrameworkCore;
+using Common.Models;
 
 namespace BankApi.Repositories
 {

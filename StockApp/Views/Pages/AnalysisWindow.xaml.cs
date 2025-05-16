@@ -8,8 +8,8 @@ namespace StockApp.Views.Pages
     using OxyPlot;
     using OxyPlot.Axes;
     using OxyPlot.Series;
-    using StockApp.Models;
-    using StockApp.Services;
+    using Common.Models;
+    using Common.Services;
 
     public sealed partial class AnalysisWindow : Window
     {

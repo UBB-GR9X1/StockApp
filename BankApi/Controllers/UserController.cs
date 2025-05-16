@@ -1,10 +1,6 @@
-﻿using BankApi.Models;
-using BankApi.Repositories;
+﻿using BankApi.Repositories;
+using Common.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace BankApi.Controllers
 {
@@ -88,7 +84,7 @@ namespace BankApi.Controllers
             var success = await _repository.UpdateAsync(user);
             if (!success)
                 return NotFound();
-            
+
             return NoContent();
         }
 
@@ -102,11 +98,11 @@ namespace BankApi.Controllers
                     return NotFound($"User with CNP {cnp} not found.");
 
                 user.CreditScore = newScore;
-                
+
                 var success = await _repository.UpdateAsync(user);
                 if (!success)
                     return NotFound();
-                
+
                 _logger.LogInformation($"Updated credit score for user with CNP {cnp} to {newScore}");
                 return NoContent();
             }

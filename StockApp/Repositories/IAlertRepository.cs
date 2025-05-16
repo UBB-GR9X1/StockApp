@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using StockApp.Models;
+    using Common.Models;
 
     /// <summary>
     /// Interface for repository operations on <see cref="Alert"/> entities.

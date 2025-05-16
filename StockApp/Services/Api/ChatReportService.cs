@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Src.Helpers;
-using Src.Model;
-using StockApp.Models;
+using Common.Models;
+using Common.Models;
 using StockApp.Repositories;
-using StockApp.Services;
+using Common.Services;
 
 public class ChatReportService(IChatReportRepository chatReportRepository, IUserRepository userRepository, ITipsService tipsService, IMessagesService messageService) : IChatReportService
 {
