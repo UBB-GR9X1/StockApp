@@ -1,4 +1,4 @@
-﻿namespace StockApp.Services
+﻿namespace StockApp.Services.Api
 {
     using System;
     using System.Collections.Generic;
@@ -20,7 +20,7 @@
         public async Task<string> GiveSuggestion(LoanRequest loanRequest)
         {
 
-            User user = await this.userRepository.GetByCnpAsync(loanRequest.UserCnp) ?? throw new Exception("User not found");
+            User user = await userRepository.GetByCnpAsync(loanRequest.UserCnp) ?? throw new Exception("User not found");
 
             string givenSuggestion = string.Empty;
 

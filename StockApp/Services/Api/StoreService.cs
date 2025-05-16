@@ -1,4 +1,4 @@
-﻿namespace StockApp.Services
+﻿namespace StockApp.Services.Api
 {
     using System;
     using System.Threading.Tasks;

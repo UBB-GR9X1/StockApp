@@ -11,11 +11,12 @@ namespace StockApp.ViewModels
     using System.Threading.Tasks;
     using System.Windows.Input;
     using StockApp.Commands;
+    using StockApp.Models;
     using StockApp.Services;
 
     public class CreateStockViewModel : INotifyPropertyChanged
     {
-        private readonly ICreateStockService stockService;
+        private readonly IStockService stockService;
         private readonly IUserService userService;
         private string stockName;
         private string stockSymbol;
@@ -35,7 +36,7 @@ namespace StockApp.ViewModels
         /// </summary>
         public ICommand CreateStockCommand { get; }
 
-        public CreateStockViewModel(ICreateStockService stockService, IUserService userService)
+        public CreateStockViewModel(IStockService stockService, IUserService userService)
         {
             this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
             this.stockService = stockService ?? throw new ArgumentNullException(nameof(stockService));
@@ -226,16 +227,12 @@ namespace StockApp.ViewModels
                 return;
             }
 
-            this.Message = await this.stockService.AddStockAsync(this.StockName, this.StockSymbol, this.AuthorCnp);
-
-            if (this.Message == "Stock added successfully with initial value!")
-            {
-                this.suppressValidation = true;
-                this.StockName = string.Empty;
-                this.StockSymbol = string.Empty;
-                this.AuthorCnp = string.Empty;
-                this.suppressValidation = false;
-            }
+            await this.stockService.CreateStockAsync(new Stock(
+                    name: this.StockName,
+                    symbol: this.StockSymbol,
+                    authorCNP: this.AuthorCnp,
+                    price: 0,
+                    quantity: 0));
         }
 
         /// <summary>

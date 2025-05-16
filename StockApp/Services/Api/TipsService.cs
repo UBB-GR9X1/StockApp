@@ -1,4 +1,4 @@
-﻿namespace StockApp.Services
+﻿namespace StockApp.Services.Api
 {
     using System;
     using System.Collections.Generic;
@@ -22,18 +22,18 @@
 
             try
             {
-                User user = await this.userRepository.GetByCnpAsync(userCNP) ?? throw new Exception("User not found");
+                User user = await userRepository.GetByCnpAsync(userCNP) ?? throw new Exception("User not found");
                 if (user.CreditScore < 300)
                 {
-                    await this.tipsRepository.GiveLowBracketTipAsync(userCNP);
+                    await tipsRepository.GiveLowBracketTipAsync(userCNP);
                 }
                 else if (user.CreditScore < 550)
                 {
-                    await this.tipsRepository.GiveMediumBracketTipAsync(userCNP);
+                    await tipsRepository.GiveMediumBracketTipAsync(userCNP);
                 }
                 else if (user.CreditScore > 549)
                 {
-                    await this.tipsRepository.GiveHighBracketTipAsync(userCNP);
+                    await tipsRepository.GiveHighBracketTipAsync(userCNP);
                 }
             }
             catch (Exception exception)
@@ -44,7 +44,7 @@
 
         public async Task<List<Tip>> GetTipsForGivenUser(string userCnp)
         {
-            return await this.tipsRepository.GetTipsForGivenUserAsync(userCnp);
+            return await tipsRepository.GetTipsForGivenUserAsync(userCnp);
         }
     }
 }

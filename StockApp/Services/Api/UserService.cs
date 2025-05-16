@@ -1,4 +1,4 @@
-﻿namespace StockApp.Services
+﻿namespace StockApp.Services.Api
 {
     using System;
     using System.Collections.Generic;
@@ -32,12 +32,12 @@
                 throw new ArgumentException("CNP cannot be empty");
             }
 
-            return await this.userRepository.GetByCnpAsync(cnp) ?? throw new KeyNotFoundException($"User with CNP {cnp} not found.");
+            return await userRepository.GetByCnpAsync(cnp) ?? throw new KeyNotFoundException($"User with CNP {cnp} not found.");
         }
 
         public Task<List<User>> GetUsers()
         {
-            return this.userRepository.GetAllAsync();
+            return userRepository.GetAllAsync();
         }
 
         public async Task CreateUser(User user)
@@ -47,7 +47,7 @@
                 throw new ArgumentNullException(nameof(user));
             }
 
-            await this.userRepository.CreateAsync(user);
+            await userRepository.CreateAsync(user);
         }
 
         public string GetCurrentUserCNP()
@@ -68,7 +68,7 @@
                 throw new ArgumentException("CNP cannot be empty");
             }
 
-            return await this.userRepository.GetByCnpAsync(cnp);
+            return await userRepository.GetByCnpAsync(cnp);
         }
     }
 }

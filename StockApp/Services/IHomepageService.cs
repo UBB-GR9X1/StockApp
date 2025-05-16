@@ -6,6 +6,7 @@
 
     public interface IHomepageService
     {
+        //move to StocksService
         Task AddToFavoritesAsync(HomepageStock stock);
 
         Task RemoveFromFavoritesAsync(HomepageStock stock);

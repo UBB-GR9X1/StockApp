@@ -1,10 +1,11 @@
-﻿namespace StockApp.Services
+﻿namespace StockApp.Services.Api
 {
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using StockApp.Models;
     using StockApp.Repositories;
+    using StockApp.Services;
 
     /// <summary>
     /// Service for managing user activities.
@@ -33,7 +34,7 @@
 
             try
             {
-                return await this.activityRepo.GetActivityForUser(userCnp);
+                return await activityRepo.GetActivityForUser(userCnp);
             }
             catch (Exception ex)
             {
@@ -68,7 +69,7 @@
                     LastModifiedAmount = amount,
                     ActivityDetails = details,
                 };
-                return await this.activityRepo.AddActivity(activity);
+                return await activityRepo.AddActivity(activity);
             }
             catch (Exception ex)
             {
@@ -81,7 +82,7 @@
         {
             try
             {
-                return await this.activityRepo.GetAllActivities();
+                return await activityRepo.GetAllActivities();
             }
             catch (Exception ex)
             {
@@ -99,7 +100,7 @@
 
             try
             {
-                return await this.activityRepo.GetActivityById(id);
+                return await activityRepo.GetActivityById(id);
             }
             catch (Exception ex)
             {
@@ -117,7 +118,7 @@
 
             try
             {
-                return await this.activityRepo.DeleteActivity(id);
+                return await activityRepo.DeleteActivity(id);
             }
             catch (Exception ex)
             {

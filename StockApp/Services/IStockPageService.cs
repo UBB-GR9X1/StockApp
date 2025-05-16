@@ -6,6 +6,7 @@
 
     public interface IStockPageService
     {
+        // merge with StocksService
         Task<bool> BuyStockAsync(int quantity);
 
         Task<bool> GetFavoriteAsync();

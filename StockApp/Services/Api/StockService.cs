@@ -1,4 +1,4 @@
-﻿namespace StockApp.Services
+﻿namespace StockApp.Services.Api
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
@@ -12,31 +12,31 @@
         /// <inheritdoc/>
         public async Task<Stock> CreateStockAsync(Stock stock)
         {
-            return await this.stockRepository.CreateAsync(stock);
+            return await stockRepository.CreateAsync(stock);
         }
 
         /// <inheritdoc/>
         public async Task<bool> DeleteStockAsync(int id)
         {
-            return await this.stockRepository.DeleteAsync(id);
+            return await stockRepository.DeleteAsync(id);
         }
 
         /// <inheritdoc/>
         public async Task<IEnumerable<Stock>> GetAllStocksAsync()
         {
-            return await this.stockRepository.GetAllAsync();
+            return await stockRepository.GetAllAsync();
         }
 
         /// <inheritdoc/>
         public async Task<Stock?> GetStockByIdAsync(int id)
         {
-            return await this.stockRepository.GetByIdAsync(id);
+            return await stockRepository.GetByIdAsync(id);
         }
 
         /// <inheritdoc/>
         public async Task<Stock?> UpdateStockAsync(int id, Stock updatedStock)
         {
-            return await this.stockRepository.UpdateAsync(id, updatedStock);
+            return await stockRepository.UpdateAsync(id, updatedStock);
         }
     }
 }

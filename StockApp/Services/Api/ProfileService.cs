@@ -1,10 +1,11 @@
-﻿namespace StockApp.Services
+﻿namespace StockApp.Services.Api
 {
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using StockApp.Models;
     using StockApp.Repositories;
+    using StockApp.Services;
 
     public class ProfileService : IProfileService
     {
@@ -34,7 +35,7 @@
         /// <param name="newHidden"> Indicates if the user should be hidden.</param>
         public async Task UpdateUserAsync(string newUsername, string newImage, string newDescription, bool newHidden)
         {
-            await this.profileRepo.UpdateMyUserAsync(newUsername, newImage, newDescription, newHidden);
+            await profileRepo.UpdateMyUserAsync(newUsername, newImage, newDescription, newHidden);
         }
 
         /// <summary>
@@ -43,12 +44,12 @@
         /// <param name="isAdmin"> Indicates if the user should be an admin.</param>
         public async Task UpdateIsAdminAsync(bool isAdmin)
         {
-            await this.profileRepo.UpdateRepoIsAdminAsync(isAdmin);
+            await profileRepo.UpdateRepoIsAdminAsync(isAdmin);
         }
 
         public async Task<List<Stock>> GetUserStocksAsync()
         {
-            return await this.profileRepo.UserStocksAsync();
+            return await profileRepo.UserStocksAsync();
         }
     }
 }

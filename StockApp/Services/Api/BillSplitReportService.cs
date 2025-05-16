@@ -6,7 +6,7 @@ using StockApp.Models;
 using StockApp.Repositories;
 using StockApp.Repositories.Api;
 
-namespace StockApp.Services
+namespace StockApp.Services.Api
 {
     public class BillSplitReportService : IBillSplitReportService
     {

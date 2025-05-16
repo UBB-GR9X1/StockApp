@@ -7,7 +7,7 @@ using Src.Model;
 using StockApp.Models;
 using StockApp.Repositories;
 
-namespace StockApp.Services
+namespace StockApp.Services.Api
 {
     public class InvestmentsService : IInvestmentsService
     {
@@ -16,15 +16,15 @@ namespace StockApp.Services
 
         public InvestmentsService(IUserRepository userRepository, IInvestmentsRepository investmentsRepository)
         {
-            this._userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-            this._investmentsRepository = investmentsRepository ?? throw new ArgumentNullException(nameof(investmentsRepository));
+            _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+            _investmentsRepository = investmentsRepository ?? throw new ArgumentNullException(nameof(investmentsRepository));
         }
 
         public async Task<List<Investment>> GetInvestmentsHistoryAsync()
         {
             try
             {
-                return await this._investmentsRepository.GetInvestmentsHistory();
+                return await _investmentsRepository.GetInvestmentsHistory();
             }
             catch (Exception ex)
             {
@@ -41,7 +41,7 @@ namespace StockApp.Services
 
             try
             {
-                await this._investmentsRepository.AddInvestment(investment);
+                await _investmentsRepository.AddInvestment(investment);
             }
             catch (Exception ex)
             {
@@ -58,7 +58,7 @@ namespace StockApp.Services
 
             try
             {
-                await this._investmentsRepository.UpdateInvestment(investmentId, investorCNP, amountReturned);
+                await _investmentsRepository.UpdateInvestment(investmentId, investorCNP, amountReturned);
             }
             catch (Exception ex)
             {
@@ -70,7 +70,7 @@ namespace StockApp.Services
         {
             try
             {
-                var allExistentUsers = await this._userRepository.GetAllAsync();
+                var allExistentUsers = await _userRepository.GetAllAsync();
 
                 foreach (var currentUser in allExistentUsers)
                 {
@@ -79,7 +79,7 @@ namespace StockApp.Services
                     {
                         var riskScoreChange = this.CalculateRiskScoreChange(currentUser, recentInvestments);
                         this.UpdateUserRiskScore(currentUser, riskScoreChange);
-                        await this._userRepository.UpdateAsync(currentUser.Id, currentUser);
+                        await _userRepository.UpdateAsync(currentUser.Id, currentUser);
                     }
                 }
             }
@@ -91,7 +91,7 @@ namespace StockApp.Services
 
         private async Task<List<Investment>> GetRecentInvestmentsAsync(string cnp)
         {
-            var allInvestments = await this.GetInvestmentsHistoryAsync();
+            var allInvestments = await GetInvestmentsHistoryAsync();
 
             var latestInvestment = allInvestments
                 .Where(i => i.InvestorCnp == cnp)
@@ -178,12 +178,12 @@ namespace StockApp.Services
         {
             try
             {
-                var allExistentUsers = await this._userRepository.GetAllAsync();
+                var allExistentUsers = await _userRepository.GetAllAsync();
 
                 foreach (var currentUser in allExistentUsers)
                 {
                     await this.CalculateAndSetUserROIAsync(currentUser);
-                    await this._userRepository.UpdateAsync(currentUser.Id, currentUser);
+                    await _userRepository.UpdateAsync(currentUser.Id, currentUser);
                 }
             }
             catch (Exception ex)
@@ -196,7 +196,7 @@ namespace StockApp.Services
         {
             var investmentOpen = -1;
 
-            var allInvestments = (await this.GetInvestmentsHistoryAsync())
+            var allInvestments = (await GetInvestmentsHistoryAsync())
                 .Where(i => i.InvestorCnp == user.CNP)
                 .Where(i => i.AmountReturned != investmentOpen)
                 .ToList();
@@ -224,7 +224,7 @@ namespace StockApp.Services
         {
             try
             {
-                var allExistentUsers = await this._userRepository.GetAllAsync();
+                var allExistentUsers = await _userRepository.GetAllAsync();
 
                 foreach (var currentUser in allExistentUsers)
                 {
@@ -256,7 +256,7 @@ namespace StockApp.Services
 
                     currentUser.CreditScore = Math.Min(maxCreditScore, Math.Max(minCreditScore, currentUser.CreditScore));
 
-                    await this._userRepository.UpdateAsync(currentUser.Id, currentUser);
+                    await _userRepository.UpdateAsync(currentUser.Id, currentUser);
                 }
             }
             catch (Exception ex)
@@ -269,12 +269,12 @@ namespace StockApp.Services
         {
             try
             {
-                var userList = await this._userRepository.GetAllAsync();
+                var userList = await _userRepository.GetAllAsync();
                 var portfolios = new List<InvestmentPortfolio>();
 
                 foreach (var user in userList)
                 {
-                    var investments = (await this.GetInvestmentsHistoryAsync())
+                    var investments = (await GetInvestmentsHistoryAsync())
                         .Where(i => i.InvestorCnp == user.CNP)
                         .ToList();
 

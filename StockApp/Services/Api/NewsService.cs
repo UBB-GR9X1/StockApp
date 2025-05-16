@@ -1,4 +1,4 @@
-﻿namespace StockApp.Services
+﻿namespace StockApp.Services.Api
 {
     using System;
     using System.Collections.Generic;
@@ -7,6 +7,7 @@
     using StockApp.Exceptions;
     using StockApp.Models;
     using StockApp.Repositories;
+    using StockApp.Services;
 
     /// <summary>
     /// Provides business logic for managing news and user-submitted articles.
@@ -26,7 +27,7 @@
         public NewsService(IUserRepository userRepository, IBaseStocksService baseStocksService, INewsRepository newsRepository)
         {
             this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-            this.stocksService = baseStocksService ?? throw new ArgumentNullException(nameof(baseStocksService));
+            stocksService = baseStocksService ?? throw new ArgumentNullException(nameof(baseStocksService));
             this.newsRepository = newsRepository ?? throw new ArgumentNullException(nameof(newsRepository));
         }
 
@@ -40,7 +41,7 @@
             try
             {
                 // Fetch articles in a background thread
-                List<NewsArticle> articles = await this.newsRepository.GetAllNewsArticlesAsync();
+                List<NewsArticle> articles = await newsRepository.GetAllNewsArticlesAsync();
 
                 return articles;
             }
@@ -67,7 +68,7 @@
             }
             try
             {
-                NewsArticle article = await this.newsRepository.GetNewsArticleByIdAsync(articleId);
+                NewsArticle article = await newsRepository.GetNewsArticleByIdAsync(articleId);
                 return article;
             }
             catch (NewsPersistenceException ex)
@@ -92,7 +93,7 @@
 
             try
             {
-                await this.newsRepository.MarkArticleAsReadAsync(articleId);
+                await newsRepository.MarkArticleAsReadAsync(articleId);
                 return true;
             }
             catch (NewsPersistenceException ex)
@@ -117,7 +118,7 @@
 
             try
             {
-                await this.newsRepository.AddNewsArticleAsync(article);
+                await newsRepository.AddNewsArticleAsync(article);
                 return true;
             }
             catch (NewsPersistenceException ex)
@@ -142,7 +143,7 @@
                 throw new UnauthorizedAccessException("User must be logged in to access user articles");
             }
 
-            User user = await this.userRepository.GetByCnpAsync(authorCNP) ?? throw new Exception("User not found");
+            User user = await userRepository.GetByCnpAsync(authorCNP) ?? throw new Exception("User not found");
             if (!user.IsModerator)
             {
                 throw new UnauthorizedAccessException("User must be an admin to access user articles");
@@ -150,7 +151,7 @@
 
             try
             {
-                List<NewsArticle> userArticles = await this.newsRepository.GetNewsArticlesByAuthorCNPAsync(authorCNP);
+                List<NewsArticle> userArticles = await newsRepository.GetNewsArticlesByAuthorCNPAsync(authorCNP);
 
                 // Inline: apply status filter
                 if (status != Status.All)
@@ -187,7 +188,7 @@
                 throw new UnauthorizedAccessException("User must be logged in to access user articles");
             }
 
-            User user = await this.userRepository.GetByCnpAsync(IUserRepository.CurrentUserCNP) ?? throw new Exception("User not found");
+            User user = await userRepository.GetByCnpAsync(IUserRepository.CurrentUserCNP) ?? throw new Exception("User not found");
             if (!user.IsModerator)
             {
                 throw new UnauthorizedAccessException("User must be an admin to access user articles");
@@ -200,9 +201,9 @@
 
             try
             {
-                NewsArticle newsArticle = await this.newsRepository.GetNewsArticleByIdAsync(articleId);
+                NewsArticle newsArticle = await newsRepository.GetNewsArticleByIdAsync(articleId);
                 newsArticle.Status = Status.Approved;
-                await this.newsRepository.UpdateNewsArticleAsync(newsArticle);
+                await newsRepository.UpdateNewsArticleAsync(newsArticle);
                 return true;
             }
             catch (NewsPersistenceException ex)
@@ -226,7 +227,7 @@
                 throw new UnauthorizedAccessException("User must be logged in to access user articles");
             }
 
-            User user = await this.userRepository.GetByCnpAsync(IUserRepository.CurrentUserCNP) ?? throw new Exception("User not found");
+            User user = await userRepository.GetByCnpAsync(IUserRepository.CurrentUserCNP) ?? throw new Exception("User not found");
             if (!user.IsModerator)
             {
                 throw new UnauthorizedAccessException("User must be an admin to access user articles");
@@ -239,9 +240,9 @@
 
             try
             {
-                NewsArticle newsArticle = await this.newsRepository.GetNewsArticleByIdAsync(articleId);
+                NewsArticle newsArticle = await newsRepository.GetNewsArticleByIdAsync(articleId);
                 newsArticle.Status = Status.Rejected;
-                await this.newsRepository.UpdateNewsArticleAsync(newsArticle);
+                await newsRepository.UpdateNewsArticleAsync(newsArticle);
                 return true;
             }
             catch (NewsPersistenceException ex)
@@ -265,7 +266,7 @@
                 throw new UnauthorizedAccessException("User must be logged in to access user articles");
             }
 
-            User user = await this.userRepository.GetByCnpAsync(IUserRepository.CurrentUserCNP) ?? throw new Exception("User not found");
+            User user = await userRepository.GetByCnpAsync(IUserRepository.CurrentUserCNP) ?? throw new Exception("User not found");
             if (!user.IsModerator)
             {
                 throw new UnauthorizedAccessException("User must be an admin to access user articles");
@@ -278,7 +279,7 @@
 
             try
             {
-                await this.newsRepository.DeleteNewsArticleAsync(articleId);
+                await newsRepository.DeleteNewsArticleAsync(articleId);
                 return true;
             }
             catch (NewsPersistenceException ex)
@@ -301,7 +302,7 @@
                 throw new UnauthorizedAccessException("User must be logged in to access user articles");
             }
 
-            User user = await this.userRepository.GetByCnpAsync(IUserRepository.CurrentUserCNP) ?? throw new Exception("User not found");
+            User user = await userRepository.GetByCnpAsync(IUserRepository.CurrentUserCNP) ?? throw new Exception("User not found");
             if (!user.IsModerator)
             {
                 throw new UnauthorizedAccessException("User must be an admin to access user articles");
@@ -314,7 +315,7 @@
 
             try
             {
-                await this.newsRepository.AddNewsArticleAsync(article);
+                await newsRepository.AddNewsArticleAsync(article);
                 return true;
             }
             catch (NewsPersistenceException ex)
@@ -333,7 +334,7 @@
         {
             try
             {
-                NewsArticle article = await this.newsRepository.GetNewsArticleByIdAsync(articleId);
+                NewsArticle article = await newsRepository.GetNewsArticleByIdAsync(articleId);
                 return article.RelatedStocks;
             }
             catch (NewsPersistenceException ex)

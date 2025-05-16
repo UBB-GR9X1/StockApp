@@ -1,4 +1,4 @@
-﻿namespace StockApp.Services
+﻿namespace StockApp.Services.Api
 {
     using System.Collections.Generic;
     using System.Linq;
@@ -12,12 +12,12 @@
 
         public HomepageService(IHomepageStocksRepository homepageStocksRepository)
         {
-            this.homepageStocksRepo = homepageStocksRepository;
+            homepageStocksRepo = homepageStocksRepository;
         }
 
         public async Task<List<HomepageStock>> GetFilteredAndSortedStocksAsync(string query, string sortOption, bool favoritesOnly)
         {
-            var allStocks = await this.homepageStocksRepo.GetAllStocksAsync();
+            var allStocks = await homepageStocksRepo.GetAllStocksAsync();
             var filteredStocks = allStocks.Where(stock =>
                 stock.StockDetails.Name.Contains(query, System.StringComparison.CurrentCultureIgnoreCase) ||
                 stock.StockDetails.Symbol.Contains(query, System.StringComparison.CurrentCultureIgnoreCase));
@@ -39,13 +39,13 @@
         public async Task AddToFavoritesAsync(HomepageStock stock)
         {
             stock.IsFavorite = true;
-            await this.homepageStocksRepo.UpdateStockAsync(stock.Id, stock);
+            await homepageStocksRepo.UpdateStockAsync(stock.Id, stock);
         }
 
         public async Task RemoveFromFavoritesAsync(HomepageStock stock)
         {
             stock.IsFavorite = false;
-            await this.homepageStocksRepo.UpdateStockAsync(stock.Id, stock);
+            await homepageStocksRepo.UpdateStockAsync(stock.Id, stock);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace StockApp.Services
+﻿namespace StockApp.Services.Api
 {
     using System;
     using System.Collections.Generic;
@@ -19,16 +19,16 @@
 
         public async void GiveMessageToUser(string userCNP)
         {
-            User user = await this.userRepository.GetByCnpAsync(userCNP) ?? throw new Exception("User not found");
+            User user = await userRepository.GetByCnpAsync(userCNP) ?? throw new Exception("User not found");
             try
             {
                 if (user.CreditScore >= 550)
                 {
-                    await this.messagesRepository.GiveUserRandomMessageAsync(userCNP);
+                    await messagesRepository.GiveUserRandomMessageAsync(userCNP);
                 }
                 else
                 {
-                    await this.messagesRepository.GiveUserRandomMessageAsync(userCNP);
+                    await messagesRepository.GiveUserRandomMessageAsync(userCNP);
                 }
             }
             catch (Exception e)
@@ -39,7 +39,7 @@
 
         public async Task<List<Message>> GetMessagesForGivenUser(string userCnp)
         {
-            return await this.messagesRepository.GetMessagesForUserAsync(userCnp);
+            return await messagesRepository.GetMessagesForUserAsync(userCnp);
         }
     }
 }

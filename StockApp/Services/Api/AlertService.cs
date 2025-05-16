@@ -1,10 +1,11 @@
-﻿namespace StockApp.Services
+﻿namespace StockApp.Services.Api
 {
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using StockApp.Models;
     using StockApp.Repositories;
+    using StockApp.Services;
 
     /// <summary>
     /// Service for managing stock alerts.
@@ -29,7 +30,7 @@
         /// Gets all alerts asynchronously.
         /// </summary>
         /// <returns>A list of all alerts.</returns>
-        public async Task<List<Alert>> GetAllAlertsAsync() => await this.repository.GetAllAlertsAsync();
+        public async Task<List<Alert>> GetAllAlertsAsync() => await repository.GetAllAlertsAsync();
 
         /// <summary>
         /// Gets all alerts that are currently toggled on asynchronously.
@@ -37,7 +38,7 @@
         /// <returns>A list of alerts that are toggled on.</returns>
         public async Task<List<Alert>> GetAllAlertsOnAsync()
         {
-            var alerts = await this.repository.GetAllAlertsAsync();
+            var alerts = await repository.GetAllAlertsAsync();
             return alerts.FindAll(a => a.ToggleOnOff);
         }
 
@@ -47,7 +48,7 @@
         /// <param name="alertId">The unique identifier of the alert.</param>
         /// <returns>The alert with the specified identifier, or null if not found.</returns>
         public async Task<Alert?> GetAlertByIdAsync(int alertId) =>
-            await this.repository.GetAlertByIdAsync(alertId);
+            await repository.GetAlertByIdAsync(alertId);
 
         /// <summary>
         /// Creates a new alert asynchronously.
@@ -69,7 +70,7 @@
                 ToggleOnOff = toggleOnOff
             };
 
-            return await this.repository.AddAlertAsync(alert);
+            return await repository.AddAlertAsync(alert);
         }
 
         /// <summary>
@@ -93,7 +94,7 @@
                 ToggleOnOff = toggleOnOff
             };
 
-            await this.repository.UpdateAlertAsync(alert);
+            await repository.UpdateAlertAsync(alert);
         }
 
         /// <summary>
@@ -101,13 +102,13 @@
         /// </summary>
         /// <param name="alert">The alert object with updated properties.</param>
         public async Task UpdateAlertAsync(Alert alert) =>
-            await this.repository.UpdateAlertAsync(alert);
+            await repository.UpdateAlertAsync(alert);
 
         /// <summary>
         /// Removes an alert by its unique identifier asynchronously.
         /// </summary>
         /// <param name="alertId">The unique identifier of the alert to remove.</param>
         public async Task RemoveAlertAsync(int alertId) =>
-            await this.repository.DeleteAlertAsync(alertId);
+            await repository.DeleteAlertAsync(alertId);
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace StockApp.Services
+﻿namespace StockApp.Services.Api
 {
     using System;
     using System.Collections.Generic;
@@ -8,6 +8,7 @@
     using StockApp.Models;
     using StockApp.Repositories;
     using StockApp.Repositories.Exporters;
+    using StockApp.Services;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="TransactionLogService"/> class.
@@ -26,7 +27,7 @@
         public async Task<List<TransactionLogTransaction>> GetFilteredTransactions(TransactionFilterCriteria criteria)
         {
             criteria.Validate();
-            return await this.transactionRepository.GetByFilterCriteriaAsync(criteria);
+            return await transactionRepository.GetByFilterCriteriaAsync(criteria);
         }
 
         /// <summary>

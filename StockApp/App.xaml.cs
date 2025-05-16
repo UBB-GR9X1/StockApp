@@ -13,6 +13,7 @@ namespace StockApp
     using StockApp.Repositories;
     using StockApp.Repositories.Api;
     using StockApp.Services;
+    using StockApp.Services.Api;
     using StockApp.ViewModels;
     using StockApp.Views;
     using StockApp.Views.Components;
@@ -189,12 +190,10 @@ namespace StockApp
                     services.AddScoped<IMessagesService, MessagesService>();
                     services.AddScoped<ITipsService, TipsService>();
                     services.AddScoped<IUserService, UserService>();
-                    services.AddScoped<IZodiacService, ZodiacService>();
                     services.AddScoped<IActivityService, ActivityService>();
                     services.AddScoped<IStoreService, StoreService>();
                     services.AddScoped<IProfileService, ProfileService>();
                     services.AddScoped<IHomepageService, HomepageService>();
-                    services.AddScoped<ICreateStockService, CreateStockService>();
                     services.AddScoped<IStockPageService, StockPageService>();
                     services.AddScoped<IHistoryService, HistoryService>();
                     services.AddScoped<INewsService, NewsService>();

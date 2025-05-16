@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using StockApp.Models;
 using StockApp.Repositories;
 
-namespace StockApp.Services
+namespace StockApp.Services.Api
 {
     /// <summary>
     /// Thin service wrapper around <see cref="IBaseStocksRepository"/> that exposes an async API.
