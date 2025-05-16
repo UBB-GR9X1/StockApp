@@ -14,16 +14,28 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="StockApp.ViewModels.Tests\**\*.cs" />
-	<Compile Remove="StockApp.Repository.Tests\**\*.cs" />
-	<Compile Remove="StockApp.Service.Tests\**\*.cs" />
-	<Compile Remove="BankApi\**\*.cs" />
+    <Compile Remove="BankApi\**" />
+    <Compile Remove="StockApp.Repository.Tests\**" />
+    <Compile Remove="StockApp.Service.Tests\**" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Homepage\**" />
+    <Compile Remove="StockApp.ViewModels.Tests\**" />
+    <EmbeddedResource Remove="BankApi\**" />
     <EmbeddedResource Remove="Homepage\**" />
+    <EmbeddedResource Remove="StockApp.Repository.Tests\**" />
+    <EmbeddedResource Remove="StockApp.Service.Tests\**" />
+    <EmbeddedResource Remove="StockApp.ViewModels.Tests\**" />
+    <None Remove="BankApi\**" />
     <None Remove="Homepage\**" />
+    <None Remove="StockApp.Repository.Tests\**" />
+    <None Remove="StockApp.Service.Tests\**" />
+    <None Remove="StockApp.ViewModels.Tests\**" />
+    <Page Remove="BankApi\**" />
     <Page Remove="Homepage\**" />
+    <Page Remove="StockApp.Repository.Tests\**" />
+    <Page Remove="StockApp.Service.Tests\**" />
+    <Page Remove="StockApp.ViewModels.Tests\**" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="Test\TestPage.xaml" />
@@ -118,4 +130,16 @@
     </Page>
   </ItemGroup>
   <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
+  <ItemGroup>
+    <PRIResource Remove="StockApp.Repository.Tests\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <PRIResource Remove="StockApp.Service.Tests\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <PRIResource Remove="BankApi\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <PRIResource Remove="StockApp.ViewModels.Tests\**" />
+  </ItemGroup>
 </Project>
