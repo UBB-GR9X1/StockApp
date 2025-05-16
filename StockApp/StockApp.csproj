@@ -13,36 +13,6 @@
 	<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-  <ItemGroup>
-    <Compile Remove="BankApi\**" />
-    <Compile Remove="StockApp.Repository.Tests\**" />
-    <Compile Remove="StockApp.Service.Tests\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="Homepage\**" />
-    <Compile Remove="StockApp.ViewModels.Tests\**" />
-    <EmbeddedResource Remove="BankApi\**" />
-    <EmbeddedResource Remove="Homepage\**" />
-    <EmbeddedResource Remove="StockApp.Repository.Tests\**" />
-    <EmbeddedResource Remove="StockApp.Service.Tests\**" />
-    <EmbeddedResource Remove="StockApp.ViewModels.Tests\**" />
-    <None Remove="BankApi\**" />
-    <None Remove="Homepage\**" />
-    <None Remove="StockApp.Repository.Tests\**" />
-    <None Remove="StockApp.Service.Tests\**" />
-    <None Remove="StockApp.ViewModels.Tests\**" />
-    <Page Remove="BankApi\**" />
-    <Page Remove="Homepage\**" />
-    <Page Remove="StockApp.Repository.Tests\**" />
-    <Page Remove="StockApp.Service.Tests\**" />
-    <Page Remove="StockApp.ViewModels.Tests\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Remove="Test\TestPage.xaml" />
-    <None Remove="Views\Components\UserProfileComponent.xaml" />
-    <None Remove="Views\Pages\CreateProfilePage.xaml" />
-  </ItemGroup>
-
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 		<CodeAnalysisRuleSet>CodeStyle\SE.ruleset</CodeAnalysisRuleSet>
 	</PropertyGroup>
@@ -91,7 +61,6 @@
     <PackageReference Include="Moq" Version="4.20.72" />
 	<PackageReference Include="H.OxyPlot.WinUI" Version="0.9.30" />
 	<PackageReference Include="OxyPlot.Core" Version="2.2.0" />
-
   </ItemGroup>
   <ItemGroup>
     <Page Update="Test\TestPage.xaml">
@@ -130,16 +99,4 @@
     </Page>
   </ItemGroup>
   <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
-  <ItemGroup>
-    <PRIResource Remove="StockApp.Repository.Tests\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <PRIResource Remove="StockApp.Service.Tests\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <PRIResource Remove="BankApi\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <PRIResource Remove="StockApp.ViewModels.Tests\**" />
-  </ItemGroup>
 </Project>
