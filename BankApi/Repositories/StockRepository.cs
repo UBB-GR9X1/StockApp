@@ -63,5 +63,23 @@ namespace BankApi.Repositories
             await _context.SaveChangesAsync();
             return true;
         }
+
+
+        public async Task<List<Stock>> UserStocksAsync(string cnp)
+        {
+            return await _context.UserStocks
+                .Where(us => us.UserCnp == cnp && us.Quantity > 0)
+                .Include(us => us.Stock)
+                .Select(us => new Stock
+                {
+                    Id = us.Stock.Id,
+                    Name = us.Stock.Name,
+                    Symbol = us.Stock.Symbol,
+                    AuthorCNP = us.Stock.AuthorCNP,
+                    Price = us.Stock.Price,
+                    Quantity = us.Quantity
+                })
+                .ToListAsync();
+        }
     }
 }

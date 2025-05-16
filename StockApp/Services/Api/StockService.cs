@@ -38,5 +38,10 @@
         {
             return await stockRepository.UpdateAsync(id, updatedStock);
         }
+
+        public async Task<List<Stock>> UserStocksAsync(string cnp)
+        {
+            return await stockRepository.UserStocksAsync(cnp);
+        }
     }
 }

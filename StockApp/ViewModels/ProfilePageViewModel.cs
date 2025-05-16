@@ -17,8 +17,8 @@
     /// <param name="profileService">Service used to retrieve profile data.</param>
     public class ProfilePageViewModel : INotifyPropertyChanged
     {
-        private readonly IProfileService profileService;
         private readonly IUserService userService;
+        private readonly IStockService stockService;
         private BitmapImage imageSource;
         private string username = string.Empty;
         private string description = string.Empty;
@@ -120,13 +120,12 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="ProfilePageViewModel"/> class with the default profile service and loads the profile image.
         /// </summary>
-        public ProfilePageViewModel(IProfileService profileService, IUserService userService)
+        public ProfilePageViewModel(IStockService stockService, IUserService userService)
         {
-            this.profileService = profileService ?? throw new ArgumentNullException(nameof(profileService));
+            this.stockService = stockService ?? throw new ArgumentNullException(nameof(stockService));
             this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
             try
             {
-                this.profileService = profileService ?? throw new ArgumentNullException(nameof(profileService));
                 if (!this.userService.IsGuest())
                 {
                     _ = this.LoadProfileData();
@@ -149,7 +148,7 @@
                 this.Description = currentUser.Description;
                 this.IsAdmin = currentUser.IsModerator;
                 this.IsHidden = currentUser.IsHidden;
-                this.UserStocks = await this.profileService.GetUserStocksAsync();
+                this.UserStocks = await this.stockService.UserStocksAsync(this.userService.GetCurrentUserCNP());
 
                 if (!string.IsNullOrEmpty(currentUser.Image) && Uri.IsWellFormedUriString(currentUser.Image, UriKind.Absolute))
                 {
@@ -169,7 +168,7 @@
         /// <param name="newIsAdmin">If set to <c>true</c>, grants admin mode; otherwise, revokes it.</param>
         public async Task UpdateAdminModeAsync(bool newIsAdmin)
         {
-            await this.profileService.UpdateIsAdminAsync(newIsAdmin);
+            await this.userService.UpdateIsAdminAsync(newIsAdmin);
         }
 
         /// <summary>

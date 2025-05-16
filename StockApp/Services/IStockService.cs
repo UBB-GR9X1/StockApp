@@ -43,5 +43,11 @@ namespace StockApp.Services
         /// <param name="updatedStock">The updated stock entity.</param>
         /// <returns>The updated stock entity if successful; otherwise, null.</returns>
         Task<Stock?> UpdateStockAsync(int id, Stock updatedStock);
+
+
+        /// <summary>
+        /// Gets the stocks associated with the current user.
+        /// </summary>
+        Task<List<Stock>> UserStocksAsync(string cnp);
     }
 }

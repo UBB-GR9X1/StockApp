@@ -13,10 +13,10 @@
     /// Initializes a new instance of the <see cref="UpdateProfilePageViewModel"/> class with a specified homepageService.
     /// </remarks>
     /// <param name="service">Service used to retrieve and update profile information.</param>
-    public class UpdateProfilePageViewModel(IProfileService profileService, IUserService userService)
+    public class UpdateProfilePageViewModel(IStockService stockService, IUserService userService)
     {
-        private readonly IProfileService profileService = profileService ?? throw new ArgumentNullException(nameof(profileService));
-        private readonly IUserService userService = userService ?? throw new ArgumentNullException(nameof(profileService));
+        private readonly IStockService stockService = stockService ?? throw new ArgumentNullException(nameof(stockService));
+        private readonly IUserService userService = userService ?? throw new ArgumentNullException(nameof(userService));
 
         /// <summary>
         /// Gets the URL of the user's profile image.
@@ -74,7 +74,7 @@
         /// <returns>A list of <see cref="Stock"/> objects.</returns>
         public async Task<List<Stock>> GetUserStocks()
         {
-            return await this.profileService.GetUserStocksAsync();
+            return await this.stockService.UserStocksAsync(this.userService.GetCurrentUserCNP());
         }
 
         /// <summary>
@@ -88,7 +88,7 @@
         {
             // TODO: Validate inputs (e.g., non-null, length constraints)
             // FIXME: Consider handling exceptions from service to provide user feedback
-            await this.profileService.UpdateUserAsync(newUsername, newImage, newDescription, newHidden); // Inline: perform bulk update
+            await this.userService.UpdateUserAsync(newUsername, newImage, newDescription, newHidden); // Inline: perform bulk update
         }
 
         /// <summary>
@@ -98,7 +98,7 @@
         public async Task UpdateAdminModeAsync(bool newIsAdmin)
         {
             // Inline: delegate admin mode toggle to service
-            await this.profileService.UpdateIsAdminAsync(newIsAdmin);
+            await this.userService.UpdateIsAdminAsync(newIsAdmin);
         }
     }
 }

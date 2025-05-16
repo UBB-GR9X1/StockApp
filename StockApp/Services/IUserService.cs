@@ -20,5 +20,8 @@
 
         void SetCurrentUserCNP(string cnp);
 
+        Task UpdateIsAdminAsync(bool newIsAdmin);
+
+        Task UpdateUserAsync(string newUsername, string newImage, string newDescription, bool newHidden);
     }
 }

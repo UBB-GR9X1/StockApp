@@ -74,7 +74,6 @@ namespace StockApp
                     services.AddScoped<IActivityRepo, ActivityProxyRepository>();
                     services.AddScoped<IGemStoreRepository, GemStoreProxyRepo>();
                     services.AddScoped<IUserRepository, UserProxyRepository>();
-                    services.AddScoped<IProfileRepository, ProfileProxyRepository>();
                     services.AddScoped<IBaseStocksRepository, BaseStocksProxyRepository>();
                     services.AddScoped<IHistoryRepository, HistoryProxyRepository>();
                     services.AddScoped<IHomepageStocksRepository, HomepageStocksProxyRepository>();
@@ -128,11 +127,6 @@ namespace StockApp
                         client.BaseAddress = new Uri("https://localhost:7001/");
                     });
                     services.AddHttpClient<ILoanRepository, LoanProxyRepository>(client =>
-                    {
-                        client.BaseAddress = new Uri("https://localhost:7001/");
-                    });
-
-                    services.AddHttpClient<IProfileRepository, ProfileProxyRepository>(client =>
                     {
                         client.BaseAddress = new Uri("https://localhost:7001/");
                     });
@@ -192,7 +186,6 @@ namespace StockApp
                     services.AddScoped<IUserService, UserService>();
                     services.AddScoped<IActivityService, ActivityService>();
                     services.AddScoped<IStoreService, StoreService>();
-                    services.AddScoped<IProfileService, ProfileService>();
                     services.AddScoped<IHomepageService, HomepageService>();
                     services.AddScoped<IStockPageService, StockPageService>();
                     services.AddScoped<IHistoryService, HistoryService>();

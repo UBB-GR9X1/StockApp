@@ -9,5 +9,6 @@ namespace BankApi.Repositories
         Task<IEnumerable<Stock>> GetAllAsync();
         Task<Stock?> GetByIdAsync(int id);
         Task<Stock?> UpdateAsync(int id, Stock updatedStock);
+        Task<List<Stock>> UserStocksAsync(string cnp);
     }
 }

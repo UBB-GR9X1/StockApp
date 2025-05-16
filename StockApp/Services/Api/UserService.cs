@@ -70,5 +70,39 @@
 
             return await userRepository.GetByCnpAsync(cnp);
         }
+
+
+        /// <summary>
+        /// Updates the current user's profile with new information.
+        /// </summary>
+        /// <param name="newUsername"> The new username.</param>
+        /// <param name="newImage"> The new image URL.</param>
+        /// <param name="newDescription"> The new description.</param>
+        /// <param name="newHidden"> Indicates if the user should be hidden.</param>
+        public async Task UpdateUserAsync(string newUsername, string newImage, string newDescription, bool newHidden)
+        {
+            if (string.IsNullOrWhiteSpace(newUsername) || string.IsNullOrWhiteSpace(newImage) || string.IsNullOrWhiteSpace(newDescription))
+            {
+                throw new ArgumentException("Username, image, and description cannot be empty");
+            }
+
+            User user = await this.GetCurrentUserAsync() ?? throw new KeyNotFoundException($"User with CNP {IUserRepository.CurrentUserCNP} not found.");
+            user.Username = newUsername;
+            user.Image = newImage;
+            user.Description = newDescription;
+            user.IsHidden = newHidden;
+            await this.userRepository.UpdateAsync(user.Id, user);
+        }
+
+        /// <summary>
+        /// Updates the admin status of the current user.
+        /// </summary>
+        /// <param name="isAdmin"> Indicates if the user should be an admin.</param>
+        public async Task UpdateIsAdminAsync(bool isAdmin)
+        {
+            User user = await this.GetCurrentUserAsync() ?? throw new KeyNotFoundException($"User with CNP {IUserRepository.CurrentUserCNP} not found.");
+            user.IsModerator = isAdmin;
+            await this.userRepository.UpdateAsync(user.Id, user);
+        }
     }
 }

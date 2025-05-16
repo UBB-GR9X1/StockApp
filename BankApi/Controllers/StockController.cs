@@ -68,5 +68,17 @@ namespace BankApi.Controllers
             }
             return NoContent();
         }
+
+        // Retrieve stocks for a specific user
+        [HttpGet("user/{cnp}")]
+        public async Task<IActionResult> GetUserStocks(string cnp)
+        {
+            if (string.IsNullOrEmpty(cnp))
+            {
+                return BadRequest("CNP cannot be null or empty.");
+            }
+            var stocks = await _stockRepository.UserStocksAsync(cnp);
+            return Ok(stocks);
+        }
     }
 }

@@ -21,7 +21,6 @@ builder.Services.AddScoped<IChatReportRepository, ChatReportRepository>();
 builder.Services.AddScoped<IAlertRepository, AlertRepository>();
 builder.Services.AddScoped<IHomepageStockRepository, HomepageStockRepository>();
 builder.Services.AddScoped<IGemStoreRepository, GemStoreRepository>();
-builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
 builder.Services.AddScoped<IInvestmentsRepository, InvestmentsRepository>();
 builder.Services.AddScoped<IBillSplitReportRepository, BillSplitReportRepository>();
 builder.Services.AddScoped<IHistoryRepository, HistoryRepository>();
@@ -34,7 +33,6 @@ builder.Services.AddScoped<IMessagesRepository, MessagesRepository>();
 builder.Services.AddScoped<ITipsRepository, TipsRepository>();
 builder.Services.AddScoped<INewsRepository, NewsRepository>();
 builder.Services.AddScoped<IStockPageRepository, StockPageRepository>();
-builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
 builder.Services.AddScoped<IStockPageRepository, StockPageRepository>();
 builder.Services.AddScoped<IStockRepository, StockRepository>();
 

@@ -62,5 +62,18 @@ namespace StockApp.Repositories.Api
 
             return null;
         }
+
+        public async Task<List<Stock>> UserStocksAsync(string cnp)
+        {
+            if (string.IsNullOrEmpty(cnp))
+            {
+                throw new ArgumentException("CNP cannot be null or empty.", nameof(cnp));
+            }
+
+            var response = await this._httpClient.GetAsync($"{BaseUrl}/user/{cnp}");
+            response.EnsureSuccessStatusCode();
+            var result = await response.Content.ReadFromJsonAsync<List<Stock>>();
+            return result ?? throw new InvalidOperationException("The response content is null.");
+        }
     }
 }
