@@ -7,6 +7,19 @@ using System.Security.Claims;
 
 namespace BankApi.Controllers
 {
+    public class UserUpdateDto
+    {
+        public string UserName { get; set; } = string.Empty;
+        public string Image { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public bool IsHidden { get; set; }
+    }
+
+    public class UpdateAdminStatusDto
+    {
+        public bool IsAdmin { get; set; }
+    }
+
     [ApiController]
     [Route("api/[controller]")]
     public class UserController : ControllerBase
@@ -210,19 +223,6 @@ namespace BankApi.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-    }
-
-    public class UserUpdateDto
-    {
-        public string UserName { get; set; } = string.Empty;
-        public string Image { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public bool IsHidden { get; set; }
-    }
-
-    public class UpdateAdminStatusDto
-    {
-        public bool IsAdmin { get; set; }
     }
 }
 

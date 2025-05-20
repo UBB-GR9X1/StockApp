@@ -30,9 +30,9 @@
                 FontSize="16"
                 Width="150"
                 Margin="0,0,5,10"
-                Background="#539BF5"
-                FontWeight="Bold"
-                BorderBrush="Transparent">
+                Background="Green"
+                Foreground="White"
+                FontWeight="Bold">
                 <Button.Style>
                     <Style TargetType="Button">
                         <Setter Property="CornerRadius" Value="8"/>
@@ -46,18 +46,15 @@
                 FontSize="16"
                 Width="150"
                 Padding="20,10"
-                Background="#e9f4f8"
-                FontWeight="Bold"
-                BorderBrush="Black">
+                Background="Red"
+                Foreground="White"
+                FontWeight="Bold">
                 <Button.Style>
                     <Style TargetType="Button">
                         <Setter Property="CornerRadius" Value="8"/>
                     </Style>
                 </Button.Style>
             </Button>
-
-           
         </StackPanel>
     </Grid>
-
 </Page>

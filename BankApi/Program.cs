@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity; // Required for Identity
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,6 +25,8 @@ builder.Services.AddDbContext<ApiDbContext>(options =>
         sqlOptions.EnableRetryOnFailure();
     }));
 
+builder.Services.AddAuthenticationCore();
+
 // Add ASP.NET Core Identity
 builder.Services.AddIdentity<User, IdentityRole<int>>(options =>
     {
@@ -35,6 +38,7 @@ builder.Services.AddIdentity<User, IdentityRole<int>>(options =>
         options.Password.RequireUppercase = false;
         options.Password.RequiredLength = 6; // Example: set a minimum password length
     })
+    .AddRoles<IdentityRole<int>>()
     .AddEntityFrameworkStores<ApiDbContext>()
     .AddDefaultTokenProviders(); // Adds token providers for password reset, email confirmation, etc.
 
@@ -193,5 +197,24 @@ app.UseSession(); // Add Session middleware
 app.UseCors("AllowAll");
 
 app.MapControllers();
+
+
+app.Use(async (context, next) =>
+{
+    // Get all role claims for the current user
+    var user = context.User; // Access the ClaimsPrincipal from the HttpContext
+    IEnumerable<Claim> roleClaims = user.Claims.Where(c => c.Type == ClaimTypes.Role);
+
+    // Extract the role values
+    IEnumerable<string> roles = roleClaims.Select(c => c.Value);
+
+    // Now you can iterate through the roles
+    foreach (var role in roles)
+    {
+        Console.WriteLine($"User is in role: {role}");
+    }
+
+    await next(); // Call the next middleware in the pipeline
+});
 
 app.Run();

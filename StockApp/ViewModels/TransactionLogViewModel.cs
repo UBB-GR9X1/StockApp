@@ -113,7 +113,7 @@
             get => this.minTotalValue;
             set
             {
-                if (ValidateNumericValue(value))
+                if (value == string.Empty || ValidateNumericValue(value))
                 {
                     this.minTotalValue = value;
                     this.OnPropertyChanged(nameof(this.MinTotalValue));
@@ -134,7 +134,7 @@
             get => this.maxTotalValue;
             set
             {
-                if (ValidateNumericValue(value))
+                if (value == string.Empty || ValidateNumericValue(value))
                 {
                     this.maxTotalValue = value;
                     this.OnPropertyChanged(nameof(this.MaxTotalValue));

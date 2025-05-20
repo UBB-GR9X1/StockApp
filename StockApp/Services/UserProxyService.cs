@@ -2,6 +2,7 @@ using Common.Models;
 using Common.Services;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -99,22 +100,31 @@ namespace StockApp.Services
                 // Update user by CNP (typically admin action)
                 response = await _httpClient.PutAsJsonAsync($"api/User/{userCNP}", payload);
             }
+
             response.EnsureSuccessStatusCode();
         }
 
         public async Task<int> AddDefaultRoleToAllUsersAsync()
         {
+            // This operation is admin-only and calls the endpoint we created
             var response = await _httpClient.PostAsync("api/User/add-default-role", null);
             response.EnsureSuccessStatusCode();
 
+            // Parse the response - it returns a message with the count of updated users
             var result = await response.Content.ReadFromJsonAsync<DefaultRoleResponse>(_options);
-            return result?.UpdatedCount ?? 0;
+            if (result == null)
+            {
+                return 0;
+            }
+
+            // Extract the number from the message (e.g., "Successfully added the 'User' role to 5 users")
+            string numberPart = result.Message.Split(' ').FirstOrDefault(part => int.TryParse(part, out _)) ?? "0";
+            return int.TryParse(numberPart, out int count) ? count : 0;
         }
 
         private class DefaultRoleResponse
         {
-            public string? Message { get; set; }
-            public int UpdatedCount { get; set; }
+            public string Message { get; set; } = string.Empty;
         }
     }
 }

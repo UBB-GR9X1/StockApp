@@ -45,17 +45,17 @@ namespace BankApi.Repositories.Impl
 
             if (!string.IsNullOrEmpty(criteria.Type))
             {
-                query = query.Where(t => t.Type.Equals(criteria.Type, StringComparison.OrdinalIgnoreCase));
+                query = query.Where(t => t.Type.ToLower().Equals(criteria.Type.ToLower()));
             }
 
             if (criteria.MinTotalValue.HasValue)
             {
-                query = query.Where(t => t.TotalValue >= criteria.MinTotalValue.Value);
+                query = query.Where(t => (t.Amount * t.PricePerStock) >= criteria.MinTotalValue.Value);
             }
 
             if (criteria.MaxTotalValue.HasValue)
             {
-                query = query.Where(t => t.TotalValue <= criteria.MaxTotalValue.Value);
+                query = query.Where(t => (t.Amount * t.PricePerStock) <= criteria.MaxTotalValue.Value);
             }
 
             if (criteria.StartDate.HasValue)

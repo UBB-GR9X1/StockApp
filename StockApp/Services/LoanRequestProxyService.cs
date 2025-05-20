@@ -29,7 +29,7 @@ namespace StockApp.Services
             var response = await _httpClient.PostAsJsonAsync("api/LoanRequest/suggestion", loanRequest);
             response.EnsureSuccessStatusCode();
 
-            string suggestion = await response.Content.ReadFromJsonAsync<string>() ??
+            string suggestion = await response.Content.ReadAsStringAsync() ??
                 throw new InvalidOperationException("Failed to deserialize suggestion response.");
 
             return suggestion;
