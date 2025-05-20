@@ -1,21 +1,17 @@
 namespace StockApp.Pages
 {
-    using System;
-    using System.Threading.Tasks;
-    using System.Windows.Input;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
-    using StockApp.Commands;
     using StockApp.ViewModels;
     using StockApp.Views;
+    using System;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
     public sealed partial class StockPage : Page
     {
-        private ICommand command { get; }
-
         public Page? PreviousPage { get; set; }
 
         public StockPageViewModel ViewModel { get; set; }
@@ -29,7 +25,6 @@ namespace StockApp.Pages
             this.ViewModel = stockPageViewModel;
             this.DataContext = this.ViewModel;
             this.InitializeComponent();
-            this.command = new StockNewsRelayCommand(() => this.AuthorButtonClick());
         }
 
         /// <summary>
@@ -48,21 +43,6 @@ namespace StockApp.Pages
         }
 
         /// <summary>
-        /// Handles the click event for the author button.
-        /// </summary>
-        /// <exception cref="InvalidOperationException"></exception>
-        public async void AuthorButtonClick()
-        {
-            if (this.ViewModel == null)
-            {
-                throw new InvalidOperationException("ViewModel is not initialized");
-            }
-
-            ContentDialog dialog = await this.ViewModel.GetProfileDialog();
-            await dialog.ShowAsync();
-        }
-
-        /// <summary>
         /// Handles the click event for the favorite button.
         /// </summary>
         /// <param name="sender"></param>
@@ -77,7 +57,7 @@ namespace StockApp.Pages
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        public async void AlertsButtonClick(object sender, RoutedEventArgs e)
+        public void AlertsButtonClick(object sender, RoutedEventArgs e)
         {
             this.ViewModel.OpenAlertsView();
         }
@@ -96,7 +76,7 @@ namespace StockApp.Pages
             }
 
             int quantity = (int)this.QuantityInput.Value;
-            bool success = await this.ViewModel.BuyStock(quantity);
+            bool success = await this.ViewModel!.BuyStock(quantity);
             this.QuantityInput.Value = 1;
 
             if (!success)
@@ -125,7 +105,7 @@ namespace StockApp.Pages
                 return;
             }
 
-            bool success = await this.ViewModel.SellStock(quantity);
+            bool success = await this.ViewModel!.SellStock(quantity);
             this.QuantityInput.Value = 1;
 
             if (!success)

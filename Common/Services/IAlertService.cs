@@ -13,5 +13,6 @@
         Task RemoveAlertAsync(int alertId);
         Task UpdateAlertAsync(Alert alert);
         Task UpdateAlertAsync(int alertId, string stockName, string name, decimal upperBound, decimal lowerBound, bool toggleOnOff);
+        Task<List<TriggeredAlert>> GetTriggeredAlertsAsync();
     }
 }

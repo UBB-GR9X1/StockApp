@@ -12,7 +12,7 @@
         /// <summary>
         /// Occurs when a property value changes.
         /// </summary>
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         /// <summary>
         /// Raises the <see cref="PropertyChanged"/> event for the specified property.

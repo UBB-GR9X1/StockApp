@@ -14,7 +14,17 @@
     /// <param name="durationMinutes">
     /// The duration, in minutes, for which a special deal remains active; null for non‑timed deals.
     /// </param>
-    public class GemDeal
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="GemDeal"/> class.
+    /// </remarks>
+    /// <param name="title">The title of the gem deal.</param>
+    /// <param name="gemAmount">The number of gems included in this deal.</param>
+    /// <param name="price">The price of the deal.</param>
+    /// <param name="isSpecial">Whether this deal is a special, time‑limited offer.</param>
+    /// <param name="durationMinutes">
+    /// The duration, in minutes, for which a special deal remains active; null for non‑timed deals.
+    /// </param>
+    public class GemDeal(string title, int gemAmount, double price, bool isSpecial = false, int? durationMinutes = null)
     {
         /// <summary>
         /// Occurs when one of this object's properties changes.
@@ -24,46 +34,27 @@
         /// <summary>
         /// Gets the title of the gem deal.
         /// </summary>
-        public string Title { get; }
+        public string Title { get; } = title;
 
         /// <summary>
         /// Gets the number of gems included in this deal.
         /// </summary>
-        public int GemAmount { get; }
+        public int GemAmount { get; } = gemAmount;
 
         /// <summary>
         /// Gets the price of the deal.
         /// </summary>
-        public double Price { get; }
+        public double Price { get; } = price;
 
         /// <summary>
         /// Gets a value indicating whether this is a special, time‑limited deal.
         /// </summary>
-        public bool IsSpecial { get; }
+        public bool IsSpecial { get; } = isSpecial;
 
         /// <summary>
         /// Gets the optional duration (in minutes) for which a special deal remains active.
         /// </summary>
-        public int? DurationMinutes { get; }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="GemDeal"/> class.
-        /// </summary>
-        /// <param name="title">The title of the gem deal.</param>
-        /// <param name="gemAmount">The number of gems included in this deal.</param>
-        /// <param name="price">The price of the deal.</param>
-        /// <param name="isSpecial">Whether this deal is a special, time‑limited offer.</param>
-        /// <param name="durationMinutes">
-        /// The duration, in minutes, for which a special deal remains active; null for non‑timed deals.
-        /// </param>
-        public GemDeal(string title, int gemAmount, double price, bool isSpecial = false, int? durationMinutes = null)
-        {
-            Title = title;
-            GemAmount = gemAmount;
-            Price = price;
-            IsSpecial = isSpecial;
-            DurationMinutes = durationMinutes;
-        }
+        public int? DurationMinutes { get; } = durationMinutes;
 
         /// <summary>
         /// Gets the UTC time when this deal expires, or <see cref="DateTime.MaxValue"/> if it never expires.

@@ -1,12 +1,12 @@
 namespace StockApp.Pages
 {
-    using System;
-    using System.Windows.Input;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
     using StockApp.Commands;
     using StockApp.ViewModels;
+    using System;
+    using System.Windows.Input;
     using Windows.UI.Popups;
 
     /// <summary>
@@ -40,23 +40,23 @@ namespace StockApp.Pages
         {
             if (this.viewModel.IsGuest)
             {
-                this.ShowNoUserMessage();
+                ShowNoUserMessage();
                 return;
             }
         }
 
-        private void ShowNoUserMessage()
+        private static void ShowNoUserMessage()
         {
-            MessageDialog dialog = new MessageDialog("No user profile available", "Error");
+            MessageDialog dialog = new("No user profile available", "Error");
             dialog.Commands.Add(new UICommand("OK", null));
             dialog.DefaultCommandIndex = 0;
             dialog.CancelCommandIndex = 0;
             _ = dialog.ShowAsync();
         }
 
-        private void ShowErrorMessage(string message)
+        private static void ShowErrorMessage(string message)
         {
-            MessageDialog dialog = new MessageDialog(message, "Error");
+            MessageDialog dialog = new(message, "Error");
             dialog.Commands.Add(new UICommand("OK", null));
             dialog.DefaultCommandIndex = 0;
             dialog.CancelCommandIndex = 0;
@@ -66,11 +66,11 @@ namespace StockApp.Pages
         /// <summary>
         /// Navigates to the update profile page.
         /// </summary>
-        private async void GoToUpdatePage()
+        private void GoToUpdatePage()
         {
             if (this.viewModel == null)
             {
-                this.ShowErrorMessage("No user profile available");
+                ShowErrorMessage("No user profile available");
                 return;
             }
 
@@ -89,7 +89,7 @@ namespace StockApp.Pages
         {
             if (this.viewModel.SelectedStock == null)
             {
-                this.ShowErrorMessage("No stock selected.");
+                ShowErrorMessage("No stock selected.");
                 return;
             }
 

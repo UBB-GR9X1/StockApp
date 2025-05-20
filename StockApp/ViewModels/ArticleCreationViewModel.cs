@@ -1,19 +1,19 @@
 ﻿namespace StockApp.ViewModels
 {
+    using Common.Models;
+    using Common.Services;
+    using Microsoft.UI.Xaml.Controls;
+    using StockApp;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
     using System.Threading.Tasks;
-    using Microsoft.UI.Xaml.Controls;
-    using StockApp;
-    using Common.Models;
-    using Common.Services;
 
     /// <summary>
     /// ViewModel for creating, previewing, and submitting user‐authored news articles.
     /// </summary>
-    public class ArticleCreationViewModel : ViewModelBase
+    public partial class ArticleCreationViewModel : ViewModelBase
     {
         private readonly INewsService newsService;
         private readonly IStockService stocksService;
@@ -121,6 +121,7 @@
                 this.HasError = !string.IsNullOrEmpty(value);
             }
         }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ArticleCreationViewModel"/> class with dependencies.
         /// </summary>
@@ -143,69 +144,6 @@
 
             // Set default selected topic
             this.selectedTopic = "Stock News";
-        }
-
-        private async Task SubmitArticleAsync()
-        {
-            if (!this.ValidateForm())
-            {
-                return;
-            }
-
-            this.IsLoading = true;
-            this.ErrorMessage = string.Empty;
-
-            try
-            {
-                // Parse and validate the related stocks list
-                List<Stock> relatedStocks = await this.ParseRelatedStocks();
-
-                throw new NotImplementedException("Submission functionality is not implemented yet.");
-                // Build the UserArticle to submit
-                //UserArticle article = new(
-                //    Guid.NewGuid().ToString(),
-                //    this.Title,
-                //    this.Summary ?? string.Empty,
-                //    this.Content,
-                //    this.appState.CurrentUser ?? throw new InvalidOperationException("User not found"),
-                //    DateTime.Now,
-                //    "Preview",
-                //    this.SelectedTopic,
-                //    this.ParseRelatedStocks());
-
-                //bool success = this.newsService.SubmitUserArticle(article);
-
-                //if (success)
-                //{
-                //    // Show confirmation and clear form once done
-                //    this.dispatcherQueue.TryEnqueue(async () =>
-                //    {
-                //        var dialog = new ContentDialog
-                //        {
-                //            Title = "Success",
-                //            Content = "Your article has been submitted for review.",
-                //            CloseButtonText = "OK",
-                //            XamlRoot = App.CurrentWindow.Content.XamlRoot,
-                //        };
-
-                //        await dialog.ShowAsync();
-                //        this.ClearForm();
-                //        NavigationService.Instance.GoBack();
-                //    });
-                //}
-                //else
-                //{
-                //    ShowErrorDialog("Failed to submit article. Please try again later.");
-                //}
-            }
-            catch (Exception ex)
-            {
-                ShowErrorDialog($"An error occurred: {ex.Message}");
-            }
-            finally
-            {
-                this.IsLoading = false;
-            }
         }
 
         private bool ValidateForm()
@@ -252,7 +190,7 @@
                 return true;
             }
 
-            var allStocks = await stocksService.GetAllStocksAsync()
+            var allStocks = await this.stocksService.GetAllStocksAsync()
                 ?? throw new InvalidOperationException("Stocks service returned null");
 
             var invalidStocks = new List<string>();
@@ -328,9 +266,8 @@
 
             // Convert to a list of Stock objects
             var stocks = await this.stocksService.GetAllStocksAsync();
-            return stocks.Where(stock => stockSymbols.Contains(stock.Name, StringComparer.OrdinalIgnoreCase) ||
-                               stockSymbols.Contains(stock.Symbol, StringComparer.OrdinalIgnoreCase))
-                .ToList();
+            return [.. stocks.Where(stock => stockSymbols.Contains(stock.Name, StringComparer.OrdinalIgnoreCase) ||
+                               stockSymbols.Contains(stock.Symbol, StringComparer.OrdinalIgnoreCase))];
         }
 
         public async Task CreateArticleAsync()
@@ -345,7 +282,7 @@
             {
                 // Parse and validate the related stocks list
                 List<Stock> relatedStocks = await this.ParseRelatedStocks();
-                if (!await this.ValidateStocksAsync(relatedStocks.Select(s => s.Name).ToList()))
+                if (!await this.ValidateStocksAsync([.. relatedStocks.Select(s => s.Name)]))
                 {
                     return;
                 }
@@ -356,12 +293,10 @@
                     Title = this.Title,
                     Summary = this.Summary ?? string.Empty,
                     Content = this.Content,
-                    Source = $"User: {userService.GetCurrentUserCNP()}",
                     PublishedDate = DateTime.Now,
                     Topic = this.SelectedTopic,
                     RelatedStocks = relatedStocks,
                     Status = Status.Pending,
-                    Author = await userService.GetCurrentUserAsync(),
                     IsRead = false,
                     Category = this.SelectedTopic,
                 };
@@ -426,7 +361,7 @@
                 Title = this.Title,
                 Summary = this.Summary,
                 Content = this.Content,
-                Source = $"User: {userService.GetCurrentUserCNP()}",
+                Source = "Preview article",
                 PublishedDate = DateTime.Now,
                 RelatedStocks = await this.ParseRelatedStocks(),
                 Status = Status.Pending,

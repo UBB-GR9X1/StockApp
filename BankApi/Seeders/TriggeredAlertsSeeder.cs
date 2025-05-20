@@ -1,19 +1,50 @@
-﻿namespace BankApi.Seeders
+﻿using BankApi.Data;
+using Common.Models; // Assuming TriggeredAlert model is in Common.Models
+using Microsoft.EntityFrameworkCore; // Required for AnyAsync
+
+namespace BankApi.Seeders
 {
-    public class TriggeredAlertsSeeder(IConfiguration configuration) : RegularTableSeeder(configuration)
+    public class TriggeredAlertsSeeder(IConfiguration configuration, IServiceProvider serviceProvider) : RegularTableSeeder<TriggeredAlert>(configuration, serviceProvider)
     {
-        protected override string GetQuery() => @"
-            IF NOT EXISTS (SELECT 1 FROM TriggeredAlerts) 
-            BEGIN
-                INSERT INTO TriggeredAlerts 
-                    (StockName, Message, TriggeredAt)
-                VALUES
-                    ('AAPL', 'Stock price exceeded upper bound of $180.00', '2025-04-01'),
-                    ('GOOGL', 'Stock price dropped below lower bound of $2500.00', '2025-03-15'),
-                    ('TSLA', 'Rapid volume surge detected', '2025-02-20'),
-                    ('AMZN', 'Stock price exceeded upper bound of $3500.00', '2025-01-10'),
-                    ('MSFT', 'Unusual market movement in after-hours trading', '2025-05-05');
-            END;
-        ";
+
+        // Implemented the abstract method SeedDataAsync
+        protected override async Task SeedDataAsync(ApiDbContext context)
+        {
+            if (await context.TriggeredAlerts.AnyAsync())
+            {
+                Console.WriteLine("TriggeredAlerts already exist, skipping seeding.");
+                return;
+            }
+
+            var triggeredAlerts = new[]
+            {
+                new TriggeredAlert { StockName = "AAPL", Message = "Stock price exceeded upper bound of $180.00", TriggeredAt = new DateTime(2025, 4, 1) },
+                new TriggeredAlert { StockName = "GOOGL", Message = "Stock price dropped below lower bound of $2500.00", TriggeredAt = new DateTime(2025, 3, 15) },
+                new TriggeredAlert { StockName = "TSLA", Message = "Rapid volume surge detected", TriggeredAt = new DateTime(2025, 2, 20) },
+                new TriggeredAlert { StockName = "AMZN", Message = "Stock price exceeded upper bound of $3500.00", TriggeredAt = new DateTime(2025, 1, 10) },
+                new TriggeredAlert { StockName = "MSFT", Message = "Unusual market movement in after-hours trading", TriggeredAt = new DateTime(2025, 5, 5) }
+            };
+
+            // It's good practice to ensure the StockName in TriggeredAlerts refers to existing stocks.
+            // This seeder should ideally run after BaseStocksSeeder.
+            var validTriggeredAlerts = new List<TriggeredAlert>();
+            foreach (var ta in triggeredAlerts)
+            {
+                var stockExists = await context.Stocks.AnyAsync(s => s.Name == ta.StockName);
+                if (stockExists) // Or s.Symbol if StockName in TriggeredAlert refers to Symbol
+                {
+                    validTriggeredAlerts.Add(ta);
+                }
+                else
+                {
+                    Console.WriteLine($"Skipping TriggeredAlert for StockName: {ta.StockName} as related stock does not exist.");
+                }
+            }
+
+            if (validTriggeredAlerts.Any())
+            {
+                await context.TriggeredAlerts.AddRangeAsync(validTriggeredAlerts);
+            }
+        }
     }
 }

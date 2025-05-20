@@ -12,7 +12,7 @@ namespace BankApi.Repositories
 
         // Additional business logic methods
         Task<int> GetCurrentBalanceAsync(string userCnp);
-        Task<float> SumTransactionsSinceReportAsync(string userCnp, System.DateTime sinceDate);
+        Task<decimal> SumTransactionsSinceReportAsync(string userCnp, System.DateTime sinceDate);
         Task<int> GetCurrentCreditScoreAsync(string userCnp);
         Task UpdateCreditScoreAsync(string userCnp, int newCreditScore);
         Task IncrementBillSharesPaidAsync(string userCnp);

@@ -6,34 +6,23 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace StockApp.Repository.Tests
 {
     // Mock model classes for testing
-    public class TransactionLogTransaction
+    public class TransactionLogTransaction(
+        string stockSymbol,
+        string stockName,
+        string type,
+        int amount,
+        int pricePerStock,
+        DateTime date,
+        string author)
     {
-        public string StockSymbol { get; }
-        public string StockName { get; }
-        public string Type { get; }
-        public int Amount { get; }
-        public int PricePerStock { get; }
+        public string StockSymbol { get; } = stockSymbol;
+        public string StockName { get; } = stockName;
+        public string Type { get; } = type;
+        public int Amount { get; } = amount;
+        public int PricePerStock { get; } = pricePerStock;
         public int TotalValue => this.Amount * this.PricePerStock;
-        public DateTime Date { get; }
-        public string Author { get; }
-
-        public TransactionLogTransaction(
-            string stockSymbol,
-            string stockName,
-            string type,
-            int amount,
-            int pricePerStock,
-            DateTime date,
-            string author)
-        {
-            this.StockSymbol = stockSymbol;
-            this.StockName = stockName;
-            this.Type = type;
-            this.Amount = amount;
-            this.PricePerStock = pricePerStock;
-            this.Date = date;
-            this.Author = author;
-        }
+        public DateTime Date { get; } = date;
+        public string Author { get; } = author;
     }
 
     public class TransactionFilterCriteria
@@ -45,7 +34,7 @@ namespace StockApp.Repository.Tests
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
 
-        public void Validate() { }
+        public static void Validate() { }
     }
 
     public interface ITransactionRepository
@@ -105,7 +94,7 @@ namespace StockApp.Repository.Tests
 
         private class FakeTransactionRepository : ITransactionRepository
         {
-            private List<TransactionLogTransaction> _transactions = new List<TransactionLogTransaction>();
+            private readonly List<TransactionLogTransaction> _transactions = [];
 
             public async Task<List<TransactionLogTransaction>> getAllTransactions()
             {

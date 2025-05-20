@@ -17,14 +17,7 @@
                     try
                     {
                         var colors = colorNames.Split('|');
-                        if (boolValue)
-                        {
-                            return new SolidColorBrush(ConvertStringToColor(colors[0]));
-                        }
-                        else
-                        {
-                            return new SolidColorBrush(ConvertStringToColor(colors[1]));
-                        }
+                        return boolValue ? new SolidColorBrush(ConvertStringToColor(colors[0])) : new SolidColorBrush(ConvertStringToColor(colors[1]));
                     }
                     catch
                     {
@@ -34,14 +27,7 @@
                 else
                 {
                     // Default colors if no parameter is provided
-                    if (boolValue)
-                    {
-                        return new SolidColorBrush(Colors.Green);
-                    }
-                    else
-                    {
-                        return new SolidColorBrush(Colors.Red);
-                    }
+                    return boolValue ? new SolidColorBrush(Colors.Green) : new SolidColorBrush(Colors.Red);
                 }
             }
 
@@ -57,12 +43,9 @@
         {
             // Use a predefined method to convert string to Color
             var colorProperty = typeof(Colors).GetProperty(colorName);
-            if (colorProperty != null && colorProperty.GetValue(null) is Color colorValue)
-            {
-                return colorValue;
-            }
-
-            throw new ArgumentException($"Invalid color name: {colorName}");
+            return colorProperty != null && colorProperty.GetValue(null) is Color colorValue
+                ? colorValue
+                : throw new ArgumentException($"Invalid color name: {colorName}");
         }
     }
 }

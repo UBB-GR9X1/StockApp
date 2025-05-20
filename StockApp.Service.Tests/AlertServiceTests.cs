@@ -57,7 +57,7 @@ namespace StockApp.Service.Tests
 
     internal class InMemoryAlertService : IAlertService
     {
-        private readonly List<Alert> _alerts = new();
+        private readonly List<Alert> _alerts = [];
         private int _nextId = 1;
 
         public Task<List<Alert>> GetAllAlertsAsync() => Task.FromResult(new List<Alert>(_alerts));
@@ -95,7 +95,7 @@ namespace StockApp.Service.Tests
             return Task.CompletedTask;
         }
 
-        public Task UpdateAlertAsync(Alert alert) =>
+        public static Task UpdateAlertAsync(Alert alert) =>
             UpdateAlertAsync(alert.AlertId, alert.StockName, alert.Name, alert.UpperBound, alert.LowerBound, alert.ToggleOnOff);
 
         public Task RemoveAlertAsync(int alertId)

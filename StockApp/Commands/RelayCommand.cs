@@ -36,7 +36,7 @@
         /// <summary>
         /// Raises the <see cref="CanExecuteChanged"/> event to notify that the command's ability to execute has changed.
         /// </summary>
-        public void RaiseCanExecuteChanged()
+        public static void RaiseCanExecuteChanged()
         {
             CommandManager.InvalidateRequerySuggested();
         }

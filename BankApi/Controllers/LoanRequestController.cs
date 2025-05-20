@@ -1,59 +1,89 @@
-using BankApi.Repositories;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Common.Models;
+using Common.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BankApi.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
-    public class LoanRequestController : ControllerBase
+    public class LoanRequestController(ILoanRequestService loanRequestService) : ControllerBase
     {
-        private readonly ILoanRequestRepository _loanRequestRepository;
-
-        public LoanRequestController(ILoanRequestRepository loanRequestRepository)
-        {
-            _loanRequestRepository = loanRequestRepository ?? throw new ArgumentNullException(nameof(loanRequestRepository));
-        }
+        private readonly ILoanRequestService _loanRequestService = loanRequestService ?? throw new ArgumentNullException(nameof(loanRequestService));
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<List<LoanRequest>>> GetLoanRequests()
         {
-            var loanRequests = await _loanRequestRepository.GetLoanRequestsAsync();
-            return Ok(loanRequests);
+            try
+            {
+                return Ok(await _loanRequestService.GetLoanRequests());
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
         [HttpGet("unsolved")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<List<LoanRequest>>> GetUnsolvedLoanRequests()
         {
-            var unsolvedLoanRequests = await _loanRequestRepository.GetUnsolvedLoanRequestsAsync();
-            return Ok(unsolvedLoanRequests);
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteLoanRequest(int id)
-        {
             try
             {
-                await _loanRequestRepository.DeleteLoanRequestAsync(id);
-                return NoContent();
+                return Ok(await _loanRequestService.GetUnsolvedLoanRequests());
             }
-            catch (KeyNotFoundException)
+            catch (Exception ex)
             {
-                return NotFound($"Loan request with ID {id} not found.");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
 
-        [HttpPatch("{id}/solve")]
-        public async Task<ActionResult> SolveLoanRequest(int id)
+        [HttpPost("suggestion")]
+        public async Task<ActionResult<string>> GiveSuggestion([FromBody] LoanRequest loanRequest)
         {
             try
             {
-                await _loanRequestRepository.SolveLoanRequestAsync(id);
-                return NoContent();
+                var suggestion = await _loanRequestService.GiveSuggestion(loanRequest);
+                return Ok(suggestion);
             }
-            catch (KeyNotFoundException)
+            catch (Exception ex)
             {
-                return NotFound($"Loan request with ID {id} not found.");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpPost("{loanRequestId}/solve")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> SolveLoanRequest(int loanRequestId)
+        {
+            try
+            {
+                await _loanRequestService.SolveLoanRequest(loanRequestId);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpDelete("{loanRequestId}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteLoanRequest(int loanRequestId)
+        {
+            try
+            {
+                await _loanRequestService.DeleteLoanRequest(loanRequestId);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
     }

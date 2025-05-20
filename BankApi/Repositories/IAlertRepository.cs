@@ -67,6 +67,6 @@ namespace BankApi.Repositories
         /// <param name="stockName">Name of the stock.</param>
         /// <param name="currentPrice">Current price of the stock.</param>
         /// <returns>The triggered alert if created, otherwise null.</returns>
-        Task<TriggeredAlert?> TriggerAlertAsync(string stockName, decimal currentPrice);
+        Task<TriggeredAlert> TriggerAlertAsync(string stockName, decimal currentPrice);
     }
 }

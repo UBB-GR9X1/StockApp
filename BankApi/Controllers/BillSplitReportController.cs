@@ -1,158 +1,290 @@
+using System.Security.Claims;
 using BankApi.Repositories;
 using Common.Models;
+using Common.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BankApi.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
-    public class BillSplitReportController : ControllerBase
+    public class BillSplitReportController(IBillSplitReportService billSplitReportService, IUserRepository userRepository) : ControllerBase
     {
-        private readonly IBillSplitReportRepository _repository;
-        private readonly ILogger<BillSplitReportController> _logger;
+        private readonly IBillSplitReportService _billSplitReportService = billSplitReportService ?? throw new ArgumentNullException(nameof(billSplitReportService));
+        private readonly IUserRepository _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository)); // To fetch user CNP
 
-        public BillSplitReportController(IBillSplitReportRepository repository, ILogger<BillSplitReportController> logger)
+        private async Task<string> GetCurrentUserCnp()
         {
-            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                throw new UnauthorizedAccessException("User is not authenticated.");
+            }
+
+            var user = await _userRepository.GetByIdAsync(int.Parse(userId));
+            return user == null ? throw new Exception("User not found") : user.CNP;
         }
 
-        // GET: api/BillSplitReport
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<BillSplitReport>>> GetAllReports()
+        public async Task<ActionResult<List<BillSplitReport>>> GetBillSplitReports()
         {
             try
             {
-                var reports = await _repository.GetAllReportsAsync();
+                var reports = await _billSplitReportService.GetBillSplitReportsAsync();
                 return Ok(reports);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving all bill split reports");
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error retrieving data");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
 
-        // GET: api/BillSplitReport/{id}
         [HttpGet("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<BillSplitReport>> GetReportById(int id)
+        public async Task<ActionResult<BillSplitReport>> GetBillSplitReportById(int id)
         {
             try
             {
-                var report = await _repository.GetReportByIdAsync(id);
-                return Ok(report);
+                var report = await _billSplitReportService.GetBillSplitReportByIdAsync(id);
+                if (report == null)
+                {
+                    return NotFound($"Bill split report with ID {id} not found");
+                }
+
+                // Ensure user has access to this report (they are involved or an admin)
+                var currentUserCnp = await GetCurrentUserCnp();
+                return report.ReportingUserCnp != currentUserCnp &&
+                    report.ReportedUserCnp != currentUserCnp &&
+                    !User.IsInRole("Admin")
+                    ? (ActionResult<BillSplitReport>)Forbid()
+                    : (ActionResult<BillSplitReport>)Ok(report);
             }
-            catch (KeyNotFoundException ex)
+            catch (UnauthorizedAccessException)
             {
-                _logger.LogWarning(ex, "Report not found: {ReportId}", id);
-                return NotFound($"Report with ID '{id}' not found");
+                return Forbid();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving report by id: {ReportId}", id);
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error retrieving data");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
 
-        // POST: api/BillSplitReport
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<BillSplitReport>> CreateReport([FromBody] BillSplitReport report)
+        public async Task<ActionResult<BillSplitReport>> CreateBillSplitReport([FromBody] BillSplitReport report)
         {
             try
             {
-                if (report == null)
+                // Always use the current user's CNP as the reporting user
+                var currentUserCnp = await GetCurrentUserCnp();
+                report.ReportingUserCnp = currentUserCnp;
+
+                // Validate that the user isn't reporting themselves
+                if (report.ReportedUserCnp == currentUserCnp)
                 {
-                    return BadRequest("Report data is null");
+                    return BadRequest("You cannot report yourself for a bill split");
                 }
 
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-
-                var createdReport = await _repository.AddReportAsync(report);
-
-                return CreatedAtAction(
-                    nameof(GetReportById),
-                    new { id = createdReport.Id },
-                    createdReport);
+                var createdReport = await _billSplitReportService.CreateBillSplitReportAsync(report);
+                return CreatedAtAction(nameof(GetBillSplitReportById), new { id = createdReport.Id }, createdReport);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error creating report");
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error creating report");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
 
-        // PUT: api/BillSplitReport/{id}
         [HttpPut("{id}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> UpdateReport(int id, [FromBody] BillSplitReport report)
+        public async Task<ActionResult<BillSplitReport>> UpdateBillSplitReport(int id, [FromBody] BillSplitReport report)
         {
             try
             {
-                if (report == null)
-                {
-                    return BadRequest("Report data is null");
-                }
-
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-
+                // Ensure the ID in the URL matches the one in the body
                 if (id != report.Id)
                 {
-                    return BadRequest("ID in URL does not match the report ID in the body");
+                    return BadRequest("Report ID mismatch");
                 }
 
-                await _repository.UpdateReportAsync(report);
-                return NoContent();
+                // Verify the report exists
+                var existingReport = await _billSplitReportService.GetBillSplitReportByIdAsync(id);
+                if (existingReport == null)
+                {
+                    return NotFound($"Bill split report with ID {id} not found");
+                }
+
+                // Ensure user has permission to update this report (they created it or are an admin)
+                var currentUserCnp = await GetCurrentUserCnp();
+                if (existingReport.ReportingUserCnp != currentUserCnp && !User.IsInRole("Admin"))
+                {
+                    return Forbid();
+                }
+
+                // Prevent changing the original reporting user
+                report.ReportingUserCnp = existingReport.ReportingUserCnp;
+
+                var updatedReport = await _billSplitReportService.UpdateBillSplitReportAsync(report);
+                return Ok(updatedReport);
             }
-            catch (KeyNotFoundException ex)
+            catch (UnauthorizedAccessException)
             {
-                _logger.LogWarning(ex, "Report not found during update: {ReportId}", id);
-                return NotFound(ex.Message);
+                return Forbid();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error updating report: {ReportId}", id);
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error updating report");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
 
-        // DELETE: api/BillSplitReport/{id}
         [HttpDelete("{id}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> DeleteReport(int id)
+        public async Task<IActionResult> DeleteBillSplitReport(int id)
         {
             try
             {
-                var success = await _repository.DeleteReportAsync(id);
-
-                if (!success)
+                // Fetch the report to ensure it exists and for authorization checks
+                var report = await _billSplitReportService.GetBillSplitReportByIdAsync(id);
+                if (report == null)
                 {
-                    return NotFound($"Report with ID '{id}' not found");
+                    return NotFound($"Bill split report with ID {id} not found");
                 }
 
+                // Add authorization: ensure the user is an admin or the reporter
+                var currentUserCnp = await GetCurrentUserCnp();
+                if (report.ReportingUserCnp != currentUserCnp && !User.IsInRole("Admin"))
+                {
+                    return Forbid();
+                }
+
+                await _billSplitReportService.DeleteBillSplitReportAsync(report);
                 return NoContent();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error deleting report: {ReportId}", id);
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error deleting report");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("{id}/daysOverdue")]
+        public async Task<ActionResult<int>> GetDaysOverdue(int id)
+        {
+            try
+            {
+                var report = await _billSplitReportService.GetBillSplitReportByIdAsync(id);
+                if (report == null)
+                {
+                    return NotFound($"Bill split report with ID {id} not found");
+                }
+
+                // Ensure user has access to this report (they are involved or an admin)
+                var currentUserCnp = await GetCurrentUserCnp();
+                if (report.ReportingUserCnp != currentUserCnp &&
+                    report.ReportedUserCnp != currentUserCnp &&
+                    !User.IsInRole("Admin"))
+                {
+                    return Forbid();
+                }
+
+                var daysOverdue = await _billSplitReportService.GetDaysOverdueAsync(report);
+                return Ok(daysOverdue);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpPost("{id}/solve")]
+        public async Task<IActionResult> SolveBillSplitReport(int id)
+        {
+            try
+            {
+                var report = await _billSplitReportService.GetBillSplitReportByIdAsync(id);
+                if (report == null)
+                {
+                    return NotFound($"Bill split report with ID {id} not found");
+                }
+
+                // Add authorization: ensure the user is an admin or involved in the report
+                var currentUserCnp = await GetCurrentUserCnp();
+                if (report.ReportingUserCnp != currentUserCnp &&
+                    report.ReportedUserCnp != currentUserCnp &&
+                    !User.IsInRole("Admin"))
+                {
+                    return Forbid();
+                }
+
+                await _billSplitReportService.SolveBillSplitReportAsync(report);
+                return Ok();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("user/{userCnp}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<List<BillSplitReport>>> GetReportsByUser(string userCnp)
+        {
+            try
+            {
+                // Fetch all reports
+                var allReports = await _billSplitReportService.GetBillSplitReportsAsync();
+
+                // Filter reports where the specified user is either the reporter or reported
+                var userReports = allReports.Where(r =>
+                    r.ReportingUserCnp == userCnp || r.ReportedUserCnp == userCnp).ToList();
+
+                return Ok(userReports);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("my-reports")]
+        public async Task<ActionResult<List<BillSplitReport>>> GetMyReports()
+        {
+            try
+            {
+                var currentUserCnp = await GetCurrentUserCnp();
+
+                // Fetch all reports
+                var allReports = await _billSplitReportService.GetBillSplitReportsAsync();
+
+                // Filter reports where the current user is either the reporter or reported
+                var userReports = allReports.Where(r =>
+                    r.ReportingUserCnp == currentUserCnp || r.ReportedUserCnp == currentUserCnp).ToList();
+
+                return Ok(userReports);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
     }

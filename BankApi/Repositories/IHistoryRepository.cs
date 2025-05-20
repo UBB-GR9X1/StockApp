@@ -4,14 +4,14 @@ namespace BankApi.Repositories
 {
     public interface IHistoryRepository
     {
-        Task<IEnumerable<CreditScoreHistory>> GetAllHistoryAsync();
-        Task<CreditScoreHistory?> GetHistoryByIdAsync(int id);
+        Task<List<CreditScoreHistory>> GetAllHistoryAsync();
+        Task<CreditScoreHistory> GetHistoryByIdAsync(int id);
         Task<CreditScoreHistory> AddHistoryAsync(CreditScoreHistory history);
         Task<CreditScoreHistory> UpdateHistoryAsync(CreditScoreHistory history);
         Task DeleteHistoryAsync(int id);
-        Task<IEnumerable<CreditScoreHistory>> GetHistoryForUserAsync(string userCnp);
-        Task<IEnumerable<CreditScoreHistory>> GetHistoryWeeklyAsync(string userCnp);
-        Task<IEnumerable<CreditScoreHistory>> GetHistoryMonthlyAsync(string userCnp);
-        Task<IEnumerable<CreditScoreHistory>> GetHistoryYearlyAsync(string userCnp);
+        Task<List<CreditScoreHistory>> GetHistoryForUserAsync(string userCnp);
+        Task<List<CreditScoreHistory>> GetHistoryWeeklyAsync(string userCnp);
+        Task<List<CreditScoreHistory>> GetHistoryMonthlyAsync(string userCnp);
+        Task<List<CreditScoreHistory>> GetHistoryYearlyAsync(string userCnp);
     }
 }

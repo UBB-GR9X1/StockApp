@@ -4,25 +4,25 @@
 
 namespace StockApp.ViewModels
 {
+    using Common.Models;
+    using Common.Services;
+    using StockApp.Commands;
     using System;
     using System.ComponentModel;
     using System.Runtime.CompilerServices;
     using System.Text.RegularExpressions;
-    using System.Threading.Tasks;
     using System.Windows.Input;
-    using StockApp.Commands;
-    using Common.Models;
-    using Common.Services;
 
-    public class CreateStockViewModel : INotifyPropertyChanged
+    public partial class CreateStockViewModel : INotifyPropertyChanged
     {
         private readonly IStockService stockService;
         private readonly IUserService userService;
+        private readonly IAuthenticationService authenticationService;
         private string stockName;
         private string stockSymbol;
         private string authorCnp;
         private string message;
-        private bool suppressValidation;
+        private readonly bool suppressValidation;
         private bool isAdmin;
         private bool isInputValid;
 
@@ -36,22 +36,18 @@ namespace StockApp.ViewModels
         /// </summary>
         public ICommand CreateStockCommand { get; }
 
-        public CreateStockViewModel(IStockService stockService, IUserService userService)
+        public CreateStockViewModel(IStockService stockService, IUserService userService, IAuthenticationService authenticationService)
         {
             this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
             this.stockService = stockService ?? throw new ArgumentNullException(nameof(stockService));
+            this.authenticationService = authenticationService ?? throw new ArgumentNullException(nameof(authenticationService));
             this.CreateStockCommand = new RelayCommand(this.CreateStock, this.CanCreateStock);
             this.suppressValidation = true;
             this.StockName = string.Empty;
             this.StockSymbol = string.Empty;
             this.AuthorCnp = string.Empty;
             this.suppressValidation = false;
-            this.Initialize();
-        }
-
-        private async void Initialize()
-        {
-            this.IsAdmin = await this.CheckIfUserIsAdmin();
+            this.IsAdmin = this.CheckIfUserIsAdmin();
         }
 
         /// <summary>
@@ -122,7 +118,7 @@ namespace StockApp.ViewModels
         }
 
         /// <summary>
-        /// Gets or sets the validation or homepageService message to display.
+        /// Gets or sets the validation or stockService message to display.
         /// </summary>
         public string Message
         {
@@ -151,7 +147,7 @@ namespace StockApp.ViewModels
                     this.OnPropertyChanged();
 
                     // Notify the command that it can execute or not
-                    ((RelayCommand)this.CreateStockCommand).RaiseCanExecuteChanged();
+                    RelayCommand.RaiseCanExecuteChanged();
                 }
             }
         }
@@ -235,30 +231,17 @@ namespace StockApp.ViewModels
                     quantity: 0));
         }
 
-        /// <summary>
-        /// Checks whether the current user has administrative privileges.
-        /// </summary>
-        /// <returns>True if the user is an admin; otherwise false.</returns>
-        protected async Task<bool> CheckIfUserIsAdmin()
+        protected bool CheckIfUserIsAdmin()
         {
-            return true;
-            //FIXME: THIS NEEDS THE NEW TABLE LAYOUT
-            //User user = await this.userService.GetCurrentUserAsync();
-            // This method should check if the user is an admin.
-            // For now, let's assume the user is an admin.
-            //if (!user.IsModerator)
-            //{
-            //    this.Message = "You are a guest user and cannot create stocks!";
-            //}
-
-            //return !user.IsModerator;
+            return this.authenticationService.IsUserLoggedIn() &&
+                this.authenticationService.IsUserAdmin();
         }
 
         /// <summary>
         /// Raises the <see cref="PropertyChanged"/> event for the specified property.
         /// </summary>
         /// <param name="propertyName">Name of the property that changed. Auto-supplied if omitted.</param>
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

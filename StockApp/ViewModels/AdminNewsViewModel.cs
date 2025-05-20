@@ -1,5 +1,11 @@
 ﻿namespace StockApp.ViewModels
 {
+    using Common.Models;
+    using Common.Services;
+    using Microsoft.UI.Text;
+    using Microsoft.UI.Xaml;
+    using Microsoft.UI.Xaml.Controls;
+    using StockApp.Commands;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
@@ -7,21 +13,16 @@
     using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using System.Windows.Input;
-    using Microsoft.UI.Text;
-    using Microsoft.UI.Xaml;
-    using Microsoft.UI.Xaml.Controls;
-    using StockApp.Commands;
-    using Common.Models;
-    using Common.Services;
 
     /// <summary>
     /// ViewModel for the admin news moderation screen, handling retrieval,
     /// filtering, and actions on user-submitted articles.
     /// </summary>
-    public class AdminNewsViewModel : ViewModelBase
+    public partial class AdminNewsViewModel : ViewModelBase
     {
         private readonly INewsService newsService;
         private readonly IUserService userService;
+        private readonly IAuthenticationService authenticationService;
 
         private ObservableCollection<NewsArticle> newsArticles = [];
         private bool isLoading;
@@ -44,10 +45,11 @@
         /// Initializes a new instance of the <see cref="AdminNewsViewModel"/> class.
         /// </summary>
         /// <param name="service">Service for retrieving and modifying news articles.</param>
-        public AdminNewsViewModel(INewsService service, IUserService userService)
+        public AdminNewsViewModel(INewsService service, IUserService userService, IAuthenticationService authenticationService)
         {
-            this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
+            this.authenticationService = authenticationService ?? throw new ArgumentNullException(nameof(authenticationService));
             this.newsService = service ?? throw new ArgumentNullException(nameof(service));
+            this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
             this.InitializeCommandsAndFilters();
         }
 
@@ -64,7 +66,6 @@
             this.PreviewCommand = new RelayCommandGeneric<NewsArticle>(this.NavigateToPreview);
 
             // Populate status filter options
-
             this.Statuses.Add(Status.All);
             this.Statuses.Add(Status.Pending);
             this.Statuses.Add(Status.Approved);
@@ -211,7 +212,7 @@
 
             try
             {
-                List<NewsArticle> articles = await this.newsService.GetUserArticlesAsync(this.userService.GetCurrentUserCNP(), this.SelectedStatus, this.SelectedTopic);
+                List<NewsArticle> articles = await this.newsService.GetUserArticlesAsync(this.SelectedStatus, this.SelectedTopic);
                 this.newsArticles.Clear();
                 articles.ForEach(this.newsArticles.Add);
                 this.IsEmptyState = this.newsArticles.Count == 0;
@@ -242,12 +243,12 @@
 
             var oldContent = this.PageRef.Content;
 
-            ICommand approveCommand = new RelayCommand(async (object sender) =>
+            ICommand approveCommand = new RelayCommand(async sender =>
             {
                 await this.ApproveArticleAsync(article.ArticleId);
                 this.PageRef.Content = oldContent;
             });
-            ICommand rejectCommand = new RelayCommand(async (object sender) =>
+            ICommand rejectCommand = new RelayCommand(async sender =>
             {
                 await this.RejectArticleAsync(article.ArticleId);
                 this.PageRef.Content = oldContent;
@@ -290,7 +291,7 @@
                                     new Button
                                     {
                                     Content = "Back",
-                                    Command = new RelayCommand((object sender) => this.PageRef.Content = oldContent),
+                                    Command = new RelayCommand(sender => this.PageRef.Content = oldContent),
                                     Margin = new Thickness(10, 0, 0, 0),
                                     },
                                },
@@ -323,7 +324,6 @@
             if (success)
             {
                 await this.RefreshArticlesAsync();
-
             }
         }
 
@@ -348,7 +348,7 @@
         /// <param name="value">New value to assign.</param>
         /// <param name="propertyName">Name of the property (automatically supplied).</param>
         /// <returns>True if the value changed; otherwise false.</returns>
-        protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string? propertyName = null)
+        protected new bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string? propertyName = null)
         {
             if (Equals(storage, value))
             {

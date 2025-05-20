@@ -1,15 +1,15 @@
 ﻿namespace StockApp.ViewModels
 {
+    using Common.Models;
+    using Common.Services;
+    using Microsoft.UI.Xaml.Controls;
+    using StockApp.Commands;
     using System;
     using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using System.Windows.Input;
-    using Microsoft.UI.Xaml.Controls;
-    using StockApp.Commands;
-    using Common.Models;
-    using Common.Services;
     /// <summary>
     /// ViewModel responsible for managing alerts: creating, saving, deleting, and loading alert entries.
     /// </summary>
@@ -162,7 +162,7 @@
                 {
                     this.alertValid = value;
                     this.OnPropertyChanged();
-                    (this.CreateAlertCommand as RelayCommand)?.RaiseCanExecuteChanged();
+                    RelayCommand.RaiseCanExecuteChanged();
                 }
             }
         }
@@ -194,7 +194,7 @@
                 decimal upperBound = this.alertUpperBound ?? throw new ArgumentNullException(nameof(this.alertUpperBound));
                 decimal lowerBound = this.alertLowerBound ?? throw new ArgumentNullException(nameof(this.alertLowerBound));
 
-                // Create a new alert via the homepageService and add it to the collection
+                // Create a new alert via the stockService and add it to the collection
                 Alert newAlert = await this.alertService.CreateAlertAsync(
                     stockName: this.SelectedStockName,
                     name: this.NewAlertName,
@@ -202,16 +202,16 @@
                     lowerBound: lowerBound,
                     toggleOnOff: true);
                 this.Alerts.Add(newAlert);
-                await this.ShowMessageAsync("Success", "Alert created successfully!");
+                await ShowMessageAsync("Success", "Alert created successfully!");
             }
             catch (Exception exception)
             {
-                await this.ShowMessageAsync("Error", exception.Message);
+                await ShowMessageAsync("Error", exception.Message);
             }
         }
 
         /// <summary>
-        /// Saves all current alerts by validating and updating each via the homepageService.
+        /// Saves all current alerts by validating and updating each via the stockService.
         /// </summary>
         private async Task SaveAlerts()
         {
@@ -238,11 +238,11 @@
                         alert.ToggleOnOff);
                 }
 
-                await this.ShowMessageAsync("Success", "All alerts saved successfully!");
+                await ShowMessageAsync("Success", "All alerts saved successfully!");
             }
             catch (Exception exception)
             {
-                await this.ShowMessageAsync("Error", exception.Message);
+                await ShowMessageAsync("Error", exception.Message);
             }
         }
 
@@ -256,16 +256,16 @@
             {
                 await this.alertService.RemoveAlertAsync(alertToDelete.AlertId);
                 this.Alerts.Remove(alertToDelete);
-                await this.ShowMessageAsync("Success", "Alert deleted successfully!");
+                await ShowMessageAsync("Success", "Alert deleted successfully!");
             }
             else
             {
-                await this.ShowMessageAsync("Error", "Please select an alert to delete.");
+                await ShowMessageAsync("Error", "Please select an alert to delete.");
             }
         }
 
         /// <summary>
-        /// Loads all alerts from the homepageService into the <see cref="Alerts"/> collection.
+        /// Loads all alerts from the stockService into the <see cref="Alerts"/> collection.
         /// </summary>
         private async void LoadAlerts()
         {
@@ -279,9 +279,9 @@
         /// <summary>
         /// Shows a message dialog with the specified title and message.
         /// </summary>
-        private async Task ShowMessageAsync(string title, string message)
+        private static async Task ShowMessageAsync(string title, string message)
         {
-            ContentDialog dialog = new ContentDialog
+            ContentDialog dialog = new()
             {
                 Title = title,
                 Content = message,

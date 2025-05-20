@@ -6,14 +6,14 @@ namespace StockApp.ViewModels.Tests
 {
     public class TestViewModel : ViewModelBase
     {
-        private string _text = string.Empty;
+        private readonly string _text = string.Empty;
         public string Text
         {
             get => _text;
             set => SetProperty(ref _text, value);
         }
 
-        private int _count;
+        private readonly int _count;
         public int Count
         {
             get => _count;

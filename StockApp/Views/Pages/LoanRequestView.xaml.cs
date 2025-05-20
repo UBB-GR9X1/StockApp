@@ -1,12 +1,12 @@
 namespace StockApp.Views.Pages
 {
+    using Common.Models;
+    using Common.Services;
+    using Microsoft.UI.Xaml.Controls;
+    using StockApp.Views.Components;
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Microsoft.UI.Xaml.Controls;
-    using Common.Models;
-    using Common.Services;
-    using StockApp.Views.Components;
 
     public sealed partial class LoanRequestView : Page
     {
@@ -60,7 +60,7 @@ namespace StockApp.Views.Pages
 
         private void OnLoanRequestSolved(object sender, EventArgs e)
         {
-            this.LoadLoanRequests();
+            _ = this.LoadLoanRequests();
         }
     }
 }

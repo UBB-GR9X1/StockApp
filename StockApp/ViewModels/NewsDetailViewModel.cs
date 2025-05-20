@@ -1,25 +1,24 @@
 ﻿namespace StockApp.ViewModels
 {
+    using Common.Models;
+    using Common.Services;
+    using Microsoft.UI.Xaml.Controls;
+    using StockApp.Commands;
     using System;
-    using System.Linq;
     using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using System.Windows.Input;
-    using Microsoft.UI.Xaml.Controls;
-    using StockApp.Commands;
-    using Common.Models;
-    using Common.Services;
 
     /// <summary>
     /// ViewModel for displaying details of a news article, handling loading,
     /// preview mode, and administrative actions such as approval, rejection, and deletion.
     /// </summary>
-    public class NewsDetailViewModel : ViewModelBase
+    public partial class NewsDetailViewModel : ViewModelBase
     {
         private readonly INewsService newsService;
         private string currentArticleId;
         private bool isPreviewMode;
-        private string previewId;
+        private readonly string previewId;
 
         private NewsArticle article;
         private bool isLoading;
@@ -37,8 +36,13 @@
             get => this.article;
             set
             {
+                if (value == null)
+                {
+                    throw new ArgumentNullException(nameof(value), "Article cannot be null.");
+                }
+
                 // Inline comment: log debug info whenever the article property is set
-                System.Diagnostics.Debug.WriteLine($"Setting Article: Title={value?.Title}, Content Length={value?.Content?.Length ?? 0}");
+                System.Diagnostics.Debug.WriteLine($"Setting Article: Title={value.Title}, Content Length={value.Content?.Length ?? 0}");
                 this.SetProperty(ref this.article, value);
             }
         }
@@ -158,7 +162,7 @@
                 if (regularArticle != null)
                 {
                     this.Article = regularArticle;
-                    this.HasRelatedStocks = regularArticle.RelatedStocks.Any() == true;
+                    this.HasRelatedStocks = regularArticle.RelatedStocks.Count != 0;
                     await this.newsService.MarkArticleAsReadAsync(articleId);
                 }
                 else
@@ -210,7 +214,7 @@
                     await dialog.ShowAsync();
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 // Inline: show error on approval failure
                 var dialog = new ContentDialog
@@ -259,7 +263,7 @@
                     await dialog.ShowAsync();
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 var dialog = new ContentDialog
                 {
@@ -316,7 +320,7 @@
                     }
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 var dialog = new ContentDialog
                 {
@@ -334,8 +338,12 @@
         }
 
         /// <inheritdoc/>
-        protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
+        protected new bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string? propertyName = null)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException(nameof(value), "Value cannot be null.");
+            }
             if (Equals(storage, value))
             {
                 return false;

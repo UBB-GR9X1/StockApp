@@ -94,7 +94,7 @@ namespace StockApp.Repository.Tests
         [TestMethod]
         public void GetNewsArticleById_ReturnsCorrectArticle()
         {
-            var article = new NewsArticle (
+            var article = new NewsArticle(
                 articleId: "A1",
                 title: "Read Me",
                 summary: "Summary",

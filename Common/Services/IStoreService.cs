@@ -1,16 +1,16 @@
 ﻿namespace Common.Services
 {
-    using System.Threading.Tasks;
     using Common.Models;
+    using System.Threading.Tasks;
 
     public interface IStoreService
     {
-        Task<int> GetUserGemBalanceAsync(string cnp);
+        Task<int> GetUserGemBalanceAsync(string? userCNP = null);
 
-        Task UpdateUserGemBalanceAsync(string cnp, int newBalance);
+        Task UpdateUserGemBalanceAsync(int newBalance, string? userCNP = null);
 
-        Task<string> BuyGems(string cnp, GemDeal deal, string selectedAccountId);
+        Task<string> BuyGems(GemDeal deal, string selectedAccountId, string? userCNP = null);
 
-        Task<string> SellGems(string cnp, int gemAmount, string selectedAccountId);
+        Task<string> SellGems(int gemAmount, string selectedAccountId, string? userCNP = null);
     }
 }

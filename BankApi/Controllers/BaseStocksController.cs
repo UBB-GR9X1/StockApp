@@ -1,163 +1,134 @@
 using BankApi.Repositories;
 using Common.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace BankApi.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
-    public class BaseStocksController : ControllerBase
+    public class BaseStocksController(IBaseStocksRepository baseStocksRepository, IUserRepository userRepository) : ControllerBase
     {
-        private readonly IBaseStocksRepository _repository;
-        private readonly ILogger<BaseStocksController> _logger;
+        private readonly IBaseStocksRepository _baseStocksRepository = baseStocksRepository ?? throw new ArgumentNullException(nameof(baseStocksRepository));
+        private readonly IUserRepository _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 
-        public BaseStocksController(IBaseStocksRepository repository, ILogger<BaseStocksController> logger)
+        private async Task<string> GetCurrentUserCnp()
         {
-            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                throw new UnauthorizedAccessException("User is not authenticated.");
+            }
+
+            var user = await _userRepository.GetByIdAsync(int.Parse(userId));
+            return user == null ? throw new Exception("User not found") : user.CNP;
         }
 
-        // GET: api/BaseStocks
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<BaseStock>>> GetAllStocks()
+        public async Task<ActionResult<List<BaseStock>>> GetAllStocks()
         {
             try
             {
-                var stocks = await _repository.GetAllStocksAsync();
+                var stocks = await _baseStocksRepository.GetAllStocksAsync();
                 return Ok(stocks);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving all stocks");
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error retrieving data");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
 
-        // GET: api/BaseStocks/{name}
         [HttpGet("{name}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<BaseStock>> GetStockByName(string name)
         {
             try
             {
-                var stock = await _repository.GetStockByNameAsync(name);
-                return Ok(stock);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                _logger.LogWarning(ex, "Stock not found: {StockName}", name);
-                return NotFound($"Stock with name '{name}' not found");
+                var stock = await _baseStocksRepository.GetStockByNameAsync(name);
+                return stock == null ? (ActionResult<BaseStock>)NotFound($"Stock with name '{name}' not found") : (ActionResult<BaseStock>)Ok(stock);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving stock by name: {StockName}", name);
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error retrieving data");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
 
-        // POST: api/BaseStocks
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<BaseStock>> CreateStock([FromBody] BaseStock stock)
+        [Authorize(Roles = "Admin")] // Only admins can create stocks
+        public async Task<ActionResult<BaseStock>> AddStock([FromBody] BaseStockDto stockDto)
         {
             try
             {
-                if (stock == null)
+                // Create a new BaseStock from the DTO
+                var stock = new BaseStock
                 {
-                    return BadRequest("Stock data is null");
-                }
+                    Name = stockDto.Name,
+                    Symbol = stockDto.Symbol,
+                    AuthorCNP = await GetCurrentUserCnp()
+                };
 
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-
-                var createdStock = await _repository.AddStockAsync(stock);
-
-                return CreatedAtAction(nameof(GetStockByName),
-                    new { name = createdStock.Name },
-                    createdStock);
-            }
-            catch (InvalidOperationException ex) when (ex.Message.Contains("already exists"))
-            {
-                _logger.LogWarning(ex, "Duplicate stock: {StockName}", stock.Name);
-                return BadRequest(ex.Message);
+                var createdStock = await _baseStocksRepository.AddStockAsync(stock, stockDto.InitialPrice);
+                return CreatedAtAction(nameof(GetStockByName), new { name = createdStock.Name }, createdStock);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error creating stock: {StockName}", stock?.Name);
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error creating stock");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
 
-        // PUT: api/BaseStocks/{name}
         [HttpPut("{name}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> UpdateStock(string name, [FromBody] BaseStock stock)
+        [Authorize(Roles = "Admin")] // Only admins can update stocks
+        public async Task<ActionResult<BaseStock>> UpdateStock(string name, [FromBody] BaseStockUpdateDto stockDto)
         {
             try
             {
-                if (stock == null)
-                {
-                    return BadRequest("Stock data is null");
-                }
-
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-
-                if (name != stock.Name)
-                {
-                    return BadRequest("Name in URL does not match the stock name in the body");
-                }
-
-                await _repository.UpdateStockAsync(stock);
-                return NoContent();
-            }
-            catch (KeyNotFoundException ex)
-            {
-                _logger.LogWarning(ex, "Stock not found during update: {StockName}", name);
-                return NotFound(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error updating stock: {StockName}", name);
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error updating stock");
-            }
-        }
-
-        // DELETE: api/BaseStocks/{name}
-        [HttpDelete("{name}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> DeleteStock(string name)
-        {
-            try
-            {
-                var success = await _repository.DeleteStockAsync(name);
-
-                if (!success)
+                // Get the existing stock
+                var existingStock = await _baseStocksRepository.GetStockByNameAsync(name);
+                if (existingStock == null)
                 {
                     return NotFound($"Stock with name '{name}' not found");
                 }
 
-                return NoContent();
+                // Update the stock properties
+                existingStock.Name = stockDto.Name ?? existingStock.Name;
+                existingStock.Symbol = stockDto.Symbol ?? existingStock.Symbol;
+
+                var updatedStock = await _baseStocksRepository.UpdateStockAsync(existingStock);
+                return Ok(updatedStock);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error deleting stock: {StockName}", name);
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error deleting stock");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
+        [HttpDelete("{name}")]
+        [Authorize(Roles = "Admin")] // Only admins can delete stocks
+        public async Task<IActionResult> DeleteStock(string name)
+        {
+            try
+            {
+                var success = await _baseStocksRepository.DeleteStockAsync(name);
+                return !success ? NotFound($"Stock with name '{name}' not found") : NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+    }
+
+    public class BaseStockDto
+    {
+        public string Name { get; set; }
+        public string Symbol { get; set; }
+        public int InitialPrice { get; set; } = 100;
+    }
+
+    public class BaseStockUpdateDto
+    {
+        public string Name { get; set; }
+        public string Symbol { get; set; }
     }
 }

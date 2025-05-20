@@ -6,6 +6,8 @@ namespace Common.Services
     {
         Task<List<BillSplitReport>> GetBillSplitReportsAsync();
 
+        Task<BillSplitReport?> GetBillSplitReportByIdAsync(int id);
+
         Task<BillSplitReport> CreateBillSplitReportAsync(BillSplitReport billSplitReport);
 
         Task<int> GetDaysOverdueAsync(BillSplitReport billSplitReport);

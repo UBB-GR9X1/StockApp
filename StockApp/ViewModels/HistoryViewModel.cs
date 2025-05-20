@@ -1,26 +1,21 @@
 ﻿namespace StockApp.ViewModels
 {
+    using Common.Models;
+    using Common.Services;
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Runtime.CompilerServices;
-    using Common.Models;
-    using Common.Services;
 
-    public class HistoryViewModel : INotifyPropertyChanged
+    public partial class HistoryViewModel(IHistoryService historyService) : INotifyPropertyChanged
     {
-        private readonly IHistoryService _historyService;
+        private readonly IHistoryService _historyService = historyService ?? throw new ArgumentNullException(nameof(historyService));
         private List<CreditScoreHistory> _weeklyHistory;
         private List<CreditScoreHistory> _monthlyHistory;
         private List<CreditScoreHistory> _yearlyHistory;
         private string _userCnp;
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public HistoryViewModel(IHistoryService historyService)
-        {
-            this._historyService = historyService ?? throw new ArgumentNullException(nameof(historyService));
-        }
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         public string UserCnp
         {
@@ -95,7 +90,7 @@
             }
         }
 
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

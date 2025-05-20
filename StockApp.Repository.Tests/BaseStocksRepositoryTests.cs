@@ -16,18 +16,11 @@ namespace StockApp.Repository.Tests
     /// <summary>
     /// Test implementation of IBaseStocksRepository for testing
     /// </summary>
-    internal class TestBaseStocksRepository : IBaseStocksRepository
+    internal class TestBaseStocksRepository(AppDbContext dbContext, Mock<DbSet<BaseStock>> mockSet, List<BaseStock> stockData) : IBaseStocksRepository
     {
-        private readonly AppDbContext _dbContext;
-        private readonly Mock<DbSet<BaseStock>> _mockSet;
-        private readonly List<BaseStock> _stockData;
-
-        public TestBaseStocksRepository(AppDbContext dbContext, Mock<DbSet<BaseStock>> mockSet, List<BaseStock> stockData)
-        {
-            _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-            _mockSet = mockSet ?? throw new ArgumentNullException(nameof(mockSet));
-            _stockData = stockData ?? throw new ArgumentNullException(nameof(stockData));
-        }
+        private readonly AppDbContext _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+        private readonly Mock<DbSet<BaseStock>> _mockSet = mockSet ?? throw new ArgumentNullException(nameof(mockSet));
+        private readonly List<BaseStock> _stockData = stockData ?? throw new ArgumentNullException(nameof(stockData));
 
         public async Task<BaseStock> AddStockAsync(BaseStock stock, int initialPrice = 100)
         {
@@ -45,7 +38,7 @@ namespace StockApp.Repository.Tests
 
             await _mockSet.Object.AddAsync(stock);
             await _dbContext.SaveChangesAsync();
-            
+
             return stock;
         }
 
@@ -64,7 +57,7 @@ namespace StockApp.Repository.Tests
 
             _stockData.Remove(stock);
             await _dbContext.SaveChangesAsync();
-            
+
             return true;
         }
 
@@ -81,12 +74,7 @@ namespace StockApp.Repository.Tests
             }
 
             var stock = _stockData.FirstOrDefault(s => s.Name == name);
-            if (stock == null)
-            {
-                throw new KeyNotFoundException($"Stock with name '{name}' not found.");
-            }
-
-            return await Task.FromResult(stock);
+            return stock == null ? throw new KeyNotFoundException($"Stock with name '{name}' not found.") : await Task.FromResult(stock);
         }
 
         public async Task<BaseStock> UpdateStockAsync(BaseStock stock)
@@ -106,7 +94,7 @@ namespace StockApp.Repository.Tests
             existingStock.AuthorCNP = stock.AuthorCNP;
 
             await _dbContext.SaveChangesAsync();
-            
+
             return existingStock;
         }
     }
@@ -122,7 +110,7 @@ namespace StockApp.Repository.Tests
         [TestInitialize]
         public void Init()
         {
-            _stockData = new List<BaseStock>();
+            _stockData = [];
             _mockSet = CreateMockDbSet(_stockData);
 
             _dbContextMock = new Mock<AppDbContext>();
@@ -182,17 +170,17 @@ namespace StockApp.Repository.Tests
                 .ReturnsAsync(1);
 
             var stock = new BaseStock("TestStock", "TS", "12345");
-            
+
             // Act
             var result = await _repo.AddStockAsync(stock);
-            
+
             // Assert
             // Verify the stock was added to DbSet
             _mockSet.Verify(m => m.AddAsync(It.IsAny<BaseStock>(), It.IsAny<CancellationToken>()), Times.Once);
-            
+
             // Verify SaveChanges was called
             _dbContextMock.Verify(m => m.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-            
+
             // Verify returned stock
             Assert.AreEqual("TestStock", result.Name);
             Assert.AreEqual("TS", result.Symbol);

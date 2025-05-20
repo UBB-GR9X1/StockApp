@@ -1,20 +1,19 @@
 ﻿namespace StockApp.ViewModels
 {
+    using Common.Models;
+    using Common.Services;
+    using Microsoft.UI.Xaml.Controls;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.Linq;
     using System.Windows.Input;
-    using Microsoft.UI.Xaml.Controls;
-    using Common.Models;
-    using StockApp.Repositories;
-    using Common.Services;
 
     /// <summary>
     /// ViewModel for displaying and exporting the transaction log with filtering and sorting capabilities.
     /// </summary>
-    public class TransactionLogViewModel : INotifyPropertyChanged
+    public partial class TransactionLogViewModel : INotifyPropertyChanged
     {
         private readonly ITransactionLogService service;
 
@@ -32,11 +31,6 @@
         /// Event raised when a property value changes.
         /// </summary>
         public event PropertyChangedEventHandler? PropertyChanged;
-
-        /// <summary>
-        /// Event requested to show a message box with a given title and content.
-        /// </summary>
-        public event Action<string, string> ShowMessageBoxRequested;
 
         /// <summary>
         /// Gets the collection of transactions displayed in the log.
@@ -61,7 +55,7 @@
         /// </summary>
         public ComboBoxItem SelectedTransactionType
         {
-            get => new ComboBoxItem { Content = this.selectedTransactionType };
+            get => new() { Content = this.selectedTransactionType };
             set
             {
                 this.selectedTransactionType = value.Content.ToString() ?? string.Empty;
@@ -75,7 +69,7 @@
         /// </summary>
         public ComboBoxItem SelectedSortBy
         {
-            get => new ComboBoxItem { Content = this.selectedSortBy };
+            get => new() { Content = this.selectedSortBy };
             set
             {
                 this.selectedSortBy = value.Content.ToString() ?? string.Empty;
@@ -89,7 +83,7 @@
         /// </summary>
         public ComboBoxItem SelectedSortOrder
         {
-            get => new ComboBoxItem { Content = this.selectedSortOrder };
+            get => new() { Content = this.selectedSortOrder };
             set
             {
                 this.selectedSortOrder = value.Content.ToString() ?? string.Empty;
@@ -103,7 +97,7 @@
         /// </summary>
         public ComboBoxItem SelectedExportFormat
         {
-            get => new ComboBoxItem { Content = this.selectedExportFormat };
+            get => new() { Content = this.selectedExportFormat };
             set
             {
                 this.selectedExportFormat = value.Content.ToString() ?? string.Empty;
@@ -127,7 +121,7 @@
                 }
                 else
                 {
-                    this.ShowMessageBox("Invalid Input", "Min Total Value must be a valid integer.");
+                    ShowMessageBox("Invalid Input", "Min Total Value must be a valid integer.");
                 }
             }
         }
@@ -148,7 +142,7 @@
                 }
                 else
                 {
-                    this.ShowMessageBox("Invalid Input", "Max Total Value must be a valid integer.");
+                    ShowMessageBox("Invalid Input", "Max Total Value must be a valid integer.");
                 }
             }
         }
@@ -218,7 +212,7 @@
         public ICommand ExportCommand { get; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TransactionLogViewModel"/> class with the specified homepageService.
+        /// Initializes a new instance of the <see cref="TransactionLogViewModel"/> class with the specified stockService.
         /// </summary>
         /// <param name="service">Service to retrieve and export transaction data.</param>
         public TransactionLogViewModel(ITransactionLogService service)
@@ -233,15 +227,10 @@
 
             // Set up commands
             this.SearchCommand = new Commands.Command(this.Search);
-            this.ExportCommand = new Commands.Command(async () => this.Export());
+            this.ExportCommand = new Commands.Command(() => this.Export());
 
             this.LoadTransactions();
         }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TransactionLogViewModel"/> class with default repository and homepageService.
-        /// </summary>
-
 
         /// <summary>
         /// Reloads the transaction list based on current filters and sorting.
@@ -294,7 +283,7 @@
             this.service.ExportTransactions([.. this.Transactions], file.Path, format);
 
             // Notify user of successful export
-            this.ShowMessageBox("Export Successful", $"File saved: {file.Path}");
+            ShowMessageBox("Export Successful", $"File saved: {file.Path}");
         }
 
         /// <summary>
@@ -302,9 +291,16 @@
         /// </summary>
         /// <param name="title">Title of the message box.</param>
         /// <param name="content">Content text of the message box.</param>
-        public void ShowMessageBox(string title, string content)
+        public static void ShowMessageBox(string title, string content)
         {
-            this.ShowMessageBoxRequested?.Invoke(title, content);
+            ContentDialog dialog = new()
+            {
+                Title = title,
+                Content = content,
+                CloseButtonText = "OK",
+                XamlRoot = App.MainAppWindow!.MainAppFrame.XamlRoot,
+            };
+            _ = dialog.ShowAsync();
         }
 
         /// <summary>
@@ -326,12 +322,7 @@
         /// <returns><c>true</c> if valid or not applicable; otherwise, <c>false</c>.</returns>
         private static bool ValidateTotalValues(string minTotalValue, string maxTotalValue)
         {
-            if (int.TryParse(minTotalValue, out int min) && int.TryParse(maxTotalValue, out int max))
-            {
-                return min < max;
-            }
-
-            return true;
+            return int.TryParse(minTotalValue, out int min) && int.TryParse(maxTotalValue, out int max) ? min < max : true;
         }
 
         /// <summary>
@@ -342,22 +333,17 @@
         /// <returns><c>true</c> if valid or not applicable; otherwise, <c>false</c>.</returns>
         private static bool ValidateDateRange(DateTime? startDate, DateTime? endDate)
         {
-            if (startDate.HasValue && endDate.HasValue)
-            {
-                return startDate.Value < endDate.Value;
-            }
-
-            return true;
+            return startDate.HasValue && endDate.HasValue ? startDate.Value < endDate.Value : true;
         }
 
         /// <summary>
-        /// Loads and filters transactions from the homepageService and applies sorting.
+        /// Loads and filters transactions from the stockService and applies sorting.
         /// </summary>
         public async void LoadTransactions()
         {
             if (this.service == null)
             {
-                throw new InvalidOperationException("Transaction homepageService is not initialized");
+                throw new InvalidOperationException("Transaction stockService is not initialized");
             }
 
             // Add null checks here for all ComboBoxItem properties to prevent null reference
@@ -368,14 +354,14 @@
             // Validate MinTotalValue < MaxTotalValue
             if (!ValidateTotalValues(this.minTotalValue, this.maxTotalValue))
             {
-                this.ShowMessageBox("Invalid Total Values", "Min Total Value must be less than Max Total Value.");
+                ShowMessageBox("Invalid Total Values", "Min Total Value must be less than Max Total Value.");
                 return;
             }
 
             // Validate StartDate < EndDate
             if (!ValidateDateRange(this.startDate, this.endDate))
             {
-                this.ShowMessageBox("Invalid Date Range", "Start Date must be earlier than End Date.");
+                ShowMessageBox("Invalid Date Range", "Start Date must be earlier than End Date.");
                 return;
             }
 
@@ -429,14 +415,9 @@
         /// Raises the <see cref="PropertyChanged"/> event for the specified property.
         /// </summary>
         /// <param name="propertyName">Name of the property changed.</param>
-        protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string propertyName = null)
+        protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? propertyName = null)
         {
             this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        public TransactionLogViewModel()
-        {
-
         }
     }
 }

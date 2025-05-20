@@ -1,10 +1,10 @@
 namespace StockApp.Views.Pages
 {
-    using System;
+    using Common.Models;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
-    using Common.Models;
     using StockApp.ViewModels;
+    using System;
 
     /// <summary>
     /// Represents the page for displaying and managing bill split reports.
@@ -57,13 +57,13 @@ namespace StockApp.Views.Pages
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The event data.</param>
-        private async void CreateButton_Click(object sender, RoutedEventArgs e)
+        private void CreateButton_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                //var component = billSplitReportComponentFactory();
-                //component.XamlRoot = this.XamlRoot;
-                //await component.ShowCreateDialogAsync();
+                // var component = billSplitReportComponentFactory();
+                // component.XamlRoot = this.XamlRoot;
+                // await component.ShowCreateDialogAsync();
                 // The ViewModel will update the UI when the report is created
             }
             catch (Exception ex)
@@ -76,7 +76,7 @@ namespace StockApp.Views.Pages
         /// Displays an error message.
         /// </summary>
         /// <param name="message">The error message to display.</param>
-        private void ShowError(string message)
+        private static void ShowError(string message)
         {
             // Simple error handling, you could enhance this with a proper error display
             System.Diagnostics.Debug.WriteLine(message);

@@ -1,34 +1,23 @@
 ﻿namespace Common.Services
 {
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
     using Common.Models;
+    using System.Threading.Tasks;
 
     public interface IStockPageService
     {
         // merge with StocksService
-        Task<bool> BuyStockAsync(int quantity);
+        Task<bool> BuyStockAsync(string stockName, int quantity, string? userCNP = null);
 
-        Task<bool> GetFavoriteAsync();
+        Task<bool> GetFavoriteAsync(string stockName, string? userCNP = null);
 
-        Task<int> GetOwnedStocksAsync();
+        Task<int> GetOwnedStocksAsync(string stockName, string? userCNP = null);
 
-        Task<UserStock> GetUserStockAsync();
+        Task<UserStock> GetUserStockAsync(string stockName, string? userCNP = null);
 
-        Task<User> GetStockAuthorAsync();
+        Task<bool> SellStockAsync(string stockName, int quantity, string? userCNP = null);
 
-        Task<List<int>> GetStockHistoryAsync();
+        Task ToggleFavoriteAsync(string stockName, bool state, string? userCNP = null);
 
-        Task<string> GetStockNameAsync();
-
-        Task<string> GetStockSymbolAsync();
-
-        Task<int> GetUserBalanceAsync();
-
-        void SelectStock(Stock stock);
-
-        Task<bool> SellStockAsync(int quantity);
-
-        Task ToggleFavoriteAsync(bool state);
+        Task<List<int>> GetStockHistoryAsync(string stockName);
     }
 }

@@ -1,9 +1,9 @@
-using System;
-using System.Threading.Tasks;
 using Common.Models;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using StockApp.ViewModels;
+using System;
+using System.Threading.Tasks;
 
 namespace StockApp.Views.Components
 {
@@ -11,17 +11,24 @@ namespace StockApp.Views.Components
     {
         private readonly BillSplitReportViewModel viewModel;
 
-        public event EventHandler ReportSolved;
-        public XamlRoot XamlRoot { get; set; }
+        public event EventHandler? ReportSolved;
 
         public int Id { get; set; }
+
         public string ReportedUserCNP { get; set; }
+
         public string ReportedUserFirstName { get; set; }
+
         public string ReportedUserLastName { get; set; }
+
         public string ReporterUserCNP { get; set; }
+
         public string ReporterUserFirstName { get; set; }
+
         public string ReporterUserLastName { get; set; }
+
         public DateTime DateTransaction { get; set; }
+
         private decimal BillShare { get; set; }
 
         public BillSplitReportComponent(BillSplitReportViewModel viewModel)
@@ -33,7 +40,7 @@ namespace StockApp.Views.Components
 
         public async Task ShowCreateDialogAsync()
         {
-            ContentDialog createDialog = new ContentDialog
+            ContentDialog createDialog = new()
             {
                 Title = "Create Bill Split Report",
                 PrimaryButtonText = "Create",
@@ -41,16 +48,47 @@ namespace StockApp.Views.Components
                 XamlRoot = this.XamlRoot
             };
 
+            var stackPanel = new StackPanel();
+            var reportedUserCnpTextBox = new TextBox { Header = "Reported User CNP" };
+            var billShareTextBox = new TextBox { Header = "Bill Share" };
+            var datePicker = new DatePicker { Header = "Date of Transaction" };
+
+            stackPanel.Children.Add(reportedUserCnpTextBox);
+            stackPanel.Children.Add(billShareTextBox);
+            stackPanel.Children.Add(datePicker);
+            createDialog.Content = stackPanel;
+
             var result = await createDialog.ShowAsync();
             if (result == ContentDialogResult.Primary)
             {
-                // Implement the create logic
+                try
+                {
+                    var newReport = new BillSplitReport
+                    {
+                        ReportedUserCnp = reportedUserCnpTextBox.Text,
+                        BillShare = decimal.Parse(billShareTextBox.Text),
+                        DateOfTransaction = datePicker.Date.DateTime,
+                        // ReportingUserCnp will be set by the backend based on the authenticated user
+                    };
+                    await viewModel.AddReportAsync(newReport);
+                }
+                catch (Exception ex)
+                {
+                    ContentDialog errorDialog = new()
+                    {
+                        Title = "Error Creating Report",
+                        Content = ex.Message,
+                        CloseButtonText = "OK",
+                        XamlRoot = this.XamlRoot
+                    };
+                    await errorDialog.ShowAsync();
+                }
             }
         }
 
         private async void OnSolveClick(object sender, RoutedEventArgs e)
         {
-            BillSplitReport billSplitReport = new BillSplitReport
+            BillSplitReport billSplitReport = new()
             {
                 Id = this.Id,
                 ReportedUserCnp = this.ReportedUserCNP,
@@ -61,28 +99,25 @@ namespace StockApp.Views.Components
 
             try
             {
-                // Solve = delete in this implementation
-                await viewModel.DeleteReportAsync(billSplitReport);
+                await viewModel.DeleteReportAsync(billSplitReport); // Solve = delete
                 this.ReportSolved?.Invoke(this, EventArgs.Empty);
             }
             catch (Exception ex)
             {
-                // Show error to user
-                ContentDialog errorDialog = new ContentDialog
+                ContentDialog errorDialog = new()
                 {
                     Title = "Error",
                     Content = $"Failed to solve report: {ex.Message}",
                     CloseButtonText = "OK",
-                    XamlRoot = this.Content.XamlRoot
+                    XamlRoot = this.Content.XamlRoot ?? this.XamlRoot
                 };
-
                 await errorDialog.ShowAsync();
             }
         }
 
         private async void OnDropReportClick(object sender, RoutedEventArgs e)
         {
-            BillSplitReport billSplitReport = new BillSplitReport
+            BillSplitReport billSplitReport = new()
             {
                 Id = this.Id,
                 ReportedUserCnp = this.ReportedUserCNP,
@@ -98,13 +133,12 @@ namespace StockApp.Views.Components
             }
             catch (Exception ex)
             {
-                // Show error to user
-                ContentDialog errorDialog = new ContentDialog
+                ContentDialog errorDialog = new()
                 {
                     Title = "Error",
                     Content = $"Failed to delete report: {ex.Message}",
                     CloseButtonText = "OK",
-                    XamlRoot = this.Content.XamlRoot
+                    XamlRoot = this.Content.XamlRoot ?? this.XamlRoot
                 };
 
                 await errorDialog.ShowAsync();
@@ -115,7 +149,6 @@ namespace StockApp.Views.Components
         {
             try
             {
-                // Get user details using the ViewModel
                 User reportedUser = await viewModel.GetUserByCnpAsync(billSplitReport.ReportedUserCnp);
                 User reporterUser = await viewModel.GetUserByCnpAsync(billSplitReport.ReportingUserCnp);
 
@@ -129,19 +162,19 @@ namespace StockApp.Views.Components
                 this.DateTransaction = billSplitReport.DateOfTransaction;
                 this.BillShare = billSplitReport.BillShare;
 
-                this.IdTextBlock.Text = $"Report ID: {this.Id}";
-                this.ReportedUserCNPTextBlock.Text = $"CNP: {this.ReportedUserCNP}";
-                this.ReportedUserNameTextBlock.Text = $"{reportedUser.FirstName} {reportedUser.LastName}";
-                this.ReporterUserCNPTextBlock.Text = $"CNP: {this.ReporterUserCNP}";
-                this.ReporterUserNameTextBlock.Text = $"{reporterUser.FirstName} {reporterUser.LastName}";
-                this.DateTransactionTextBlock.Text = $"{this.DateTransaction}";
-                this.DaysOverdueTextBlock.Text = $"{(DateTime.Now - billSplitReport.DateOfTransaction).Days} days overdue!";
-                this.BillShareTextBlock.Text = $"Bill share: {this.BillShare}";
+                IdTextBlock.Text = $"Report ID: {this.Id}";
+                ReportedUserCNPTextBlock.Text = $"CNP: {this.ReportedUserCNP}";
+                ReportedUserNameTextBlock.Text = $"{reportedUser.FirstName} {reportedUser.LastName}";
+                ReporterUserCNPTextBlock.Text = $"CNP: {this.ReporterUserCNP}";
+                ReporterUserNameTextBlock.Text = $"{reporterUser.FirstName} {reporterUser.LastName}";
+                DateTransactionTextBlock.Text = $"{this.DateTransaction}";
+                DaysOverdueTextBlock.Text = $"{(DateTime.Now - billSplitReport.DateOfTransaction).Days} days overdue!";
+                BillShareTextBlock.Text = $"Bill share: {this.BillShare}";
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error setting report data: {ex.Message}");
-                this.IdTextBlock.Text = $"Error: {ex.Message}";
+                IdTextBlock.Text = $"Error: {ex.Message}";
             }
         }
     }

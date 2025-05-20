@@ -1,22 +1,16 @@
 ﻿namespace StockApp.ViewModels
 {
+    using Common.Models;
+    using Common.Services;
     using System;
     using System.Collections.ObjectModel;
     using System.Threading.Tasks;
-    using Common.Models;
-    using Common.Services;
 
-    public class InvestmentsViewModel
+    public class InvestmentsViewModel(IInvestmentsService investmentsService)
     {
-        private readonly IInvestmentsService _investmentsService;
+        private readonly IInvestmentsService _investmentsService = investmentsService ?? throw new ArgumentNullException(nameof(investmentsService));
 
-        public ObservableCollection<InvestmentPortfolio> UsersPortofolio { get; set; }
-
-        public InvestmentsViewModel(IInvestmentsService investmentsService)
-        {
-            _investmentsService = investmentsService ?? throw new ArgumentNullException(nameof(investmentsService));
-            UsersPortofolio = new ObservableCollection<InvestmentPortfolio>();
-        }
+        public ObservableCollection<InvestmentPortfolio> UsersPortofolio { get; set; } = [];
 
         public async Task CalculateAndUpdateRiskScoreAsync()
         {
@@ -57,7 +51,7 @@
             }
         }
 
-        public async Task LoadPortfolioSummaryAsync(string userCNP)
+        public async Task LoadPortfolioSummaryAsync()
         {
             try
             {

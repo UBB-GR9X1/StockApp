@@ -1,22 +1,23 @@
 ﻿namespace StockApp.ViewModels
 {
+    using Common.Models;
+    using Common.Services;
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Common.Models;
-    using Common.Services;
 
     /// <summary>
     /// ViewModel for updating user profile details including username, image, description, and visibility.
     /// </summary>
     /// <remarks>
-    /// Initializes a new instance of the <see cref="UpdateProfilePageViewModel"/> class with a specified homepageService.
+    /// Initializes a new instance of the <see cref="UpdateProfilePageViewModel"/> class with a specified stockService.
     /// </remarks>
     /// <param name="service">Service used to retrieve and update profile information.</param>
-    public class UpdateProfilePageViewModel(IStockService stockService, IUserService userService)
+    public class UpdateProfilePageViewModel(IStockService stockService, IUserService userService, IAuthenticationService authenticationService)
     {
         private readonly IStockService stockService = stockService ?? throw new ArgumentNullException(nameof(stockService));
         private readonly IUserService userService = userService ?? throw new ArgumentNullException(nameof(userService));
+        private readonly IAuthenticationService authenticationService = authenticationService ?? throw new ArgumentNullException(nameof(authenticationService));
 
         /// <summary>
         /// Gets the URL of the user's profile image.
@@ -35,7 +36,7 @@
         public async Task<string> GetUsername()
         {
             // Inline: delegate username retrieval to service
-            return (await this.userService.GetCurrentUserAsync()).Username;
+            return (await this.userService.GetCurrentUserAsync()).UserName ?? throw new ArgumentNullException("UserName", "Username cannot be null.");
         }
 
         /// <summary>
@@ -74,7 +75,7 @@
         /// <returns>A list of <see cref="Stock"/> objects.</returns>
         public async Task<List<Stock>> GetUserStocks()
         {
-            return await this.stockService.UserStocksAsync(this.userService.GetCurrentUserCNP());
+            return await this.stockService.UserStocksAsync(this.authenticationService.GetUserCNP());
         }
 
         /// <summary>

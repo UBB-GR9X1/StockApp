@@ -16,12 +16,9 @@
         /// <returns>Visibility.Collapsed if status matches expectedStatus; otherwise, Visibility.Visible.</returns>
         public override object Convert(object value, Type targetType, object parameter, string language)
         {
-            if (value is not string status || parameter is not string expectedStatus)
-            {
-                return Visibility.Collapsed;
-            }
-
-            return status == expectedStatus
+            return value is not string status || parameter is not string expectedStatus
+                ? Visibility.Collapsed
+                : status == expectedStatus
                 ? Visibility.Collapsed
                 : Visibility.Visible;
         }

@@ -1,91 +1,153 @@
-using BankApi.Data;
+using System;
+using System.Collections.Generic;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using BankApi.Repositories;
 using Common.Models;
+using Common.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace BankApi.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
-    public class LoanController : ControllerBase
+    public class LoanController(ILoanService loanService, IUserRepository userRepository) : ControllerBase
     {
-        private readonly ApiDbContext _context;
+        private readonly ILoanService _loanService = loanService ?? throw new ArgumentNullException(nameof(loanService));
+        private readonly IUserRepository _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 
-        public LoanController(ApiDbContext context)
+        private async Task<string> GetCurrentUserCnp()
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                throw new UnauthorizedAccessException("User is not authenticated.");
+            }
+
+            var user = await _userRepository.GetByIdAsync(int.Parse(userId));
+            return user == null ? throw new Exception("User not found") : user.CNP;
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<Loan>>> GetLoans()
+        public async Task<ActionResult<List<Loan>>> GetAllLoans()
         {
-            var loans = await _context.Loans.ToListAsync();
-            return Ok(loans);
+            try
+            {
+                if (User.IsInRole("Admin"))
+                {
+                    return Ok(await _loanService.GetLoansAsync());
+                }
+
+                // Non-admin users can only see their own loans
+                var userCnp = await GetCurrentUserCnp();
+                return Ok(await _loanService.GetUserLoansAsync(userCnp));
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Loan>> GetLoanById(int id)
+        [HttpGet("user")]
+        public async Task<ActionResult<List<Loan>>> GetUserLoans()
         {
-            var loan = await _context.Loans.FindAsync(id);
-            if (loan == null)
+            try
             {
-                return NotFound($"Loan with ID {id} not found.");
+                var userCnp = await GetCurrentUserCnp();
+                return Ok(await _loanService.GetUserLoansAsync(userCnp));
             }
-            return Ok(loan);
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
-        [HttpPost]
-        public async Task<ActionResult<Loan>> CreateLoan([FromBody] Loan loan)
+        [HttpGet("user/{userCnp}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<List<Loan>>> GetLoansByUser(string userCnp)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
+                return Ok(await _loanService.GetUserLoansAsync(userCnp));
             }
-
-            _context.Loans.Add(loan);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetLoanById), new { id = loan.Id }, loan);
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
-        [HttpPut("{id}")]
-        public async Task<ActionResult> UpdateLoan(int id, [FromBody] Loan loan)
+        [HttpPost("{loanId}/increment-payment")]
+        public async Task<IActionResult> IncrementMonthlyPaymentsCompleted(int loanId, [FromBody] PaymentDto payment)
         {
-            if (id != loan.Id)
+            try
             {
-                return BadRequest("Loan ID mismatch.");
-            }
+                // Get loans for the current user
+                var userCnp = await GetCurrentUserCnp();
+                var userLoans = await _loanService.GetUserLoansAsync(userCnp);
 
-            if (!ModelState.IsValid)
+                // Check if the loan belongs to the current user or if the user is an admin
+                var loan = userLoans.Find(l => l.Id == loanId);
+                if (loan == null && !User.IsInRole("Admin"))
+                {
+                    return Forbid();
+                }
+
+                await _loanService.IncrementMonthlyPaymentsCompletedAsync(loanId, payment.Penalty);
+                return Ok();
+            }
+            catch (UnauthorizedAccessException)
             {
-                return BadRequest(ModelState);
+                return Forbid();
             }
-
-            var existingLoan = await _context.Loans.FindAsync(id);
-            if (existingLoan == null)
+            catch (Exception ex)
             {
-                return NotFound($"Loan with ID {id} not found.");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
-
-            _context.Entry(existingLoan).CurrentValues.SetValues(loan);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
         }
 
-        [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteLoan(int id)
+        [HttpPost("check")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> CheckLoans()
         {
-            var loan = await _context.Loans.FindAsync(id);
-            if (loan == null)
+            try
             {
-                return NotFound($"Loan with ID {id} not found.");
+                await _loanService.CheckLoansAsync();
+                return Ok();
             }
-
-            _context.Loans.Remove(loan);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
+
+        [HttpPost("update-history")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateHistoryForUser(string userCnp, int newScore)
+        {
+            try
+            {
+                await _loanService.UpdateHistoryForUserAsync(userCnp, newScore);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+    }
+
+    public class PaymentDto
+    {
+        public decimal Penalty { get; set; }
     }
 }

@@ -15,13 +15,9 @@
                 {
                     return new SolidColorBrush(Microsoft.UI.Colors.Red);
                 }
-                else if (amount > 0)
-                {
-                    return new SolidColorBrush(Microsoft.UI.Colors.Green);
-                }
                 else
                 {
-                    return new SolidColorBrush(Microsoft.UI.Colors.Black);
+                    return amount > 0 ? new SolidColorBrush(Microsoft.UI.Colors.Green) : new SolidColorBrush(Microsoft.UI.Colors.Black);
                 }
             }
 

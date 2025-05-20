@@ -11,11 +11,7 @@ namespace StockApp.Converters
             {
                 return dateTimeOffset.DateTime;
             }
-            if (value is DateTime dateTime)
-            {
-                return dateTime;
-            }
-            return DateTime.Now;
+            return value is DateTime dateTime ? dateTime : DateTime.Now;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)
@@ -24,11 +20,7 @@ namespace StockApp.Converters
             {
                 return new DateTimeOffset(dateTime);
             }
-            if (value is DateTimeOffset dateTimeOffset)
-            {
-                return dateTimeOffset;
-            }
-            return DateTimeOffset.Now;
+            return value is DateTimeOffset dateTimeOffset ? dateTimeOffset : DateTimeOffset.Now;
         }
     }
-} 
+}

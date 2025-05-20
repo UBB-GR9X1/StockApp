@@ -8,7 +8,7 @@ namespace StockApp.Pages
 
     public sealed partial class UpdateProfilePage : Page
     {
-        private UpdateProfilePageViewModel viewModelUpdate;
+        private readonly UpdateProfilePageViewModel viewModelUpdate;
 
         public Page? PreviousPage { get; set; }
 
@@ -35,7 +35,7 @@ namespace StockApp.Pages
         {
             string userTryPass = this.PasswordTry.Text;
 
-            //TODO: holy shit this code is unholy do actual auth checking
+            // TODO: holy shit this code is unholy do actual auth checking
             bool isAdmin = false;
             await this.viewModelUpdate.UpdateAdminModeAsync(isAdmin);
 
@@ -67,7 +67,7 @@ namespace StockApp.Pages
 
             if ((newUsername.Length < 8 || newUsername.Length > 24) && newUsername.Length != 0)
             {
-                await this.ShowErrorDialog("Username must be 8-24 characters long.");
+                await this.ShowErrorDialog("UserName must be 8-24 characters long.");
                 return;
             }
 
@@ -79,7 +79,7 @@ namespace StockApp.Pages
 
             if (string.IsNullOrEmpty(newUsername))
             {
-                newUsername = await this.viewModelUpdate.GetUsername() ?? throw new InvalidOperationException("Username cannot be null");
+                newUsername = await this.viewModelUpdate.GetUsername() ?? throw new InvalidOperationException("UserName cannot be null");
             }
 
             if (descriptionEmpty)

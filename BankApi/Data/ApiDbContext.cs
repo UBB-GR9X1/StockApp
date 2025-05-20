@@ -1,16 +1,14 @@
 using Common.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-//using StockApp.Models; // IMPORTANT: Added StockApp.Models because HomepageStock is from StockApp.Models
 
 namespace BankApi.Data
 {
-    public class ApiDbContext : DbContext
+    public class ApiDbContext(DbContextOptions<ApiDbContext> options) : IdentityDbContext<User, IdentityRole<int>, int>(options)
     {
-        public ApiDbContext(DbContextOptions<ApiDbContext> options) : base(options)
-        {
-        }
 
-        // DbSets
+        // DbSets for your non-Identity models
         public DbSet<BaseStock> BaseStocks { get; set; }
         public DbSet<Stock> Stocks { get; set; }
         public DbSet<ChatReport> ChatReports { get; set; }
@@ -19,22 +17,55 @@ namespace BankApi.Data
         public DbSet<Alert> Alerts { get; set; }
         public DbSet<TriggeredAlert> TriggeredAlerts { get; set; }
         public DbSet<TransactionLogTransaction> TransactionLogTransactions { get; set; }
-        public DbSet<GemStore> GemStores { get; set; }
         public DbSet<ActivityLog> ActivityLogs { get; set; }
         public DbSet<HomepageStock> HomepageStocks { get; set; } = null!;
         public DbSet<UserStock> UserStocks { get; set; }
         public DbSet<Investment> Investments { get; set; }
         public DbSet<BillSplitReport> BillSplitReports { get; set; }
-        public DbSet<User> Users { get; set; } = null!;
         public DbSet<Loan> Loans { get; set; } = null!;
         public DbSet<LoanRequest> LoanRequests { get; set; }
         public DbSet<Tip> Tips { get; set; }
         public DbSet<StockValue> StockValues { get; set; } = null!;
         public DbSet<FavoriteStock> FavoriteStocks { get; set; } = null!;
         public DbSet<NewsArticle> NewsArticles { get; set; } = null!;
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // User configuration - Identity handles most of this, but you can add custom configurations
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.HasIndex(e => e.CNP).IsUnique();
+                entity.Property(e => e.CNP)
+                      .IsRequired()
+                      .HasMaxLength(13);
+
+                entity.Property(e => e.GemBalance)
+                      .HasDefaultValue(0);
+                entity.Property(e => e.NumberOfOffenses)
+                      .HasDefaultValue(0);
+                entity.Property(e => e.RiskScore)
+                      .HasDefaultValue(0);
+                entity.Property(e => e.ROI)
+                      .HasPrecision(18, 2)
+                      .HasDefaultValue(0);
+                entity.Property(e => e.CreditScore)
+                      .HasDefaultValue(0);
+                entity.Property(e => e.NumberOfBillSharesPaid)
+                      .HasDefaultValue(0);
+                entity.Property(e => e.Income)
+                      .HasDefaultValue(0);
+                entity.Property(e => e.Balance)
+                      .HasPrecision(18, 2)
+                      .HasDefaultValue(0);
+
+                entity.HasMany(e => e.OwnedStocks)
+                      .WithOne()
+                      .HasForeignKey(us => us.UserCnp)
+                      .HasPrincipalKey(u => u.CNP)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
 
             // BaseStock configuration
             modelBuilder.Entity<BaseStock>(entity =>
@@ -60,63 +91,6 @@ namespace BankApi.Data
             modelBuilder.Entity<BaseStock>()
                 .Property(s => s.AuthorCNP)
                 .IsRequired();
-            // User configuration
-            modelBuilder.Entity<User>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-                entity.HasIndex(e => e.CNP).IsUnique();
-                entity.Property(e => e.CNP)
-                      .IsRequired()
-                      .HasMaxLength(13);
-                entity.Property(e => e.Username)
-                      .IsRequired()
-                      .HasMaxLength(50);
-                entity.Property(e => e.FirstName)
-                      .IsRequired()
-                      .HasMaxLength(50);
-                entity.Property(e => e.LastName)
-                      .IsRequired()
-                      .HasMaxLength(50);
-                entity.Property(e => e.Email)
-                      .IsRequired()
-                      .HasMaxLength(100);
-                entity.Property(e => e.HashedPassword)
-                      .IsRequired();
-                entity.Property(e => e.Description)
-                      .HasMaxLength(500);
-                entity.Property(e => e.Image)
-                      .HasMaxLength(255);
-                entity.Property(e => e.PhoneNumber)
-                      .HasMaxLength(20);
-                entity.Property(e => e.GemBalance)
-                      .HasDefaultValue(0);
-                entity.Property(e => e.NumberOfOffenses)
-                      .HasDefaultValue(0);
-                entity.Property(e => e.RiskScore)
-                      .HasDefaultValue(0);
-                entity.Property(e => e.ROI)
-                      .HasPrecision(18, 2)
-                      .HasDefaultValue(0);
-                entity.Property(e => e.CreditScore)
-                      .HasDefaultValue(0);
-                entity.Property(e => e.Birthday)
-                      .IsRequired();
-                entity.Property(e => e.ZodiacSign)
-                      .HasMaxLength(50);
-                entity.Property(e => e.ZodiacAttribute)
-                      .HasMaxLength(50);
-                entity.Property(e => e.NumberOfBillSharesPaid)
-                      .HasDefaultValue(0);
-                entity.Property(e => e.Income)
-                      .HasDefaultValue(0);
-                entity.Property(e => e.Balance)
-                      .HasPrecision(18, 2)
-                      .HasDefaultValue(0);
-                entity.HasMany(e => e.OwnedStocks)
-                      .WithOne()
-                      .HasForeignKey(e => e.UserCnp)
-                      .OnDelete(DeleteBehavior.Cascade);
-            });
 
             // HomepageStock configuration
             modelBuilder.Entity<HomepageStock>(entity =>
@@ -141,11 +115,11 @@ namespace BankApi.Data
                 entity.HasKey(e => e.Id);
 
                 entity.Property(e => e.ReportedUserCnp)
-              .IsRequired()
-              .HasMaxLength(15);
+                      .IsRequired()
+                      .HasMaxLength(15);
 
                 entity.Property(e => e.ReportedMessage)
-              .IsRequired();
+                      .IsRequired();
             });
 
             // Alert configuration
@@ -187,27 +161,6 @@ namespace BankApi.Data
                     .HasDefaultValueSql("GETUTCDATE()");
             });
 
-            // GemStore configuration
-            modelBuilder.Entity<GemStore>(entity =>
-            {
-                entity.ToTable("GemStores");
-
-                entity.HasKey(e => e.Cnp);
-
-                entity.Property(e => e.Cnp)
-                    .IsRequired()
-                    .HasMaxLength(13);
-
-                entity.Property(e => e.GemBalance)
-                    .IsRequired();
-
-                entity.Property(e => e.IsGuest)
-                    .IsRequired();
-
-                entity.Property(e => e.LastUpdated)
-                    .IsRequired();
-            });
-
             modelBuilder.Entity<Investment>(entity =>
             {
                 entity.HasKey(e => e.Id);
@@ -217,6 +170,7 @@ namespace BankApi.Data
                 entity.Property(e => e.AmountReturned).HasPrecision(18, 2);
                 entity.Property(e => e.InvestmentDate).IsRequired();
             });
+
             // Configure BillSplitReport entity
             modelBuilder.Entity<BillSplitReport>()
                 .HasKey(b => b.Id);
@@ -236,7 +190,7 @@ namespace BankApi.Data
             modelBuilder.Entity<BillSplitReport>()
                 .Property(b => b.BillShare)
                 .IsRequired()
-                .HasPrecision(18, 2); // Specify precision and scale for the decimal property
+                .HasPrecision(18, 2);
 
             modelBuilder.Entity<UserStock>(entity =>
             {
@@ -248,11 +202,6 @@ namespace BankApi.Data
                       .WithMany()
                       .HasForeignKey(e => e.StockName)
                       .HasPrincipalKey(s => s.Name);
-                entity.HasOne(e => e.User)
-                      .WithMany(u => u.OwnedStocks)
-                      .HasForeignKey(e => e.UserCnp)
-                      .HasPrincipalKey(u => u.CNP)
-                      .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<CreditScoreHistory>(entity =>
@@ -272,18 +221,18 @@ namespace BankApi.Data
                     .HasMaxLength(13);
 
                 entity.Property(e => e.Amount)
-                            .IsRequired();
+                    .IsRequired();
 
                 entity.Property(e => e.ApplicationDate)
-                            .IsRequired()
-                            .HasDefaultValueSql("GETUTCDATE()");
+                    .IsRequired()
+                    .HasDefaultValueSql("GETUTCDATE()");
 
                 entity.Property(e => e.RepaymentDate)
-                            .IsRequired();
+                    .IsRequired();
 
                 entity.Property(e => e.Status)
-                            .IsRequired()
-                            .HasMaxLength(100);
+                    .IsRequired()
+                    .HasMaxLength(100);
             });
 
             modelBuilder.Entity<TransactionLogTransaction>(entity =>
@@ -308,6 +257,7 @@ namespace BankApi.Data
                 .Property(t => t.TipText)
                 .IsRequired()
                 .HasMaxLength(500);
+
             modelBuilder.Entity<GivenTip>(entity =>
             {
                 entity.HasKey(e => e.Id);

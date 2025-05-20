@@ -30,7 +30,7 @@ namespace StockApp.Repository.Tests
             var result = method.Invoke(_repo, null) as string;
 
             Assert.IsFalse(string.IsNullOrWhiteSpace(result));
-            Assert.IsTrue(result.Contains("_") || result.Length > 5); 
+            Assert.IsTrue(result.Contains("_") || result.Length > 5);
         }
 
     }

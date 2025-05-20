@@ -1,34 +1,93 @@
+using System;
+using System.Collections.Generic;
+using System.Security.Claims;
+using System.Threading.Tasks;
 using BankApi.Repositories;
 using Common.Models;
+using Common.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BankApi.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
-    public class ActivityController : ControllerBase
+    public class ActivityController(IActivityService activityService, IUserRepository userRepository) : ControllerBase
     {
-        private readonly IActivityRepository _repository;
-        private readonly ILogger<ActivityController> _logger;
+        private readonly IActivityService _activityService = activityService ?? throw new ArgumentNullException(nameof(activityService));
+        private readonly IUserRepository _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 
-        public ActivityController(IActivityRepository repository, ILogger<ActivityController> logger)
+        private async Task<string> GetCurrentUserCnp()
         {
-            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                throw new UnauthorizedAccessException("User is not authenticated.");
+            }
+
+            var user = await _userRepository.GetByIdAsync(int.Parse(userId));
+            return user == null ? throw new Exception("User not found") : user.CNP;
         }
 
-        [HttpGet]
+        [HttpGet("user")]
+        public async Task<ActionResult<List<ActivityLog>>> GetActivityForUser()
+        {
+            try
+            {
+                var userCnp = await GetCurrentUserCnp();
+                var activities = await _activityService.GetActivityForUser(userCnp);
+                return Ok(activities);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<ActivityLog>> AddActivity([FromBody] ActivityRequestDto request)
+        {
+            try
+            {
+                var userCnp = await GetCurrentUserCnp();
+                var activity = await _activityService.AddActivity(userCnp, request.ActivityName, request.Amount, request.Details);
+                return CreatedAtAction(nameof(GetActivityById), new { id = activity.Id }, activity);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("all")]
+        [Authorize(Roles = "Admin")] // Only admins can get all activities
         public async Task<ActionResult<List<ActivityLog>>> GetAllActivities()
         {
             try
             {
-                var activities = await _repository.GetAllActivitiesAsync();
+                var activities = await _activityService.GetAllActivities();
                 return Ok(activities);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving all activities");
-                return StatusCode(500, "An error occurred while retrieving activities");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
 
@@ -37,80 +96,71 @@ namespace BankApi.Controllers
         {
             try
             {
-                var activity = await _repository.GetActivityByIdAsync(id);
-                return Ok(activity);
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound($"Activity with ID {id} not found");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving activity with ID {ActivityId}", id);
-                return StatusCode(500, "An error occurred while retrieving the activity");
-            }
-        }
+                var activity = await _activityService.GetActivityById(id);
+                if (activity == null)
+                {
+                    return NotFound($"Activity with ID {id} not found");
+                }
 
-        [HttpGet("user/{userCnp}")]
-        public async Task<ActionResult<List<ActivityLog>>> GetActivitiesForUser(string userCnp)
-        {
-            try
-            {
-                var activities = await _repository.GetActivityForUserAsync(userCnp);
-                return Ok(activities);
+                // Check if the user has access to this activity (admin or the activity belongs to the user)
+                var currentUserCnp = await GetCurrentUserCnp();
+                return activity.UserCnp != currentUserCnp && !User.IsInRole("Admin") ? (ActionResult<ActivityLog>)Forbid() : (ActionResult<ActivityLog>)Ok(activity);
             }
             catch (ArgumentException ex)
             {
                 return BadRequest(ex.Message);
             }
-            catch (Exception ex)
+            catch (UnauthorizedAccessException)
             {
-                _logger.LogError(ex, "Error retrieving activities for user {UserCnp}", userCnp);
-                return StatusCode(500, "An error occurred while retrieving user activities");
-            }
-        }
-
-        [HttpPost]
-        public async Task<ActionResult<ActivityLog>> AddActivity([FromBody] ActivityLog activity)
-        {
-            try
-            {
-                var newActivity = await _repository.AddActivityAsync(
-                    activity.UserCnp,
-                    activity.ActivityName,
-                    activity.LastModifiedAmount,
-                    activity.ActivityDetails);
-
-                return CreatedAtAction(nameof(GetActivityById), new { id = newActivity.Id }, newActivity);
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
+                return Forbid();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error adding new activity");
-                return StatusCode(500, "An error occurred while adding the activity");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteActivity(int id)
+        public async Task<ActionResult<bool>> DeleteActivity(int id)
         {
             try
             {
-                var result = await _repository.DeleteActivityAsync(id);
-                if (!result)
+                // First, check if the activity exists and if the user has permission to delete it
+                var activity = await _activityService.GetActivityById(id);
+                if (activity == null)
                 {
                     return NotFound($"Activity with ID {id} not found");
                 }
-                return NoContent();
+
+                var currentUserCnp = await GetCurrentUserCnp();
+                if (activity.UserCnp != currentUserCnp && !User.IsInRole("Admin"))
+                {
+                    return Forbid();
+                }
+
+                var result = await _activityService.DeleteActivity(id);
+                return Ok(result);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error deleting activity with ID {ActivityId}", id);
-                return StatusCode(500, "An error occurred while deleting the activity");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+    }
+
+    // DTO for activity creation requests
+    public class ActivityRequestDto
+    {
+        public string ActivityName { get; set; }
+        public int Amount { get; set; }
+        public string Details { get; set; }
     }
 }

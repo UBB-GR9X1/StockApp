@@ -1,11 +1,11 @@
 namespace StockApp.Views.Pages
 {
-    using System;
-    using System.Collections.Generic;
-    using Microsoft.UI.Xaml.Controls;
     using Common.Models;
     using Common.Services;
+    using Microsoft.UI.Xaml.Controls;
     using StockApp.Views.Components;
+    using System;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
 
     public sealed partial class ChatReportView : Page
@@ -29,7 +29,7 @@ namespace StockApp.Views.Pages
 
             try
             {
-                List<ChatReport> chatReports = await this.chatReportService.GetChatReports();
+                List<ChatReport> chatReports = await this.chatReportService.GetAllChatReportsAsync();
                 foreach (var report in chatReports)
                 {
                     ChatReportComponent reportComponent = this.componentFactory();

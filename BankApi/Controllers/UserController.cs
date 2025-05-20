@@ -1,131 +1,206 @@
-﻿using BankApi.Repositories;
+using BankApi.Repositories;
 using Common.Models;
+using Common.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace BankApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class UserController : ControllerBase
+    public class UserController(IUserService userService, IUserRepository userRepository) : ControllerBase
     {
-        private readonly IUserRepository _repository;
-        private readonly ILogger<UserController> _logger;
+        private readonly IUserService _userService = userService ?? throw new ArgumentNullException(nameof(userService));
+        private readonly IUserRepository _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository)); // For GetCurrentUserCnp
 
-        public UserController(IUserRepository repository, ILogger<UserController> logger)
+        private async Task<string> GetCurrentUserCnp()
         {
-            _repository = repository;
-            _logger = logger;
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                throw new UnauthorizedAccessException("User is not authenticated.");
+            }
+            var user = await _userRepository.GetByIdAsync(int.Parse(userId));
+            return user == null ? throw new Exception("User not found") : user.CNP;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<List<User>>> GetAll()
-        {
-            return Ok(await _repository.GetAllAsync());
-        }
-
-        [HttpGet("{id}")]
-        public async Task<ActionResult<User>> GetById(int id)
-        {
-            var user = await _repository.GetByIdAsync(id);
-            if (user == null)
-                return NotFound();
-            return Ok(user);
-        }
-
-        [HttpGet("cnp/{cnp}")]
-        public async Task<ActionResult<User>> GetByCnp(string cnp)
-        {
-            var user = await _repository.GetByCnpAsync(cnp);
-            if (user == null)
-                return NotFound();
-            return Ok(user);
-        }
-
-        [HttpGet("username/{username}")]
-        public async Task<ActionResult<User>> GetByUsername(string username)
-        {
-            var user = await _repository.GetByUsernameAsync(username);
-            if (user == null)
-                return NotFound();
-            return Ok(user);
-        }
-
-        [HttpPost]
-        public async Task<ActionResult<User>> Create(User user)
-        {
-            var createdUser = await _repository.CreateAsync(user);
-            return CreatedAtAction(nameof(GetById), new { id = createdUser.Id }, createdUser);
-        }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, User user)
-        {
-            if (id != user.Id)
-                return BadRequest();
-
-            var success = await _repository.UpdateAsync(user);
-            if (!success)
-                return NotFound();
-            return NoContent();
-        }
-
-        [HttpPut("{id}/punish")]
-        public async Task<IActionResult> PunishUser(int id, [FromBody] PunishmentDetails details)
-        {
-            var user = await _repository.GetByIdAsync(id);
-            if (user == null)
-                return NotFound();
-
-            // Update the user's properties for punishment
-            user.GemBalance -= details.GemPenalty;
-            user.NumberOfOffenses++;
-            user.CreditScore -= 50; // Example punishment logic
-
-            var success = await _repository.UpdateAsync(user);
-            if (!success)
-                return NotFound();
-
-            return NoContent();
-        }
-
-        [HttpPatch("{cnp}/creditScore")]
-        public async Task<IActionResult> UpdateCreditScore(string cnp, [FromQuery] int newScore)
+        [HttpGet("current")]
+        [Authorize]
+        public async Task<ActionResult<User>> GetCurrentUser()
         {
             try
             {
-                var user = await _repository.GetByCnpAsync(cnp);
-                if (user == null)
-                    return NotFound($"User with CNP {cnp} not found.");
-
-                user.CreditScore = newScore;
-
-                var success = await _repository.UpdateAsync(user);
-                if (!success)
-                    return NotFound();
-
-                _logger.LogInformation($"Updated credit score for user with CNP {cnp} to {newScore}");
-                return NoContent();
+                var userCnp = await GetCurrentUserCnp();
+                var user = await _userService.GetUserByCnpAsync(userCnp);
+                return Ok(user);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error updating credit score for user with CNP {cnp}");
-                return StatusCode(500, "An error occurred while updating the credit score.");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        [HttpGet("{cnp}")]
+        [Authorize]
+        public async Task<ActionResult<User>> GetUserByCnp(string cnp)
         {
-            var success = await _repository.DeleteAsync(id);
-            if (!success)
-                return NotFound();
-            return NoContent();
+            try
+            {
+                // Allow admins to get any user, otherwise only the current user can get their own info.
+                var currentUserCnp = await GetCurrentUserCnp();
+                if (!User.IsInRole("Admin") && currentUserCnp != cnp)
+                {
+                    return Forbid();
+                }
+
+                var user = await _userService.GetUserByCnpAsync(cnp);
+                return Ok(user);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Admin")] // Only admins can get a list of all users
+        public async Task<ActionResult<List<User>>> GetAllUsers()
+        {
+            try
+            {
+                var users = await _userService.GetUsers();
+                return Ok(users);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpPost] // Typically, user creation is handled by an Identity system or a dedicated registration endpoint.
+                   // This endpoint is provided if direct creation via this controller is intended.
+        [AllowAnonymous] // This endpoint should be accessible without authentication
+        public async Task<ActionResult> CreateUser([FromBody] User user)
+        {
+            try
+            {
+                await _userService.CreateUser(user);
+                // Return a 201 Created response, pointing to the GetUserByCnp endpoint.
+                return CreatedAtAction(nameof(GetUserByCnp), new { cnp = user.CNP }, user);
+            }
+            catch (ArgumentNullException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                // This might include exceptions if the user already exists, depending on repository implementation.
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpPut("current")]
+        [Authorize]
+        public async Task<IActionResult> UpdateCurrentUser([FromBody] UserUpdateDto dto)
+        {
+            try
+            {
+                var userCnp = await GetCurrentUserCnp();
+                await _userService.UpdateUserAsync(dto.UserName, dto.Image, dto.Description, dto.IsHidden, userCnp);
+                return NoContent(); // Or Ok(updatedUser) if the service returns the updated user.
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpPut("{cnp}")]
+        [Authorize(Roles = "Admin")] // Only admins can update other users' profiles directly by CNP
+        public async Task<IActionResult> UpdateUserByCnp(string cnp, [FromBody] UserUpdateDto dto)
+        {
+            try
+            {
+                await _userService.UpdateUserAsync(dto.UserName, dto.Image, dto.Description, dto.IsHidden, cnp);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpPut("{cnp}/admin-status")]
+        [Authorize(Roles = "Admin")] // Only admins can change admin status
+        public async Task<IActionResult> UpdateUserAdminStatus(string cnp, [FromBody] UpdateAdminStatusDto dto)
+        {
+            try
+            {
+                await _userService.UpdateIsAdminAsync(dto.IsAdmin, cnp);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
     }
 
-    // Class to contain punishment details
-    public class PunishmentDetails
+    public class UserUpdateDto
     {
-        public int GemPenalty { get; set; }
+        public string UserName { get; set; }
+        public string Image { get; set; }
+        public string Description { get; set; }
+        public bool IsHidden { get; set; }
+    }
+
+    public class UpdateAdminStatusDto
+    {
+        public bool IsAdmin { get; set; }
     }
 }

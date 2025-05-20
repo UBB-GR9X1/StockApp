@@ -1,12 +1,12 @@
 namespace StockApp.Views.Components
 {
-    using System;
+    using Common.Models;
+    using Common.Services;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
-    using Common.Models;
-    using Common.Services;
     using StockApp.Views.Pages;
+    using System;
 
     public sealed partial class UserInfoComponent : Page
     {
@@ -29,7 +29,7 @@ namespace StockApp.Views.Components
             this.ScoreTextBlock.Text = $"Score: {this.User.CreditScore}";
         }
 
-        private async void OnAnalysisClick(object sender, RoutedEventArgs e)
+        private void OnAnalysisClick(object sender, RoutedEventArgs e)
         {
             if (this.User != null)
             {
@@ -38,11 +38,11 @@ namespace StockApp.Views.Components
             }
         }
 
-        private async void OnTipHistoryClick(object seder, RoutedEventArgs e)
+        private void OnTipHistoryClick(object seder, RoutedEventArgs e)
         {
             if (this.User != null)
             {
-                TipHistoryWindow tipHistoryWindow = App.Host.Services.GetService<TipHistoryWindow>();
+                TipHistoryWindow tipHistoryWindow = App.Host.Services.GetService<TipHistoryWindow>() ?? throw new InvalidOperationException("TipHistoryWindow not registered in DI container.");
                 tipHistoryWindow.LoadUser(this.User);
                 tipHistoryWindow.Activate();
             }

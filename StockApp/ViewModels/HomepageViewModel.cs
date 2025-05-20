@@ -1,22 +1,22 @@
 ﻿namespace StockApp.ViewModels
 {
+    using Common.Models;
+    using Common.Services;
+    using StockApp.Commands;
     using System;
     using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using System.Windows.Input;
-    using StockApp.Commands;
-    using Common.Models;
-    using Common.Services;
 
     /// <summary>
     /// ViewModel for the homepage, managing stock display, filtering, sorting, and navigation.
     /// </summary>
     public class HomepageViewModel : INotifyPropertyChanged
     {
-        private readonly IHomepageService homepageService;
-        private readonly IUserService userService;
+        private readonly IStockService stockService;
+        private readonly IAuthenticationService authenticationService;
 
         private ObservableCollection<HomepageStock> filteredStocks = [];
         private ObservableCollection<HomepageStock> filteredFavoriteStocks = [];
@@ -24,13 +24,15 @@
         private string selectedSortOption = string.Empty;
         private bool isGuestUser;
 
-        public HomepageViewModel(IHomepageService homepageService, IUserService userService)
+        public HomepageViewModel(IStockService stockService, IAuthenticationService authenticationService)
         {
-            this.homepageService = homepageService ?? throw new ArgumentNullException(nameof(homepageService));
-            this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
-
-            this.IsGuestUser = this.userService.IsGuest();
-            _ = this.LoadStocksAsync();
+            this.authenticationService = authenticationService ?? throw new ArgumentNullException(nameof(authenticationService));
+            this.stockService = stockService ?? throw new ArgumentNullException(nameof(stockService));
+            this.IsGuestUser = !this.authenticationService.IsUserLoggedIn();
+            if (!this.isGuestUser)
+            {
+                _ = this.LoadStocksAsync();
+            }
 
             this.FavoriteCommand = new RelayCommand(async obj => await this.ToggleFavoriteAsync(obj as HomepageStock));
             this.SearchCommand = new RelayCommand(async _ => await this.ApplyFilterAndSortAsync());
@@ -40,7 +42,7 @@
 
         public ICommand FavoriteCommand { get; }
 
-        public bool CanModifyFavorites => this.userService.IsGuest() == false;
+        public bool CanModifyFavorites => this.authenticationService.IsUserLoggedIn() == false;
 
         public ICommand SearchCommand { get; }
 
@@ -96,25 +98,25 @@
 
         public async Task LoadStocksAsync()
         {
-            var stocks = await this.homepageService.GetFilteredAndSortedStocksAsync(this.SearchQuery, this.SelectedSortOption, false);
+            var stocks = await this.stockService.GetFilteredAndSortedStocksAsync(this.SearchQuery, this.SelectedSortOption, false);
             this.filteredStocks.Clear();
             stocks.ForEach(this.filteredStocks.Add);
 
-            var favoriteStocks = await this.homepageService.GetFilteredAndSortedStocksAsync(this.SearchQuery, this.SelectedSortOption, true);
+            var favoriteStocks = await this.stockService.GetFilteredAndSortedStocksAsync(this.SearchQuery, this.SelectedSortOption, true);
             this.filteredFavoriteStocks.Clear();
             favoriteStocks.ForEach(this.filteredFavoriteStocks.Add);
         }
 
         private async Task ApplyFilterAndSortAsync()
         {
-            var stocks = await this.homepageService.GetFilteredAndSortedStocksAsync(this.SearchQuery, this.SelectedSortOption, false);
+            var stocks = await this.stockService.GetFilteredAndSortedStocksAsync(this.SearchQuery, this.SelectedSortOption, false);
             this.FilteredStocks.Clear();
             foreach (var stock in stocks)
             {
                 this.FilteredStocks.Add(stock);
             }
 
-            var favoriteStocks = await this.homepageService.GetFilteredAndSortedStocksAsync(this.SearchQuery, this.SelectedSortOption, true);
+            var favoriteStocks = await this.stockService.GetFilteredAndSortedStocksAsync(this.SearchQuery, this.SelectedSortOption, true);
             this.FilteredFavoriteStocks.Clear();
             foreach (var stock in favoriteStocks)
             {
@@ -131,11 +133,11 @@
 
             if (stock.IsFavorite)
             {
-                await this.homepageService.RemoveFromFavoritesAsync(stock);
+                await this.stockService.RemoveFromFavoritesAsync(stock);
             }
             else
             {
-                await this.homepageService.AddToFavoritesAsync(stock);
+                await this.stockService.AddToFavoritesAsync(stock);
             }
 
             await this.ApplyFilterAndSortAsync();

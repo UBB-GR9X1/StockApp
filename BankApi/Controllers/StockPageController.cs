@@ -1,180 +1,200 @@
+using BankApi.Repositories;
+using Common.Models;
+using Common.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+
 namespace BankApi.Controllers
 {
-    using System;
-    using BankApi.Repositories;
-    using Microsoft.AspNetCore.Mvc;
-    using Microsoft.Extensions.Logging;
-    /// <summary>
-    /// Controller for managing stock-related operations.
-    /// </summary>
-    [Route("api/[controller]")]
+    [Authorize]
     [ApiController]
-    public class StockPageController : ControllerBase
+    [Route("api/[controller]")]
+    public class StockPageController(IStockPageService stockPageService, IUserRepository userRepository) : ControllerBase
     {
-        private readonly IStockPageRepository _repository;
-        private readonly ILogger<StockPageController> _logger;
+        private readonly IStockPageService _stockPageService = stockPageService ?? throw new ArgumentNullException(nameof(stockPageService));
+        private readonly IUserRepository _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="StockPageController"/> class.
-        /// </summary>
-        /// <param name="repository">The stock repository.</param>
-        /// <param name="logger">The logger.</param>
-        public StockPageController(IStockPageRepository repository, ILogger<StockPageController> logger)
+        private async Task<string> GetCurrentUserCnp()
         {
-            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                throw new UnauthorizedAccessException("User is not authenticated.");
+            }
+            var user = await _userRepository.GetByIdAsync(int.Parse(userId));
+            return user == null ? throw new Exception("User not found") : user.CNP;
         }
 
-        [HttpPost("UserStock")]
-        public async Task<IActionResult> AddOrUpdateUserStockAsync([FromBody] UserStockRequest request)
-        {
-            if (request == null || string.IsNullOrWhiteSpace(request.userCNP) || string.IsNullOrWhiteSpace(request.stockName) || request.quantity < 0)
-            {
-                return BadRequest("Invalid user stock request.");
-            }
-            try
-            {
-                await _repository.AddOrUpdateUserStockAsync(request.userCNP, request.stockName, request.quantity);
-                return Ok("Stock updated successfully.");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error updating user stock.");
-                return StatusCode(500, "Internal server error.");
-            }
-        }
-
-        public class UserStockRequest
-        {
-            public string userCNP { get; set; }
-            public string stockName { get; set; }
-            public int quantity { get; set; }
-        }
-
-        [HttpPost("StockValue")]
-        public async Task<IActionResult> AddStockValueAsync([FromBody] StockValueRequest request)
-        {
-            if (request == null || string.IsNullOrWhiteSpace(request.StockName) || request.Price <= 0)
-            {
-                return BadRequest("Invalid stock value request.");
-            }
-
-            try
-            {
-                await _repository.AddStockValueAsync(request.StockName, request.Price);
-                return Ok("Stock value added successfully.");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error adding stock value.");
-                return StatusCode(500, "Internal server error.");
-            }
-        }
-
-        public class StockValueRequest
-        {
-            public string StockName { get; set; }
-            public int Price { get; set; }
-        }
-
-        [HttpGet("Favorite")]
-        public async Task<IActionResult> GetFavoriteAsync(string userCNP, string stockName)
+        [HttpGet("history/{stockName}")]
+        public async Task<ActionResult<List<int>>> GetStockHistory(string stockName)
         {
             try
             {
-                var isFavorite = await _repository.GetFavoriteAsync(userCNP, stockName);
-                return Ok(isFavorite);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving favorite status.");
-                return StatusCode(500, "Internal server error.");
-            }
-        }
-
-        [HttpGet("OwnedStocks")]
-        public async Task<IActionResult> GetOwnedStocksAsync(string userCNP, string stockName)
-        {
-            try
-            {
-                var quantity = await _repository.GetOwnedStocksAsync(userCNP, stockName);
-                return Ok(quantity);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving owned stocks.");
-                return StatusCode(500, "Internal server error.");
-            }
-        }
-
-        [HttpGet("Stock")]
-        public async Task<IActionResult> GetStockAsync(string stockName)
-        {
-            try
-            {
-                var stock = await _repository.GetStockAsync(stockName);
-                return Ok(stock);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving stock.");
-                return StatusCode(500, "Internal server error.");
-            }
-        }
-
-        [HttpGet("UserStock")]
-        public async Task<IActionResult> GetUserStockAsync(string userCNP, string stockName)
-        {
-            try
-            {
-                var stock = await _repository.GetUserStockAsync(userCNP, stockName);
-                return Ok(stock);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving user stock.");
-                return StatusCode(500, "Internal server error.");
-            }
-        }
-
-        [HttpGet("StockHistory")]
-        public async Task<IActionResult> GetStockHistoryAsync(string stockName)
-        {
-            try
-            {
-                var history = await _repository.GetStockHistoryAsync(stockName);
+                var history = await _stockPageService.GetStockHistoryAsync(stockName);
                 return Ok(history);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving stock history.");
-                return StatusCode(500, "Internal server error.");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
 
-        [HttpPost("ToggleFavorite")]
-        public async Task<IActionResult> ToggleFavoriteAsync([FromBody] ToggleFavoriteRequest request)
+        [HttpGet("owned-stocks/{stockName}")]
+        public async Task<ActionResult<int>> GetOwnedStocks(string stockName)
         {
-            if (request == null || string.IsNullOrWhiteSpace(request.userCNP) || string.IsNullOrWhiteSpace(request.stockName))
-            {
-                return BadRequest("Invalid toggle favorite request.");
-            }
             try
             {
-                await _repository.ToggleFavoriteAsync(request.userCNP, request.stockName, request.state);
-                return Ok("Favorite status updated successfully.");
+                var userCnp = await GetCurrentUserCnp();
+                var count = await _stockPageService.GetOwnedStocksAsync(stockName, userCnp);
+                return Ok(count);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error toggling favorite status.");
-                return StatusCode(500, "Internal server error.");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-        public class ToggleFavoriteRequest
+
+        [HttpGet("user-stock/{stockName}")]
+        public async Task<ActionResult<UserStock>> GetUserStock(string stockName)
         {
-            public string userCNP { get; set; }
-            public string stockName { get; set; }
-            public bool state { get; set; }
+            try
+            {
+                var userCnp = await GetCurrentUserCnp();
+                var userStock = await _stockPageService.GetUserStockAsync(stockName, userCnp);
+                return Ok(userStock);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
+
+        [HttpPost("buy")]
+        public async Task<ActionResult<bool>> BuyStock([FromBody] BuySellStockDto dto)
+        {
+            try
+            {
+                var userCnp = await GetCurrentUserCnp();
+                var result = await _stockPageService.BuyStockAsync(dto.StockName, dto.Quantity, userCnp);
+                return Ok(result);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid();
+            }
+            catch (ArgumentNullException ex) when (ex.ParamName == "stockName")
+            {
+                return BadRequest("StockName is required.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpPost("sell")]
+        public async Task<ActionResult<bool>> SellStock([FromBody] BuySellStockDto dto)
+        {
+            try
+            {
+                var userCnp = await GetCurrentUserCnp();
+                var result = await _stockPageService.SellStockAsync(dto.StockName, dto.Quantity, userCnp);
+                return Ok(result);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid();
+            }
+            catch (ArgumentNullException ex) when (ex.ParamName == "stockName")
+            {
+                return BadRequest("StockName is required.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("favorite/{stockName}")]
+        public async Task<ActionResult<bool>> GetFavorite(string stockName)
+        {
+            try
+            {
+                var userCnp = await GetCurrentUserCnp();
+                var isFavorite = await _stockPageService.GetFavoriteAsync(stockName, userCnp);
+                return Ok(isFavorite);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpPost("favorite/toggle")]
+        public async Task<IActionResult> ToggleFavorite([FromBody] ToggleFavoriteDto dto)
+        {
+            try
+            {
+                var userCnp = await GetCurrentUserCnp();
+                await _stockPageService.ToggleFavoriteAsync(dto.StockName, dto.State, userCnp);
+                return Ok();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid();
+            }
+            catch (ArgumentNullException ex) when (ex.ParamName == "stockName")
+            {
+                return BadRequest("StockName is required.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("author/{stockName}")]
+        public async Task<ActionResult<User>> GetStockAuthor(string stockName)
+        {
+            try
+            {
+                var userCnp = await GetCurrentUserCnp();
+                var userStock = await _stockPageService.GetUserStockAsync(stockName, userCnp);
+                return userStock == null ? (ActionResult<User>)NotFound("User stock not found.") : (ActionResult<User>)Ok(userStock.User);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+    }
+
+    public class BuySellStockDto
+    {
+        public required string StockName { get; set; }
+        public int Quantity { get; set; }
+    }
+
+    public class ToggleFavoriteDto
+    {
+        public required string StockName { get; set; }
+        public required bool State { get; set; }
     }
 }

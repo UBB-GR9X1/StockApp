@@ -22,7 +22,7 @@ namespace BankApi.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("BankApi.Models.ActivityLog", b =>
+            modelBuilder.Entity("Common.Models.ActivityLog", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -57,7 +57,7 @@ namespace BankApi.Migrations
                     b.ToTable("ActivityLogs");
                 });
 
-            modelBuilder.Entity("BankApi.Models.Alert", b =>
+            modelBuilder.Entity("Common.Models.Alert", b =>
                 {
                     b.Property<int>("AlertId")
                         .ValueGeneratedOnAdd()
@@ -93,7 +93,7 @@ namespace BankApi.Migrations
                     b.ToTable("Alerts");
                 });
 
-            modelBuilder.Entity("BankApi.Models.BaseStock", b =>
+            modelBuilder.Entity("Common.Models.BaseStock", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -133,7 +133,7 @@ namespace BankApi.Migrations
                     b.UseTphMappingStrategy();
                 });
 
-            modelBuilder.Entity("BankApi.Models.BillSplitReport", b =>
+            modelBuilder.Entity("Common.Models.BillSplitReport", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -163,7 +163,7 @@ namespace BankApi.Migrations
                     b.ToTable("BillSplitReports");
                 });
 
-            modelBuilder.Entity("BankApi.Models.ChatReport", b =>
+            modelBuilder.Entity("Common.Models.ChatReport", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -181,12 +181,17 @@ namespace BankApi.Migrations
                         .HasMaxLength(15)
                         .HasColumnType("nvarchar(15)");
 
+                    b.Property<string>("SubmitterCnp")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.HasKey("Id");
 
                     b.ToTable("ChatReports");
                 });
 
-            modelBuilder.Entity("BankApi.Models.CreditScoreHistory", b =>
+            modelBuilder.Entity("Common.Models.CreditScoreHistory", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -210,7 +215,7 @@ namespace BankApi.Migrations
                     b.ToTable("CreditScoreHistories");
                 });
 
-            modelBuilder.Entity("BankApi.Models.FavoriteStock", b =>
+            modelBuilder.Entity("Common.Models.FavoriteStock", b =>
                 {
                     b.Property<string>("UserCNP")
                         .HasMaxLength(13)
@@ -230,33 +235,7 @@ namespace BankApi.Migrations
                     b.ToTable("FavoriteStocks");
                 });
 
-            modelBuilder.Entity("BankApi.Models.GemStore", b =>
-                {
-                    b.Property<string>("Cnp")
-                        .HasMaxLength(13)
-                        .HasColumnType("nvarchar(13)");
-
-                    b.Property<int>("GemBalance")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("IsGuest")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("LastUpdated")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Cnp");
-
-                    b.ToTable("GemStores", (string)null);
-                });
-
-            modelBuilder.Entity("BankApi.Models.GivenTip", b =>
+            modelBuilder.Entity("Common.Models.GivenTip", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -286,7 +265,7 @@ namespace BankApi.Migrations
                     b.ToTable("GivenTips");
                 });
 
-            modelBuilder.Entity("BankApi.Models.HomepageStock", b =>
+            modelBuilder.Entity("Common.Models.HomepageStock", b =>
                 {
                     b.Property<int>("Id")
                         .HasColumnType("int");
@@ -305,7 +284,7 @@ namespace BankApi.Migrations
                     b.ToTable("HomepageStocks");
                 });
 
-            modelBuilder.Entity("BankApi.Models.Investment", b =>
+            modelBuilder.Entity("Common.Models.Investment", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -339,7 +318,7 @@ namespace BankApi.Migrations
                     b.ToTable("Investments");
                 });
 
-            modelBuilder.Entity("BankApi.Models.Loan", b =>
+            modelBuilder.Entity("Common.Models.Loan", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -389,7 +368,7 @@ namespace BankApi.Migrations
                     b.ToTable("Loans");
                 });
 
-            modelBuilder.Entity("BankApi.Models.LoanRequest", b =>
+            modelBuilder.Entity("Common.Models.LoanRequest", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -423,7 +402,7 @@ namespace BankApi.Migrations
                     b.ToTable("LoanRequests");
                 });
 
-            modelBuilder.Entity("BankApi.Models.NewsArticle", b =>
+            modelBuilder.Entity("Common.Models.NewsArticle", b =>
                 {
                     b.Property<string>("ArticleId")
                         .ValueGeneratedOnAdd()
@@ -482,7 +461,7 @@ namespace BankApi.Migrations
                     b.ToTable("NewsArticles");
                 });
 
-            modelBuilder.Entity("BankApi.Models.StockValue", b =>
+            modelBuilder.Entity("Common.Models.StockValue", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -511,7 +490,7 @@ namespace BankApi.Migrations
                     b.ToTable("StockValues");
                 });
 
-            modelBuilder.Entity("BankApi.Models.Tip", b =>
+            modelBuilder.Entity("Common.Models.Tip", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -539,7 +518,7 @@ namespace BankApi.Migrations
                     b.ToTable("Tips");
                 });
 
-            modelBuilder.Entity("BankApi.Models.TransactionLogTransaction", b =>
+            modelBuilder.Entity("Common.Models.TransactionLogTransaction", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -582,7 +561,7 @@ namespace BankApi.Migrations
                     b.ToTable("TransactionLogTransactions");
                 });
 
-            modelBuilder.Entity("BankApi.Models.TriggeredAlert", b =>
+            modelBuilder.Entity("Common.Models.TriggeredAlert", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -608,13 +587,16 @@ namespace BankApi.Migrations
                     b.ToTable("TriggeredAlerts");
                 });
 
-            modelBuilder.Entity("BankApi.Models.User", b =>
+            modelBuilder.Entity("Common.Models.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("int");
 
                     b.Property<decimal>("Balance")
                         .ValueGeneratedOnAdd()
@@ -630,6 +612,10 @@ namespace BankApi.Migrations
                         .HasMaxLength(13)
                         .HasColumnType("nvarchar(13)");
 
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("CreditScore")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
@@ -641,9 +627,11 @@ namespace BankApi.Migrations
                         .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("bit");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
@@ -654,10 +642,6 @@ namespace BankApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasDefaultValue(0);
-
-                    b.Property<string>("HashedPassword")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Image")
                         .IsRequired()
@@ -680,6 +664,20 @@ namespace BankApi.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
                     b.Property<int>("NumberOfBillSharesPaid")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
@@ -690,10 +688,14 @@ namespace BankApi.Migrations
                         .HasColumnType("int")
                         .HasDefaultValue(0);
 
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("bit");
 
                     b.Property<decimal>("ROI")
                         .ValueGeneratedOnAdd()
@@ -706,10 +708,15 @@ namespace BankApi.Migrations
                         .HasColumnType("int")
                         .HasDefaultValue(0);
 
-                    b.Property<string>("Username")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("ZodiacAttribute")
                         .IsRequired()
@@ -718,18 +725,26 @@ namespace BankApi.Migrations
 
                     b.Property<string>("ZodiacSign")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CNP")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.HasIndex("NormalizedEmail")
+                        .HasDatabaseName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("UserNameIndex")
+                        .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("BankApi.Models.UserStock", b =>
+            modelBuilder.Entity("Common.Models.UserStock", b =>
                 {
                     b.Property<string>("UserCnp")
                         .HasMaxLength(13)
@@ -742,11 +757,149 @@ namespace BankApi.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("UserCnp", "StockName");
 
                     b.HasIndex("StockName");
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("UserStocks");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<int>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("NormalizedName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasDatabaseName("RoleNameIndex")
+                        .HasFilter("[NormalizedName] IS NOT NULL");
+
+                    b.ToTable("AspNetRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetRoleClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
+                {
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ProviderKey")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ProviderDisplayName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("LoginProvider", "ProviderKey");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserLogins", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<int>", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetUserRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("UserId", "LoginProvider", "Name");
+
+                    b.ToTable("AspNetUserTokens", (string)null);
                 });
 
             modelBuilder.Entity("NewsArticleStock", b =>
@@ -764,9 +917,9 @@ namespace BankApi.Migrations
                     b.ToTable("NewsArticleStock");
                 });
 
-            modelBuilder.Entity("BankApi.Models.Stock", b =>
+            modelBuilder.Entity("Common.Models.Stock", b =>
                 {
-                    b.HasBaseType("BankApi.Models.BaseStock");
+                    b.HasBaseType("Common.Models.BaseStock");
 
                     b.Property<int>("Price")
                         .HasColumnType("int");
@@ -777,23 +930,23 @@ namespace BankApi.Migrations
                     b.HasDiscriminator().HasValue("Stock");
                 });
 
-            modelBuilder.Entity("BankApi.Models.FavoriteStock", b =>
+            modelBuilder.Entity("Common.Models.FavoriteStock", b =>
                 {
-                    b.HasOne("BankApi.Models.BaseStock", null)
+                    b.HasOne("Common.Models.BaseStock", null)
                         .WithMany("Favorites")
                         .HasForeignKey("StockName")
                         .HasPrincipalKey("Name")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BankApi.Models.Stock", "Stock")
+                    b.HasOne("Common.Models.Stock", "Stock")
                         .WithMany()
                         .HasForeignKey("StockName")
                         .HasPrincipalKey("Name")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BankApi.Models.User", "User")
+                    b.HasOne("Common.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserCNP")
                         .HasPrincipalKey("CNP")
@@ -805,15 +958,15 @@ namespace BankApi.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("BankApi.Models.GivenTip", b =>
+            modelBuilder.Entity("Common.Models.GivenTip", b =>
                 {
-                    b.HasOne("BankApi.Models.Tip", "Tip")
+                    b.HasOne("Common.Models.Tip", "Tip")
                         .WithMany()
                         .HasForeignKey("TipId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BankApi.Models.User", "User")
+                    b.HasOne("Common.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserCNP")
                         .HasPrincipalKey("CNP")
@@ -825,20 +978,20 @@ namespace BankApi.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("BankApi.Models.HomepageStock", b =>
+            modelBuilder.Entity("Common.Models.HomepageStock", b =>
                 {
-                    b.HasOne("BankApi.Models.Stock", "StockDetails")
+                    b.HasOne("Common.Models.Stock", "StockDetails")
                         .WithOne()
-                        .HasForeignKey("BankApi.Models.HomepageStock", "Id")
+                        .HasForeignKey("Common.Models.HomepageStock", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("StockDetails");
                 });
 
-            modelBuilder.Entity("BankApi.Models.NewsArticle", b =>
+            modelBuilder.Entity("Common.Models.NewsArticle", b =>
                 {
-                    b.HasOne("BankApi.Models.User", "Author")
+                    b.HasOne("Common.Models.User", "Author")
                         .WithMany()
                         .HasForeignKey("AuthorCNP")
                         .HasPrincipalKey("CNP")
@@ -848,9 +1001,9 @@ namespace BankApi.Migrations
                     b.Navigation("Author");
                 });
 
-            modelBuilder.Entity("BankApi.Models.StockValue", b =>
+            modelBuilder.Entity("Common.Models.StockValue", b =>
                 {
-                    b.HasOne("BankApi.Models.Stock", "Stock")
+                    b.HasOne("Common.Models.Stock", "Stock")
                         .WithMany()
                         .HasForeignKey("StockName")
                         .HasPrincipalKey("Name")
@@ -860,9 +1013,9 @@ namespace BankApi.Migrations
                     b.Navigation("Stock");
                 });
 
-            modelBuilder.Entity("BankApi.Models.TransactionLogTransaction", b =>
+            modelBuilder.Entity("Common.Models.TransactionLogTransaction", b =>
                 {
-                    b.HasOne("BankApi.Models.User", "Author")
+                    b.HasOne("Common.Models.User", "Author")
                         .WithMany()
                         .HasForeignKey("AuthorCNP")
                         .HasPrincipalKey("CNP")
@@ -872,19 +1025,25 @@ namespace BankApi.Migrations
                     b.Navigation("Author");
                 });
 
-            modelBuilder.Entity("BankApi.Models.UserStock", b =>
+            modelBuilder.Entity("Common.Models.UserStock", b =>
                 {
-                    b.HasOne("BankApi.Models.Stock", "Stock")
+                    b.HasOne("Common.Models.Stock", "Stock")
                         .WithMany()
                         .HasForeignKey("StockName")
                         .HasPrincipalKey("Name")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BankApi.Models.User", "User")
+                    b.HasOne("Common.Models.User", null)
                         .WithMany("OwnedStocks")
                         .HasForeignKey("UserCnp")
                         .HasPrincipalKey("CNP")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Common.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -893,27 +1052,78 @@ namespace BankApi.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<int>", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
+                {
+                    b.HasOne("Common.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
+                {
+                    b.HasOne("Common.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<int>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<int>", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Common.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
+                {
+                    b.HasOne("Common.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("NewsArticleStock", b =>
                 {
-                    b.HasOne("BankApi.Models.NewsArticle", null)
+                    b.HasOne("Common.Models.NewsArticle", null)
                         .WithMany()
                         .HasForeignKey("ArticleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BankApi.Models.Stock", null)
+                    b.HasOne("Common.Models.Stock", null)
                         .WithMany()
                         .HasForeignKey("StockId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("BankApi.Models.BaseStock", b =>
+            modelBuilder.Entity("Common.Models.BaseStock", b =>
                 {
                     b.Navigation("Favorites");
                 });
 
-            modelBuilder.Entity("BankApi.Models.User", b =>
+            modelBuilder.Entity("Common.Models.User", b =>
                 {
                     b.Navigation("OwnedStocks");
                 });

@@ -1,10 +1,7 @@
 ﻿namespace StockApp.ViewModels
 {
-    using System;
-    using System.Collections.ObjectModel;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using System.Windows.Input;
+    using Common.Models;
+    using Common.Services;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.UI;
     using Microsoft.UI.Text;
@@ -12,11 +9,14 @@
     using Microsoft.UI.Xaml.Controls;
     using Microsoft.UI.Xaml.Media;
     using StockApp.Commands;
-    using Common.Models;
-    using Common.Services;
     using StockApp.Views;
+    using System;
+    using System.Collections.ObjectModel;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using System.Windows.Input;
 
-    public class NewsListViewModel : ViewModelBase
+    public partial class NewsListViewModel : ViewModelBase
     {
         private readonly INewsService newsService;
         private readonly IUserService userService;
@@ -86,7 +86,7 @@
             {
                 if (this.SetProperty(ref this.searchQuery, value))
                 {
-                    this.FilterArticles();
+                    _ = this.FilterArticles();
                 }
             }
         }
@@ -110,7 +110,7 @@
             {
                 if (this.SetProperty(ref this.selectedCategory, value))
                 {
-                    this.FilterArticles();
+                    _ = this.FilterArticles();
                 }
             }
         }
@@ -155,6 +155,7 @@
         }
 
         private NewsArticleView? detailsPage;
+
         public NewsArticleView? DetailsPage
         {
             get => this.detailsPage;
@@ -221,7 +222,7 @@
             this.RefreshCommand = new StockNewsRelayCommand(() => this.RefreshArticles());
             this.CreateArticleCommand = new StockNewsRelayCommand(async () => await this.OpenCreateArticleDialogAsync());
             this.AdminPanelCommand = new StockNewsRelayCommand(async () => await this.OpenAdminPanelDialogAsync());
-            this.LoginCommand = new StockNewsRelayCommand(async () => await this.ShowLoginDialogAsync());
+            this.LoginCommand = new StockNewsRelayCommand(async () => await ShowLoginDialogAsync());
             this.ClearSearchCommand = new StockNewsRelayCommand(() => this.SearchQuery = string.Empty);
 
             this.Categories.Add("All");
@@ -231,7 +232,7 @@
             this.Categories.Add("Economic News");
             this.Categories.Add("Functionality News");
             this.selectedCategory = "All";
-            this.Init().ConfigureAwait(false);
+            _ = this.Init();
         }
 
         private async Task Init()
@@ -254,13 +255,12 @@
                 var articles = this.newsService.GetNewsArticlesAsync();
 
                 // apply filters to the new data
-                this.FilterArticles();
+                _ = this.FilterArticles();
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error refreshing articles: {ex.Message}");
                 throw;
-
             }
             finally
             {
@@ -278,7 +278,7 @@
 
             // get all articles from the original source
             var allArticles = await this.newsService.GetNewsArticlesAsync();
-            if (allArticles == null || !allArticles.Any())
+            if (allArticles == null || allArticles.Count == 0)
             {
                 this.Articles.Clear();
                 this.IsEmptyState = true;
@@ -309,7 +309,6 @@
                 .OrderByDescending(a => a.IsWatchlistRelated)
                 .ThenByDescending(a => a.PublishedDate)];
 
-
             this.Articles.Clear();
             foreach (var article in filteredArticles)
             {
@@ -318,7 +317,6 @@
 
             this.IsEmptyState = !this.Articles.Any();
         }
-
 
         public async Task ShowArticleInModalAsync(NewsArticle article)
         {
@@ -440,7 +438,7 @@
                             previewDialog.PrimaryButtonCommand = new StockNewsRelayCommand(async () =>
                             {
                                 await articleCreationView.ViewModel.CreateArticleAsync();
-                                await ShowErrorAsync("Article created successfully!", "Sucess");
+                                await ShowErrorAsync("Article created successfully!", "Success");
                             });
                         }
 
@@ -458,7 +456,7 @@
                 if (dialog.Content is ArticleCreationView articleCreationView)
                 {
                     await articleCreationView.ViewModel.CreateArticleAsync();
-                    await ShowErrorAsync("Article created successfully!", "Sucess");
+                    await ShowErrorAsync("Article created successfully!", "Success");
                 }
             });
             await dialog.ShowAsync();
@@ -482,7 +480,7 @@
             this.RefreshArticles();
         }
 
-        private async Task ShowLoginDialogAsync()
+        private static async Task ShowLoginDialogAsync()
         {
             try
             {
@@ -499,8 +497,8 @@
                 // Inline: Build login dialog UI elements
                 var usernameBox = new TextBox
                 {
-                    PlaceholderText = "Username",
-                    Header = "Username",
+                    PlaceholderText = "UserName",
+                    Header = "UserName",
                 };
 
                 var passwordBox = new PasswordBox

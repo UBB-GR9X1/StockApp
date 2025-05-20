@@ -1,84 +1,200 @@
-﻿using BankApi.Repositories;
+using BankApi.Repositories;
 using Common.Models;
+using Common.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace BankApi.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
-    public class StockController : ControllerBase
+    public class StockController(IStockService stockService, IUserRepository userRepository) : ControllerBase
     {
-        private readonly IStockRepository _stockRepository;
-        public StockController(IStockRepository stockRepository)
-        {
-            _stockRepository = stockRepository;
-        }
-        // Create a new stock
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody] Stock stock)
-        {
-            if (stock == null)
-            {
-                return BadRequest("Stock cannot be null.");
-            }
-            var createdStock = await _stockRepository.CreateAsync(stock);
-            return CreatedAtAction(nameof(GetById), new { id = createdStock.Id }, createdStock);
-        }
-        // Retrieve a stock by its ID
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
-        {
-            var stock = await _stockRepository.GetByIdAsync(id);
-            if (stock == null)
-            {
-                return NotFound();
-            }
-            return Ok(stock);
-        }
-        // Retrieve all stocks
+        private readonly IStockService _stockService = stockService ?? throw new ArgumentNullException(nameof(stockService));
+        private readonly IUserRepository _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<ActionResult<IEnumerable<Stock>>> GetAllStocks()
         {
-            var stocks = await _stockRepository.GetAllAsync();
-            return Ok(stocks);
-        }
-        // Update an existing stock
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] Stock updatedStock)
-        {
-            if (updatedStock == null)
+            try
             {
-                return BadRequest("Updated stock cannot be null.");
+                var stocks = await _stockService.GetAllStocksAsync();
+                return Ok(stocks);
             }
-            var stock = await _stockRepository.UpdateAsync(id, updatedStock);
-            if (stock == null)
+            catch (Exception ex)
             {
-                return NotFound();
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
-            return Ok(stock);
-        }
-        // Delete a stock by its ID
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var result = await _stockRepository.DeleteAsync(id);
-            if (!result)
-            {
-                return NotFound();
-            }
-            return NoContent();
         }
 
-        // Retrieve stocks for a specific user
-        [HttpGet("user/{cnp}")]
-        public async Task<IActionResult> GetUserStocks(string cnp)
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Stock>> GetStockById(int id)
         {
-            if (string.IsNullOrEmpty(cnp))
+            try
             {
-                return BadRequest("CNP cannot be null or empty.");
+                var stock = await _stockService.GetStockByIdAsync(id);
+                return stock == null ? (ActionResult<Stock>)NotFound($"Stock with ID {id} not found.") : (ActionResult<Stock>)Ok(stock);
             }
-            var stocks = await _stockRepository.UserStocksAsync(cnp);
-            return Ok(stocks);
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")] // Assuming only admins can create stocks
+        public async Task<ActionResult<Stock>> CreateStock([FromBody] Stock stock)
+        {
+            try
+            {
+                var createdStock = await _stockService.CreateStockAsync(stock);
+                return CreatedAtAction(nameof(GetStockById), new { id = createdStock.Id }, createdStock);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception details if necessary
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")] // Assuming only admins can update stocks
+        public async Task<ActionResult<Stock>> UpdateStock(int id, [FromBody] Stock stock)
+        {
+            try
+            {
+                if (id != stock.Id)
+                {
+                    return BadRequest("Stock ID mismatch.");
+                }
+                var updatedStock = await _stockService.UpdateStockAsync(id, stock);
+                return updatedStock == null ? (ActionResult<Stock>)NotFound($"Stock with ID {id} not found.") : (ActionResult<Stock>)Ok(updatedStock);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")] // Assuming only admins can delete stocks
+        public async Task<IActionResult> DeleteStock(int id)
+        {
+            try
+            {
+                var result = await _stockService.DeleteStockAsync(id);
+                return !result ? NotFound($"Stock with ID {id} not found.") : NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("user")]
+        public async Task<ActionResult<List<Stock>>> GetUserStocks()
+        {
+            try
+            {
+                var userCnp = await GetCurrentUserCnp();
+                var stocks = await _stockService.UserStocksAsync(userCnp);
+                return Ok(stocks);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("user/{cnp}")]
+        [Authorize(Roles = "Admin")] // Only admins can view other users' stocks by CNP
+        public async Task<ActionResult<List<Stock>>> GetUserStocksByCnp(string cnp)
+        {
+            try
+            {
+                var stocks = await _stockService.UserStocksAsync(cnp);
+                return Ok(stocks);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        private async Task<string> GetCurrentUserCnp()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                throw new UnauthorizedAccessException("User is not authenticated.");
+            }
+            var user = await _userRepository.GetByIdAsync(int.Parse(userId));
+            return user == null ? throw new Exception("User not found") : user.CNP;
+        }
+
+        [HttpGet("stocks")]
+        public async Task<ActionResult<List<HomepageStock>>> GetFilteredAndSortedStocks(
+            [FromQuery] string query,
+            [FromQuery] string sortOption,
+            [FromQuery] bool favoritesOnly = false)
+        {
+            try
+            {
+                var userCnp = await GetCurrentUserCnp();
+                var stocks = await _stockService.GetFilteredAndSortedStocksAsync(query ?? string.Empty, sortOption ?? string.Empty, favoritesOnly, userCnp);
+                return Ok(stocks);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpPost("favorites/add")]
+        public async Task<IActionResult> AddToFavorites([FromBody] HomepageStock stock)
+        {
+            try
+            {
+                // Ensure the stock has an ID, or handle cases where it might not.
+                if (stock == null || stock.Id == 0)
+                {
+                    return BadRequest("Invalid stock data.");
+                }
+                await _stockService.AddToFavoritesAsync(stock);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpPost("favorites/remove")]
+        public async Task<IActionResult> RemoveFromFavorites([FromBody] HomepageStock stock)
+        {
+            try
+            {
+                if (stock == null || stock.Id == 0)
+                {
+                    return BadRequest("Invalid stock data.");
+                }
+                await _stockService.RemoveFromFavoritesAsync(stock);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
     }
 }

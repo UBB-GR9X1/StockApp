@@ -32,7 +32,7 @@
                     <NavigationViewItem Content="Create Stock" Tag="CreateStockPage"/>
                     <NavigationViewItem Content="History" Tag="TransactionLogPage"/>
                     <NavigationViewItem Content="Store" Tag="GemStoreWindow"/>
-                    <NavigationViewItem Content="Create Profile" Tag="CreateProfile" Visibility="{Binding CreateProfileButtonVisibility, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <NavigationViewItem Content="Log in" Tag="LoginPage" Visibility="{Binding LoginButtonVisibility, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     <NavigationViewItem Content="Profile" Tag="ProfilePage" Visibility="{Binding ProfileButtonVisibility, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                </NavigationView.MenuItems>
             </NavigationView>

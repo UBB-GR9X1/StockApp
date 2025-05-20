@@ -1,19 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using Common.Models;
+using Common.Services;
+using StockApp.Commands;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using StockApp.Commands;
-using Common.Models;
-using StockApp.Repositories;
 
 namespace StockApp.ViewModels
 {
-
     public class TipHistoryViewModel
     {
-        private readonly IMessagesRepository messagesRepository;
-        private readonly ITipsRepository tipsRepository;
+        private readonly IMessagesService messagesService;
+        private readonly ITipsService tipsService;
         private User? selectedUser;
 
         public ObservableCollection<Message> MessageHistory { get; private set; }
@@ -22,49 +20,43 @@ namespace StockApp.ViewModels
 
         public ICommand AddTipCommand { get; private set; }
 
-
-        public TipHistoryViewModel(IMessagesRepository messagesRepository, ITipsRepository tipsRepository)
+        public TipHistoryViewModel(IMessagesService messagesRepository, ITipsService tipsRepository)
         {
-            this.messagesRepository = messagesRepository;
-            this.tipsRepository = tipsRepository;
+            this.messagesService = messagesRepository;
+            this.tipsService = tipsRepository;
             this.MessageHistory = [];
             this.TipHistory = [];
-            this.AddTipCommand = new RelayCommand((object sender) => { _ = this.AddTip(); }, (object sender) => true);
+            this.AddTipCommand = new RelayCommand(sender => { _ = this.AddTip(); }, sender => true);
         }
 
         private async Task AddTip()
         {
-            if (this.selectedUser == null) return;
-            if (this.selectedUser.CreditScore < 600)
+            if (this.selectedUser == null)
             {
-                await this.tipsRepository.GiveLowBracketTipAsync(this.selectedUser.CNP);
-            }
-            else
-            if (this.selectedUser.CreditScore < 700)
-            {
-                await this.tipsRepository.GiveMediumBracketTipAsync(this.selectedUser.CNP);
-            }
-            else
-            {
-                await this.tipsRepository.GiveHighBracketTipAsync(this.selectedUser.CNP);
+                return;
             }
 
+            await this.tipsService.GiveTipToUserAsync(this.selectedUser.CNP);
             await this.LoadUserData(this.selectedUser);
         }
 
         public async Task LoadUserData(User user)
         {
-            if (user == null) return;
+            if (user == null)
+            {
+                return;
+            }
+
             try
             {
-                List<Message> messages = await this.messagesRepository.GetMessagesForUserAsync(user.CNP);
-                List<Tip> tips = await this.tipsRepository.GetTipsForGivenUserAsync(user.CNP);
+                List<Message> messages = await this.messagesService.GetMessagesForUserAsync(user.CNP);
+                List<Tip> tips = await this.tipsService.GetTipsForUserAsync(user.CNP);
 
                 this.LoadHistory(messages);
                 this.LoadHistory(tips);
                 this.selectedUser = user;
             }
-            catch (HttpRequestException ex)
+            catch
             {
                 this.MessageHistory.Clear();
                 this.TipHistory.Clear();

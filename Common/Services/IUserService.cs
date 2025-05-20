@@ -1,8 +1,8 @@
 ﻿namespace Common.Services
 {
+    using Common.Models;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Common.Models;
 
     public interface IUserService
     {
@@ -10,18 +10,14 @@
 
         Task<User> GetUserByCnpAsync(string cnp);
 
-        Task<User> GetCurrentUserAsync();
-
-        string GetCurrentUserCNP();
-
-        bool IsGuest();
-
         Task<List<User>> GetUsers();
 
-        void SetCurrentUserCNP(string cnp);
+        Task UpdateIsAdminAsync(bool newIsAdmin, string? userCNP = null);
 
-        Task UpdateIsAdminAsync(bool newIsAdmin);
+        Task UpdateUserAsync(string newUsername, string newImage, string newDescription, bool newHidden, string? userCNP = null);
 
-        Task UpdateUserAsync(string newUsername, string newImage, string newDescription, bool newHidden);
+        Task<User> GetCurrentUserAsync(string? userCNP = null);
+
+        Task<int> GetCurrentUserGemsAsync(string? userCNP = null);
     }
 }

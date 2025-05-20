@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Common.Models;
+﻿using Common.Models;
 
 namespace Common.Services
 {
@@ -44,10 +42,15 @@ namespace Common.Services
         /// <returns>The updated stock entity if successful; otherwise, null.</returns>
         Task<Stock?> UpdateStockAsync(int id, Stock updatedStock);
 
-
         /// <summary>
-        /// Gets the stocks associated with the current user.
+        /// Gets the stocks associated with the current user or if cnp is provided, the stocks associated with that CNP.
         /// </summary>
-        Task<List<Stock>> UserStocksAsync(string cnp);
+        Task<List<Stock>> UserStocksAsync(string? userCNP = null);
+
+        Task AddToFavoritesAsync(HomepageStock stock);
+
+        Task RemoveFromFavoritesAsync(HomepageStock stock);
+
+        Task<List<HomepageStock>> GetFilteredAndSortedStocksAsync(string query, string sortOption, bool favoritesOnly, string? userCNP = null);
     }
 }

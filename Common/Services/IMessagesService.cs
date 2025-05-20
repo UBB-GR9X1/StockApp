@@ -1,13 +1,12 @@
 ﻿namespace Common.Services
 {
-    using System;
+    using Common.Models; // Added for Message model
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
     using System.Threading.Tasks;
 
     public interface IMessagesService
     {
-        void GiveMessageToUser(string userCNP);
+        Task GiveMessageToUserAsync(string userCNP);
+        Task<List<Message>> GetMessagesForUserAsync(string userCnp); // Added missing method
     }
 }

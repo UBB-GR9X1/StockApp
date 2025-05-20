@@ -1,0 +1,40 @@
+using Common.Models;
+using Common.Services;
+using System;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Threading.Tasks;
+
+namespace StockApp.Services
+{
+    public class MessagesProxyService(HttpClient httpClient) : IProxyService, IMessagesService
+    {
+        private readonly HttpClient _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+
+        public async Task GiveMessageToUserAsync(string userCNP)
+        {
+            if (string.IsNullOrEmpty(userCNP))
+            {
+                throw new ArgumentException("User CNP cannot be empty", nameof(userCNP));
+            }
+
+            var response = await _httpClient.PostAsync($"api/Messages/user/{userCNP}/give", null);
+            response.EnsureSuccessStatusCode();
+        }
+
+        public async Task<List<Message>> GetMessagesForUserAsync(string userCnp)
+        {
+            // If userCnp is provided, get messages for the specified user (admin only)
+            if (!string.IsNullOrEmpty(userCnp))
+            {
+                return await _httpClient.GetFromJsonAsync<List<Message>>($"api/Messages/user/{userCnp}") ??
+                    throw new InvalidOperationException("Failed to deserialize messages for user response.");
+            }
+
+            // If no userCnp is provided, get messages for the current user
+            return await _httpClient.GetFromJsonAsync<List<Message>>("api/Messages/user") ??
+                throw new InvalidOperationException("Failed to deserialize messages response.");
+        }
+    }
+}

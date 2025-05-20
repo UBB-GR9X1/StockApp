@@ -13,7 +13,7 @@
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="150" Background="#FFF5EE" Padding="20">
                 <TextBlock  FontSize="24" FontWeight="Bold" Foreground="#FF69B4">
                     <Run Text="Profile Page:" />
-                    <Run Text="{Binding Username}" FontWeight="Bold" />
+                    <Run Text="{Binding UserName}" FontWeight="Bold" />
                 </TextBlock>
                 
                 <Button Command="{x:Bind UpdateProfileButton}"

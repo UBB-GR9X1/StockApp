@@ -1,22 +1,16 @@
 ﻿namespace StockApp.ViewModels
 {
+    using Common.Models;
+    using Common.Services;
     using System;
     using System.Collections.ObjectModel;
     using System.Threading.Tasks;
-    using Common.Models;
-    using Common.Services;
 
-    public class ChatReportsViewModel
+    public class ChatReportsViewModel(IChatReportService chatReportService)
     {
-        private readonly IChatReportService chatReportService;
+        private readonly IChatReportService chatReportService = chatReportService;
 
-        public ObservableCollection<ChatReport> ChatReports { get; set; }
-
-        public ChatReportsViewModel(IChatReportService chatReportService)
-        {
-            this.chatReportService = chatReportService;
-            this.ChatReports = new ObservableCollection<ChatReport>();
-        }
+        public ObservableCollection<ChatReport> ChatReports { get; set; } = [];
 
         public async Task LoadChatReportsAsync()
         {
@@ -24,7 +18,7 @@
             {
                 this.ChatReports.Clear();
 
-                var reports = await this.chatReportService.GetChatReports();
+                var reports = await this.chatReportService.GetAllChatReportsAsync();
 
                 foreach (var report in reports)
                 {

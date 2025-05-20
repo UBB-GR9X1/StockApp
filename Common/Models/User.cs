@@ -1,21 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Common.Models
 {
-    public class User
+    public class User : IdentityUser<int>
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
-
         [Required]
         [MaxLength(13)]
         public string CNP { get; set; } = string.Empty;
-
-        [Required]
-        [MaxLength(50)]
-        public string Username { get; set; } = string.Empty;
 
         [Required]
         [MaxLength(50)]
@@ -24,18 +17,6 @@ namespace Common.Models
         [Required]
         [MaxLength(50)]
         public string LastName { get; set; } = string.Empty;
-
-        [Required]
-        [EmailAddress]
-        [MaxLength(100)]
-        public string Email { get; set; } = string.Empty;
-
-        [Phone]
-        [MaxLength(15)]
-        public string PhoneNumber { get; set; } = string.Empty;
-
-        [Required]
-        public string HashedPassword { get; set; } = string.Empty;
 
         [MaxLength(500)]
         public string Description { get; set; } = string.Empty;

@@ -6,19 +6,15 @@
     using Common.Models;
     using Common.Services;
 
-    public class LoanRequestViewModel
+    public class LoanRequestViewModel(ILoanRequestService loanService)
     {
-        private readonly ILoanRequestService _loanRequestService;
+        private readonly ILoanRequestService _loanRequestService = loanService;
 
-        public ObservableCollection<LoanRequest> LoanRequests { get; set; }
+        public ObservableCollection<LoanRequest> LoanRequests { get; set; } = [];
+
         public bool IsLoading { get; private set; }
-        public string ErrorMessage { get; private set; }
 
-        public LoanRequestViewModel(ILoanRequestService loanService)
-        {
-            this._loanRequestService = loanService;
-            this.LoanRequests = new ObservableCollection<LoanRequest>();
-        }
+        public string ErrorMessage { get; private set; }
 
         public async Task LoadLoanRequestsAsync()
         {

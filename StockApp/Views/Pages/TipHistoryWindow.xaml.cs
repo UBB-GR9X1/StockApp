@@ -1,7 +1,7 @@
 namespace StockApp.Views.Pages
 {
-    using Microsoft.UI.Xaml;
     using Common.Models;
+    using Microsoft.UI.Xaml;
     using StockApp.ViewModels;
 
     public sealed partial class TipHistoryWindow : Window
@@ -20,5 +20,4 @@ namespace StockApp.Views.Pages
             await this.viewModel.LoadUserData(user);
         }
     }
-
 }

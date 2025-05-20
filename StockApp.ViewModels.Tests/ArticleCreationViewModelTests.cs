@@ -39,12 +39,12 @@ namespace StockApp.ViewModels.Tests
             // Mock DbSet for BaseStocks
             var mockSet = new Mock<DbSet<BaseStock>>();
             var baseStocks = new List<BaseStock>();
-            
+
             mockSet.As<IQueryable<BaseStock>>().Setup(m => m.Provider).Returns(baseStocks.AsQueryable().Provider);
             mockSet.As<IQueryable<BaseStock>>().Setup(m => m.Expression).Returns(baseStocks.AsQueryable().Expression);
             mockSet.As<IQueryable<BaseStock>>().Setup(m => m.ElementType).Returns(baseStocks.AsQueryable().ElementType);
             mockSet.As<IQueryable<BaseStock>>().Setup(m => m.GetEnumerator()).Returns(baseStocks.GetEnumerator());
-            
+
             _dbContextMock.Setup(c => c.BaseStocks).Returns(mockSet.Object);
 
             // Set up mock IBaseStocksApiService

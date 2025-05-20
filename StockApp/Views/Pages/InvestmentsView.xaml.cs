@@ -1,9 +1,9 @@
 ﻿namespace StockApp.Views.Pages
 {
-    using System;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
     using StockApp.ViewModels;
+    using System;
 
     public sealed partial class InvestmentsView : Page
     {
@@ -52,11 +52,11 @@
             }
         }
 
-        private async void LoadInvestmentPortofolio(object sender, RoutedEventArgs e)
+        private async void LoadInvestmentPortfolio(object sender, RoutedEventArgs e)
         {
             try
             {
-                await _viewModel.LoadPortfolioSummaryAsync(null);
+                await _viewModel.LoadPortfolioSummaryAsync();
             }
             catch (Exception ex)
             {

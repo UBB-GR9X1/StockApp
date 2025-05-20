@@ -8,6 +8,11 @@
     public class TransactionFilterCriteria
     {
         /// <summary>
+        /// Gets or sets the CNP of the user to filter transactions for.
+        /// </summary>
+        public string? UserCnp { get; set; } // Added UserCnp property
+
+        /// <summary>
         /// Gets or sets the name of the stock to filter by.
         /// </summary>
         public string? StockName { get; set; }

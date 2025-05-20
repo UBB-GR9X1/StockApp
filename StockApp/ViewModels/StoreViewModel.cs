@@ -1,5 +1,7 @@
 ﻿namespace StockApp.ViewModels
 {
+    using Common.Models;
+    using Common.Services;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
@@ -7,16 +9,15 @@
     using System.Linq;
     using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
-    using Common.Models;
-    using Common.Services;
 
     /// <summary>
     /// ViewModel for the store page, managing gem deals and user gem balance.
     /// </summary>
-    public class StoreViewModel : INotifyPropertyChanged
+    public partial class StoreViewModel : INotifyPropertyChanged
     {
         private readonly IStoreService _storeService;
         private readonly IUserService _userService;
+        private readonly IAuthenticationService _authenticationService;
         private readonly bool _testMode = false; // Set to true for testing without the database
 
         private int _userGems;
@@ -29,12 +30,13 @@
         public event PropertyChangedEventHandler? PropertyChanged;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="StoreViewModel"/> class with the specified homepageService.
+        /// Initializes a new instance of the <see cref="StoreViewModel"/> class with the specified stockService.
         /// </summary>
         /// <param name="storeService">Service used to retrieve and update store data.</param>
         /// <param name="gemStoreRepository">Repository for gem store operations.</param>
-        public StoreViewModel(IStoreService storeService, IUserService userService)
+        public StoreViewModel(IStoreService storeService, IUserService userService, IAuthenticationService authenticationService)
         {
+            _authenticationService = authenticationService ?? throw new ArgumentNullException(nameof(authenticationService));
             _storeService = storeService ?? throw new ArgumentNullException(nameof(storeService));
             _userService = userService ?? throw new ArgumentNullException(nameof(userService));
             InitializeAsync();
@@ -67,7 +69,7 @@
         /// <summary>
         /// Gets a value indicating whether the user is a guest.
         /// </summary>
-        public bool IsGuest => this._userService.IsGuest();
+        public bool IsGuest => !this._authenticationService.IsUserLoggedIn();
 
         /// <summary>
         /// Gets or sets the collection of available gem deals.
@@ -94,13 +96,13 @@
             }
             else
             {
-                if (this._userService.IsGuest())
+                if (this._authenticationService.IsUserLoggedIn())
                 {
                     UserGems = 0;
                 }
                 else
                 {
-                    UserGems = await _storeService.GetUserGemBalanceAsync(this._userService.GetCurrentUserCNP());
+                    UserGems = await _storeService.GetUserGemBalanceAsync();
                 }
             }
         }
@@ -132,7 +134,7 @@
                 return $"(TEST) Bought {deal.GemAmount} gems.";
             }
 
-            var result = await _storeService.BuyGems(this._userService.GetCurrentUserCNP(), deal, selectedBankAccount);
+            var result = await _storeService.BuyGems(deal, selectedBankAccount);
             if (result.StartsWith("Successfully"))
             {
                 UserGems += deal.GemAmount;
@@ -179,7 +181,7 @@
                 return $"(TEST) Sold {amount} gems for {amount / 100.0}€.";
             }
 
-            var result = await _storeService.SellGems(this._userService.GetCurrentUserCNP(), amount, selectedBankAccount);
+            var result = await _storeService.SellGems(amount, selectedBankAccount);
             if (result.StartsWith("Successfully"))
             {
                 UserGems -= amount;

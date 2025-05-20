@@ -1,14 +1,14 @@
 ﻿namespace BankApi.Repositories
 {
+    using Common.Models;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Common.Models;
 
     public interface IChatReportRepository
     {
         Task<List<ChatReport>> GetAllChatReportsAsync();
 
-        Task<ChatReport?> GetChatReportByIdAsync(int id);
+        Task<ChatReport> GetChatReportByIdAsync(int id);
 
         Task<bool> AddChatReportAsync(ChatReport report);
 

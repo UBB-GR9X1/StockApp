@@ -1,236 +1,103 @@
+using BankApi.Repositories; // Added missing using
+using Common.Models;
+using Common.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+
 namespace BankApi.Controllers
 {
-    using System;
-    using System.Threading.Tasks;
-    using BankApi.Repositories;
-    using Common.Models;
-    using Microsoft.AspNetCore.Mvc;
-    using Microsoft.Extensions.Logging;
-
-    /// <summary>
-    /// Controller for managing news-related operations.
-    /// </summary>
-    [Route("api/[controller]")]
+    [Authorize]
     [ApiController]
-    public class NewsController : ControllerBase
+    [Route("api/[controller]")]
+    public class NewsController(INewsService newsService, IUserRepository userRepository) : ControllerBase
     {
-        private readonly INewsRepository _repository;
-        private readonly ILogger<NewsController> _logger;
+        private readonly INewsService _newsService = newsService;
+        private readonly IUserRepository _userRepository = userRepository;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="NewsController"/> class.
-        /// </summary>
-        /// <param name="repository">The news repository.</param>
-        /// <param name="logger">The logger.</param>
-        public NewsController(INewsRepository repository, ILogger<NewsController> logger)
+        private async Task<string> GetCurrentUserCnp()
         {
-            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _userRepository.GetByIdAsync(int.Parse(userId));
+            return user == null ? throw new Exception("User not found") : user.CNP;
         }
 
-        [HttpPost("AddNewsArticle")]
-        public async Task<IActionResult> AddNewsArticleAsync([FromBody] NewsArticleApi newsArticle)
+        private async Task<User> GetCurrentUser()
         {
-            try
-            {
-                NewsArticle actualArticle = new()
-                {
-                    ArticleId = newsArticle.ArticleId,
-                    Title = newsArticle.Title,
-                    Summary = newsArticle.Summary,
-                    Content = newsArticle.Content,
-                    Source = newsArticle.Source,
-                    Topic = newsArticle.Topic,
-                    PublishedDate = newsArticle.PublishedDate,
-                    RelatedStocks = [.. newsArticle.RelatedStocks.Select(rs => new Stock
-                    {
-                        Name = rs.Name,
-                        Symbol = rs.Symbol,
-                        Price = (int)rs.Price,
-                        Quantity = rs.Quantity
-                    })],
-                    Status = newsArticle.Status,
-                    Category = newsArticle.Category,
-                    Author = newsArticle.Author,
-                    AuthorCNP = newsArticle.Author.CNP,
-                    IsRead = newsArticle.IsRead
-                };
-                await _repository.AddNewsArticleAsync(actualArticle);
-                return Ok("News article added successfully.");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error adding news article.");
-                return StatusCode(500, "Internal server error.");
-            }
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _userRepository.GetByIdAsync(int.Parse(userId));
+            return user == null ? throw new Exception("User not found") : user;
         }
 
-        [HttpPut("UpdateNewsArticle")]
-        public async Task<IActionResult> UpdateNewsArticleAsync([FromBody] NewsArticleApi newsArticle)
+        [HttpGet]
+        public async Task<ActionResult<List<NewsArticle>>> GetNewsArticles()
         {
-            try
-            {
-                NewsArticle updatatedArticle = new()
-                {
-                    ArticleId = newsArticle.ArticleId,
-                    Title = newsArticle.Title,
-                    Summary = newsArticle.Summary,
-                    Content = newsArticle.Content,
-                    Source = newsArticle.Source,
-                    Topic = newsArticle.Topic,
-                    PublishedDate = newsArticle.PublishedDate,
-                    RelatedStocks = [.. newsArticle.RelatedStocks.Select(rs => new Stock
-                    {
-                        Name = rs.Name,
-                        Symbol = rs.Symbol,
-                        Price = (int)rs.Price,
-                        Quantity = rs.Quantity
-                    })],
-                    Status = newsArticle.Status,
-                    Category = newsArticle.Category,
-                    Author = newsArticle.Author,
-                    AuthorCNP = newsArticle.Author.CNP,
-                    IsRead = newsArticle.IsRead
-                };
-                await _repository.UpdateNewsArticleAsync(updatatedArticle);
-                return Ok("News article updated successfully.");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error updating news article.");
-                return StatusCode(500, "Internal server error.");
-            }
+            return await _newsService.GetNewsArticlesAsync();
         }
 
-        [HttpDelete("DeleteNewsArticle")]
-        public async Task<IActionResult> DeleteNewsArticleAsync(string articleId)
+        [HttpGet("{articleId}")]
+        public async Task<ActionResult<NewsArticle>> GetNewsArticleById(string articleId)
         {
-            try
-            {
-                await _repository.DeleteNewsArticleAsync(articleId);
-                return Ok("News article deleted successfully.");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error deleting news article.");
-                return StatusCode(500, "Internal server error.");
-            }
+            return await _newsService.GetNewsArticleByIdAsync(articleId);
         }
 
-        [HttpGet("GetNewsArticleById")]
-        public async Task<ActionResult<NewsArticle>> GetNewsArticleByIdAsync(string articleId)
+        [HttpPost("{articleId}/markasread")]
+        public async Task<ActionResult<bool>> MarkArticleAsRead(string articleId)
         {
-            try
-            {
-                var article = await _repository.GetNewsArticleByIdAsync(articleId);
-                return Ok(article);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving news article by ID.");
-                return StatusCode(500, "Internal server error.");
-            }
+            return await _newsService.MarkArticleAsReadAsync(articleId);
         }
 
-        [HttpGet("GetAllNewsArticles")]
-        public async Task<ActionResult<List<NewsArticle>>> GetAllNewsArticlesAsync()
+        [HttpPost("create")]
+        [Authorize(Roles = "Admin,Moderator")] // Assuming admins and moderators can create articles
+        public async Task<ActionResult<bool>> CreateArticle([FromBody] NewsArticle article)
         {
-            try
-            {
-                var articles = await _repository.GetAllNewsArticlesAsync();
-                return Ok(articles);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving all news articles.");
-                return StatusCode(500, "Internal server error.");
-            }
+            // Author will be set based on the authenticated user or a specific logic in the service
+            return await _newsService.CreateArticleAsync(article);
         }
 
-        [HttpGet("GetNewsArticlesByAuthorCNP")]
-        public async Task<ActionResult<List<NewsArticle>>> GetNewsArticlesByAuthorCNPAsync(string authorCNP)
+        [HttpGet("userarticles")]
+        [Authorize(Roles = "Admin")] // Only admins can see all user articles by CNP
+        public async Task<ActionResult<List<NewsArticle>>> GetUserArticles(string authorCnp, Status status = Status.All, string topic = "All")
         {
-            try
-            {
-                var articles = await _repository.GetNewsArticlesByAuthorCNPAsync(authorCNP);
-                return Ok(articles);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving news articles by author CNP.");
-                return StatusCode(500, "Internal server error.");
-            }
+            return await _newsService.GetUserArticlesAsync(status, topic, authorCnp);
         }
 
-        [HttpGet("GetNewsArticlesByCategory")]
-        public async Task<ActionResult<List<NewsArticle>>> GetNewsArticlesByCategoryAsync(string category)
+        [HttpPost("{articleId}/approve")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<bool>> ApproveUserArticle(string articleId)
         {
-            try
-            {
-                var articles = await _repository.GetNewsArticlesByCategoryAsync(category);
-                return Ok(articles);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving news articles by category.");
-                return StatusCode(500, "Internal server error.");
-            }
+            var userCnp = await GetCurrentUserCnp();
+            return await _newsService.ApproveUserArticleAsync(userCnp, articleId);
         }
 
-        [HttpGet("GetNewsArticlesByStock")]
-        public async Task<ActionResult<List<NewsArticle>>> GetNewsArticlesByStockAsync(string stockName)
+        [HttpPost("{articleId}/reject")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<bool>> RejectUserArticle(string articleId)
         {
-            try
-            {
-                var articles = await _repository.GetNewsArticlesByStockAsync(stockName);
-                return Ok(articles);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving news articles by stock.");
-                return StatusCode(500, "Internal server error.");
-            }
+            var userCnp = await GetCurrentUserCnp();
+            return await _newsService.RejectUserArticleAsync(userCnp, articleId);
         }
 
-        [HttpPost("MarkArticleAsRead")]
-        public async Task<IActionResult> MarkArticleAsReadAsync([FromBody] string articleId)
+        [HttpDelete("{articleId}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<bool>> DeleteUserArticle(string articleId)
         {
-            try
-            {
-                await _repository.MarkArticleAsReadAsync(articleId);
-                return Ok("Article marked as read successfully.");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error marking article as read.");
-                return StatusCode(500, "Internal server error.");
-            }
+            var userCnp = await GetCurrentUserCnp();
+            return await _newsService.DeleteUserArticleAsync(userCnp, articleId);
         }
 
-        public class NewsArticleApi
+        [HttpPost("submit")]
+        public async Task<ActionResult<bool>> SubmitUserArticle([FromBody] NewsArticle article)
         {
-            public string ArticleId { get; set; }
-            public string Title { get; set; }
-            public string Summary { get; set; }
-            public string Content { get; set; }
-            public string Source { get; set; }
-            public DateTime PublishedDate { get; set; }
-            public bool IsRead { get; set; }
-            public bool IsWatchlistRelated { get; set; }
-            public string Category { get; set; }
-            public List<RelatedStock> RelatedStocks { get; set; }
-            public Status Status { get; set; }
-            public string Topic { get; set; }
-            public User Author { get; set; }
+            var userCnp = await GetCurrentUserCnp();
+            // The service should handle setting the author based on the authenticated user
+            return await _newsService.SubmitUserArticleAsync(article, userCnp);
+        }
 
-            public class RelatedStock
-            {
-                public decimal Price { get; set; }
-                public int Quantity { get; set; }
-                public string Name { get; set; }
-                public string Symbol { get; set; }
-                public string AuthorCNP { get; set; }
-            }
+        [HttpGet("{articleId}/relatedstocks")]
+        public async Task<ActionResult<List<Stock>>> GetRelatedStocksForArticle(string articleId)
+        {
+            return await _newsService.GetRelatedStocksForArticleAsync(articleId);
         }
     }
 }

@@ -6,10 +6,6 @@
     mc:Ignorable="d"
     xmlns:local="using:StockApp.ViewModels" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" d:DataContext="{d:DesignInstance Type=local:TransactionLogViewModel, IsDesignTimeCreatable=True}">
 
-    <Page.Resources>
-        <local:TransactionLogViewModel x:Key="ViewModel"/>
-    </Page.Resources>
-
     <Grid Padding="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

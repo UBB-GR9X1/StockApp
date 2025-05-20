@@ -20,11 +20,9 @@
         /// <returns>A SolidColorBrush representing the color.</returns>
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            if (value is string change && !string.IsNullOrEmpty(change))
-            {
-                return change.StartsWith('+') ? new SolidColorBrush(Colors.Green) : new SolidColorBrush(Colors.Red);
-            }
-            return new SolidColorBrush(Colors.Black);
+            return value is string change && !string.IsNullOrEmpty(change)
+                ? change.StartsWith('+') ? new SolidColorBrush(Colors.Green) : new SolidColorBrush(Colors.Red)
+                : new SolidColorBrush(Colors.Black);
         }
 
         /// <summary>

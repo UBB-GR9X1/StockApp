@@ -1,9 +1,9 @@
 namespace StockApp.Views
 {
-    using System;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
     using StockApp.ViewModels;
+    using System;
 
     public sealed partial class NewsArticleView : Page
     {
@@ -21,7 +21,6 @@ namespace StockApp.Views
                 this.DataContext = value;
             }
         }
-
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NewsArticleView"/> class.
@@ -48,7 +47,7 @@ namespace StockApp.Views
             {
                 throw new ArgumentException("Button content is not a valid stock name", nameof(sender));
             }
-            //FIXME: navigate to the stock page
+            // FIXME: navigate to the stock page
             throw new NotImplementedException("Not implemented");
         }
     }

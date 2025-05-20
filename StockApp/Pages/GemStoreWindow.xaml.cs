@@ -1,10 +1,10 @@
 namespace StockApp.Pages
 {
-    using System;
     using Common.Models;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
     using StockApp.ViewModels;
+    using System;
 
     public sealed partial class GemStoreWindow : Page
     {
@@ -30,17 +30,17 @@ namespace StockApp.Pages
 
             if (sender is Button button && button.CommandParameter is GemDeal selectedDeal)
             {
-                ComboBox bankAccountDropdown = new ComboBox
+                ComboBox bankAccountDropdown = new()
                 {
                     ItemsSource = StoreViewModel.GetUserBankAccounts(),
                     SelectedIndex = 0,
                 };
 
-                StackPanel dialogContent = new StackPanel();
+                StackPanel dialogContent = new();
                 dialogContent.Children.Add(new TextBlock { Text = $"You are about to buy {selectedDeal.GemAmount} Gems for {selectedDeal.Price}€.\n\nSelect a Bank Account:" });
                 dialogContent.Children.Add(bankAccountDropdown);
 
-                ContentDialog confirmDialog = new ContentDialog
+                ContentDialog confirmDialog = new()
                 {
                     Title = "Confirm Purchase",
                     Content = dialogContent,
@@ -70,7 +70,7 @@ namespace StockApp.Pages
 
         private async void ShowErrorDialog(string message)
         {
-            ContentDialog errorDialog = new ContentDialog
+            ContentDialog errorDialog = new()
             {
                 Title = "Error",
                 Content = message,
@@ -82,7 +82,7 @@ namespace StockApp.Pages
 
         private async void ShowSuccessDialog(string message)
         {
-            ContentDialog successDialog = new ContentDialog
+            ContentDialog successDialog = new()
             {
                 Title = "Success",
                 Content = message,
@@ -112,17 +112,17 @@ namespace StockApp.Pages
                 return;
             }
 
-            ComboBox bankAccountDropdown = new ComboBox
+            ComboBox bankAccountDropdown = new()
             {
                 ItemsSource = StoreViewModel.GetUserBankAccounts(),
                 SelectedIndex = 0,
             };
 
-            StackPanel dialogContent = new StackPanel();
+            StackPanel dialogContent = new();
             dialogContent.Children.Add(new TextBlock { Text = $"You are about to sell {gemsToSell} Gems for {gemsToSell / 100.0}€.\n\nSelect a Bank Account from below:\n" });
             dialogContent.Children.Add(bankAccountDropdown);
 
-            ContentDialog sellDialog = new ContentDialog
+            ContentDialog sellDialog = new()
             {
                 Title = "Confirm Sale",
                 Content = dialogContent,

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace Common.Models
 {
@@ -24,6 +25,7 @@ namespace Common.Models
 
         public Stock Stock { get; set; } = null!;
 
+        [JsonIgnore]
         public User User { get; set; } = null!;
     }
 }

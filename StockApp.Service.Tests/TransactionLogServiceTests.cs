@@ -52,8 +52,8 @@ namespace StockApp.Service.Tests
             var old = DateTime.Today.AddDays(-1);
             var txns = new List<TransactionLogTransaction>
             {
-                new("SYM","A","BUY",1,10,DateTime.Now,"u"),   
-                new("SYM","B","SELL",1,10,old,"u")           
+                new("SYM","A","BUY",1,10,DateTime.Now,"u"),
+                new("SYM","B","SELL",1,10,old,"u")
             };
 
             var sorted = _service.SortTransactions(txns, "Date", ascending: true);

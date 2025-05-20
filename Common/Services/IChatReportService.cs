@@ -1,21 +1,23 @@
 ﻿namespace Common.Services
 {
+    using Common.Models;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Common.Models;
 
     public interface IChatReportService
     {
-        Task DoNotPunishUser(ChatReport chatReportToBeSolved);
+        Task<List<ChatReport>> GetAllChatReportsAsync();
 
-        Task PunishUser(ChatReport chatReportToBeSolved);
+        Task<ChatReport?> GetChatReportByIdAsync(int id);
 
-        Task<bool> IsMessageOffensive(string messageToBeChecked);
+        Task AddChatReportAsync(ChatReport report);
 
-        Task UpdateHistoryForUser(string userCNP, int newScore);
+        Task DeleteChatReportAsync(int id);
 
-        Task<List<ChatReport>> GetChatReports();
+        Task<int> GetNumberOfGivenTipsForUserAsync(string? userCnp = null);
 
-        Task DeleteChatReport(int id);
+        Task UpdateActivityLogAsync(int amount, string? userCnp = null);
+
+        Task UpdateScoreHistoryForUserAsync(int newScore, string? userCnp = null);
     }
 }

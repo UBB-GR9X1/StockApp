@@ -1,19 +1,28 @@
-﻿namespace BankApi.Seeders
+﻿using BankApi.Data;
+using Common.Models;
+
+namespace BankApi.Seeders
 {
-    public class LoanRequestsSeeder(IConfiguration configuration) : RegularTableSeeder(configuration)
+    public class LoanRequestsSeeder(IConfiguration configuration, IServiceProvider serviceProvider) : RegularTableSeeder<LoanRequest>(configuration, serviceProvider)
     {
-        protected override string GetQuery() => @"
-            IF NOT EXISTS (SELECT 1 FROM LoanRequests) 
-            BEGIN
-                INSERT INTO LoanRequests 
-                    (UserCnp, Amount, ApplicationDate, RepaymentDate, Status)
-                VALUES
-                    ('1234567890123', 5000.00, '2025-04-01', '2025-10-01', 'Pending'),
-                    ('9876543210987', 12000.50, '2025-03-15', '2025-09-15', 'Approved'),
-                    ('2345678901234', 3500.75, '2025-02-20', '2025-08-20', 'Rejected'),
-                    ('3456789012345', 8000.00, '2025-01-10', '2025-07-10', 'Pending'),
-                    ('4567890123456', 15000.25, '2025-05-05', '2025-11-05', 'Approved');
-            END;
-        ";
+        protected override async Task SeedDataAsync(ApiDbContext context)
+        {
+            if (context.LoanRequests.Any())
+            {
+                Console.WriteLine("LoanRequests already exist, skipping seeding.");
+                return;
+            }
+
+            var loanRequests = new[]
+            {
+                new LoanRequest { UserCnp = "1234567890123", Amount = 5000.00m, ApplicationDate = new DateTime(2025, 4, 1), RepaymentDate = new DateTime(2025, 10, 1), Status = "Pending" },
+                new LoanRequest { UserCnp = "9876543210987", Amount = 12000.50m, ApplicationDate = new DateTime(2025, 3, 15), RepaymentDate = new DateTime(2025, 9, 15), Status = "Approved" },
+                new LoanRequest { UserCnp = "2345678901234", Amount = 3500.75m, ApplicationDate = new DateTime(2025, 2, 20), RepaymentDate = new DateTime(2025, 8, 20), Status = "Rejected" },
+                new LoanRequest { UserCnp = "3456789012345", Amount = 8000.00m, ApplicationDate = new DateTime(2025, 1, 10), RepaymentDate = new DateTime(2025, 7, 10), Status = "Pending" },
+                new LoanRequest { UserCnp = "4567890123456", Amount = 15000.25m, ApplicationDate = new DateTime(2025, 5, 5), RepaymentDate = new DateTime(2025, 11, 5), Status = "Approved" }
+            };
+
+            await context.LoanRequests.AddRangeAsync(loanRequests);
+        }
     }
 }

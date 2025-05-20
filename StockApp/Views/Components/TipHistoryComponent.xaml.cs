@@ -2,9 +2,9 @@
 // and more about our project templates, see: http://aka.ms/winui-project-info.
 namespace StockApp.Views.Components
 {
+    using Common.Models;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
-    using Common.Models;
 
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
@@ -66,7 +66,6 @@ namespace StockApp.Views.Components
                 MessageIdTextBlock.Text = value; // Update UI when MessageId changes
             }
         }
-
 
         private static void OnTipChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {

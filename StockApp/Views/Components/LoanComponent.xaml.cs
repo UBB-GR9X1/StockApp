@@ -1,12 +1,12 @@
 namespace StockApp.Views.Components
 {
-    using System;
-    using System.ComponentModel;
+    using Common.Models;
+    using Common.Services;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
-    using Common.Models;
-    using Common.Services;
+    using System;
+    using System.ComponentModel;
 
     /// <summary>
     /// Represents a component for managing loan-related operations.
@@ -31,18 +31,28 @@ namespace StockApp.Views.Components
             }
         }
 
-
         private static void OnLoanPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is LoanComponent component)
             {
-                component.Loan = e.NewValue as Loan;
+                if (e.NewValue is null)
+                {
+                    component.Loan = null;
+                }
+                else if (e.NewValue is Loan loan)
+                {
+                    component.Loan = loan;
+                }
+                else
+                {
+                    throw new ArgumentException("Invalid value for Loan property", nameof(e.NewValue));
+                }
             }
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        protected void OnPropertyChanged(string propertyName)
+        public void OnPropertyChanged(string propertyName)
         {
             this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

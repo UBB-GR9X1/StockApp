@@ -1,12 +1,12 @@
 ﻿namespace StockApp.ViewModels
 {
+    using Common.Models;
+    using Common.Services;
+    using Microsoft.UI.Xaml.Media.Imaging;
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Threading.Tasks;
-    using Microsoft.UI.Xaml.Media.Imaging;
-    using Common.Models;
-    using Common.Services;
 
     /// <summary>
     /// View model for the profile page, managing the user's profile image and information.
@@ -15,9 +15,10 @@
     /// Initializes a new instance of the <see cref="ProfilePageViewModel"/> class with the specified profile service.
     /// </remarks>
     /// <param name="profileService">Service used to retrieve profile data.</param>
-    public class ProfilePageViewModel : INotifyPropertyChanged
+    public partial class ProfilePageViewModel : INotifyPropertyChanged
     {
         private readonly IUserService userService;
+        private readonly IAuthenticationService authenticationService;
         private readonly IStockService stockService;
         private BitmapImage imageSource;
         private string username = string.Empty;
@@ -27,7 +28,7 @@
         private bool isAdmin = false;
         private bool isHidden = false;
 
-        public bool IsGuest => this.userService.IsGuest();
+        public bool IsGuest => this.authenticationService.IsUserLoggedIn();
 
         /// <summary>
         /// Gets or sets the profile image source.
@@ -37,6 +38,10 @@
             get => this.imageSource;
             set
             {
+                if (value == null)
+                {
+                    throw new ArgumentNullException(nameof(value), "Image source cannot be null.");
+                }
                 this.imageSource = value;
                 this.OnPropertyChanged(nameof(this.ImageSource));
             }
@@ -45,13 +50,13 @@
         /// <summary>
         /// Gets or sets the username.
         /// </summary>
-        public string Username
+        public string UserName
         {
             get => this.username;
             private set
             {
                 this.username = value;
-                this.OnPropertyChanged(nameof(this.Username));
+                this.OnPropertyChanged(nameof(this.UserName));
             }
         }
 
@@ -120,13 +125,14 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="ProfilePageViewModel"/> class with the default profile service and loads the profile image.
         /// </summary>
-        public ProfilePageViewModel(IStockService stockService, IUserService userService)
+        public ProfilePageViewModel(IStockService stockService, IUserService userService, IAuthenticationService authenticationService)
         {
             this.stockService = stockService ?? throw new ArgumentNullException(nameof(stockService));
             this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
+            this.authenticationService = authenticationService ?? throw new ArgumentNullException(nameof(authenticationService));
             try
             {
-                if (!this.userService.IsGuest())
+                if (this.authenticationService.IsUserLoggedIn())
                 {
                     _ = this.LoadProfileData();
                 }
@@ -144,11 +150,11 @@
             {
                 User currentUser = await this.userService.GetCurrentUserAsync();
 
-                this.Username = currentUser.Username;
+                this.UserName = currentUser.UserName ?? throw new ArgumentNullException(nameof(currentUser.UserName));
                 this.Description = currentUser.Description;
                 this.IsAdmin = currentUser.IsModerator;
                 this.IsHidden = currentUser.IsHidden;
-                this.UserStocks = await this.stockService.UserStocksAsync(this.userService.GetCurrentUserCNP());
+                this.UserStocks = await this.stockService.UserStocksAsync();
 
                 if (!string.IsNullOrEmpty(currentUser.Image) && Uri.IsWellFormedUriString(currentUser.Image, UriKind.Absolute))
                 {

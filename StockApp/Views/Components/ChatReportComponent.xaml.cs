@@ -1,17 +1,17 @@
 namespace StockApp.Views.Components
 {
-    using System;
-    using Microsoft.UI.Xaml;
-    using Microsoft.UI.Xaml.Controls;
-    using Src.Helpers;
     using Common.Models;
     using Common.Services;
+    using Microsoft.UI.Xaml;
+    using Microsoft.UI.Xaml.Controls;
+    using System;
 
     public sealed partial class ChatReportComponent : Page
     {
         private readonly IChatReportService chatReportService;
+        private readonly IProfanityChecker profanityChecker;
 
-        public event EventHandler ReportSolved;
+        public event EventHandler? ReportSolved;
 
         public string ReportedUserCNP { get; set; }
 
@@ -19,34 +19,35 @@ namespace StockApp.Views.Components
 
         public int ReportId { get; set; }
 
-        public ChatReportComponent(IChatReportService chatReportService)
+        public ChatReportComponent(IChatReportService chatReportService, IProfanityChecker profanityChecker)
         {
             this.InitializeComponent();
             this.chatReportService = chatReportService;
+            this.profanityChecker = profanityChecker;
         }
 
         private async void PunishReportedUser(object sender, RoutedEventArgs e)
         {
-            ChatReport chatReport = new ChatReport
+            ChatReport chatReport = new()
             {
                 Id = this.ReportId,
                 ReportedUserCnp = this.ReportedUserCNP,
-                ReportedMessage = this.ReportedMessage
+                ReportedMessage = this.ReportedMessage,
             };
 
-            await this.chatReportService.PunishUser(chatReport);
+            await this.chatReportService.AddChatReportAsync(chatReport);
             this.ReportSolved?.Invoke(this, EventArgs.Empty);
         }
 
         private async void DoNotPunishReportedUser(object sender, RoutedEventArgs e)
         {
-            ChatReport chatReport = new ChatReport
+            ChatReport chatReport = new()
             {
                 Id = this.ReportId,
                 ReportedUserCnp = this.ReportedUserCNP,
-                ReportedMessage = this.ReportedMessage
+                ReportedMessage = this.ReportedMessage,
             };
-            await this.chatReportService.DoNotPunishUser(chatReport);
+            await this.chatReportService.AddChatReportAsync(chatReport);
             this.ReportSolved?.Invoke(this, EventArgs.Empty);
         }
 
@@ -56,7 +57,7 @@ namespace StockApp.Views.Components
             this.ReportedUserCNP = reportedUserCnp;
             this.ReportedMessage = reportedMessage;
 
-            bool apiSuggestion = await ProfanityChecker.IsMessageOffensive(reportedMessage);
+            bool apiSuggestion = await this.profanityChecker.IsMessageOffensive(reportedMessage);
 
             this.IdTextBlock.Text = $"Report ID: {id}";
             this.ReportedUserCNPTextBlock.Text = $"Reported user's CNP: {reportedUserCnp}";

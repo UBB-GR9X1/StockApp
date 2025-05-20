@@ -1,31 +1,25 @@
 ﻿namespace StockApp.ViewModels
 {
+    using Common.Models;
+    using Common.Services;
     using System;
     using System.Collections.ObjectModel;
     using System.Threading.Tasks;
-    using Common.Models;
-    using Common.Services;
 
     /// <summary>
     /// ViewModel for managing user activities, providing data binding and command handling for activity-related operations.
     /// </summary>
-    public class ActivityViewModel : ViewModelBase
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="ActivityViewModel"/> class.
+    /// </remarks>
+    /// <param name="activityService">The stockService for managing activities.</param>
+    public partial class ActivityViewModel(IActivityService activityService) : ViewModelBase
     {
-        private readonly IActivityService _activityService;
-        private ObservableCollection<ActivityLog> _activities;
+        private readonly IActivityService _activityService = activityService ?? throw new ArgumentNullException(nameof(activityService));
+        private ObservableCollection<ActivityLog> _activities = [];
         private string _userCnp;
         private bool _isLoading;
         private string _errorMessage;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ActivityViewModel"/> class.
-        /// </summary>
-        /// <param name="activityService">The homepageService for managing activities.</param>
-        public ActivityViewModel(IActivityService activityService)
-        {
-            _activityService = activityService ?? throw new ArgumentNullException(nameof(activityService));
-            _activities = new ObservableCollection<ActivityLog>();
-        }
 
         /// <summary>
         /// Gets or sets the collection of activities.
@@ -46,7 +40,7 @@
             {
                 if (SetProperty(ref _userCnp, value))
                 {
-                    LoadActivitiesAsync();
+                    _ = LoadActivitiesAsync();
                 }
             }
         }
@@ -75,12 +69,14 @@
         public async Task LoadActivitiesAsync()
         {
             if (string.IsNullOrWhiteSpace(_userCnp))
+            {
                 return;
+            }
 
             try
             {
                 IsLoading = true;
-                ErrorMessage = null;
+                ErrorMessage = string.Empty;
 
                 var activities = await _activityService.GetActivityForUser(_userCnp);
                 Activities.Clear();
@@ -116,7 +112,7 @@
             try
             {
                 IsLoading = true;
-                ErrorMessage = null;
+                ErrorMessage = string.Empty;
 
                 var activity = await _activityService.AddActivity(_userCnp, activityName, amount, details);
                 Activities.Insert(0, activity); // Add to the beginning of the collection

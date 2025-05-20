@@ -9,7 +9,7 @@ namespace StockApp.Views.Components
         public MessageHistoryComponent()
         {
             this.InitializeComponent();
-            //this.DataContextChanged += (s, e) => Bindings.Update(); // Ensure bindings update when DataContext changes
+            // this.DataContextChanged += (s, e) => Bindings.Update(); // Ensure bindings update when DataContext changes
         }
 
         public Message Message

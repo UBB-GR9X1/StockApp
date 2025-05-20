@@ -13,6 +13,5 @@ namespace StockApp.Pages
             this.InitializeComponent();
             this.DataContext = viewModel;
         }
-
     }
 }

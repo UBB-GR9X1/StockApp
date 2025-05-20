@@ -1,19 +1,19 @@
 namespace StockApp.Views.Pages
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
+    using Common.Models;
+    using Common.Services;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
     using OxyPlot;
     using OxyPlot.Axes;
     using OxyPlot.Series;
-    using Common.Models;
-    using Common.Services;
+    using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
 
     public sealed partial class AnalysisWindow : Window
     {
-        private User user;
+        private readonly User user;
         private readonly IActivityService activityService;
         private readonly IHistoryService historyService;
         private bool isLoading;
@@ -47,7 +47,10 @@ namespace StockApp.Views.Pages
 
         public async void LoadUserActivitiesAsync()
         {
-            if (isLoading) return;
+            if (isLoading)
+            {
+                return; // Prevent multiple simultaneous loads
+            }
 
             try
             {
@@ -78,7 +81,7 @@ namespace StockApp.Views.Pages
             {
                 if (history.Count == 0)
                 {
-                    this.CreditScorePlotView.Model = new PlotModel { Title = "No credit history", }; ;
+                    this.CreditScorePlotView.Model = new PlotModel { Title = "No credit history", };
                     return;
                 }
 

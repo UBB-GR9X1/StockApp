@@ -44,14 +44,11 @@
         /// <exception cref="InvalidCastException">Thrown when the input value is not a Visibility enum.</exception>
         public override object ConvertBack(object value, Type targetType, object parameter, string language)
         {
-            if (value is not Visibility visibilityValue)
-            {
-                throw new InvalidCastException("Expected a Visibility value for BoolToVisibilityConverter.");
-            }
-
-            return ShouldInvert(parameter)
+            return value is not Visibility visibilityValue
+                ? throw new InvalidCastException("Expected a Visibility value for BoolToVisibilityConverter.")
+                : (object)(ShouldInvert(parameter)
                 ? visibilityValue != Visibility.Visible
-                : visibilityValue == Visibility.Visible;
+                : visibilityValue == Visibility.Visible);
         }
     }
 }

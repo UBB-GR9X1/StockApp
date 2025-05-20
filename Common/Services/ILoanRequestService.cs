@@ -8,9 +8,9 @@
     {
         Task<string> GiveSuggestion(LoanRequest loanRequest);
 
-        Task SolveLoanRequest(LoanRequest loanRequest);
+        Task SolveLoanRequest(int loanRequestId);
 
-        Task DeleteLoanRequest(LoanRequest loanRequest);
+        Task DeleteLoanRequest(int loanRequestId);
 
         Task<List<LoanRequest>> GetLoanRequests();
 

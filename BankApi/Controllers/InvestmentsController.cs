@@ -1,69 +1,93 @@
-using BankApi.Repositories;
-using Common.Models;
 using Microsoft.AspNetCore.Mvc;
+using Common.Services;
+using Common.Models;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+using BankApi.Repositories; // Required for IUserRepository
+using System.Threading.Tasks; // Required for Task
+using System.Collections.Generic; // Required for List
+using System; // Required for Decimal
 
 namespace BankApi.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
-    public class InvestmentsController : ControllerBase
+    public class InvestmentsController(IInvestmentsService investmentsService, IUserRepository userRepository) : ControllerBase
     {
-        private readonly IInvestmentsRepository _investmentsRepository;
+        private readonly IInvestmentsService _investmentsService = investmentsService;
+        private readonly IUserRepository _userRepository = userRepository;
 
-        public InvestmentsController(IInvestmentsRepository investmentsRepository)
+        private async Task<string> GetCurrentUserCnp()
         {
-            _investmentsRepository = investmentsRepository ?? throw new ArgumentNullException(nameof(investmentsRepository));
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                throw new UnauthorizedAccessException("User is not authenticated.");
+            }
+            var user = await _userRepository.GetByIdAsync(int.Parse(userId));
+            return user == null ? throw new Exception("User not found") : user.CNP;
         }
 
-        [HttpGet]
-        public ActionResult<List<Investment>> GetInvestmentsHistory()
+        [HttpGet("history")]
+        [Authorize(Roles = "Admin")] // Assuming only admins can see all investment history
+        public async Task<ActionResult<List<Investment>>> GetInvestmentsHistory()
         {
-            try
-            {
-                var investments = _investmentsRepository.GetInvestmentsHistory();
-                return Ok(investments);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
+            return await _investmentsService.GetInvestmentsHistoryAsync();
         }
 
         [HttpPost]
-        public ActionResult AddInvestment(Investment investment)
+        public async Task<IActionResult> AddInvestment([FromBody] Investment investment)
         {
-            if (investment == null)
-                return BadRequest("Investment cannot be null.");
-
-            try
+            var userCnp = await GetCurrentUserCnp();
+            if (string.IsNullOrEmpty(investment.InvestorCnp) || investment.InvestorCnp != userCnp)
             {
-                _investmentsRepository.AddInvestment(investment);
-                return Ok();
+                investment.InvestorCnp = userCnp;
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
+            await _investmentsService.AddInvestmentAsync(investment);
+            return Ok();
         }
 
-        [HttpPut("{investmentId}")]
-        public ActionResult UpdateInvestment(int investmentId, [FromQuery] string investorCNP, [FromQuery] decimal amountReturned)
+        [HttpPut("{investmentId}/update")]
+        public async Task<IActionResult> UpdateInvestment(int investmentId, decimal amountReturned)
         {
-            if (investmentId <= 0)
-                return BadRequest("Invalid investment ID.");
+            var userCnp = await GetCurrentUserCnp();
+            await _investmentsService.UpdateInvestmentAsync(investmentId, userCnp, amountReturned);
+            return Ok();
+        }
 
-            if (string.IsNullOrWhiteSpace(investorCNP))
-                return BadRequest("Investor CNP cannot be empty.");
+        // Exposing other IInvestmentsService methods
 
-            try
-            {
-                _investmentsRepository.UpdateInvestment(investmentId, investorCNP, amountReturned);
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
+        [HttpPost("calculateRiskScore")]
+        [Authorize(Roles = "Admin")] // Assuming only admins can trigger this
+        public async Task<IActionResult> CalculateAndUpdateRiskScore()
+        {
+            await _investmentsService.CalculateAndUpdateRiskScoreAsync();
+            return Ok();
+        }
+
+        [HttpPost("calculateROI")]
+        [Authorize(Roles = "Admin")] // Assuming only admins can trigger this
+        public async Task<IActionResult> CalculateAndUpdateROI()
+        {
+            await _investmentsService.CalculateAndUpdateROIAsync();
+            return Ok();
+        }
+
+        [HttpPost("updateInvestmentsBasedOnCreditScore")]
+        [Authorize(Roles = "Admin")] // Assuming only admins can trigger this
+        public async Task<IActionResult> CreditScoreUpdateInvestmentsBased()
+        {
+            await _investmentsService.CreditScoreUpdateInvestmentsBasedAsync();
+            return Ok();
+        }
+
+        [HttpGet("portfolioSummary")]
+        public async Task<ActionResult<List<InvestmentPortfolio>>> GetPortfolioSummary()
+        {
+            // This might need to be user-specific, the service should handle it
+            // Or, pass userCnp if the service expects it for non-admin users
+            return await _investmentsService.GetPortfolioSummaryAsync();
         }
     }
 }

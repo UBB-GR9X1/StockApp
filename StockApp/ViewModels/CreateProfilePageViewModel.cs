@@ -1,16 +1,18 @@
 ﻿namespace StockApp.ViewModels
 {
+    using Common.Models;
+    using Common.Services;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.UI.Xaml.Controls;
+    using StockApp.Commands;
+    using StockApp.Views.Pages;
     using System;
     using System.ComponentModel;
     using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using System.Windows.Input;
-    using Microsoft.UI.Xaml.Controls;
-    using StockApp.Commands;
-    using Common.Models;
-    using Common.Services;
 
-    public class CreateProfilePageViewModel : INotifyPropertyChanged
+    public partial class CreateProfilePageViewModel : INotifyPropertyChanged
     {
         private readonly IUserService userService;
 
@@ -25,26 +27,25 @@
         private string cnp = string.Empty;
         private string zodiacSign = string.Empty;
         private string zodiacAttribute = string.Empty;
+        private string password = string.Empty;
 
         public ICommand CreateProfileCommand { get; set; }
 
-        public ICommand GoToProfilePageCommand { get; set; }
+        public ICommand GoToLoginPageCommand { get; set; }
 
         public CreateProfilePageViewModel(IUserService userService)
         {
             this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
             this.CreateProfileCommand = new RelayCommand(this.CreateProfile);
-            this.GoToProfilePageCommand = new RelayCommand(this.GoToProfilePage);
+            this.GoToLoginPageCommand = new RelayCommand(GoToLoginPage);
         }
 
-        private void GoToProfilePage(object parameter)
+        private static void GoToLoginPage(object? parameter = null)
         {
-            //FIXME: navigate to the profile page
-            throw new NotImplementedException("Not implemented");
-            //NavigationService.Instance.Navigate(typeof(ProfilePage));
+            App.MainAppWindow!.MainAppFrame.Content = App.Host.Services.GetService<LoginPage>();
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         public string Image
         {
@@ -112,12 +113,18 @@
             set => this.SetProperty(ref this.zodiacAttribute, value);
         }
 
+        public string Password
+        {
+            get => this.password;
+            set => this.SetProperty(ref this.password, value);
+        }
+
         private async void CreateProfile(object o)
         {
             User user = new()
             {
                 Image = this.Image,
-                Username = this.Username,
+                UserName = this.Username,
                 Description = this.Description,
                 FirstName = this.FirstName,
                 LastName = this.LastName,
@@ -132,24 +139,23 @@
                 IsModerator = false,
                 GemBalance = 0,
                 NumberOfOffenses = 0,
+                PasswordHash = this.Password,
             };
 
             try
             {
                 await this.userService.CreateUser(user);
-                this.userService.SetCurrentUserCNP(user.CNP);
-                await this.ShowSuccessDialog("Profile created successfully!");
+                await ShowSuccessDialog("Profile created successfully!");
 
-                //FIXME: Navigate to profile page after successful creation
-                throw new NotImplementedException("Not implemented");
+                GoToLoginPage();
             }
             catch (Exception ex)
             {
-                await this.ShowErrorDialog(ex.Message);
+                await ShowErrorDialog(ex.Message);
             }
         }
 
-        private async Task ShowErrorDialog(string message)
+        private static async Task ShowErrorDialog(string message)
         {
             if (App.MainAppWindow == null)
             {
@@ -167,7 +173,7 @@
             await dialog.ShowAsync();
         }
 
-        private async Task ShowSuccessDialog(string message)
+        private static async Task ShowSuccessDialog(string message)
         {
             if (App.MainAppWindow == null)
             {
@@ -185,7 +191,7 @@
             await dialog.ShowAsync();
         }
 
-        private void SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
+        private void SetProperty<T>(ref T storage, T value, [CallerMemberName] string? propertyName = null)
         {
             if (!Equals(storage, value))
             {

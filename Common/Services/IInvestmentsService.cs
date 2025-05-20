@@ -18,6 +18,6 @@
 
         Task AddInvestmentAsync(Investment investment);
 
-        Task UpdateInvestmentAsync(int investmentId, string investorCNP, float amountReturned);
+        Task UpdateInvestmentAsync(int investmentId, string investorCNP, decimal amountReturned);
     }
 }

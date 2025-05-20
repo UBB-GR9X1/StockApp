@@ -26,8 +26,8 @@
         public LoansViewModel(ILoanService loansService)
         {
             this.loansService = loansService;
-            this.LoadLoansCommand = new RelayCommand(async (object sender) => await this.LoadLoans(), (object sender) => !this.IsLoading);
-            this.OnLoansUpdatedCommand = new RelayCommand(async (object sender) => await this.LoadLoans(), (object sender) => !this.IsLoading);
+            this.LoadLoansCommand = new RelayCommand(async sender => await this.LoadLoans(), sender => !this.IsLoading);
+            this.OnLoansUpdatedCommand = new RelayCommand(async sender => await this.LoadLoans(), sender => !this.IsLoading);
         }
 
         private async Task LoadLoans()

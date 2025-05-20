@@ -1,9 +1,9 @@
 ﻿namespace StockApp.Pages
 {
-    using System;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
     using StockApp.ViewModels;
+    using System;
 
     /// <summary>
     /// A page that displays transaction log data.
@@ -20,23 +20,6 @@
             this.DataContext = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
             this.InitializeComponent();
             this.viewModel = viewModel;
-            this.viewModel.ShowMessageBoxRequested += this.ShowMessageBoxRequested;
-        }
-
-        // Event handler to show a message box when requested by the ViewModel
-        private async void ShowMessageBoxRequested(string title, string content)
-        {
-            // Ensure we're using Window.Current after the window is fully loaded
-            // Create and show the ContentDialog
-            var messageDialog = new ContentDialog
-            {
-                Title = title,
-                Content = content,
-                CloseButtonText = "OK",
-                XamlRoot = App.MainAppWindow!.MainAppFrame.XamlRoot,
-            };
-
-            await messageDialog.ShowAsync();
         }
 
         public void OnEndDateChanged(object sender, DatePickerSelectedValueChangedEventArgs e)
@@ -73,6 +56,5 @@
                 throw new InvalidOperationException("Window.Current is null during page activation.");
             }
         }
-
     }
 }

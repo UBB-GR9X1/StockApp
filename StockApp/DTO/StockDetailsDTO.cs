@@ -3,16 +3,10 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace StockApp.DTO
 {
-    public class StockDetailsDTO
+    public class StockDetailsDTO(Stock stockDetails, Page previousPage)
     {
-        public Stock StockDetails { get; set; }
+        public Stock StockDetails { get; set; } = stockDetails;
 
-        public Page PreviousPage { get; set; }
-
-        public StockDetailsDTO(Stock stockDetails, Page previousPage)
-        {
-            StockDetails = stockDetails;
-            PreviousPage = previousPage;
-        }
+        public Page PreviousPage { get; set; } = previousPage;
     }
 }

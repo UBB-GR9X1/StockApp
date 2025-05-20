@@ -1,9 +1,10 @@
-﻿namespace Common.Services
-{
-    using System.Threading.Tasks;
+﻿using Common.Models;
 
+namespace Common.Services
+{
     public interface ITipsService
     {
-        Task GiveTipToUser(string userCNP);
+        Task<List<Tip>> GetTipsForUserAsync(string userCnp);
+        Task GiveTipToUserAsync(string userCnp);
     }
 }
