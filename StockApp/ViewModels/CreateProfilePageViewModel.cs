@@ -136,7 +136,6 @@
                 ZodiacAttribute = this.ZodiacAttribute,
                 Balance = 0,
                 IsHidden = false,
-                IsModerator = false,
                 GemBalance = 0,
                 NumberOfOffenses = 0,
                 PasswordHash = this.Password,

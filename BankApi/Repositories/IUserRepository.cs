@@ -11,5 +11,7 @@ namespace BankApi.Repositories
         Task<User> CreateAsync(User user);
         Task<bool> UpdateAsync(User user);
         Task<bool> DeleteAsync(int id);
+        Task<bool> UpdateRolesAsync(User user, IEnumerable<string> roleNames);
+        Task<int> AddDefaultRoleToAllUsersAsync();
     }
 }

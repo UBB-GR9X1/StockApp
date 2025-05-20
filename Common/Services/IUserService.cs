@@ -19,5 +19,7 @@
         Task<User> GetCurrentUserAsync(string? userCNP = null);
 
         Task<int> GetCurrentUserGemsAsync(string? userCNP = null);
+
+        Task<int> AddDefaultRoleToAllUsersAsync();
     }
 }

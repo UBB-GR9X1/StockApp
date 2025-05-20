@@ -175,8 +175,10 @@ if (app.Environment.IsDevelopment())
         }
     }
 
-    // Configure the HTTP request pipeline
-    app.UseDeveloperExceptionPage();
+    // Ensure all users have the default User role
+    var userService = serviceProvider.GetRequiredService<IUserService>();
+    int updatedUsers = await userService.AddDefaultRoleToAllUsersAsync();
+    Console.WriteLine($"Added default User role to {updatedUsers} users");
 }
 
 app.UseHttpsRedirection();

@@ -21,8 +21,6 @@ namespace Common.Models
         [MaxLength(500)]
         public string Description { get; set; } = string.Empty;
 
-        public bool IsModerator { get; set; }
-
         [MaxLength(255)]
         public string Image { get; set; } = string.Empty;
 

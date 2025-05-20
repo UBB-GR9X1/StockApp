@@ -60,10 +60,8 @@
                     services.AddTransient<AuthenticationDelegatingHandler>();
 
                     // Other Services
-                    // services.AddScoped<ITransactionLogService, TransactionLogService>();
-                    // services.AddScoped<IChatReportService, ChatReportService>();
-                    // services.AddScoped<IMessagesService, MessagesService>();
-                    // services.AddScoped<ITipsService, TipsService>();
+                    services.AddScoped<ITransactionLogService, TransactionLogProxy>();
+                    services.AddScoped<IChatReportService, ChatReportProxyService>();
                     services.AddScoped<IHistoryService, HistoryProxyService>();
                     services.AddScoped<IBillSplitReportService, BillSplitReportProxyService>();
                     services.AddScoped<ILoanService, LoanProxyService>();
@@ -77,6 +75,7 @@
                     services.AddScoped<IStockService, StockProxyService>();
                     services.AddScoped<IAlertService, AlertProxyService>();
                     services.AddScoped<IMessagesService, MessagesProxyService>();
+                    services.AddScoped<ITipsService, TipsProxyService>();
                     services.AddScoped<IProfanityChecker, ProfanityChecker>();
 
                     // Configure HttpClients with the AuthenticationDelegatingHandler
@@ -129,6 +128,18 @@
                         client.BaseAddress = new Uri(apiBaseUrl);
                     }).AddHttpMessageHandler<AuthenticationDelegatingHandler>();
                     services.AddHttpClient<IHistoryService, HistoryProxyService>(client =>
+                    {
+                        client.BaseAddress = new Uri(apiBaseUrl);
+                    }).AddHttpMessageHandler<AuthenticationDelegatingHandler>();
+                    services.AddHttpClient<ITipsService, TipsProxyService>(client =>
+                    {
+                        client.BaseAddress = new Uri(apiBaseUrl);
+                    }).AddHttpMessageHandler<AuthenticationDelegatingHandler>();
+                    services.AddHttpClient<IChatReportService, ChatReportProxyService>(client =>
+                    {
+                        client.BaseAddress = new Uri(apiBaseUrl);
+                    }).AddHttpMessageHandler<AuthenticationDelegatingHandler>();
+                    services.AddHttpClient<ITransactionLogService, TransactionLogProxy>(client =>
                     {
                         client.BaseAddress = new Uri(apiBaseUrl);
                     }).AddHttpMessageHandler<AuthenticationDelegatingHandler>();

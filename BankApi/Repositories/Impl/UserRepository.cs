@@ -5,11 +5,24 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BankApi.Repositories.Impl
 {
-    public class UserRepository(ApiDbContext context, ILogger<UserRepository> logger, UserManager<User> userManager) : IUserRepository
+    public class UserRepository : IUserRepository
     {
-        private readonly ApiDbContext _context = context;
-        private readonly ILogger<UserRepository> _logger = logger;
-        private readonly UserManager<User> _userManager = userManager;
+        private readonly ApiDbContext _context;
+        private readonly ILogger<UserRepository> _logger;
+        private readonly UserManager<User> _userManager;
+        private readonly RoleManager<IdentityRole<int>> _roleManager;
+
+        public UserRepository(
+            ApiDbContext context, 
+            ILogger<UserRepository> logger, 
+            UserManager<User> userManager,
+            RoleManager<IdentityRole<int>> roleManager)
+        {
+            _context = context ?? throw new ArgumentNullException(nameof(context));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+            _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
+        }
 
         public async Task<List<User>> GetAllAsync() => await _context.Users.ToListAsync();
 
@@ -43,6 +56,51 @@ namespace BankApi.Repositories.Impl
             return await _context.SaveChangesAsync() > 0;
         }
 
+        public async Task<bool> UpdateRolesAsync(User user, IEnumerable<string> roleNames)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            if (roleNames == null)
+            {
+                throw new ArgumentNullException(nameof(roleNames));
+            }
+
+            try
+            {
+                // Get current roles for the user
+                var currentRoles = await _userManager.GetRolesAsync(user);
+
+                // Remove user from all current roles
+                if (currentRoles.Any())
+                {
+                    var removeResult = await _userManager.RemoveFromRolesAsync(user, currentRoles);
+                    if (!removeResult.Succeeded)
+                    {
+                        return false;
+                    }
+                }
+
+                // Add user to the new roles
+                if (roleNames.Any())
+                {
+                    var addResult = await _userManager.AddToRolesAsync(user, roleNames);
+                    if (!addResult.Succeeded)
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
         public async Task<bool> DeleteAsync(int id)
         {
             var user = await _context.Users.FindAsync(id);
@@ -51,6 +109,48 @@ namespace BankApi.Repositories.Impl
 
             _context.Users.Remove(user);
             return await _context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<int> AddDefaultRoleToAllUsersAsync()
+        {
+            try
+            {
+                const string defaultRole = "User";
+                int successCount = 0;
+                var allUsers = await GetAllAsync();
+
+                // Ensure the User role exists
+                if (!await _roleManager.RoleExistsAsync(defaultRole))
+                {
+                    await _roleManager.CreateAsync(new IdentityRole<int>(defaultRole));
+                    _logger.LogInformation($"Created the '{defaultRole}' role");
+                }
+
+                foreach (var user in allUsers)
+                {
+                    // Check if user already has the User role
+                    if (!await _userManager.IsInRoleAsync(user, defaultRole))
+                    {
+                        var result = await _userManager.AddToRoleAsync(user, defaultRole);
+                        if (result.Succeeded)
+                        {
+                            successCount++;
+                            _logger.LogInformation($"Added '{defaultRole}' role to user {user.UserName}");
+                        }
+                        else
+                        {
+                            _logger.LogWarning($"Failed to add '{defaultRole}' role to user {user.UserName}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                        }
+                    }
+                }
+
+                return successCount;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error adding default role to users");
+                throw;
+            }
         }
     }
 }

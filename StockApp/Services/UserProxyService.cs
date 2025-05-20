@@ -9,10 +9,15 @@ using System.Threading.Tasks;
 
 namespace StockApp.Services
 {
-    public class UserProxyService(HttpClient httpClient) : IProxyService, IUserService
+    public class UserProxyService : IProxyService, IUserService
     {
-        private readonly HttpClient _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        private readonly HttpClient _httpClient;
         private readonly JsonSerializerOptions _options = new() { PropertyNameCaseInsensitive = true };
+
+        public UserProxyService(HttpClient httpClient)
+        {
+            _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        }
 
         public async Task CreateUser(User user)
         {
@@ -95,6 +100,21 @@ namespace StockApp.Services
                 response = await _httpClient.PutAsJsonAsync($"api/User/{userCNP}", payload);
             }
             response.EnsureSuccessStatusCode();
+        }
+
+        public async Task<int> AddDefaultRoleToAllUsersAsync()
+        {
+            var response = await _httpClient.PostAsync("api/User/add-default-role", null);
+            response.EnsureSuccessStatusCode();
+
+            var result = await response.Content.ReadFromJsonAsync<DefaultRoleResponse>(_options);
+            return result?.UpdatedCount ?? 0;
+        }
+
+        private class DefaultRoleResponse
+        {
+            public string? Message { get; set; }
+            public int UpdatedCount { get; set; }
         }
     }
 }

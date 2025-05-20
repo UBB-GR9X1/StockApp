@@ -7,9 +7,14 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
-    public class UserService(IUserRepository userRepository) : IUserService
+    public class UserService : IUserService
     {
-        private readonly IUserRepository userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+        private readonly IUserRepository userRepository;
+
+        public UserService(IUserRepository userRepository)
+        {
+            this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+        }
 
         public async Task<User> GetUserByCnpAsync(string cnp)
         {
@@ -62,8 +67,8 @@
         public async Task UpdateIsAdminAsync(bool isAdmin, string userCNP)
         {
             User user = await this.GetUserByCnpAsync(userCNP) ?? throw new KeyNotFoundException($"User with CNP {userCNP} not found.");
-            user.IsModerator = isAdmin;
-            await userRepository.UpdateAsync(user);
+
+            await userRepository.UpdateRolesAsync(user, [isAdmin ? "Admin" : "User"]);
         }
 
         public async Task<User> GetCurrentUserAsync(string userCNP)
@@ -81,6 +86,11 @@
             }
             User user = await this.GetUserByCnpAsync(userCNP) ?? throw new KeyNotFoundException($"User with CNP {userCNP} not found.");
             return user.GemBalance;
+        }
+
+        public async Task<int> AddDefaultRoleToAllUsersAsync()
+        {
+            return await userRepository.AddDefaultRoleToAllUsersAsync();
         }
     }
 }

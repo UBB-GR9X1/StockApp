@@ -63,10 +63,9 @@
         /// Determines whether the current user has administrative privileges.
         /// </summary>
         /// <returns><c>true</c> if admin; otherwise, <c>false</c>.</returns>
-        public async Task<bool> IsAdmin()
+        public bool IsAdmin()
         {
-            // Inline: delegate admin check to service
-            return (await this.userService.GetCurrentUserAsync()).IsModerator;
+            return this.authenticationService.IsUserAdmin();
         }
 
         /// <summary>

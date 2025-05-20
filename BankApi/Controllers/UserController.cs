@@ -9,10 +9,16 @@ namespace BankApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class UserController(IUserService userService, IUserRepository userRepository) : ControllerBase
+    public class UserController : ControllerBase
     {
-        private readonly IUserService _userService = userService ?? throw new ArgumentNullException(nameof(userService));
-        private readonly IUserRepository _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository)); // For GetCurrentUserCnp
+        private readonly IUserService _userService;
+        private readonly IUserRepository _userRepository;
+
+        public UserController(IUserService userService, IUserRepository userRepository)
+        {
+            _userService = userService ?? throw new ArgumentNullException(nameof(userService));
+            _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+        }
 
         private async Task<string> GetCurrentUserCnp()
         {
@@ -189,13 +195,28 @@ namespace BankApi.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
+        [HttpPost("add-default-role")]
+        [Authorize(Roles = "Admin")] // Only admins can run this operation
+        public async Task<IActionResult> AddDefaultRoleToAllUsers()
+        {
+            try
+            {
+                int updatedUsers = await _userService.AddDefaultRoleToAllUsersAsync();
+                return Ok(new { Message = $"Successfully added the 'User' role to {updatedUsers} users" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
     }
 
     public class UserUpdateDto
     {
-        public string UserName { get; set; }
-        public string Image { get; set; }
-        public string Description { get; set; }
+        public string UserName { get; set; } = string.Empty;
+        public string Image { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
         public bool IsHidden { get; set; }
     }
 
@@ -204,3 +225,5 @@ namespace BankApi.Controllers
         public bool IsAdmin { get; set; }
     }
 }
+
+

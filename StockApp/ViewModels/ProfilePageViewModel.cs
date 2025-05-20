@@ -152,7 +152,7 @@
 
                 this.UserName = currentUser.UserName ?? throw new ArgumentNullException(nameof(currentUser.UserName));
                 this.Description = currentUser.Description;
-                this.IsAdmin = currentUser.IsModerator;
+                this.IsAdmin = this.authenticationService.IsUserAdmin();
                 this.IsHidden = currentUser.IsHidden;
                 this.UserStocks = await this.stockService.UserStocksAsync();
 

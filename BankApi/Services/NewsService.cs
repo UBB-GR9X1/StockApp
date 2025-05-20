@@ -136,10 +136,6 @@
         public async Task<List<NewsArticle>> GetUserArticlesAsync(Status status = Status.All, string topic = "All", string authorCNP = null)
         {
             User user = await userRepository.GetByCnpAsync(authorCNP) ?? throw new Exception("User not found");
-            if (!user.IsModerator)
-            {
-                throw new UnauthorizedAccessException("User must be an admin to access user articles");
-            }
 
             try
             {
@@ -176,10 +172,6 @@
         public async Task<bool> ApproveUserArticleAsync(string articleId, string userCNP)
         {
             User user = await userRepository.GetByCnpAsync(userCNP) ?? throw new Exception("User not found");
-            if (!user.IsModerator)
-            {
-                throw new UnauthorizedAccessException("User must be an admin to access user articles");
-            }
 
             if (string.IsNullOrWhiteSpace(articleId))
             {
@@ -210,10 +202,6 @@
         public async Task<bool> RejectUserArticleAsync(string articleId, string userCNP)
         {
             User user = await userRepository.GetByCnpAsync(userCNP) ?? throw new Exception("User not found");
-            if (!user.IsModerator)
-            {
-                throw new UnauthorizedAccessException("User must be an admin to access user articles");
-            }
 
             if (string.IsNullOrWhiteSpace(articleId))
             {
@@ -244,10 +232,6 @@
         public async Task<bool> DeleteUserArticleAsync(string articleId, string userCNP)
         {
             User user = await userRepository.GetByCnpAsync(userCNP) ?? throw new Exception("User not found");
-            if (!user.IsModerator)
-            {
-                throw new UnauthorizedAccessException("User must be an admin to access user articles");
-            }
 
             if (string.IsNullOrWhiteSpace(articleId))
             {
@@ -275,10 +259,6 @@
         public async Task<bool> SubmitUserArticleAsync(NewsArticle article, string userCNP)
         {
             User user = await userRepository.GetByCnpAsync(userCNP) ?? throw new Exception("User not found");
-            if (!user.IsModerator)
-            {
-                throw new UnauthorizedAccessException("User must be an admin to access user articles");
-            }
 
             // Inline: set author and metadata
             article.Author = user;

@@ -20,6 +20,7 @@
     {
         private readonly INewsService newsService;
         private readonly IUserService userService;
+        private readonly IAuthenticationService authenticationService;
 
         // properties
         private ObservableCollection<NewsArticle> articles = [];
@@ -171,7 +172,7 @@
         /// <summary>
         /// Gets a value indicating whether the current user has moderator privileges.
         /// </summary>
-        public bool IsAdmin => this.CurrentUser?.IsModerator ?? false;
+        public bool IsAdmin => this.authenticationService.IsUserAdmin();
 
         /// <summary>
         /// Gets a value indicating whether there is a user currently logged in.
@@ -215,10 +216,11 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="NewsListViewModel"/> class with specified services.
         /// </summary>
-        public NewsListViewModel(INewsService newsService, IUserService userService)
+        public NewsListViewModel(INewsService newsService, IUserService userService, IAuthenticationService authenticationService)
         {
-            this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
             this.newsService = newsService ?? throw new ArgumentNullException(nameof(newsService));
+            this.authenticationService = authenticationService ?? throw new ArgumentNullException(nameof(authenticationService));
+            this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
             this.RefreshCommand = new StockNewsRelayCommand(() => this.RefreshArticles());
             this.CreateArticleCommand = new StockNewsRelayCommand(async () => await this.OpenCreateArticleDialogAsync());
             this.AdminPanelCommand = new StockNewsRelayCommand(async () => await this.OpenAdminPanelDialogAsync());
