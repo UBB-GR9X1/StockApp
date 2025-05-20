@@ -155,8 +155,6 @@
                     }).AddHttpMessageHandler<AuthenticationDelegatingHandler>();
                     // Don't add the handler to the authentication service's HttpClient
                     // to avoid circular dependencies
-
-
                     services.AddSingleton<MainWindow>();
 
                     // UI Components
