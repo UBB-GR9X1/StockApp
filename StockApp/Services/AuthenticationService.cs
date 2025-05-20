@@ -23,7 +23,6 @@ namespace StockApp.Services
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _tokenStorage = new TokenStorageService(configuration);
-
             // Try to restore session from storage
             _currentUserSession = _tokenStorage.GetUserSession();
         }

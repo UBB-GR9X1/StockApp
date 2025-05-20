@@ -18,6 +18,8 @@
                 
                 <Button Command="{x:Bind UpdateProfileButton}"
                         Content="Update Profile" Background="#FF69B4" CornerRadius="10" Foreground="#FFF5EE" Padding="10" />
+                <Button Command="{Binding LogOutCommand}"
+                        Content="Log out" Background="#FF69B4" CornerRadius="10" Foreground="#FFF5EE" Padding="10" />
             </StackPanel>
 
             <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" BorderThickness="4" BorderBrush="#770737" Spacing="2" Padding="20" Background="#FFB6C1" CornerRadius="10">

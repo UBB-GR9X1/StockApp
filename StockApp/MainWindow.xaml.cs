@@ -8,52 +8,107 @@ namespace StockApp
     using StockApp.Views;
     using StockApp.Views.Pages;
     using System;
+    using System.ComponentModel;
 
     /// <summary>
     /// An empty window that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class MainWindow : Window
+    public sealed partial class MainWindow : Window, INotifyPropertyChanged
     {
         private readonly IServiceProvider serviceProvider;
         private readonly IAuthenticationService authenticationService;
 
         public Frame MainAppFrame => this.MainFrame;
 
-        public bool LoginButtonVisibility { get; set; }
+        private bool _isUnauthenticated;
+        public bool IsUnauthenticated
+        {
+            get => _isUnauthenticated;
+            set
+            {
+                if (_isUnauthenticated != value)
+                {
+                    _isUnauthenticated = value;
+                    OnPropertyChanged(nameof(IsUnauthenticated));
+                }
+            }
+        }
 
-        public bool ProfileButtonVisibility { get; set; }
+        private bool _isAuthenticated;
+        public bool IsAuthenticated
+        {
+            get => _isAuthenticated;
+            set
+            {
+                if (_isAuthenticated != value)
+                {
+                    _isAuthenticated = value;
+                    OnPropertyChanged(nameof(IsAuthenticated));
+                }
+            }
+        }
+
+        private bool _isAdmin;
+        public bool IsAdmin
+        {
+            get => _isAdmin;
+            set
+            {
+                if (_isAdmin != value)
+                {
+                    _isAdmin = value;
+                    OnPropertyChanged(nameof(IsAdmin));
+                }
+            }
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
 
         public MainWindow(IServiceProvider serviceProvider)
         {
             this.InitializeComponent();
+
+            // Set DataContext on the Window's Content (root XAML element), which is a FrameworkElement.
+            if (this.Content is FrameworkElement rootElement)
+            {
+                rootElement.DataContext = this;
+            }
+
             this.serviceProvider = serviceProvider;
 
             this.MainFrame.Content = this.serviceProvider.GetRequiredService<HomepageView>();
             this.authenticationService = this.serviceProvider.GetRequiredService<IAuthenticationService>();
             this.authenticationService.UserLoggedIn += this.AuthenticationService_UserLoggedIn;
             this.authenticationService.UserLoggedOut += this.AuthenticationService_UserLoggedOut;
-            if (this.authenticationService.IsUserLoggedIn())
-            {
-                this.LoginButtonVisibility = false;
-                this.ProfileButtonVisibility = true;
-            }
-            else
-            {
-                this.LoginButtonVisibility = true;
-                this.ProfileButtonVisibility = false;
-            }
+            UpdateLoginRelatedButtonVisibility();
+        }
+
+        private void UpdateLoginRelatedButtonVisibility()
+        {
+            var isLoggedIn = this.authenticationService.IsUserLoggedIn();
+            this.IsUnauthenticated = !isLoggedIn;
+            this.IsAuthenticated = isLoggedIn;
+            this.IsAdmin = this.authenticationService.IsUserAdmin();
+            OnPropertyChanged(nameof(IsUnauthenticated));
+            OnPropertyChanged(nameof(IsAuthenticated));
+            OnPropertyChanged(nameof(IsAdmin));
         }
 
         private void AuthenticationService_UserLoggedIn(object? sender, UserLoggedInEventArgs e)
         {
-            this.LoginButtonVisibility = false;
-            this.ProfileButtonVisibility = true;
+            UpdateLoginRelatedButtonVisibility();
+            this.MainFrame.Content = this.serviceProvider.GetRequiredService<HomepageView>();
         }
 
         private void AuthenticationService_UserLoggedOut(object? sender, UserLoggedOutEventArgs e)
         {
-            this.LoginButtonVisibility = true;
-            this.ProfileButtonVisibility = false;
+            UpdateLoginRelatedButtonVisibility();
+            this.MainFrame.Content = this.serviceProvider.GetRequiredService<LoginPage>();
         }
 
         private void NavigationView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)

@@ -3,10 +3,12 @@
     using Common.Models;
     using Common.Services;
     using Microsoft.UI.Xaml.Media.Imaging;
+    using StockApp.Commands;
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Threading.Tasks;
+    using System.Windows.Input;
 
     /// <summary>
     /// View model for the profile page, managing the user's profile image and information.
@@ -122,6 +124,8 @@
             }
         }
 
+        public ICommand LogOutCommand { get; }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ProfilePageViewModel"/> class with the default profile service and loads the profile image.
         /// </summary>
@@ -135,6 +139,7 @@
                 if (this.authenticationService.IsUserLoggedIn())
                 {
                     _ = this.LoadProfileData();
+                    LogOutCommand = new RelayCommand(async (object o) => await this.authenticationService.LogoutAsync());
                 }
             }
             catch (Exception ex)

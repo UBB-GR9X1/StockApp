@@ -13,6 +13,7 @@
     using StockApp.Views.Components;
     using StockApp.Views.Pages;
     using System;
+    using System.Net.Http;
 
     /// <summary>
     /// Provides application-specific behavior to supplement the default Application class.
@@ -52,10 +53,19 @@
                     string apiBaseUrl = App.Configuration.GetValue<string>("ApiBase")
                         ?? throw new InvalidOperationException("API base URL is not configured");
 
+                    services.AddHttpClient("ApiClient", client =>
+                    {
+                        client.BaseAddress = new Uri(apiBaseUrl);
+                    });
+
                     services.AddSingleton<IConfiguration>(config);
 
                     // Register the authentication service first
-                    services.AddSingleton<IAuthenticationService, AuthenticationService>();
+                    services.AddSingleton<IAuthenticationService>(sp =>
+                        new AuthenticationService(
+                            sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient"),
+                            sp.GetRequiredService<IConfiguration>()));
+
                     // Register the AuthenticationDelegatingHandler to automatically handle JWT tokens
                     services.AddTransient<AuthenticationDelegatingHandler>();
 
@@ -145,10 +155,7 @@
                     }).AddHttpMessageHandler<AuthenticationDelegatingHandler>();
                     // Don't add the handler to the authentication service's HttpClient
                     // to avoid circular dependencies
-                    services.AddHttpClient<IAuthenticationService, AuthenticationService>(client =>
-                    {
-                        client.BaseAddress = new Uri(apiBaseUrl);
-                    });
+
 
                     services.AddSingleton<MainWindow>();
 
