@@ -10,52 +10,162 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace StockApp.Repository.Tests.Repositories
+namespace StockApp.Repository.Tests
 {
+    [TestClass]
     public class HomepageStockRepositoryTests
     {
-        private readonly Mock<DbSet<HomepageStock>> _mockSet;
-        private readonly Mock<ApiDbContext> _mockContext;
-        private readonly Mock<ILogger<HomepageStockRepository>> _mockLogger;
-        private readonly HomepageStockRepository _repository;
+        private ApiDbContext _context;
+        private IHomepageStockRepository _repository;
 
-        public HomepageStockRepositoryTests()
+        [TestInitialize]
+        public void Setup()
         {
-            _mockSet = new Mock<DbSet<HomepageStock>>();
-            _mockContext = new Mock<ApiDbContext>();
-            _mockLogger = new Mock<ILogger<HomepageStockRepository>>();
-            _mockContext.Setup(c => c.HomepageStocks).Returns(_mockSet.Object);
+            var options = new DbContextOptionsBuilder<ApiDbContext>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .Options;
 
-            _repository = new HomepageStockRepository(_mockContext.Object, _mockLogger.Object);
+            _context = new ApiDbContext(options);
+            _repository = new HomepageStockRepository(_context);
         }
 
-        [Fact]
-        public async Task CreateAsync_ValidStock_AddsSuccessfully()
+        [TestCleanup]
+        public void Cleanup()
         {
-            var stock = new HomepageStock { Id = 1, Symbol = "AAPL" };
+            _context.Database.EnsureDeleted();
+            _context.Dispose();
+        }
 
+        [TestMethod]
+        public async Task GetAllAsync_ShouldReturnAllStocksForUser()
+        {
+            // Arrange
+            var stocks = new List<HomepageStock>
+            {
+                new HomepageStock { Id = 1, Symbol = "AAPL", UserCNP = "123", IsFavorite = true },
+                new HomepageStock { Id = 2, Symbol = "GOOGL", UserCNP = "123", IsFavorite = false },
+                new HomepageStock { Id = 3, Symbol = "MSFT", UserCNP = "456", IsFavorite = true }
+            };
+            await _context.HomepageStocks.AddRangeAsync(stocks);
+            await _context.SaveChangesAsync();
+
+            // Act
+            var result = await _repository.GetAllAsync("123");
+
+            // Assert
+            Assert.AreEqual(2, result.Count);
+            Assert.IsTrue(result.Any(s => s.Symbol == "AAPL"));
+            Assert.IsTrue(result.Any(s => s.Symbol == "GOOGL"));
+        }
+
+        [TestMethod]
+        public async Task GetByIdAsync_ShouldReturnCorrectStock()
+        {
+            // Arrange
+            var stock = new HomepageStock { Id = 1, Symbol = "AAPL", UserCNP = "123", IsFavorite = true };
+            await _context.HomepageStocks.AddAsync(stock);
+            await _context.SaveChangesAsync();
+
+            // Act
+            var result = await _repository.GetByIdAsync(1, "123");
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual("AAPL", result.Symbol);
+            Assert.IsTrue(result.IsFavorite);
+        }
+
+        [TestMethod]
+        public async Task GetBySymbolAsync_ShouldReturnCorrectStock()
+        {
+            // Arrange
+            var stock = new HomepageStock { Id = 1, Symbol = "AAPL", UserCNP = "123", IsFavorite = true };
+            await _context.HomepageStocks.AddAsync(stock);
+            await _context.SaveChangesAsync();
+
+            // Act
+            var result = await _repository.GetBySymbolAsync("AAPL");
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual("123", result.UserCNP);
+            Assert.IsTrue(result.IsFavorite);
+        }
+
+        [TestMethod]
+        public async Task CreateAsync_WithValidData_ShouldCreateStock()
+        {
+            // Arrange
+            var stock = new HomepageStock { Symbol = "AAPL", UserCNP = "123", IsFavorite = true };
+
+            // Act
             var result = await _repository.CreateAsync(stock);
 
-            _mockSet.Verify(s => s.AddAsync(stock, It.IsAny<CancellationToken>()), Times.Once);
-            _mockContext.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-            Assert.Equal(stock, result);
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual("AAPL", result.Symbol);
+            Assert.AreEqual("123", result.UserCNP);
+            Assert.IsTrue(result.IsFavorite);
+            Assert.AreEqual(1, await _context.HomepageStocks.CountAsync());
         }
 
-        [Fact]
-        public async Task CreateAsync_NullStock_ThrowsArgumentNullException()
+        [TestMethod]
+        public async Task UpdateAsync_WithValidData_ShouldUpdateStock()
         {
-            await Assert.ThrowsAsync<ArgumentNullException>(() => _repository.CreateAsync(null));
+            // Arrange
+            var stock = new HomepageStock { Id = 1, Symbol = "AAPL", UserCNP = "123", IsFavorite = true };
+            await _context.HomepageStocks.AddAsync(stock);
+            await _context.SaveChangesAsync();
+
+            // Act
+            stock.IsFavorite = false;
+            var result = await _repository.UpdateAsync(1, stock);
+
+            // Assert
+            Assert.IsTrue(result);
+            var updatedStock = await _context.HomepageStocks.FindAsync(1);
+            Assert.IsFalse(updatedStock.IsFavorite);
         }
 
-        [Fact]
-        public async Task DeleteAsync_NonExistentStock_ReturnsFalse()
+        [TestMethod]
+        public async Task UpdateAsync_WithNonExistentId_ShouldReturnFalse()
         {
-            _mockContext.Setup(c => c.HomepageStocks.FindAsync(It.IsAny<int>())).ReturnsAsync((HomepageStock)null);
+            // Arrange
+            var stock = new HomepageStock { Id = 999, Symbol = "AAPL", UserCNP = "123", IsFavorite = true };
 
-            var result = await _repository.DeleteAsync(123);
+            // Act
+            var result = await _repository.UpdateAsync(999, stock);
 
-            Assert.False(result);
+            // Assert
+            Assert.IsFalse(result);
+        }
+
+        [TestMethod]
+        public async Task DeleteAsync_ShouldDeleteStock()
+        {
+            // Arrange
+            var stock = new HomepageStock { Id = 1, Symbol = "AAPL", UserCNP = "123", IsFavorite = true };
+            await _context.HomepageStocks.AddAsync(stock);
+            await _context.SaveChangesAsync();
+
+            // Act
+            var result = await _repository.DeleteAsync(1);
+
+            // Assert
+            Assert.IsTrue(result);
+            Assert.AreEqual(0, await _context.HomepageStocks.CountAsync());
+        }
+
+        [TestMethod]
+        public async Task DeleteAsync_WithNonExistentId_ShouldReturnFalse()
+        {
+            // Act
+            var result = await _repository.DeleteAsync(999);
+
+            // Assert
+            Assert.IsFalse(result);
         }
     }
 }
