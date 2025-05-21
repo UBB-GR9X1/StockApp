@@ -15,50 +15,45 @@ namespace StockApp.Repository.Tests.Repositories
 {
     public class HomepageStockRepositoryTests
     {
+        private readonly Mock<DbSet<HomepageStock>> _mockSet;
         private readonly Mock<ApiDbContext> _mockContext;
         private readonly Mock<ILogger<HomepageStockRepository>> _mockLogger;
         private readonly HomepageStockRepository _repository;
 
         public HomepageStockRepositoryTests()
         {
+            _mockSet = new Mock<DbSet<HomepageStock>>();
             _mockContext = new Mock<ApiDbContext>();
             _mockLogger = new Mock<ILogger<HomepageStockRepository>>();
+            _mockContext.Setup(c => c.HomepageStocks).Returns(_mockSet.Object);
 
             _repository = new HomepageStockRepository(_mockContext.Object, _mockLogger.Object);
         }
 
         [Fact]
-        public async Task CreateAsync_ValidStock_ReturnsCreatedStock()
+        public async Task CreateAsync_ValidStock_AddsSuccessfully()
         {
             var stock = new HomepageStock { Id = 1, Symbol = "AAPL" };
-            var dbSetMock = new Mock<DbSet<HomepageStock>>();
-            _mockContext.Setup(m => m.HomepageStocks).Returns(dbSetMock.Object);
 
             var result = await _repository.CreateAsync(stock);
 
-            dbSetMock.Verify(m => m.AddAsync(stock, It.IsAny<CancellationToken>()), Times.Once);
-            _mockContext.Verify(m => m.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+            _mockSet.Verify(s => s.AddAsync(stock, It.IsAny<CancellationToken>()), Times.Once);
+            _mockContext.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
             Assert.Equal(stock, result);
         }
 
         [Fact]
-        public async Task CreateAsync_NullStock_ThrowsException()
+        public async Task CreateAsync_NullStock_ThrowsArgumentNullException()
         {
-            HomepageStock stock = null;
-
-            await Assert.ThrowsAsync<ArgumentNullException>(() => _repository.CreateAsync(stock));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => _repository.CreateAsync(null));
         }
 
         [Fact]
-        public async Task DeleteAsync_NonexistentStock_ReturnsFalse()
+        public async Task DeleteAsync_NonExistentStock_ReturnsFalse()
         {
-            var dbSetMock = new Mock<DbSet<HomepageStock>>();
-            _mockContext.Setup(m => m.HomepageStocks).Returns(dbSetMock.Object);
-            _mockContext.Setup(m => m.HomepageStocks.Include(It.IsAny<string>())).Returns(dbSetMock.Object);
-            _mockContext.Setup(m => m.HomepageStocks.FirstOrDefaultAsync(It.IsAny<System.Linq.Expressions.Expression<Func<HomepageStock, bool>>>(), default))
-                        .ReturnsAsync((HomepageStock)null);
+            _mockContext.Setup(c => c.HomepageStocks.FindAsync(It.IsAny<int>())).ReturnsAsync((HomepageStock)null);
 
-            var result = await _repository.DeleteAsync(999);
+            var result = await _repository.DeleteAsync(123);
 
             Assert.False(result);
         }
