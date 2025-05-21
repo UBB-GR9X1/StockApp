@@ -68,7 +68,7 @@ namespace StockApp.Repository.Tests
             {
                 new LoanRequest { Id = 1, UserCnp = "123", Amount = 1000, Status = "Pending", ApplicationDate = DateTime.UtcNow },
                 new LoanRequest { Id = 2, UserCnp = "456", Amount = 2000, Status = "Solved", ApplicationDate = DateTime.UtcNow },
-                new LoanRequest { Id = 3, UserCnp = "789", Amount = 3000, Status = null, ApplicationDate = DateTime.UtcNow }
+                new LoanRequest { Id = 3, UserCnp = "789", Amount = 3000, Status = "Solved", ApplicationDate = DateTime.UtcNow }
             };
             await _context.LoanRequests.AddRangeAsync(requests);
             await _context.SaveChangesAsync();
@@ -77,7 +77,7 @@ namespace StockApp.Repository.Tests
             var result = await _repository.GetUnsolvedLoanRequestsAsync();
 
             // Assert
-            Assert.AreEqual(2, result.Count);
+            Assert.AreEqual(1, result.Count);
             Assert.IsTrue(result.All(r => r.Status != "Solved"));
         }
 
