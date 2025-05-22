@@ -1,0 +1,49 @@
+﻿@page
+@model StockAppWeb.Views.Loans.IndexModel
+@{
+    ViewData["Title"] = "Loans";
+}
+
+<h2>Your Loans</h2>
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+
+@if (Model.Loans.Count == 0)
+{
+    <p>No loans found.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Amount</th>
+                <th>Interest</th>
+                <th>Repayment</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var loan in Model.Loans)
+            {
+                <tr>
+                    <td>@loan.LoanAmount</td>
+                    <td>@loan.InterestRate %</td>
+                    <td>@loan.RepaymentDate.ToShortDateString()</td>
+                    <td>@loan.Status</td>
+                    <td>
+                        <form method="post">
+                            <input type="hidden" name="loanId" value="@loan.Id" />
+                            <input type="hidden" name="penalty" value="@loan.Penalty" />
+                            <button type="submit" class="btn btn-primary">Make Payment</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

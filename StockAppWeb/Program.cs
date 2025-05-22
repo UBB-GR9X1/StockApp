@@ -62,6 +62,17 @@ builder.Services.AddHttpClient<IUserService, UserProxyService>(context =>
     context.BaseAddress = new Uri(apiBaseUrl);
 });
 
+builder.Services.AddHttpClient<ILoanService, LoanProxyService>(client =>
+{
+    client.BaseAddress = new Uri(apiBaseUrl);
+});
+
+builder.Services.AddHttpClient<ILoanRequestService, LoanRequestProxyService>(client =>
+{
+    client.BaseAddress = new Uri(apiBaseUrl);
+});
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
