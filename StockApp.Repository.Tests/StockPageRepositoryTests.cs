@@ -1,48 +1,221 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using StockApp.Repositories;
-using System.Reflection;
-using System.Runtime.Serialization;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using BankApi.Data;
+using BankApi.Repositories.Impl;
+using Common.Models;
+using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
+using Xunit;
 
-namespace StockApp.Repository.Tests
+namespace StockApp.Repository.Tests;
+
+public class StockPageRepositoryTests
 {
-    [TestClass]
-    public class StockPageRepositoryTests
+    private readonly DbContextOptions<ApiDbContext> _options;
+
+    public StockPageRepositoryTests()
     {
-        private StockPageRepository _repo;
+        _options = new DbContextOptionsBuilder<ApiDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+    }
 
-        [TestInitialize]
-        public void Init()
+    private ApiDbContext CreateContext() => new(_options);
+
+    [Fact]
+    public async Task AddOrUpdateUserStockAsync_Should_Add_New_Stock()
+    {
+        using var context = CreateContext();
+        var user = new User { CNP = "123" };
+        var stock = new Stock { Name = "AAPL" };
+        await context.Users.AddAsync(user);
+        await context.Stocks.AddAsync(stock);
+        await context.SaveChangesAsync();
+
+        var repo = new StockPageRepository(context);
+        await repo.AddOrUpdateUserStockAsync("123", "AAPL", 10);
+
+        var result = await context.UserStocks.FirstOrDefaultAsync();
+        result.Should().NotBeNull();
+        result!.Quantity.Should().Be(10);
+    }
+
+    [Fact]
+    public async Task AddOrUpdateUserStockAsync_Should_Update_Existing_Stock()
+    {
+        using var context = CreateContext();
+        var stock = new Stock { Name = "GOOG" };
+        var user = new User { CNP = "999" };
+        var userStock = new UserStock { UserCnp = "999", StockName = "GOOG", Quantity = 5, Stock = stock, User = user };
+
+        await context.Users.AddAsync(user);
+        await context.Stocks.AddAsync(stock);
+        await context.UserStocks.AddAsync(userStock);
+        await context.SaveChangesAsync();
+
+        var repo = new StockPageRepository(context);
+        await repo.AddOrUpdateUserStockAsync("999", "GOOG", 20);
+
+        var result = await context.UserStocks.FirstAsync();
+        result.Quantity.Should().Be(20);
+    }
+
+    [Fact]
+    public async Task AddStockValueAsync_Should_Add_Price_Record()
+    {
+        using var context = CreateContext();
+        var repo = new StockPageRepository(context);
+
+        await repo.AddStockValueAsync("TSLA", 420);
+
+        var value = await context.StockValues.FirstOrDefaultAsync();
+        value.Should().NotBeNull();
+        value!.Price.Should().Be(420);
+    }
+
+    [Fact]
+    public async Task GetStockAsync_Should_Return_Stock()
+    {
+        using var context = CreateContext();
+        await context.Stocks.AddAsync(new Stock { Name = "NFLX" });
+        await context.SaveChangesAsync();
+
+        var repo = new StockPageRepository(context);
+        var result = await repo.GetStockAsync("nflx");
+
+        result.Should().NotBeNull();
+        result.Name.Should().Be("NFLX");
+    }
+
+    [Fact]
+    public async Task GetStockAsync_Should_Throw_When_Not_Found()
+    {
+        using var context = CreateContext();
+        var repo = new StockPageRepository(context);
+
+        Func<Task> act = async () => await repo.GetStockAsync("XYZ");
+
+        await act.Should().ThrowAsync<Exception>().WithMessage("Stock not found.");
+    }
+
+    [Fact]
+    public async Task GetUserStockAsync_Should_Return_Existing()
+    {
+        using var context = CreateContext();
+        var stock = new Stock { Name = "AMZN" };
+        var userStock = new UserStock { UserCnp = "001", StockName = "AMZN", Quantity = 12, Stock = stock };
+        await context.Stocks.AddAsync(stock);
+        await context.UserStocks.AddAsync(userStock);
+        await context.SaveChangesAsync();
+
+        var repo = new StockPageRepository(context);
+        var result = await repo.GetUserStockAsync("001", "amzn");
+
+        result.Quantity.Should().Be(12);
+    }
+
+    [Fact]
+    public async Task GetUserStockAsync_Should_Create_New_When_Not_Found()
+    {
+        using var context = CreateContext();
+        var repo = new StockPageRepository(context);
+
+        var result = await repo.GetUserStockAsync("002", "MSFT");
+
+        result.Should().NotBeNull();
+        result.Quantity.Should().Be(0);
+        result.StockName.Should().Be("MSFT");
+    }
+
+    [Fact]
+    public async Task GetStockHistoryAsync_Should_Return_All_Prices()
+    {
+        using var context = CreateContext();
+        await context.StockValues.AddRangeAsync(new[]
         {
-            _repo = (StockPageRepository)FormatterServices.GetUninitializedObject(typeof(StockPageRepository));
+            new StockValue { StockName = "GOOG", Price = 100 },
+            new StockValue { StockName = "GOOG", Price = 200 },
+            new StockValue { StockName = "TSLA", Price = 300 }
+        });
+        await context.SaveChangesAsync();
 
-            typeof(StockPageRepository)
-                .GetField("cnp", BindingFlags.Instance | BindingFlags.NonPublic)
-                ?.SetValue(_repo, "1234567890123");
+        var repo = new StockPageRepository(context);
+        var history = await repo.GetStockHistoryAsync("GOOG");
 
-            typeof(StockPageRepository)
-                .GetField("<IsGuest>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic)
-                ?.SetValue(_repo, true);
-        }
+        history.Should().HaveCount(2).And.Contain(new[] { 100, 200 });
+    }
 
-        [TestMethod]
-        public void Repo_IsGuest_CanBeSet()
-        {
-            var isGuestProp = typeof(StockPageRepository).GetProperty("IsGuest");
-            Assert.IsNotNull(isGuestProp);
-            Assert.IsTrue((bool)isGuestProp.GetValue(_repo));
-        }
+    [Fact]
+    public async Task GetOwnedStocksAsync_Should_Return_Quantity()
+    {
+        using var context = CreateContext();
+        await context.UserStocks.AddAsync(new UserStock { UserCnp = "333", StockName = "META", Quantity = 7 });
+        await context.SaveChangesAsync();
 
-        [TestMethod]
-        public void UserField_CanBeSetAndRetrieved()
-        {
-            var userType = typeof(StockApp.Models.User);
-            var user = (StockApp.Models.User)FormatterServices.GetUninitializedObject(userType);
+        var repo = new StockPageRepository(context);
+        var quantity = await repo.GetOwnedStocksAsync("333", "META");
 
-            typeof(StockPageRepository)
-                .GetProperty("User")
-                ?.SetValue(_repo, user);
+        quantity.Should().Be(7);
+    }
 
-            Assert.AreEqual(user, _repo.User);
-        }
+    [Fact]
+    public async Task GetOwnedStocksAsync_Should_Return_Zero_When_NotFound()
+    {
+        using var context = CreateContext();
+        var repo = new StockPageRepository(context);
+
+        var quantity = await repo.GetOwnedStocksAsync("abc", "unknown");
+
+        quantity.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task GetFavoriteAsync_Should_Return_True_If_Exists()
+    {
+        using var context = CreateContext();
+        await context.FavoriteStocks.AddAsync(new FavoriteStock { UserCNP = "u1", StockName = "AMD" });
+        await context.SaveChangesAsync();
+
+        var repo = new StockPageRepository(context);
+        var result = await repo.GetFavoriteAsync("u1", "AMD");
+
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task GetFavoriteAsync_Should_Return_False_If_Not_Exists()
+    {
+        using var context = CreateContext();
+        var repo = new StockPageRepository(context);
+
+        var result = await repo.GetFavoriteAsync("u2", "NVDA");
+
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task ToggleFavoriteAsync_Should_Add_When_True()
+    {
+        using var context = CreateContext();
+        var repo = new StockPageRepository(context);
+
+        await repo.ToggleFavoriteAsync("u1", "BABA", true);
+
+        (await context.FavoriteStocks.AnyAsync(f => f.UserCNP == "u1" && f.StockName == "BABA")).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task ToggleFavoriteAsync_Should_Remove_When_False()
+    {
+        using var context = CreateContext();
+        await context.FavoriteStocks.AddAsync(new FavoriteStock { UserCNP = "u2", StockName = "INTC" });
+        await context.SaveChangesAsync();
+
+        var repo = new StockPageRepository(context);
+        await repo.ToggleFavoriteAsync("u2", "INTC", false);
+
+        (await context.FavoriteStocks.AnyAsync()).Should().BeFalse();
     }
 }

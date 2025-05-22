@@ -1,126 +1,304 @@
-﻿using System;
+﻿using BankApi.Data;
+using BankApi.Repositories.Impl;
+using Common.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Moq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using BankApi.Models;
-using BankApi.Repositories;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 
-namespace StockApp.Repository.Tests
+namespace StockApp.Repository.Tests;
+
+public class UserRepositoryTests
 {
-    [TestClass]
-    public class UserRepositoryTests
+    private ApiDbContext GetInMemoryContext()
     {
-        private IUserRepository _repo;
-
-        [TestInitialize]
-        public void Init()
-        {
-            _repo = new InMemoryUserRepository();
-        }
-
-        [TestMethod]
-        public async Task CreateUser_AddsUser()
-        {
-            var user = new User
-            {
-                CNP = "1234567890000",
-                Username = "TestUser",
-                Description = "Test",
-                IsHidden = false,
-                IsModerator = false,
-                Image = null,
-                GemBalance = 1000
-            };
-
-            await _repo.CreateAsync(user);
-            var retrieved = await _repo.GetByCnpAsync(user.CNP);
-
-            Assert.AreEqual(user.Username, retrieved.Username);
-            Assert.AreEqual(1000, retrieved.GemBalance);
-        }
-
-        [TestMethod]
-        public async Task UpdateUser_ChangesProperties()
-        {
-            var user = new User { CNP = "c1", Username = "Initial", GemBalance = 100 };
-            await _repo.CreateAsync(user);
-
-            user.Username = "Updated";
-            user.GemBalance = 500;
-
-            await _repo.UpdateAsync(user);
-            var updated = await _repo.GetByCnpAsync("c1");
-
-            Assert.AreEqual("Updated", updated.Username);
-            Assert.AreEqual(500, updated.GemBalance);
-        }
-
-        [TestMethod]
-        public async Task DeleteUser_RemovesFromRepo()
-        {
-            var user = new User { CNP = "c2", Username = "ToDelete", GemBalance = 100 };
-            await _repo.CreateAsync(user);
-
-            await _repo.DeleteAsync(user.Id); // Updated to pass the correct type (int)
-
-            await Assert.ThrowsExceptionAsync<KeyNotFoundException>(() =>
-                _repo.GetByCnpAsync("c2"));
-        }
+        var options = new DbContextOptionsBuilder<ApiDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+        return new ApiDbContext(options);
     }
 
-    internal class InMemoryUserRepository : IUserRepository
+    private User CreateTestUser(int id = 1) => new()
     {
-        private readonly Dictionary<string, User> _users = [];
+        Id = id,
+        UserName = "testuser",
+        CNP = "1234567890",
+        Email = "test@example.com",
+        PasswordHash = "password"
+    };
 
-        public string CurrentUserCNP { get; set; } = "1234567890124";
+    private UserRepository GetRepository(ApiDbContext context, Mock<UserManager<User>> userManagerMock, Mock<RoleManager<IdentityRole<int>>> roleManagerMock)
+    {
+        var logger = Mock.Of<ILogger<UserRepository>>();
+        return new UserRepository(context, logger, userManagerMock.Object, roleManagerMock.Object);
+    }
 
-        public Task<User> CreateAsync(User user)
-        {
-            _users[user.CNP] = user;
-            return Task.FromResult(user);
-        }
+    private Mock<UserManager<User>> GetMockUserManager()
+    {
+        var store = new Mock<IUserStore<User>>();
+        return new Mock<UserManager<User>>(store.Object, null, null, null, null, null, null, null, null);
+    }
 
-        public Task<User?> GetByIdAsync(int id)
-        {
-            var user = _users.Values.FirstOrDefault(u => u.Id == id);
-            return Task.FromResult(user);
-        }
+    private Mock<RoleManager<IdentityRole<int>>> GetMockRoleManager()
+    {
+        var store = new Mock<IRoleStore<IdentityRole<int>>>();
+        return new Mock<RoleManager<IdentityRole<int>>>(store.Object, null, null, null, null);
+    }
 
-        public Task<User?> GetByCnpAsync(string cnp)
-        {
-            _users.TryGetValue(cnp, out var user);
-            return Task.FromResult(user);
-        }
+    [Fact]
+    public async Task GetAllAsync_ReturnsAllUsers()
+    {
+        using var context = GetInMemoryContext();
+        context.Users.Add(CreateTestUser());
+        await context.SaveChangesAsync();
 
-        public Task<User?> GetByUsernameAsync(string username)
-        {
-            var user = _users.Values.FirstOrDefault(u => u.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
-            return Task.FromResult(user);
-        }
+        var repo = GetRepository(context, GetMockUserManager(), GetMockRoleManager());
 
-        public Task<List<User>> GetAllAsync()
-        {
-            return Task.FromResult(_users.Values.ToList());
-        }
+        var users = await repo.GetAllAsync();
 
-        public Task<bool> UpdateAsync(User user)
-        {
-            if (!_users.ContainsKey(user.CNP))
-                return Task.FromResult(false);
+        Assert.Single(users);
+    }
 
-            _users[user.CNP] = user;
-            return Task.FromResult(true);
-        }
+    [Fact]
+    public async Task GetByIdAsync_ReturnsCorrectUser()
+    {
+        using var context = GetInMemoryContext();
+        var user = CreateTestUser();
+        context.Users.Add(user);
+        await context.SaveChangesAsync();
 
-        public Task<bool> DeleteAsync(int id)
-        {
-            var user = _users.Values.FirstOrDefault(u => u.Id == id);
-            if (user == null)
-                return Task.FromResult(false);
+        var repo = GetRepository(context, GetMockUserManager(), GetMockRoleManager());
 
-            _users.Remove(user.CNP);
-            return Task.FromResult(true);
-        }
+        var result = await repo.GetByIdAsync(user.Id);
+
+        Assert.NotNull(result);
+        Assert.Equal(user.Id, result.Id);
+    }
+
+    [Fact]
+    public async Task GetByCnpAsync_ReturnsCorrectUser()
+    {
+        using var context = GetInMemoryContext();
+        var user = CreateTestUser();
+        context.Users.Add(user);
+        await context.SaveChangesAsync();
+
+        var repo = GetRepository(context, GetMockUserManager(), GetMockRoleManager());
+
+        var result = await repo.GetByCnpAsync(user.CNP);
+
+        Assert.NotNull(result);
+        Assert.Equal(user.CNP, result.CNP);
+    }
+
+    [Fact]
+    public async Task GetByUsernameAsync_ReturnsCorrectUser()
+    {
+        using var context = GetInMemoryContext();
+        var user = CreateTestUser();
+        context.Users.Add(user);
+        await context.SaveChangesAsync();
+
+        var repo = GetRepository(context, GetMockUserManager(), GetMockRoleManager());
+
+        var result = await repo.GetByUsernameAsync(user.UserName);
+
+        Assert.NotNull(result);
+        Assert.Equal(user.UserName, result.UserName);
+    }
+
+    [Fact]
+    public async Task CreateAsync_Succeeds_WhenValid()
+    {
+        using var context = GetInMemoryContext();
+        var user = CreateTestUser();
+
+        var userManagerMock = GetMockUserManager();
+        userManagerMock.Setup(m => m.FindByNameAsync(user.UserName)).ReturnsAsync((User)null);
+        userManagerMock.Setup(m => m.CreateAsync(user, user.PasswordHash)).ReturnsAsync(IdentityResult.Success);
+
+        var repo = GetRepository(context, userManagerMock, GetMockRoleManager());
+
+        var result = await repo.CreateAsync(user);
+
+        Assert.NotNull(result);
+        Assert.Equal(user.UserName, result.UserName);
+    }
+
+    [Fact]
+    public async Task CreateAsync_Throws_WhenDuplicate()
+    {
+        using var context = GetInMemoryContext();
+        var user = CreateTestUser();
+        context.Users.Add(user);
+        await context.SaveChangesAsync();
+
+        var userManagerMock = GetMockUserManager();
+        userManagerMock.Setup(m => m.FindByNameAsync(user.UserName)).ReturnsAsync(user);
+
+        var repo = GetRepository(context, userManagerMock, GetMockRoleManager());
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => repo.CreateAsync(user));
+    }
+
+    [Fact]
+    public async Task CreateAsync_Throws_WhenIdentityCreateFails()
+    {
+        using var context = GetInMemoryContext();
+        var user = CreateTestUser();
+
+        var userManagerMock = GetMockUserManager();
+        userManagerMock.Setup(m => m.FindByNameAsync(user.UserName)).ReturnsAsync((User)null);
+        userManagerMock.Setup(m => m.CreateAsync(user, user.PasswordHash))
+            .ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "Password too weak" }));
+
+        var repo = GetRepository(context, userManagerMock, GetMockRoleManager());
+
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => repo.CreateAsync(user));
+        Assert.Contains("Password too weak", ex.Message);
+    }
+
+    [Fact]
+    public async Task UpdateAsync_ReturnsTrue_WhenUpdated()
+    {
+        using var context = GetInMemoryContext();
+        var user = CreateTestUser();
+        context.Users.Add(user);
+        await context.SaveChangesAsync();
+
+        user.Email = "updated@example.com";
+        var repo = GetRepository(context, GetMockUserManager(), GetMockRoleManager());
+
+        var result = await repo.UpdateAsync(user);
+
+        Assert.True(result);
+    }
+
+    [Fact]
+    public async Task UpdateRolesAsync_Throws_WhenUserIsNull()
+    {
+        var repo = GetRepository(GetInMemoryContext(), GetMockUserManager(), GetMockRoleManager());
+        await Assert.ThrowsAsync<ArgumentNullException>(() => repo.UpdateRolesAsync(null, new[] { "Admin" }));
+    }
+
+    [Fact]
+    public async Task UpdateRolesAsync_Throws_WhenRolesAreNull()
+    {
+        var repo = GetRepository(GetInMemoryContext(), GetMockUserManager(), GetMockRoleManager());
+        await Assert.ThrowsAsync<ArgumentNullException>(() => repo.UpdateRolesAsync(CreateTestUser(), null));
+    }
+
+    [Fact]
+    public async Task UpdateRolesAsync_ReturnsFalse_WhenRemoveFails()
+    {
+        var user = CreateTestUser();
+        var userManagerMock = GetMockUserManager();
+        userManagerMock.Setup(m => m.GetRolesAsync(user)).ReturnsAsync(new List<string> { "User" });
+        userManagerMock.Setup(m => m.RemoveFromRolesAsync(user, It.IsAny<IEnumerable<string>>()))
+            .ReturnsAsync(IdentityResult.Failed());
+
+        var repo = GetRepository(GetInMemoryContext(), userManagerMock, GetMockRoleManager());
+
+        var result = await repo.UpdateRolesAsync(user, new[] { "Admin" });
+        Assert.False(result);
+    }
+
+    [Fact]
+    public async Task UpdateRolesAsync_ReturnsFalse_WhenAddFails()
+    {
+        var user = CreateTestUser();
+        var userManagerMock = GetMockUserManager();
+        userManagerMock.Setup(m => m.GetRolesAsync(user)).ReturnsAsync(new List<string>());
+        userManagerMock.Setup(m => m.AddToRolesAsync(user, It.IsAny<IEnumerable<string>>()))
+            .ReturnsAsync(IdentityResult.Failed());
+
+        var repo = GetRepository(GetInMemoryContext(), userManagerMock, GetMockRoleManager());
+
+        var result = await repo.UpdateRolesAsync(user, new[] { "Admin" });
+        Assert.False(result);
+    }
+
+    [Fact]
+    public async Task DeleteAsync_RemovesUser()
+    {
+        using var context = GetInMemoryContext();
+        var user = CreateTestUser();
+        context.Users.Add(user);
+        await context.SaveChangesAsync();
+
+        var repo = GetRepository(context, GetMockUserManager(), GetMockRoleManager());
+
+        var result = await repo.DeleteAsync(user.Id);
+
+        Assert.True(result);
+    }
+
+    [Fact]
+    public async Task AddDefaultRoleToAllUsersAsync_AssignsRole()
+    {
+        var context = GetInMemoryContext();
+        var user = CreateTestUser();
+        context.Users.Add(user);
+        await context.SaveChangesAsync();
+
+        var userManagerMock = GetMockUserManager();
+        var roleManagerMock = GetMockRoleManager();
+
+        roleManagerMock.Setup(r => r.RoleExistsAsync("User")).ReturnsAsync(false);
+        roleManagerMock.Setup(r => r.CreateAsync(It.IsAny<IdentityRole<int>>())).ReturnsAsync(IdentityResult.Success);
+        userManagerMock.Setup(um => um.IsInRoleAsync(user, "User")).ReturnsAsync(false);
+        userManagerMock.Setup(um => um.AddToRoleAsync(user, "User")).ReturnsAsync(IdentityResult.Success);
+
+        var repo = GetRepository(context, userManagerMock, roleManagerMock);
+
+        var count = await repo.AddDefaultRoleToAllUsersAsync();
+
+        Assert.Equal(1, count);
+    }
+
+    [Fact]
+    public async Task AddDefaultRoleToAllUsersAsync_LogsAndContinues_OnAddFailure()
+    {
+        var context = GetInMemoryContext();
+        var user = CreateTestUser();
+        context.Users.Add(user);
+        await context.SaveChangesAsync();
+
+        var userManagerMock = GetMockUserManager();
+        var roleManagerMock = GetMockRoleManager();
+
+        roleManagerMock.Setup(r => r.RoleExistsAsync("User")).ReturnsAsync(true);
+        userManagerMock.Setup(um => um.IsInRoleAsync(user, "User")).ReturnsAsync(false);
+        userManagerMock.Setup(um => um.AddToRoleAsync(user, "User"))
+            .ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "Role assign failed" }));
+
+        var repo = GetRepository(context, userManagerMock, roleManagerMock);
+
+        var count = await repo.AddDefaultRoleToAllUsersAsync();
+
+        Assert.Equal(0, count);
+    }
+
+    [Fact]
+    public async Task AddDefaultRoleToAllUsersAsync_Throws_OnException()
+    {
+        var context = GetInMemoryContext();
+        var user = CreateTestUser();
+        context.Users.Add(user);
+        await context.SaveChangesAsync();
+
+        var userManagerMock = GetMockUserManager();
+        var roleManagerMock = GetMockRoleManager();
+
+        roleManagerMock.Setup(r => r.RoleExistsAsync("User")).ThrowsAsync(new Exception("Unexpected error"));
+
+        var repo = GetRepository(context, userManagerMock, roleManagerMock);
+
+        await Assert.ThrowsAsync<Exception>(() => repo.AddDefaultRoleToAllUsersAsync());
     }
 }
