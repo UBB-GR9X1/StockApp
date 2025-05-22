@@ -51,8 +51,8 @@ namespace StockAppWeb.Controllers
                     // Create claims for cookie authentication
                     var claims = new List<Claim>
                     {
-                        new Claim(ClaimTypes.Name, session.UserName),
-                        new Claim(ClaimTypes.NameIdentifier, session.UserId)
+                        new(ClaimTypes.Name, session.UserName),
+                        new(ClaimTypes.NameIdentifier, session.UserId)
                     };
 
                     // Add role claims
@@ -142,10 +142,10 @@ namespace StockAppWeb.Controllers
                     // Create claims for cookie authentication after registration
                     var claims = new List<Claim>
                     {
-                        new Claim(ClaimTypes.Name, user.UserName),
-                        new Claim(ClaimTypes.NameIdentifier, user.CNP),
-                        new Claim("cnp", user.CNP),
-                        new Claim(ClaimTypes.Role, "User") // Default role
+                        new(ClaimTypes.Name, user.UserName),
+                        new(ClaimTypes.NameIdentifier, user.CNP),
+                        new("cnp", user.CNP),
+                        new(ClaimTypes.Role, "User") // Default role
                     };
 
                     var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
