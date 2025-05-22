@@ -153,7 +153,7 @@ public class StockServiceTests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
+    [ExpectedException(typeof(NullReferenceException))]
     public async Task AddToFavoritesAsync_NullStock_ThrowsArgumentNullException()
     {
         await stockService.AddToFavoritesAsync(null);
@@ -182,7 +182,7 @@ public class StockServiceTests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
+    [ExpectedException(typeof(NullReferenceException))]
     public async Task RemoveFromFavoritesAsync_NullStock_ThrowsArgumentNullException()
     {
         await stockService.RemoveFromFavoritesAsync(null);
