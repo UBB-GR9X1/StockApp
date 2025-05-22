@@ -1,16 +1,17 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using BankApi.Repositories;
+using BankApi.Services;
+using Common.Models;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
 using System.Collections.Generic;
+using System.Runtime.Versioning;
 using System.Threading.Tasks;
-using BankApi.Services;
-using BankApi.Repositories;
-using Common.Models;
-using Common.Services;
 
 namespace StockApp.Service.Tests
 {
     [TestClass]
+    [SupportedOSPlatform("windows10.0.26100.0")]
     public class TipsServiceTests
     {
         private Mock<ITipsRepository> _tipsRepositoryMock;
@@ -113,7 +114,7 @@ namespace StockApp.Service.Tests
         {
             // Arrange
             string cnp = "user123";
-            var expected = new List<Tip> { new Tip { Id = 1 }, new Tip { Id = 2 } };
+            var expected = new List<Tip> { new() { Id = 1 }, new() { Id = 2 } };
             _tipsRepositoryMock.Setup(r => r.GetTipsForUserAsync(cnp)).ReturnsAsync(expected);
 
             // Act
@@ -125,7 +126,6 @@ namespace StockApp.Service.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
         public async Task GetTipsForUserAsync_RepositoryThrows_ExceptionBubblesUp()
         {
             // Arrange
@@ -133,7 +133,7 @@ namespace StockApp.Service.Tests
             _tipsRepositoryMock.Setup(r => r.GetTipsForUserAsync(cnp)).ThrowsAsync(new Exception("Something went wrong"));
 
             // Act
-            await _sut.GetTipsForUserAsync(cnp); // Expect exception
+            await Assert.ThrowsExactlyAsync<Exception>(async () => await _sut.GetTipsForUserAsync(cnp)); // Expect exception
         }
     }
 }

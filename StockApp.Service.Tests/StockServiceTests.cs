@@ -5,9 +5,11 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Versioning;
 using System.Threading.Tasks;
 namespace StockApp.Service.Tests;
 [TestClass]
+[SupportedOSPlatform("windows10.0.26100.0")]
 public class StockServiceTests
 {
     private Mock<IStockRepository> stockRepoMock;
@@ -25,7 +27,7 @@ public class StockServiceTests
     [TestMethod]
     public async Task CreateStockAsync_ShouldReturnCreatedStock()
     {
-        var stock = new Stock { Id = 1, Name = "TestStock" };
+        var stock = new Stock { Id = 1, Name = "TestStock", Price = 100, Quantity = 10 };
         stockRepoMock.Setup(r => r.CreateAsync(stock)).ReturnsAsync(stock);
 
         var result = await stockService.CreateStockAsync(stock);
@@ -58,8 +60,8 @@ public class StockServiceTests
     {
         var stocks = new List<Stock>
         {
-            new Stock { Id = 1, Name = "Stock1" },
-            new Stock { Id = 2, Name = "Stock2" }
+            new() { Id = 1, Name = "Stock1", Price = 100, Quantity = 10 },
+            new() { Id = 2, Name = "Stock2", Price = 100, Quantity = 10 }
         };
 
         stockRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(stocks);
@@ -72,7 +74,7 @@ public class StockServiceTests
     [TestMethod]
     public async Task GetStockByIdAsync_ShouldReturnStock()
     {
-        var stock = new Stock { Id = 1, Name = "TestStock" };
+        var stock = new Stock { Id = 1, Name = "TestStock", Price = 100, Quantity = 10 };
         stockRepoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(stock);
 
         var result = await stockService.GetStockByIdAsync(1);
@@ -83,8 +85,8 @@ public class StockServiceTests
     [TestMethod]
     public async Task UpdateStockAsync_ShouldReturnUpdatedStock()
     {
-        var stock = new Stock { Id = 1, Name = "OldName" };
-        var updatedStock = new Stock { Id = 1, Name = "NewName" };
+        var stock = new Stock { Id = 1, Name = "OldName", Price = 100, Quantity = 10 };
+        var updatedStock = new Stock { Id = 1, Name = "NewName", Price = 100, Quantity = 10 };
         stockRepoMock.Setup(r => r.UpdateAsync(1, updatedStock)).ReturnsAsync(updatedStock);
 
         var result = await stockService.UpdateStockAsync(1, updatedStock);
@@ -97,8 +99,8 @@ public class StockServiceTests
     {
         var userStocks = new List<Stock>
         {
-            new Stock { Id = 1, Name = "UserStock1" },
-            new Stock { Id = 2, Name = "UserStock2" }
+            new() {Id = 1, Name = "UserStock1", Price = 100, Quantity = 10},
+            new() {Id = 2, Name = "UserStock2", Price = 100, Quantity = 10}
         };
 
         stockRepoMock.Setup(r => r.UserStocksAsync("userCNP")).ReturnsAsync(userStocks);
@@ -113,9 +115,9 @@ public class StockServiceTests
     {
         var stocks = new List<HomepageStock>
         {
-            new HomepageStock { Id = 1, IsFavorite = true, StockDetails = new Stock { Name = "Apple", Price = 200 } , Change = 5 },
-            new HomepageStock { Id = 2, IsFavorite = false, StockDetails = new Stock { Name = "Google", Price = 150 }, Change = 10 },
-            new HomepageStock { Id = 3, IsFavorite = true, StockDetails = new Stock { Name = "Amazon", Price = 100 }, Change = -2 }
+            new() { Id = 1, IsFavorite = true, StockDetails = new Stock { Name = "Apple", Price = 200, Quantity=100 } , Change = 5 },
+            new() { Id = 2, IsFavorite = false, StockDetails = new Stock { Name = "Google", Price = 150, Quantity=100 }, Change = 10 },
+            new() { Id = 3, IsFavorite = true, StockDetails = new Stock { Name = "Amazon", Price = 100, Quantity=100 }, Change = -2 }
         };
 
         homepageRepoMock.Setup(r => r.GetAllAsync("userCNP")).ReturnsAsync(stocks);

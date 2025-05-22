@@ -1,16 +1,17 @@
-﻿using BankApi.Services;
-using BankApi.Repositories;
+﻿using BankApi.Repositories;
+using BankApi.Services;
 using Common.Exceptions;
 using Common.Models;
-using Common.Services;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
+using System.Runtime.Versioning;
 using System.Threading.Tasks;
 
 namespace StockApp.Service.Tests
 {
     [TestClass]
+    [SupportedOSPlatform("windows10.0.26100.0")]
     public class StoreServiceTests
     {
         private Mock<IGemStoreRepository> _storeRepoMock;
@@ -26,25 +27,13 @@ namespace StockApp.Service.Tests
             _userRepoMock = new Mock<IUserRepository>();
         }
 
-        private StoreService CreateService(bool transactionShouldSucceed = true)
+        private TestableStoreService CreateService(bool transactionShouldSucceed = true) => new(_storeRepoMock.Object, _userRepoMock.Object, transactionShouldSucceed);
+
+        private class TestableStoreService(IGemStoreRepository repo, IUserRepository userRepo, bool transactionResult) : StoreService(repo, userRepo)
         {
-            return new TestableStoreService(_storeRepoMock.Object, _userRepoMock.Object, transactionShouldSucceed);
-        }
+            private readonly bool _transactionResult = transactionResult;
 
-        private class TestableStoreService : StoreService
-        {
-            private readonly bool _transactionResult;
-
-            public TestableStoreService(IGemStoreRepository repo, IUserRepository userRepo, bool transactionResult)
-                : base(repo, userRepo)
-            {
-                _transactionResult = transactionResult;
-            }
-
-            protected override Task<bool> ProcessBankTransaction(string accountId, double amount)
-            {
-                return Task.FromResult(_transactionResult);
-            }
+            protected override Task<bool> ProcessBankTransaction(string accountId, double amount) => Task.FromResult(_transactionResult);
         }
 
         [TestMethod]
@@ -91,7 +80,6 @@ namespace StockApp.Service.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(GemTransactionFailedException))]
         public async Task BuyGems_WhenBankTransactionFails_ThrowsGemTransactionFailedException()
         {
             // Arrange
@@ -99,7 +87,7 @@ namespace StockApp.Service.Tests
             var service = CreateService(transactionShouldSucceed: false);
 
             // Act
-            await service.BuyGems(deal, ValidAccountId, ValidUserCNP);
+            await Assert.ThrowsExactlyAsync<GemTransactionFailedException>(async () => await service.BuyGems(deal, ValidAccountId, ValidUserCNP));
 
             // Assert: exception is expected
         }
@@ -120,7 +108,6 @@ namespace StockApp.Service.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InsufficientGemsException))]
         public async Task SellGems_WhenNotEnoughGems_ThrowsInsufficientGemsException()
         {
             // Arrange
@@ -128,13 +115,12 @@ namespace StockApp.Service.Tests
             var service = CreateService();
 
             // Act
-            await service.SellGems(50, ValidAccountId, ValidUserCNP);
+            await Assert.ThrowsExactlyAsync<InsufficientGemsException>(async () => await service.SellGems(50, ValidAccountId, ValidUserCNP));
 
             // Assert: exception is expected
         }
 
         [TestMethod]
-        [ExpectedException(typeof(GemTransactionFailedException))]
         public async Task SellGems_WhenBankTransactionFails_ThrowsGemTransactionFailedException()
         {
             // Arrange
@@ -142,7 +128,7 @@ namespace StockApp.Service.Tests
             var service = CreateService(transactionShouldSucceed: false);
 
             // Act
-            await service.SellGems(50, ValidAccountId, ValidUserCNP);
+            await Assert.ThrowsExactlyAsync<GemTransactionFailedException>(async () => await service.SellGems(50, ValidAccountId, ValidUserCNP));
 
             // Assert: exception is expected
         }
