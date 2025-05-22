@@ -44,7 +44,7 @@ namespace BankApi.Seeders
                 }
             }
 
-            if (chatReportsToSeed.Any())
+            if (chatReportsToSeed.Count != 0)
             {
                 await context.ChatReports.AddRangeAsync(chatReportsToSeed);
             }

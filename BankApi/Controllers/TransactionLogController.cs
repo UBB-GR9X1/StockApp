@@ -96,7 +96,7 @@ namespace BankApi.Controllers
                 }
                 var transactions = await _transactionLogService.GetFilteredTransactions(request.Criteria);
 
-                if (transactions == null || !transactions.Any()) // Added .Any() check
+                if (transactions == null || transactions.Count == 0) // Added .Any() check
                 {
                     return NotFound("No transactions found for the given criteria.");
                 }

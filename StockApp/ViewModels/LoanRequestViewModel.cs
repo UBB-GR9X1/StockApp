@@ -1,10 +1,10 @@
 ﻿namespace StockApp.ViewModels
 {
+    using Common.Models;
+    using Common.Services;
     using System;
     using System.Collections.ObjectModel;
     using System.Threading.Tasks;
-    using Common.Models;
-    using Common.Services;
 
     public class LoanRequestViewModel(ILoanRequestService loanService)
     {
@@ -14,7 +14,7 @@
 
         public bool IsLoading { get; private set; }
 
-        public string ErrorMessage { get; private set; }
+        public string ErrorMessage { get; private set; } = string.Empty;
 
         public async Task LoadLoanRequestsAsync()
         {

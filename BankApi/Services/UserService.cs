@@ -30,10 +30,7 @@
 
         public async Task CreateUser(User user)
         {
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            ArgumentNullException.ThrowIfNull(user);
 
             await userRepository.CreateAsync(user);
         }

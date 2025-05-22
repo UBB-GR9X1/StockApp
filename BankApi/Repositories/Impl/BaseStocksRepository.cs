@@ -11,10 +11,7 @@ namespace BankApi.Repositories.Impl
 
         public async Task<BaseStock> AddStockAsync(BaseStock stock, int initialPrice = 100)
         {
-            if (stock == null)
-            {
-                throw new ArgumentNullException(nameof(stock));
-            }
+            ArgumentNullException.ThrowIfNull(stock);
 
             try
             {
@@ -68,10 +65,7 @@ namespace BankApi.Repositories.Impl
 
         public async Task<BaseStock> UpdateStockAsync(BaseStock stock)
         {
-            if (stock == null)
-            {
-                throw new ArgumentNullException(nameof(stock));
-            }
+            ArgumentNullException.ThrowIfNull(stock);
 
             try
             {

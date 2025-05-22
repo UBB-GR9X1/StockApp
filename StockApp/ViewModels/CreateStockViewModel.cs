@@ -18,10 +18,10 @@ namespace StockApp.ViewModels
         private readonly IStockService stockService;
         private readonly IUserService userService;
         private readonly IAuthenticationService authenticationService;
-        private string stockName;
-        private string stockSymbol;
-        private string authorCnp;
-        private string message;
+        private string stockName = null!;
+        private string stockSymbol = null!;
+        private string authorCnp = null!;
+        private string message = null!;
         private readonly bool suppressValidation;
         private bool isAdmin;
         private bool isInputValid;
@@ -46,6 +46,7 @@ namespace StockApp.ViewModels
             this.StockName = string.Empty;
             this.StockSymbol = string.Empty;
             this.AuthorCnp = string.Empty;
+            this.Message = string.Empty;
             this.suppressValidation = false;
             this.IsAdmin = this.CheckIfUserIsAdmin();
         }
@@ -170,7 +171,7 @@ namespace StockApp.ViewModels
                 return;
             }
 
-            if (!Regex.IsMatch(this.StockName, @"^[A-Za-z ]{1,20}$"))
+            if (!StockNameRegex.IsMatch(this.StockName))
             {
                 // Only letters and spaces, up to 20 characters
                 this.Message = "Stock Name must be max 20 characters and contain only letters & spaces!";
@@ -186,7 +187,7 @@ namespace StockApp.ViewModels
                 return;
             }
 
-            if (!Regex.IsMatch(this.StockSymbol, @"^[A-Za-z0-9]{1,5}$"))
+            if (!StockSymbolRegex.IsMatch(this.StockSymbol))
             {
                 // Alphanumeric only, up to 5 characters
                 this.Message = "Stock Symbol must be alphanumeric and max 5 characters!";
@@ -202,7 +203,7 @@ namespace StockApp.ViewModels
                 return;
             }
 
-            if (!Regex.IsMatch(this.AuthorCnp, @"^\d{13}$"))
+            if (!CNPRegex.IsMatch(this.AuthorCnp))
             {
                 // Exactly 13 digits required
                 this.Message = "Author CNP must be exactly 13 digits!";
@@ -223,12 +224,15 @@ namespace StockApp.ViewModels
                 return;
             }
 
-            await this.stockService.CreateStockAsync(new Stock(
-                    name: this.StockName,
-                    symbol: this.StockSymbol,
-                    authorCNP: this.AuthorCnp,
-                    price: 0,
-                    quantity: 0));
+            await this.stockService.CreateStockAsync(new Stock()
+            {
+                Name = this.StockName,
+                Symbol = this.StockSymbol,
+                AuthorCNP = this.AuthorCnp,
+                NewsArticles = [],
+                Price = 0,
+                Quantity = 0,
+            });
         }
 
         protected bool CheckIfUserIsAdmin()
@@ -245,5 +249,14 @@ namespace StockApp.ViewModels
         {
             this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        [GeneratedRegex(@"^[A-Za-z ]{1,20}$")]
+        private static partial Regex StockNameRegex { get; }
+
+        [GeneratedRegex(@"^[A-Za-z0-9]{1,5}$")]
+        private static partial Regex StockSymbolRegex { get; }
+
+        [GeneratedRegex(@"^\d{13}$")]
+        private static partial Regex CNPRegex { get; }
     }
 }

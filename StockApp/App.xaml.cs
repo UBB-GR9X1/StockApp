@@ -22,7 +22,7 @@
     {
         public static MainWindow? MainAppWindow { get; private set; } = null!;
 
-        public static IHost Host { get; private set; }
+        public static IHost Host { get; private set; } = null!;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="App"/> class.
@@ -241,12 +241,6 @@
         {
             MainAppWindow = Host.Services.GetRequiredService<MainWindow>();
             MainAppWindow.Activate();
-        }
-
-        private void OnUnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs unhandledExceptionEventArgs)
-        {
-            System.Diagnostics.Debug.WriteLine($"Unhandled exception: {unhandledExceptionEventArgs.Exception.Message}");
-            System.Diagnostics.Debug.WriteLine(unhandledExceptionEventArgs.Exception.StackTrace);
         }
     }
 }

@@ -118,6 +118,7 @@ namespace BankApi.Services
 
         public async Task<bool> IsMessageOffensive(string messageToBeChecked)
         {
+            ArgumentNullException.ThrowIfNull(messageToBeChecked);
             return await _profanityChecker.IsMessageOffensive(messageToBeChecked);
         }
 

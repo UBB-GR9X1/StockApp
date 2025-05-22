@@ -10,10 +10,10 @@
     public partial class HistoryViewModel(IHistoryService historyService) : INotifyPropertyChanged
     {
         private readonly IHistoryService _historyService = historyService ?? throw new ArgumentNullException(nameof(historyService));
-        private List<CreditScoreHistory> _weeklyHistory;
-        private List<CreditScoreHistory> _monthlyHistory;
-        private List<CreditScoreHistory> _yearlyHistory;
-        private string _userCnp;
+        private List<CreditScoreHistory> _weeklyHistory = [];
+        private List<CreditScoreHistory> _monthlyHistory = [];
+        private List<CreditScoreHistory> _yearlyHistory = [];
+        private string _userCnp = string.Empty;
 
         public event PropertyChangedEventHandler? PropertyChanged;
 

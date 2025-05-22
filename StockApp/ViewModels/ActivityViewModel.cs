@@ -17,9 +17,9 @@
     {
         private readonly IActivityService _activityService = activityService ?? throw new ArgumentNullException(nameof(activityService));
         private ObservableCollection<ActivityLog> _activities = [];
-        private string _userCnp;
+        private string _userCnp = string.Empty;
         private bool _isLoading;
-        private string _errorMessage;
+        private string _errorMessage = string.Empty;
 
         /// <summary>
         /// Gets or sets the collection of activities.

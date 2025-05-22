@@ -30,11 +30,7 @@ namespace BankApi.Repositories.Impl
             var randomTip = await _context.Tips
                 .Where(t => t.CreditScoreBracket == creditScoreBracket)
                 .OrderBy(t => Guid.NewGuid())
-                .FirstOrDefaultAsync();
-
-            if (randomTip == null)
-                throw new InvalidOperationException($"No tip found for bracket '{creditScoreBracket}'");
-
+                .FirstOrDefaultAsync() ?? throw new InvalidOperationException($"No tip found for bracket '{creditScoreBracket}'");
             var givenTip = new GivenTip
             {
                 User = await _context.Users

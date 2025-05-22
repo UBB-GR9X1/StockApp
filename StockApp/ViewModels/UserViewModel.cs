@@ -12,7 +12,7 @@
     {
         private readonly IUserService userService = userServices ?? throw new ArgumentNullException(nameof(userServices));
 
-        public ObservableCollection<User> Users { get; set; }
+        public ObservableCollection<User> Users { get; set; } = [];
 
         public event PropertyChangedEventHandler? PropertyChanged;
 

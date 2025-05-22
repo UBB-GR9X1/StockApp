@@ -42,13 +42,7 @@
             var randomMessage = await _context.Tips
                 .Where(m => m.Type == "Punishment")
                 .OrderBy(m => Guid.NewGuid())
-                .FirstOrDefaultAsync();
-
-            if (randomMessage == null)
-            {
-                throw new Exception("No congratulatory messages found");
-            }
-
+                .FirstOrDefaultAsync() ?? throw new Exception("No congratulatory messages found");
             var givenTip = new GivenTip
             {
                 User = await _context.Users
@@ -71,13 +65,7 @@
             var randomMessage = await _context.Tips
                 .Where(m => m.Type == "Roast")
                 .OrderBy(m => Guid.NewGuid())
-                .FirstOrDefaultAsync();
-
-            if (randomMessage == null)
-            {
-                throw new Exception("No roast messages found");
-            }
-
+                .FirstOrDefaultAsync() ?? throw new Exception("No roast messages found");
             var givenTip = new GivenTip
             {
                 User = await _context.Users
