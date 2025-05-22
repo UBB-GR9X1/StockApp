@@ -15,17 +15,17 @@ namespace StockApp.Views.Components
 
         public int Id { get; set; }
 
-        public string ReportedUserCNP { get; set; }
+        public string ReportedUserCNP { get; set; } = string.Empty;
 
-        public string ReportedUserFirstName { get; set; }
+        public string ReportedUserFirstName { get; set; } = string.Empty;
 
-        public string ReportedUserLastName { get; set; }
+        public string ReportedUserLastName { get; set; } = string.Empty;
 
-        public string ReporterUserCNP { get; set; }
+        public string ReporterUserCNP { get; set; } = string.Empty;
 
-        public string ReporterUserFirstName { get; set; }
+        public string ReporterUserFirstName { get; set; } = string.Empty;
 
-        public string ReporterUserLastName { get; set; }
+        public string ReporterUserLastName { get; set; } = string.Empty;
 
         public DateTime DateTransaction { get; set; }
 
@@ -68,7 +68,7 @@ namespace StockApp.Views.Components
                         ReportedUserCnp = reportedUserCnpTextBox.Text,
                         BillShare = decimal.Parse(billShareTextBox.Text),
                         DateOfTransaction = datePicker.Date.DateTime,
-                        // ReportingUserCnp will be set by the backend based on the authenticated user
+                        ReportingUserCnp = string.Empty
                     };
                     await viewModel.AddReportAsync(newReport);
                 }

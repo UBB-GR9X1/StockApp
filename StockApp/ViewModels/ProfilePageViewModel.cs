@@ -22,7 +22,7 @@
         private readonly IUserService userService;
         private readonly IAuthenticationService authenticationService;
         private readonly IStockService stockService;
-        private BitmapImage imageSource;
+        private BitmapImage imageSource = null!;
         private string username = string.Empty;
         private string description = string.Empty;
         private List<Stock> userStocks = [];
@@ -124,7 +124,7 @@
             }
         }
 
-        public ICommand LogOutCommand { get; }
+        public ICommand LogOutCommand { get; } = null!;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProfilePageViewModel"/> class with the default profile service and loads the profile image.
@@ -139,7 +139,11 @@
                 if (this.authenticationService.IsUserLoggedIn())
                 {
                     _ = this.LoadProfileData();
-                    LogOutCommand = new RelayCommand(async (object o) => await this.authenticationService.LogoutAsync());
+                    LogOutCommand = new RelayCommand(async o => await this.authenticationService.LogoutAsync());
+                }
+                else
+                {
+                    this.LogOutCommand = new RelayCommand(async o => { await Task.CompletedTask; });
                 }
             }
             catch (Exception ex)

@@ -31,7 +31,7 @@ namespace StockApp.Views.Components
         public static readonly DependencyProperty TipProperty =
             DependencyProperty.Register(nameof(Message), typeof(Message), typeof(TipHistoryComponent), new PropertyMetadata(null, OnTipChanged));
 
-        private string _messageText;
+        private string _messageText = null!;
 
         public string MessageText
         {
@@ -43,7 +43,7 @@ namespace StockApp.Views.Components
             }
         }
 
-        private string _messageType;
+        private string _messageType = null!;
 
         public string MessageType
         {
@@ -55,7 +55,7 @@ namespace StockApp.Views.Components
             }
         }
 
-        private string _messageId;
+        private string _messageId = null!;
 
         public string MessageId
         {

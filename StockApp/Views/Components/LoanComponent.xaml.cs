@@ -16,9 +16,9 @@ namespace StockApp.Views.Components
         public static readonly DependencyProperty LoanProperty =
             DependencyProperty.Register(nameof(Loan), typeof(Loan), typeof(LoanComponent), new PropertyMetadata(null, OnLoanPropertyChanged));
 
-        private Loan loan;
+        private Loan? loan;
 
-        public Loan Loan
+        public Loan? Loan
         {
             get => this.loan;
             set
@@ -45,7 +45,7 @@ namespace StockApp.Views.Components
                 }
                 else
                 {
-                    throw new ArgumentException("Invalid value for Loan property", nameof(e.NewValue));
+                    throw new ArgumentException("Invalid value for Loan property", nameof(e));
                 }
             }
         }

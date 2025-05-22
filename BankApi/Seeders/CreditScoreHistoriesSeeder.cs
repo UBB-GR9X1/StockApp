@@ -409,7 +409,7 @@ namespace BankApi.Seeders
                 }
             }
 
-            if (historiesToSeed.Any())
+            if (historiesToSeed.Count != 0)
             {
                 await context.CreditScoreHistories.AddRangeAsync(historiesToSeed);
             }

@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using BankApi.Data;
 using BankApi.Repositories;
 using BankApi.Repositories.Impl;
@@ -10,10 +5,15 @@ using Common.Models;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Moq;
+using System;
+using System.Collections.Generic;
+using System.Runtime.Versioning;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace StockApp.Repository.Tests;
 
+[SupportedOSPlatform("windows10.0.26100.0")]
 public class ChatReportRepositoryTests
 {
     private readonly DbContextOptions<ApiDbContext> _dbOptions;
@@ -36,14 +36,14 @@ public class ChatReportRepositoryTests
             new() { Id = 1, SubmitterCnp = "123", ReportedUserCnp = "456", ReportedMessage = "Test message 1" },
             new() { Id = 2, SubmitterCnp = "789", ReportedUserCnp = "456", ReportedMessage = "Test message 2" }
         };
-        
+
         await context.ChatReports.AddRangeAsync(reports);
         await context.SaveChangesAsync();
-        
+
         var repository = new ChatReportRepository(context);
-        
+
         var result = await repository.GetAllChatReportsAsync();
-        
+
         result.Should().HaveCount(2);
         result.Should().ContainEquivalentOf(reports[0]);
         result.Should().ContainEquivalentOf(reports[1]);
@@ -54,20 +54,20 @@ public class ChatReportRepositoryTests
     {
         using var context = CreateContext();
         var report = new ChatReport
-        { 
-            Id = 1, 
-            SubmitterCnp = "123", 
-            ReportedUserCnp = "456", 
-            ReportedMessage = "Test message" 
+        {
+            Id = 1,
+            SubmitterCnp = "123",
+            ReportedUserCnp = "456",
+            ReportedMessage = "Test message"
         };
-        
+
         await context.ChatReports.AddAsync(report);
         await context.SaveChangesAsync();
-        
+
         var repository = new ChatReportRepository(context);
-        
+
         var result = await repository.GetChatReportByIdAsync(1);
-        
+
         result.Should().BeEquivalentTo(report);
     }
 
@@ -76,9 +76,9 @@ public class ChatReportRepositoryTests
     {
         using var context = CreateContext();
         var repository = new ChatReportRepository(context);
-        
+
         var result = await repository.GetChatReportByIdAsync(999);
-        
+
         result.Should().BeNull();
     }
 
@@ -87,16 +87,16 @@ public class ChatReportRepositoryTests
     {
         using var context = CreateContext();
         var report = new ChatReport
-        { 
-            SubmitterCnp = "123", 
-            ReportedUserCnp = "456", 
-            ReportedMessage = "Test message" 
+        {
+            SubmitterCnp = "123",
+            ReportedUserCnp = "456",
+            ReportedMessage = "Test message"
         };
-        
+
         var repository = new ChatReportRepository(context);
-        
+
         var result = await repository.AddChatReportAsync(report);
-        
+
         result.Should().BeTrue();
         context.ChatReports.Should().ContainEquivalentOf(report, options => options.Excluding(r => r.Id));
     }
@@ -106,16 +106,16 @@ public class ChatReportRepositoryTests
     {
         var mockRepo = new Mock<IChatReportRepository>();
         var report = new ChatReport
-        { 
-            SubmitterCnp = "123", 
-            ReportedUserCnp = "456", 
-            ReportedMessage = "Test message" 
+        {
+            SubmitterCnp = "123",
+            ReportedUserCnp = "456",
+            ReportedMessage = "Test message"
         };
-        
+
         mockRepo.Setup(r => r.AddChatReportAsync(It.IsAny<ChatReport>())).ReturnsAsync(false);
-        
+
         var result = await mockRepo.Object.AddChatReportAsync(report);
-        
+
         result.Should().BeFalse();
         mockRepo.Verify(r => r.AddChatReportAsync(It.IsAny<ChatReport>()), Times.Once);
     }
@@ -125,20 +125,20 @@ public class ChatReportRepositoryTests
     {
         using var context = CreateContext();
         var report = new ChatReport
-        { 
-            Id = 1, 
-            SubmitterCnp = "123", 
-            ReportedUserCnp = "456", 
-            ReportedMessage = "Test message" 
+        {
+            Id = 1,
+            SubmitterCnp = "123",
+            ReportedUserCnp = "456",
+            ReportedMessage = "Test message"
         };
-        
+
         await context.ChatReports.AddAsync(report);
         await context.SaveChangesAsync();
-        
+
         var repository = new ChatReportRepository(context);
-        
+
         var result = await repository.DeleteChatReportAsync(1);
-        
+
         result.Should().BeTrue();
         context.ChatReports.Should().BeEmpty();
     }
@@ -149,7 +149,7 @@ public class ChatReportRepositoryTests
         var mockRepo = new Mock<IChatReportRepository>();
         mockRepo.Setup(r => r.DeleteChatReportAsync(999))
             .ThrowsAsync(new Exception("Chat report with id 999 not found."));
-        
+
         await Assert.ThrowsAsync<Exception>(() => mockRepo.Object.DeleteChatReportAsync(999));
     }
 
@@ -158,9 +158,9 @@ public class ChatReportRepositoryTests
     {
         var mockRepo = new Mock<IChatReportRepository>();
         mockRepo.Setup(r => r.DeleteChatReportAsync(1)).ReturnsAsync(false);
-        
+
         var result = await mockRepo.Object.DeleteChatReportAsync(1);
-        
+
         result.Should().BeFalse();
         mockRepo.Verify(r => r.DeleteChatReportAsync(1), Times.Once);
     }
@@ -169,34 +169,36 @@ public class ChatReportRepositoryTests
     public async Task GetNumberOfGivenTipsForUserAsync_Should_Return_Count()
     {
         using var context = CreateContext();
-        var user = new User { 
+        var user = new User
+        {
             CNP = "123",
             UserName = "testuser",
             FirstName = "Test",
             LastName = "User",
             Birthday = DateTime.Now.AddYears(-30)
         };
-        var tip = new Tip { 
-            Id = 1, 
-            TipText = "Save more", 
+        var tip = new Tip
+        {
+            Id = 1,
+            TipText = "Save more",
             CreditScoreBracket = "600-700",
-            Type = "Financial" 
+            Type = "Financial"
         };
         var givenTips = new List<GivenTip>
         {
             new() { User = user, Tip = tip, UserCNP = "123", TipId = 1 },
             new() { User = user, Tip = tip, UserCNP = "123", TipId = 2 }
         };
-        
+
         await context.Users.AddAsync(user);
         await context.Tips.AddAsync(tip);
         await context.GivenTips.AddRangeAsync(givenTips);
         await context.SaveChangesAsync();
-        
+
         var repository = new ChatReportRepository(context);
-        
+
         var result = await repository.GetNumberOfGivenTipsForUserAsync("123");
-        
+
         result.Should().Be(2);
     }
 
@@ -205,9 +207,9 @@ public class ChatReportRepositoryTests
     {
         using var context = CreateContext();
         var repository = new ChatReportRepository(context);
-        
+
         await repository.UpdateActivityLogAsync("123", 5);
-        
+
         var log = await context.ActivityLogs.FirstOrDefaultAsync(a => a.UserCnp == "123" && a.ActivityName == "Chat");
         log.Should().NotBeNull();
         log.LastModifiedAmount.Should().Be(5);
@@ -225,14 +227,14 @@ public class ChatReportRepositoryTests
             LastModifiedAmount = 1,
             ActivityDetails = "Old details"
         };
-        
+
         await context.ActivityLogs.AddAsync(log);
         await context.SaveChangesAsync();
-        
+
         var repository = new ChatReportRepository(context);
-        
+
         await repository.UpdateActivityLogAsync("123", 10);
-        
+
         var updatedLog = await context.ActivityLogs.FirstOrDefaultAsync(a => a.UserCnp == "123" && a.ActivityName == "Chat");
         updatedLog.Should().NotBeNull();
         updatedLog.LastModifiedAmount.Should().Be(10);
@@ -244,9 +246,9 @@ public class ChatReportRepositoryTests
     {
         using var context = CreateContext();
         var repository = new ChatReportRepository(context);
-        
+
         await repository.UpdateScoreHistoryForUserAsync("123", 750);
-        
+
         var history = await context.CreditScoreHistories.FirstOrDefaultAsync(s => s.UserCnp == "123" && s.Date == DateTime.Today);
         history.Should().NotBeNull();
         history.Score.Should().Be(750);
@@ -262,16 +264,16 @@ public class ChatReportRepositoryTests
             Date = DateTime.Today,
             Score = 700
         };
-        
+
         await context.CreditScoreHistories.AddAsync(history);
         await context.SaveChangesAsync();
-        
+
         var repository = new ChatReportRepository(context);
-        
+
         await repository.UpdateScoreHistoryForUserAsync("123", 800);
-        
+
         var updatedHistory = await context.CreditScoreHistories.FirstOrDefaultAsync(s => s.UserCnp == "123" && s.Date == DateTime.Today);
         updatedHistory.Should().NotBeNull();
         updatedHistory.Score.Should().Be(800);
     }
-} 
+}

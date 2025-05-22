@@ -25,7 +25,7 @@ namespace StockApp.Services
             var response = await _httpClient.DeleteAsync($"api/Stock/{id}");
             response.EnsureSuccessStatusCode();
             // Assuming API returns true/false in body for now.
-            return response.StatusCode == System.Net.HttpStatusCode.NoContent ? true : await response.Content.ReadFromJsonAsync<bool>();
+            return response.StatusCode == System.Net.HttpStatusCode.NoContent || await response.Content.ReadFromJsonAsync<bool>();
         }
 
         public async Task<IEnumerable<Stock>> GetAllStocksAsync()

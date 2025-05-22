@@ -68,7 +68,7 @@ namespace StockApp.Services
                     _ => throw new InvalidSortTypeException(sortType),
                 };
             }
-            catch (Exception ex) when (!(ex is InvalidSortTypeException))
+            catch (Exception ex) when (ex is not InvalidSortTypeException)
             {
                 throw new InvalidOperationException("Error while sorting transactions", ex);
             }
@@ -113,13 +113,13 @@ namespace StockApp.Services
                         throw new ExportFormatNotSupportedException(format);
                 }
             }
-            catch (Exception ex) when (!(ex is ExportFormatNotSupportedException))
+            catch (Exception ex) when (ex is not ExportFormatNotSupportedException)
             {
                 throw new InvalidOperationException($"Error exporting transactions to {format}", ex);
             }
         }
 
-        private void ExportToCsv(List<TransactionLogTransaction> transactions, string filePath)
+        private static void ExportToCsv(List<TransactionLogTransaction> transactions, string filePath)
         {
             using var writer = new StreamWriter(filePath);
             // Write header
@@ -132,7 +132,7 @@ namespace StockApp.Services
             }
         }
 
-        private void ExportToJson(List<TransactionLogTransaction> transactions, string filePath)
+        private static void ExportToJson(List<TransactionLogTransaction> transactions, string filePath)
         {
             var options = new System.Text.Json.JsonSerializerOptions
             {
@@ -142,7 +142,7 @@ namespace StockApp.Services
             File.WriteAllText(filePath, jsonString);
         }
 
-        private void ExportToHtml(List<TransactionLogTransaction> transactions, string filePath)
+        private static void ExportToHtml(List<TransactionLogTransaction> transactions, string filePath)
         {
             using var writer = new StreamWriter(filePath);
             writer.WriteLine("<!DOCTYPE html>");
@@ -197,7 +197,7 @@ namespace StockApp.Services
 
     internal class SortTransactionsRequestDto
     {
-        public List<TransactionLogTransaction> Transactions { get; set; } = new List<TransactionLogTransaction>();
+        public List<TransactionLogTransaction> Transactions { get; set; } = [];
         public string SortType { get; set; } = "Date";
         public bool Ascending { get; set; } = true;
     }

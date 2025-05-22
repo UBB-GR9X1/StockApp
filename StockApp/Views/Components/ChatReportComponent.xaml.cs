@@ -13,9 +13,9 @@ namespace StockApp.Views.Components
 
         public event EventHandler? ReportSolved;
 
-        public string ReportedUserCNP { get; set; }
+        public string ReportedUserCNP { get; set; } = string.Empty;
 
-        public string ReportedMessage { get; set; }
+        public string ReportedMessage { get; set; } = string.Empty;
 
         public int ReportId { get; set; }
 

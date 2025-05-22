@@ -41,7 +41,7 @@ namespace BankApi.Seeders
                 }
             }
 
-            if (validTriggeredAlerts.Any())
+            if (validTriggeredAlerts.Count != 0)
             {
                 await context.TriggeredAlerts.AddRangeAsync(validTriggeredAlerts);
             }

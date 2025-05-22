@@ -218,6 +218,9 @@
         public TransactionLogViewModel(ITransactionLogService service)
         {
             this.service = service ?? throw new ArgumentNullException(nameof(service));
+            this.minTotalValue = string.Empty;
+            this.maxTotalValue = string.Empty;
+            this.stockNameFilter = string.Empty;
 
             // Initialize ComboBoxItems for options if they are null
             this.selectedTransactionType = "ALL";
@@ -322,7 +325,7 @@
         /// <returns><c>true</c> if valid or not applicable; otherwise, <c>false</c>.</returns>
         private static bool ValidateTotalValues(string minTotalValue, string maxTotalValue)
         {
-            return int.TryParse(minTotalValue, out int min) && int.TryParse(maxTotalValue, out int max) ? min < max : true;
+            return !int.TryParse(minTotalValue, out int min) || !int.TryParse(maxTotalValue, out int max) || min < max;
         }
 
         /// <summary>
@@ -333,7 +336,7 @@
         /// <returns><c>true</c> if valid or not applicable; otherwise, <c>false</c>.</returns>
         private static bool ValidateDateRange(DateTime? startDate, DateTime? endDate)
         {
-            return startDate.HasValue && endDate.HasValue ? startDate.Value < endDate.Value : true;
+            return !startDate.HasValue || !endDate.HasValue || startDate.Value < endDate.Value;
         }
 
         /// <summary>

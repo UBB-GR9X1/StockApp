@@ -71,7 +71,7 @@ namespace StockApp.Services
         {
             var response = await _httpClient.GetAsync("api/User");
             response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<List<User>>(_options) ?? new List<User>();
+            return await response.Content.ReadFromJsonAsync<List<User>>(_options) ?? [];
         }
 
         public async Task UpdateIsAdminAsync(bool newIsAdmin, string? userCNP = null)

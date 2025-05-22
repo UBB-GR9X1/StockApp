@@ -15,8 +15,7 @@ namespace BankApi.Repositories.Impl
 
         public async Task AddInvestment(Investment investment)
         {
-            if (investment == null)
-                throw new ArgumentNullException(nameof(investment));
+            ArgumentNullException.ThrowIfNull(investment);
 
             _context.Investments.Add(investment);
             await _context.SaveChangesAsync();
@@ -24,10 +23,7 @@ namespace BankApi.Repositories.Impl
 
         public async Task UpdateInvestment(int investmentId, string investorCNP, decimal amountReturned)
         {
-            var investment = await _context.Investments.FirstOrDefaultAsync(i => i.Id == investmentId && i.InvestorCnp == investorCNP);
-            if (investment == null)
-                throw new Exception("Investment not found or investor CNP does not match.");
-
+            var investment = await _context.Investments.FirstOrDefaultAsync(i => i.Id == investmentId && i.InvestorCnp == investorCNP) ?? throw new Exception("Investment not found or investor CNP does not match.");
             if (investment.AmountReturned != -1)
                 throw new Exception("Investment return has already been processed.");
 

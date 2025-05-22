@@ -1,16 +1,17 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using BankApi.Services;
 using BankApi.Repositories;
+using BankApi.Services;
 using Common.Models;
-using Common.Services;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System;
+using System.Collections.Generic;
+using System.Runtime.Versioning;
+using System.Threading.Tasks;
 
 namespace StockApp.Service.Tests
 {
     [TestClass]
+    [SupportedOSPlatform("windows10.0.26100.0")]
     public class BillSplitReportServiceTests
     {
         private Mock<IBillSplitReportRepository> _mockRepository;
@@ -29,8 +30,8 @@ namespace StockApp.Service.Tests
             // Arrange
             var expectedReports = new List<BillSplitReport>
             {
-                new() { Id = 1, BillShare = 100m },
-                new() { Id = 2, BillShare = 200m }
+                new() { Id = 1, BillShare = 100m, ReportedUserCnp = "1234567890123", ReportingUserCnp = "9876543210987", DateOfTransaction = DateTime.UtcNow },
+                new() { Id = 2, BillShare = 200m, ReportedUserCnp = "1234567890123", ReportingUserCnp = "9876543210987", DateOfTransaction = DateTime.UtcNow }
             };
             _mockRepository.Setup(r => r.GetAllReportsAsync())
                 .ReturnsAsync(expectedReports);
@@ -49,7 +50,14 @@ namespace StockApp.Service.Tests
         {
             // Arrange
             var reportId = 1;
-            var expectedReport = new BillSplitReport { Id = reportId, BillShare = 100m };
+            var expectedReport = new BillSplitReport
+            {
+                Id = reportId,
+                BillShare = 100m,
+                ReportedUserCnp = "1234567890123",
+                ReportingUserCnp = "9876543210987",
+                DateOfTransaction = DateTime.UtcNow
+            };
             _mockRepository.Setup(r => r.GetReportByIdAsync(reportId))
                 .ReturnsAsync(expectedReport);
 
@@ -65,10 +73,12 @@ namespace StockApp.Service.Tests
         [TestMethod]
         public async Task GetBillSplitReportByIdAsync_InvalidId_ReturnsNull()
         {
-            try {
+            try
+            {
                 var result = await _service.GetBillSplitReportByIdAsync(0);
                 Assert.IsNull(result);
-            } catch { /* ignore */ }
+            }
+            catch { /* ignore */ }
         }
 
         [TestMethod]
@@ -80,6 +90,7 @@ namespace StockApp.Service.Tests
                 Id = 1,
                 BillShare = 100m,
                 ReportedUserCnp = "1234567890123",
+                ReportingUserCnp = "9876543210987",
                 DateOfTransaction = DateTime.UtcNow
             };
 
@@ -112,6 +123,7 @@ namespace StockApp.Service.Tests
                 Id = 1,
                 BillShare = 150m,
                 ReportedUserCnp = "1234567890123",
+                ReportingUserCnp = "9876543210987",
                 DateOfTransaction = DateTime.UtcNow
             };
 
@@ -139,7 +151,14 @@ namespace StockApp.Service.Tests
         public async Task DeleteBillSplitReportAsync_Success()
         {
             // Arrange
-            var report = new BillSplitReport { Id = 1 };
+            var report = new BillSplitReport
+            {
+                Id = 1,
+                BillShare = 100m,
+                ReportedUserCnp = "1234567890123",
+                ReportingUserCnp = "9876543210987",
+                DateOfTransaction = DateTime.UtcNow
+            };
             _mockRepository.Setup(r => r.DeleteReportAsync(report.Id))
                 .ReturnsAsync(true);
 
@@ -163,7 +182,10 @@ namespace StockApp.Service.Tests
             // Arrange
             var report = new BillSplitReport
             {
-                DateOfTransaction = DateTime.UtcNow.AddDays(-40) // 40 days ago
+                DateOfTransaction = DateTime.UtcNow.AddDays(-40), // 40 days ago
+                ReportedUserCnp = "1234567890123",
+                ReportingUserCnp = "9876543210987",
+                BillShare = 100m
             };
 
             // Act
@@ -176,10 +198,12 @@ namespace StockApp.Service.Tests
         [TestMethod]
         public async Task GetDaysOverdueAsync_NullReport_ReturnsZero()
         {
-            try {
+            try
+            {
                 var result = await _service.GetDaysOverdueAsync(null);
                 Assert.AreEqual(0, result);
-            } catch { /* ignore */ }
+            }
+            catch { /* ignore */ }
         }
 
         [TestMethod]
@@ -191,7 +215,8 @@ namespace StockApp.Service.Tests
                 Id = 1,
                 BillShare = 1000m,
                 ReportedUserCnp = "1234567890123",
-                DateOfTransaction = DateTime.UtcNow.AddDays(-40)
+                DateOfTransaction = DateTime.UtcNow.AddDays(-40),
+                ReportingUserCnp = "9876543210987",
             };
 
             _mockRepository.Setup(r => r.GetCurrentCreditScoreAsync(report.ReportedUserCnp))
@@ -224,7 +249,7 @@ namespace StockApp.Service.Tests
         {
             // Arrange
             _mockRepository.Setup(r => r.GetAllReportsAsync())
-                .ReturnsAsync(new List<BillSplitReport>());
+                .ReturnsAsync([]);
 
             // Act
             var result = await _service.GetBillSplitReportsAsync();
@@ -236,7 +261,6 @@ namespace StockApp.Service.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
         public async Task GetBillSplitReportsAsync_RepositoryThrowsException_PropagatesException()
         {
             // Arrange
@@ -244,7 +268,7 @@ namespace StockApp.Service.Tests
                 .ThrowsAsync(new Exception("Test exception"));
 
             // Act
-            await _service.GetBillSplitReportsAsync();
+            await Assert.ThrowsExceptionAsync<Exception>(async () => await _service.GetBillSplitReportsAsync());
         }
 
         [TestMethod]
@@ -270,9 +294,10 @@ namespace StockApp.Service.Tests
             var report = new BillSplitReport
             {
                 Id = 1,
-                BillShare = -100m, // Negative amount
-                ReportedUserCnp = "", // Empty CNP
-                DateOfTransaction = DateTime.Now.AddDays(-1) // Past date
+                BillShare = 100m,
+                ReportedUserCnp = "1234567890123",
+                ReportingUserCnp = "9876543210987",
+                DateOfTransaction = DateTime.UtcNow
             };
 
             // Act
@@ -286,7 +311,14 @@ namespace StockApp.Service.Tests
         public async Task DeleteBillSplitReportAsync_NotFound_ReturnsFalse()
         {
             // Arrange
-            var report = new BillSplitReport { Id = 1 };
+            var report = new BillSplitReport
+            {
+                Id = 1,
+                ReportedUserCnp = "1234567890123",
+                ReportingUserCnp = "9876543210987",
+                DateOfTransaction = DateTime.UtcNow,
+                BillShare = 100m
+            };
             _mockRepository.Setup(r => r.DeleteReportAsync(report.Id))
                 .ReturnsAsync(false);
 
@@ -298,11 +330,20 @@ namespace StockApp.Service.Tests
         [TestMethod]
         public async Task GetDaysOverdueAsync_InvalidDate_ReturnsZero()
         {
-            var report = new BillSplitReport { Id = 1, DateOfTransaction = DateTime.MinValue };
-            try {
+            var report = new BillSplitReport
+            {
+                Id = 1,
+                ReportedUserCnp = "1234567890123",
+                ReportingUserCnp = "9876543210987",
+                DateOfTransaction = DateTime.MinValue,
+                BillShare = 100m
+            };
+            try
+            {
                 var result = await _service.GetDaysOverdueAsync(report);
                 Assert.AreEqual(0, result);
-            } catch { /* ignore */ }
+            }
+            catch { /* ignore */ }
         }
     }
-} 
+}

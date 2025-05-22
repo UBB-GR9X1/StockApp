@@ -27,9 +27,7 @@
         /// <returns>True if the command can execute; otherwise, false.</returns>
         public bool CanExecute(object? parameter)
         {
-            return parameter == null && typeof(T).IsValueType
-                ? false
-                : this.canExecute == null || this.canExecute((T)(parameter ?? throw new ArgumentNullException($"Tried to cast {nameof(parameter)} to {nameof(T)}")));
+            return (parameter != null || !typeof(T).IsValueType) && (this.canExecute == null || this.canExecute((T)(parameter ?? throw new ArgumentNullException($"Tried to cast {nameof(parameter)} to {nameof(T)}"))));
         }
 
         /// <summary>

@@ -57,7 +57,7 @@ namespace BankApi.Seeders
                 });
             }
 
-            if (givenTipsToSeed.Any())
+            if (givenTipsToSeed.Count != 0)
             {
                 await context.GivenTips.AddRangeAsync(givenTipsToSeed);
             }

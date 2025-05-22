@@ -76,7 +76,7 @@ namespace BankApi.Repositories.Impl
             try
             {
                 var activity = await _context.ActivityLogs.FindAsync(id);
-                return activity == null ? throw new KeyNotFoundException($"Activity with ID {id} not found") : activity;
+                return activity ?? throw new KeyNotFoundException($"Activity with ID {id} not found");
             }
             catch (Exception ex)
             {

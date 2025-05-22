@@ -21,7 +21,7 @@ namespace Common.Models
         /// </summary>
         [Required]
         [MaxLength(100)]
-        public string StockName { get; set; }
+        required public string StockName { get; set; }
 
         public Stock Stock { get; set; } = null!;
 
@@ -30,12 +30,12 @@ namespace Common.Models
         /// </summary>
         [Required]
         [Range(0, int.MaxValue)]
-        public int Price { get; set; }
+        required public int Price { get; set; }
 
         /// <summary>
         /// Gets or sets the date and time when the stock value was recorded.
         /// </summary>
         [Required]
-        public DateTime DateTime { get; set; }
+        required public DateTime DateTime { get; set; }
     }
 }

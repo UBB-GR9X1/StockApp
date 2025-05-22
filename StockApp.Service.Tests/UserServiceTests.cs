@@ -1,15 +1,17 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using BankApi.Services;
 using BankApi.Repositories;
+using BankApi.Services;
 using Common.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System;
+using System.Collections.Generic;
+using System.Runtime.Versioning;
+using System.Threading.Tasks;
 
 namespace StockApp.Service.Tests
 {
     [TestClass]
+    [SupportedOSPlatform("windows10.0.26100.0")]
     public class UserServiceTests
     {
         private Mock<IUserRepository> _mockRepo;
@@ -33,24 +35,22 @@ namespace StockApp.Service.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
         public async Task GetUserByCnpAsync_EmptyCnp_ThrowsArgumentException()
         {
-            await _service.GetUserByCnpAsync("");
+            await Assert.ThrowsExactlyAsync<ArgumentException>(async () => await _service.GetUserByCnpAsync(""));
         }
 
         [TestMethod]
-        [ExpectedException(typeof(KeyNotFoundException))]
         public async Task GetUserByCnpAsync_UserNotFound_ThrowsKeyNotFoundException()
         {
             _mockRepo.Setup(r => r.GetByCnpAsync("123")).ReturnsAsync((User)null);
-            await _service.GetUserByCnpAsync("123");
+            await Assert.ThrowsExactlyAsync<KeyNotFoundException>(async () => await _service.GetUserByCnpAsync("123"));
         }
 
         [TestMethod]
         public async Task GetUsers_HappyCase_ReturnsList()
         {
-            var users = new List<User> { new User { CNP = "123" } };
+            var users = new List<User> { new() { CNP = "123" } };
             _mockRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(users);
             var result = await _service.GetUsers();
             Assert.AreEqual(1, result.Count);
@@ -66,10 +66,9 @@ namespace StockApp.Service.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
         public async Task CreateUser_NullUser_ThrowsArgumentNullException()
         {
-            await _service.CreateUser(null);
+            await Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.CreateUser(null));
         }
 
         [TestMethod]
@@ -83,18 +82,16 @@ namespace StockApp.Service.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
         public async Task UpdateUserAsync_EmptyFields_ThrowsArgumentException()
         {
-            await _service.UpdateUserAsync("", "", "", true, "123");
+            await Assert.ThrowsExactlyAsync<ArgumentException>(async () => await _service.UpdateUserAsync("", "", "", true, "123"));
         }
 
         [TestMethod]
-        [ExpectedException(typeof(KeyNotFoundException))]
         public async Task UpdateUserAsync_UserNotFound_ThrowsKeyNotFoundException()
         {
             _mockRepo.Setup(r => r.GetByCnpAsync("123")).ReturnsAsync((User)null);
-            await _service.UpdateUserAsync("New", "new.png", "new desc", true, "123");
+            await Assert.ThrowsExactlyAsync<KeyNotFoundException>(async () => await _service.UpdateUserAsync("New", "new.png", "new desc", true, "123"));
         }
 
         [TestMethod]
@@ -108,11 +105,10 @@ namespace StockApp.Service.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(KeyNotFoundException))]
         public async Task UpdateIsAdminAsync_UserNotFound_ThrowsKeyNotFoundException()
         {
             _mockRepo.Setup(r => r.GetByCnpAsync("123")).ReturnsAsync((User)null);
-            await _service.UpdateIsAdminAsync(true, "123");
+            await Assert.ThrowsExactlyAsync<KeyNotFoundException>(async () => await _service.UpdateIsAdminAsync(true, "123"));
         }
 
         [TestMethod]
@@ -125,18 +121,16 @@ namespace StockApp.Service.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
         public async Task GetCurrentUserAsync_EmptyCnp_ThrowsArgumentException()
         {
-            await _service.GetCurrentUserAsync("");
+            await Assert.ThrowsExactlyAsync<ArgumentException>(async () => await _service.GetCurrentUserAsync(""));
         }
 
         [TestMethod]
-        [ExpectedException(typeof(KeyNotFoundException))]
         public async Task GetCurrentUserAsync_UserNotFound_ThrowsKeyNotFoundException()
         {
             _mockRepo.Setup(r => r.GetByCnpAsync("123")).ReturnsAsync((User)null);
-            await _service.GetCurrentUserAsync("123");
+            await Assert.ThrowsExactlyAsync<KeyNotFoundException>(async () => await _service.GetCurrentUserAsync("123"));
         }
 
         [TestMethod]
@@ -149,18 +143,16 @@ namespace StockApp.Service.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
         public async Task GetCurrentUserGemsAsync_EmptyCnp_ThrowsArgumentException()
         {
-            await _service.GetCurrentUserGemsAsync("");
+            await Assert.ThrowsExactlyAsync<ArgumentException>(async () => await _service.GetCurrentUserGemsAsync(""));
         }
 
         [TestMethod]
-        [ExpectedException(typeof(KeyNotFoundException))]
         public async Task GetCurrentUserGemsAsync_UserNotFound_ThrowsKeyNotFoundException()
         {
             _mockRepo.Setup(r => r.GetByCnpAsync("123")).ReturnsAsync((User)null);
-            await _service.GetCurrentUserGemsAsync("123");
+            await Assert.ThrowsExactlyAsync<KeyNotFoundException>(async () => await _service.GetCurrentUserGemsAsync("123"));
         }
 
         [TestMethod]
@@ -172,11 +164,10 @@ namespace StockApp.Service.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
         public async Task AddDefaultRoleToAllUsersAsync_RepositoryThrows_ThrowsException()
         {
             _mockRepo.Setup(r => r.AddDefaultRoleToAllUsersAsync()).ThrowsAsync(new Exception());
-            await _service.AddDefaultRoleToAllUsersAsync();
+            await Assert.ThrowsExactlyAsync<Exception>(async () => await _service.AddDefaultRoleToAllUsersAsync());
         }
     }
-} 
+}

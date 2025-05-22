@@ -69,10 +69,7 @@
         /// <exception cref="ExportFormatNotSupportedException"></exception>
         public void ExportTransactions(List<TransactionLogTransaction> transactions, string filePath, string format)
         {
-            if (transactions == null)
-            {
-                throw new ArgumentNullException(nameof(transactions));
-            }
+            ArgumentNullException.ThrowIfNull(transactions);
 
             if (string.IsNullOrWhiteSpace(filePath))
             {

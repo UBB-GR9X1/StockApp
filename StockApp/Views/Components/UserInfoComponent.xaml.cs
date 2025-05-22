@@ -12,7 +12,7 @@ namespace StockApp.Views.Components
     {
         private readonly IActivityService activityService;
         private readonly IHistoryService historyService;
-        public User User;
+        public User? User;
 
         public UserInfoComponent(IActivityService activityService, IHistoryService historyService)
         {

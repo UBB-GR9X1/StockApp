@@ -72,7 +72,8 @@ namespace BankApi.Repositories.Impl
                     Symbol = us.Stock.Symbol,
                     AuthorCNP = us.Stock.AuthorCNP,
                     Price = us.Stock.Price,
-                    Quantity = us.Quantity
+                    Quantity = us.Quantity,
+                    NewsArticles = us.Stock.NewsArticles,
                 })
                 .ToListAsync();
         }

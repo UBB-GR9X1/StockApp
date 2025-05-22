@@ -7,15 +7,16 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using Xunit;
 
 namespace StockApp.Repository.Tests;
+[SupportedOSPlatform("windows10.0.26100.0")]
 
 public class UserRepositoryTests
 {
-    private ApiDbContext GetInMemoryContext()
+    private static ApiDbContext GetInMemoryContext()
     {
         var options = new DbContextOptionsBuilder<ApiDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -23,7 +24,7 @@ public class UserRepositoryTests
         return new ApiDbContext(options);
     }
 
-    private User CreateTestUser(int id = 1) => new()
+    private static User CreateTestUser(int id = 1) => new()
     {
         Id = id,
         UserName = "testuser",
@@ -32,19 +33,19 @@ public class UserRepositoryTests
         PasswordHash = "password"
     };
 
-    private UserRepository GetRepository(ApiDbContext context, Mock<UserManager<User>> userManagerMock, Mock<RoleManager<IdentityRole<int>>> roleManagerMock)
+    private static UserRepository GetRepository(ApiDbContext context, Mock<UserManager<User>> userManagerMock, Mock<RoleManager<IdentityRole<int>>> roleManagerMock)
     {
         var logger = Mock.Of<ILogger<UserRepository>>();
         return new UserRepository(context, logger, userManagerMock.Object, roleManagerMock.Object);
     }
 
-    private Mock<UserManager<User>> GetMockUserManager()
+    private static Mock<UserManager<User>> GetMockUserManager()
     {
         var store = new Mock<IUserStore<User>>();
         return new Mock<UserManager<User>>(store.Object, null, null, null, null, null, null, null, null);
     }
 
-    private Mock<RoleManager<IdentityRole<int>>> GetMockRoleManager()
+    private static Mock<RoleManager<IdentityRole<int>>> GetMockRoleManager()
     {
         var store = new Mock<IRoleStore<IdentityRole<int>>>();
         return new Mock<RoleManager<IdentityRole<int>>>(store.Object, null, null, null, null);
@@ -183,7 +184,7 @@ public class UserRepositoryTests
     public async Task UpdateRolesAsync_Throws_WhenUserIsNull()
     {
         var repo = GetRepository(GetInMemoryContext(), GetMockUserManager(), GetMockRoleManager());
-        await Assert.ThrowsAsync<ArgumentNullException>(() => repo.UpdateRolesAsync(null, new[] { "Admin" }));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => repo.UpdateRolesAsync(null, ["Admin"]));
     }
 
     [Fact]
@@ -198,13 +199,13 @@ public class UserRepositoryTests
     {
         var user = CreateTestUser();
         var userManagerMock = GetMockUserManager();
-        userManagerMock.Setup(m => m.GetRolesAsync(user)).ReturnsAsync(new List<string> { "User" });
+        userManagerMock.Setup(m => m.GetRolesAsync(user)).ReturnsAsync(["User"]);
         userManagerMock.Setup(m => m.RemoveFromRolesAsync(user, It.IsAny<IEnumerable<string>>()))
             .ReturnsAsync(IdentityResult.Failed());
 
         var repo = GetRepository(GetInMemoryContext(), userManagerMock, GetMockRoleManager());
 
-        var result = await repo.UpdateRolesAsync(user, new[] { "Admin" });
+        var result = await repo.UpdateRolesAsync(user, ["Admin"]);
         Assert.False(result);
     }
 
@@ -213,13 +214,13 @@ public class UserRepositoryTests
     {
         var user = CreateTestUser();
         var userManagerMock = GetMockUserManager();
-        userManagerMock.Setup(m => m.GetRolesAsync(user)).ReturnsAsync(new List<string>());
+        userManagerMock.Setup(m => m.GetRolesAsync(user)).ReturnsAsync([]);
         userManagerMock.Setup(m => m.AddToRolesAsync(user, It.IsAny<IEnumerable<string>>()))
             .ReturnsAsync(IdentityResult.Failed());
 
         var repo = GetRepository(GetInMemoryContext(), userManagerMock, GetMockRoleManager());
 
-        var result = await repo.UpdateRolesAsync(user, new[] { "Admin" });
+        var result = await repo.UpdateRolesAsync(user, ["Admin"]);
         Assert.False(result);
     }
 

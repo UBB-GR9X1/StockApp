@@ -66,7 +66,7 @@ namespace BankApi.Seeders
                 }
             }
 
-            if (homepageStocksToSeed.Any())
+            if (homepageStocksToSeed.Count != 0)
             {
                 await context.HomepageStocks.AddRangeAsync(homepageStocksToSeed);
             }

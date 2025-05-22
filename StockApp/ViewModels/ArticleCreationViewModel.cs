@@ -19,7 +19,7 @@
         private readonly IStockService stocksService;
         private readonly IUserService userService;
 
-        private string title;
+        private string title = string.Empty;
 
         /// <summary>
         /// Gets or sets the article title.
@@ -30,7 +30,7 @@
             set => this.SetProperty(ref this.title, value);
         }
 
-        private string summary;
+        private string summary = string.Empty;
 
         /// <summary>
         /// Gets or sets the article summary.
@@ -41,7 +41,7 @@
             set => this.SetProperty(ref this.summary, value);
         }
 
-        private string content;
+        private string content = string.Empty;
 
         /// <summary>
         /// Gets or sets the full article content.
@@ -63,7 +63,7 @@
             set => this.SetProperty(ref this.topics, value);
         }
 
-        private string selectedTopic;
+        private string selectedTopic = null!;
 
         /// <summary>
         /// Gets or sets the currently selected topic.
@@ -74,7 +74,7 @@
             set => this.SetProperty(ref this.selectedTopic, value);
         }
 
-        private string relatedStocksText;
+        private string relatedStocksText = string.Empty;
 
         /// <summary>
         /// Gets or sets the comma‑separated string of related stock symbols.
@@ -107,7 +107,7 @@
             set => this.SetProperty(ref this.hasError, value);
         }
 
-        private string errorMessage;
+        private string errorMessage = string.Empty;
 
         /// <summary>
         /// Gets or sets the current error message; also updates <see cref="HasError"/>.
@@ -180,10 +180,7 @@
 
         private async Task<bool> ValidateStocksAsync(List<string> enteredStocks)
         {
-            if (enteredStocks == null)
-            {
-                throw new ArgumentNullException(nameof(enteredStocks));
-            }
+            ArgumentNullException.ThrowIfNull(enteredStocks);
 
             if (enteredStocks.Count == 0)
             {
