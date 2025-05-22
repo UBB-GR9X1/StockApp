@@ -107,6 +107,9 @@ builder.Services.AddScoped<IAuthenticationService, WebAuthenticationService>();
 builder.Services.AddScoped<IUserService, UserProxyService>();
 builder.Services.AddScoped<ILoanService, LoanProxyService>();
 builder.Services.AddScoped<ILoanRequestService, LoanRequestProxyService>();
+builder.Services.AddScoped<IStockService, StockProxyService>();
+builder.Services.AddScoped<ITransactionService, TransactionProxyService>();
+builder.Services.AddScoped<ITransactionLogService, TransactionLogProxyService>();
 builder.Services.AddTransient<AuthenticationDelegatingHandler>();
 
 builder.Services.AddHttpClient<IUserService, UserProxyService>(context =>
@@ -120,6 +123,21 @@ builder.Services.AddHttpClient<ILoanService, LoanProxyService>(client =>
 }).AddHttpMessageHandler<AuthenticationDelegatingHandler>();
 
 builder.Services.AddHttpClient<ILoanRequestService, LoanRequestProxyService>(client =>
+{
+    client.BaseAddress = new Uri(apiBaseUrl);
+}).AddHttpMessageHandler<AuthenticationDelegatingHandler>();
+
+builder.Services.AddHttpClient<IStockService, StockProxyService>(client =>
+{
+    client.BaseAddress = new Uri(apiBaseUrl);
+}).AddHttpMessageHandler<AuthenticationDelegatingHandler>();
+
+builder.Services.AddHttpClient<ITransactionService, TransactionProxyService>(client =>
+{
+    client.BaseAddress = new Uri(apiBaseUrl);
+}).AddHttpMessageHandler<AuthenticationDelegatingHandler>();
+
+builder.Services.AddHttpClient<ITransactionLogService, TransactionLogProxyService>(client =>
 {
     client.BaseAddress = new Uri(apiBaseUrl);
 }).AddHttpMessageHandler<AuthenticationDelegatingHandler>();

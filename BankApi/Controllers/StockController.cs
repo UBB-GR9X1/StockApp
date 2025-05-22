@@ -44,11 +44,24 @@ namespace BankApi.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin")] // Assuming only admins can create stocks
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<Stock>> CreateStock([FromBody] Stock stock)
         {
             try
             {
+                // Get the current user's CNP from the principal
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Forbid();
+                }
+                var user = await _userRepository.GetByIdAsync(int.Parse(userId));
+                if (user == null)
+                {
+                    return Forbid();
+                }
+                stock.AuthorCNP = user.CNP; // Set the AuthorCNP from the authenticated user
+
                 var createdStock = await _stockService.CreateStockAsync(stock);
                 return CreatedAtAction(nameof(GetStockById), new { id = createdStock.Id }, createdStock);
             }
