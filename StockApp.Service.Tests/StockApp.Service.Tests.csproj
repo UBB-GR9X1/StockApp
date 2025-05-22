@@ -18,7 +18,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\StockApp.csproj" />
+	  <ProjectReference Include="..\BankApi\BankApi.csproj" />
+	  <ProjectReference Include="..\Common\Common.csproj" />
 	</ItemGroup>
 
 </Project>
