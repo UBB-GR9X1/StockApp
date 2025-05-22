@@ -34,6 +34,8 @@ namespace StockApp.Repository.Tests
             {
                 Id = 1,
                 Name = "Apple Inc.",
+                Price = 21,
+                Quantity = 5,
                 Favorites = new List<FavoriteStock> { new FavoriteStock { Id = 1, UserCNP = "123" } }
             };
 
@@ -41,6 +43,8 @@ namespace StockApp.Repository.Tests
             {
                 Id = 2,
                 Name = "Tesla Inc.",
+                Price = 21,
+                Quantity = 5,
                 Favorites = new List<FavoriteStock>()
             };
 
@@ -119,7 +123,10 @@ namespace StockApp.Repository.Tests
             {
                 Symbol = "MSFT",
                 Change = 1.11m,
-                StockDetails = new Stock()
+                StockDetails = new Stock{
+                    Price = 21,
+                    Quantity = 5,
+                }
             };
 
             var result = await _repository.CreateAsync(newStock);
@@ -157,7 +164,11 @@ namespace StockApp.Repository.Tests
             {
                 Symbol = "DOESNOTEXIST",
                 Change = 1.0m,
-                StockDetails = new Stock()
+                StockDetails = new Stock
+                {
+                    Price = 21,
+                    Quantity = 5,
+                }
             };
 
             var result = await _repository.UpdateAsync(999, fakeStock);
