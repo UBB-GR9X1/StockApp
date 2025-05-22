@@ -10,6 +10,7 @@
     using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using System.Windows.Input;
+
     /// <summary>
     /// ViewModel responsible for managing alerts: creating, saving, deleting, and loading alert entries.
     /// </summary>

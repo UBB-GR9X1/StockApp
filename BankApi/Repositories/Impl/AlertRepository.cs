@@ -57,11 +57,7 @@ namespace BankApi.Repositories.Impl
         {
             try
             {
-                var existingAlert = await _context.Alerts.FindAsync(alert.AlertId);
-                if (existingAlert == null)
-                {
-                    throw new KeyNotFoundException($"Alert with ID {alert.AlertId} not found.");
-                }
+                var existingAlert = await _context.Alerts.FindAsync(alert.AlertId) ?? throw new KeyNotFoundException($"Alert with ID {alert.AlertId} not found.");
 
                 // Update properties
                 existingAlert.StockName = alert.StockName;

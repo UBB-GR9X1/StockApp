@@ -29,7 +29,7 @@
         private ObservableCollection<Status> statuses = [];
         private Status selectedStatus;
         private ObservableCollection<string> topics = [];
-        private string selectedTopic;
+        private string selectedTopic = null!;
         private NewsArticle? selectedArticle;
         private bool isEmptyState;
 
@@ -39,7 +39,7 @@
             set => this.SetProperty(ref this.newsArticles, value);
         }
 
-        public Page PageRef { get; set; }
+        public Page PageRef { get; set; } = null!;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AdminNewsViewModel"/> class.
@@ -172,27 +172,27 @@
         /// <summary>
         /// Gets the command to refresh the article list.
         /// </summary>
-        public ICommand RefreshCommand { get; private set; }
+        public ICommand RefreshCommand { get; private set; } = null!;
 
         /// <summary>
         /// Gets the command to approve an article.
         /// </summary>
-        public ICommand ApproveCommand { get; private set; }
+        public ICommand ApproveCommand { get; private set; } = null!;
 
         /// <summary>
         /// Gets the command to reject an article.
         /// </summary>
-        public ICommand RejectCommand { get; private set; }
+        public ICommand RejectCommand { get; private set; } = null!;
 
         /// <summary>
         /// Gets the command to delete an article.
         /// </summary>
-        public ICommand DeleteCommand { get; private set; }
+        public ICommand DeleteCommand { get; private set; } = null!;
 
         /// <summary>
         /// Gets the command to preview an article.
         /// </summary>
-        public ICommand PreviewCommand { get; private set; }
+        public ICommand PreviewCommand { get; private set; } = null!;
 
         /// <summary>
         /// Initializes the ViewModel by loading articles.

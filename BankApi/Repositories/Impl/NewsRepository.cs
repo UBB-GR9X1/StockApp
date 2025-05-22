@@ -100,13 +100,7 @@
             try
             {
                 var existingArticle = await _dbContext.NewsArticles
-                    .FirstOrDefaultAsync(a => a.ArticleId == newsArticle.ArticleId);
-
-                if (existingArticle == null)
-                {
-                    throw new KeyNotFoundException($"Article with ID {newsArticle.ArticleId} not found.");
-                }
-
+                    .FirstOrDefaultAsync(a => a.ArticleId == newsArticle.ArticleId) ?? throw new KeyNotFoundException($"Article with ID {newsArticle.ArticleId} not found.");
                 _dbContext.Entry(existingArticle).CurrentValues.SetValues(newsArticle);
                 await _dbContext.SaveChangesAsync();
             }
@@ -121,13 +115,7 @@
             try
             {
                 var article = await _dbContext.NewsArticles
-                    .FirstOrDefaultAsync(a => a.ArticleId == articleId);
-
-                if (article == null)
-                {
-                    throw new KeyNotFoundException($"Article with ID {articleId} not found.");
-                }
-
+                    .FirstOrDefaultAsync(a => a.ArticleId == articleId) ?? throw new KeyNotFoundException($"Article with ID {articleId} not found.");
                 _dbContext.NewsArticles.Remove(article);
                 await _dbContext.SaveChangesAsync();
             }
@@ -146,7 +134,7 @@
                     .Include(u => u.Author)
                     .FirstOrDefaultAsync(a => a.ArticleId == articleId);
 
-                return article == null ? throw new KeyNotFoundException($"Article with ID {articleId} not found.") : article;
+                return article ?? throw new KeyNotFoundException($"Article with ID {articleId} not found.");
             }
             catch (Exception ex)
             {

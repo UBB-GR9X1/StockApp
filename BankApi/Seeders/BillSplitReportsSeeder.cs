@@ -54,7 +54,7 @@ namespace BankApi.Seeders
                 }
             }
 
-            if (reportsToSeed.Any())
+            if (reportsToSeed.Count != 0)
             {
                 await context.BillSplitReports.AddRangeAsync(reportsToSeed);
             }

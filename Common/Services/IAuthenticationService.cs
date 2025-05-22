@@ -9,7 +9,7 @@ namespace Common.Services
 
         Task<UserSession> LoginAsync(string username, string password);
         Task LogoutAsync();
-        UserSession GetCurrentUserSession();
+        UserSession? GetCurrentUserSession();
         bool IsUserAdmin();
         bool IsUserLoggedIn();
         string? GetToken();

@@ -1,16 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using BankApi.Data;
+﻿using BankApi.Data;
 using BankApi.Repositories.Impl;
 using Common.Models;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Linq;
+using System.Runtime.Versioning;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace StockApp.Repository.Tests;
-
+[SupportedOSPlatform("windows10.0.26100.0")]
 public class TransactionRepositoryTests
 {
     private readonly DbContextOptions<ApiDbContext> _dbOptions;
@@ -39,7 +39,8 @@ public class TransactionRepositoryTests
             Amount = 10,
             PricePerStock = 150,
             Date = DateTime.UtcNow,
-            Author = user
+            Author = user,
+            AuthorCNP = "111"
         };
 
         await context.Users.AddAsync(user);
@@ -61,6 +62,7 @@ public class TransactionRepositoryTests
         await context.TransactionLogTransactions.AddRangeAsync(
             new TransactionLogTransaction
             {
+                Id = 1,
                 StockName = "TESLA",
                 StockSymbol = "TSL",
                 AuthorCNP = "123",
@@ -73,6 +75,7 @@ public class TransactionRepositoryTests
 
             new TransactionLogTransaction
             {
+                Id = 1,
                 StockName = "APPLE",
                 StockSymbol = "AAPL",
                 AuthorCNP = "456",
@@ -166,7 +169,8 @@ public class TransactionRepositoryTests
             Amount = 3,
             PricePerStock = 300,
             Date = DateTime.UtcNow,
-            Author = user
+            Author = user,
+            AuthorCNP = user.CNP,
         };
 
         var repo = new TransactionRepository(context);
@@ -202,7 +206,8 @@ public class TransactionRepositoryTests
             Amount = 2,
             PricePerStock = 100,
             Date = DateTime.UtcNow,
-            Author = user
+            Author = user,
+            AuthorCNP = user.CNP,
         };
 
         var repo = new TransactionRepository(context);
@@ -230,7 +235,8 @@ public class TransactionRepositoryTests
             Amount = 1,
             PricePerStock = 80,
             Date = DateTime.UtcNow,
-            Author = new User { CNP = "123" }
+            Author = new User { CNP = "123" },
+            AuthorCNP = "123",
         };
 
         var repo = new TransactionRepository(context);

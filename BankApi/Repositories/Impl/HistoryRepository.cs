@@ -22,8 +22,7 @@ namespace BankApi.Repositories.Impl
 
         public async Task<CreditScoreHistory> AddHistoryAsync(CreditScoreHistory history)
         {
-            if (history == null)
-                throw new ArgumentNullException(nameof(history));
+            ArgumentNullException.ThrowIfNull(history);
 
             if (history.Score < 0 || history.Score > 1000)
                 throw new ArgumentException("Credit score must be between 0 and 1000");
@@ -35,16 +34,12 @@ namespace BankApi.Repositories.Impl
 
         public async Task<CreditScoreHistory> UpdateHistoryAsync(CreditScoreHistory history)
         {
-            if (history == null)
-                throw new ArgumentNullException(nameof(history));
+            ArgumentNullException.ThrowIfNull(history);
 
             if (history.Score < 0 || history.Score > 1000)
                 throw new ArgumentException("Credit score must be between 0 and 1000");
 
-            var existingHistory = await _context.CreditScoreHistories.FindAsync(history.Id);
-            if (existingHistory == null)
-                throw new KeyNotFoundException($"History entry with ID {history.Id} not found.");
-
+            var existingHistory = await _context.CreditScoreHistories.FindAsync(history.Id) ?? throw new KeyNotFoundException($"History entry with ID {history.Id} not found.");
             existingHistory.UserCnp = history.UserCnp;
             existingHistory.Date = history.Date;
             existingHistory.Score = history.Score;
@@ -55,10 +50,7 @@ namespace BankApi.Repositories.Impl
 
         public async Task DeleteHistoryAsync(int id)
         {
-            var history = await _context.CreditScoreHistories.FindAsync(id);
-            if (history == null)
-                throw new KeyNotFoundException($"History entry with ID {id} not found.");
-
+            var history = await _context.CreditScoreHistories.FindAsync(id) ?? throw new KeyNotFoundException($"History entry with ID {id} not found.");
             _context.CreditScoreHistories.Remove(history);
             await _context.SaveChangesAsync();
         }

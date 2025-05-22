@@ -58,7 +58,7 @@ namespace StockApp.Views.Pages
             }
         }
 
-        private void OnLoanRequestSolved(object sender, EventArgs e)
+        private void OnLoanRequestSolved(object? sender, EventArgs e)
         {
             _ = this.LoadLoanRequests();
         }

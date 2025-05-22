@@ -44,7 +44,7 @@ namespace BankApi.Seeders
                 loansToSeed.Add(new Loan { UserCnp = "4567890123456", LoanAmount = 15000.25m, ApplicationDate = new DateTime(2025, 5, 5), RepaymentDate = new DateTime(2027, 5, 5), InterestRate = 5.0m, NumberOfMonths = 24, MonthlyPaymentAmount = 670.00m, Status = "Approved", MonthlyPaymentsCompleted = 5, RepaidAmount = 3350.00m, Penalty = 50.00m });
             }
 
-            if (loansToSeed.Any())
+            if (loansToSeed.Count != 0)
             {
                 await context.Loans.AddRangeAsync(loansToSeed);
             }

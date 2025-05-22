@@ -11,16 +11,16 @@ namespace Common.Models
 
         [Required]
         [StringLength(13)]
-        public string ReportedUserCnp { get; set; }
+        required public string ReportedUserCnp { get; set; }
 
         [Required]
         [StringLength(13)]
-        public string ReportingUserCnp { get; set; }
+        required public string ReportingUserCnp { get; set; }
 
         [Required]
-        public DateTime DateOfTransaction { get; set; }
+        required public DateTime DateOfTransaction { get; set; }
 
         [Required]
-        public decimal BillShare { get; set; }
+        required public decimal BillShare { get; set; }
     }
 }

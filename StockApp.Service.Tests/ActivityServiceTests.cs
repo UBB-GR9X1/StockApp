@@ -1,15 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using BankApi.Services;
 using BankApi.Repositories;
+using BankApi.Services;
 using Common.Models;
-using Common.Services;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System;
+using System.Collections.Generic;
+using System.Runtime.Versioning;
+using System.Threading.Tasks;
 
 namespace StockApp.Service.Tests
 {
+    [SupportedOSPlatform("windows10.0.26100.0")]
     [TestClass]
     public class ActivityServiceTests
     {
@@ -191,7 +192,7 @@ namespace StockApp.Service.Tests
         {
             // Arrange
             _mockRepository.Setup(r => r.GetAllActivitiesAsync())
-                .ReturnsAsync(new List<ActivityLog>());
+                .ReturnsAsync([]);
 
             // Act
             var result = await _service.GetAllActivities();
@@ -246,4 +247,4 @@ namespace StockApp.Service.Tests
             _mockRepository.Verify(r => r.DeleteActivityAsync(activityId), Times.Once);
         }
     }
-} 
+}

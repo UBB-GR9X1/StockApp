@@ -1,15 +1,17 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using BankApi.Services;
 using BankApi.Repositories;
+using BankApi.Services;
 using Common.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System;
+using System.Collections.Generic;
+using System.Runtime.Versioning;
+using System.Threading.Tasks;
 
 namespace StockApp.Service.Tests
 {
     [TestClass]
+    [SupportedOSPlatform("windows10.0.26100.0")]
     public class HistoryServiceTests
     {
         private Mock<IHistoryRepository> _mockRepo;
@@ -25,7 +27,7 @@ namespace StockApp.Service.Tests
         [TestMethod]
         public async Task GetAllHistoryAsync_HappyCase_ReturnsList()
         {
-            var history = new List<CreditScoreHistory> { new CreditScoreHistory { Id = 1, Score = 500 } };
+            var history = new List<CreditScoreHistory> { new() { Id = 1, Score = 500 } };
             _mockRepo.Setup(r => r.GetAllHistoryAsync()).ReturnsAsync(history);
             var result = await _service.GetAllHistoryAsync();
             Assert.AreEqual(1, result.Count);
@@ -126,7 +128,7 @@ namespace StockApp.Service.Tests
         [TestMethod]
         public async Task GetHistoryForUserAsync_HappyCase_ReturnsList()
         {
-            var history = new List<CreditScoreHistory> { new CreditScoreHistory { Id = 1, Score = 500 } };
+            var history = new List<CreditScoreHistory> { new() { Id = 1, Score = 500 } };
             _mockRepo.Setup(r => r.GetHistoryForUserAsync("123")).ReturnsAsync(history);
             var result = await _service.GetHistoryForUserAsync("123");
             Assert.AreEqual(1, result.Count);
@@ -150,7 +152,7 @@ namespace StockApp.Service.Tests
         [TestMethod]
         public async Task GetHistoryWeeklyAsync_HappyCase_ReturnsList()
         {
-            var history = new List<CreditScoreHistory> { new CreditScoreHistory { Id = 1, Score = 500 } };
+            var history = new List<CreditScoreHistory> { new() { Id = 1, Score = 500 } };
             _mockRepo.Setup(r => r.GetHistoryWeeklyAsync("123")).ReturnsAsync(history);
             var result = await _service.GetHistoryWeeklyAsync("123");
             Assert.AreEqual(1, result.Count);
@@ -174,7 +176,7 @@ namespace StockApp.Service.Tests
         [TestMethod]
         public async Task GetHistoryMonthlyAsync_HappyCase_ReturnsList()
         {
-            var history = new List<CreditScoreHistory> { new CreditScoreHistory { Id = 1, Score = 500 } };
+            var history = new List<CreditScoreHistory> { new() { Id = 1, Score = 500 } };
             _mockRepo.Setup(r => r.GetHistoryMonthlyAsync("123")).ReturnsAsync(history);
             var result = await _service.GetHistoryMonthlyAsync("123");
             Assert.AreEqual(1, result.Count);
@@ -198,7 +200,7 @@ namespace StockApp.Service.Tests
         [TestMethod]
         public async Task GetHistoryYearlyAsync_HappyCase_ReturnsList()
         {
-            var history = new List<CreditScoreHistory> { new CreditScoreHistory { Id = 1, Score = 500 } };
+            var history = new List<CreditScoreHistory> { new() { Id = 1, Score = 500 } };
             _mockRepo.Setup(r => r.GetHistoryYearlyAsync("123")).ReturnsAsync(history);
             var result = await _service.GetHistoryYearlyAsync("123");
             Assert.AreEqual(1, result.Count);
@@ -219,4 +221,4 @@ namespace StockApp.Service.Tests
             await _service.GetHistoryYearlyAsync("123");
         }
     }
-} 
+}

@@ -46,7 +46,7 @@ namespace StockApp.Views.Pages
             }
         }
 
-        private async void OnReportSolved(object sender, EventArgs e)
+        private async void OnReportSolved(object? sender, EventArgs e)
         {
             await this.LoadChatReportsAsync();
         }

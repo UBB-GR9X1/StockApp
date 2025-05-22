@@ -1,16 +1,18 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using BankApi.Services;
 using BankApi.Repositories;
+using BankApi.Services;
 using Common.Models;
 using Common.Services;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System;
+using System.Collections.Generic;
+using System.Runtime.Versioning;
+using System.Threading.Tasks;
 
 namespace StockApp.Service.Tests
 {
     [TestClass]
+    [SupportedOSPlatform("windows10.0.26100.0")]
     public class ChatReportServiceTests
     {
         private Mock<IChatReportRepository> _mockChatReportRepo;
@@ -112,7 +114,7 @@ namespace StockApp.Service.Tests
         [TestMethod]
         public async Task GetAllChatReportsAsync_HappyCase_ReturnsList()
         {
-            var reports = new List<ChatReport> { new ChatReport { Id = 1, ReportedUserCnp = "123", ReportedMessage = "test message" } };
+            var reports = new List<ChatReport> { new() { Id = 1, ReportedUserCnp = "123", ReportedMessage = "test message" } };
             _mockChatReportRepo.Setup(r => r.GetAllChatReportsAsync()).ReturnsAsync(reports);
             var result = await _service.GetAllChatReportsAsync();
             Assert.AreEqual(1, result.Count);
@@ -121,7 +123,7 @@ namespace StockApp.Service.Tests
         [TestMethod]
         public async Task GetAllChatReportsAsync_Empty_ReturnsEmptyList()
         {
-            _mockChatReportRepo.Setup(r => r.GetAllChatReportsAsync()).ReturnsAsync(new List<ChatReport>());
+            _mockChatReportRepo.Setup(r => r.GetAllChatReportsAsync()).ReturnsAsync([]);
             var result = await _service.GetAllChatReportsAsync();
             Assert.AreEqual(0, result.Count);
         }
@@ -252,4 +254,4 @@ namespace StockApp.Service.Tests
             await _service.UpdateActivityLogAsync(10, "123");
         }
     }
-} 
+}

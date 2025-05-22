@@ -40,40 +40,95 @@ namespace BankApi.Seeders
             // Create transactions only if the corresponding user and stock exist
             var user1 = users.FirstOrDefault(u => u.CNP == "1234567890123");
             var stockApple = stocks.FirstOrDefault(s => s.Name == "Apple Inc.");
-            if (user1 != null && stockApple != null)
-            {
-                transactionsToSeed.Add(new TransactionLogTransaction { AuthorCNP = user1.CNP, Author = user1, StockSymbol = stockApple.Symbol, StockName = stockApple.Name, Type = "BUY", Amount = 10, PricePerStock = 150, Date = new DateTime(2025, 4, 1) });
-            }
-
             var user2 = users.FirstOrDefault(u => u.CNP == "9876543210987");
             var stockGoogle = stocks.FirstOrDefault(s => s.Name == "Alphabet Inc.");
-            if (user2 != null && stockGoogle != null)
-            {
-                transactionsToSeed.Add(new TransactionLogTransaction { AuthorCNP = user2.CNP, Author = user2, StockSymbol = stockGoogle.Symbol, StockName = stockGoogle.Name, Type = "SELL", Amount = 5, PricePerStock = 2800, Date = new DateTime(2025, 3, 15) });
-            }
-
             var user3 = users.FirstOrDefault(u => u.CNP == "2345678901234");
             var stockTesla = stocks.FirstOrDefault(s => s.Name == "Tesla Inc.");
-            if (user3 != null && stockTesla != null)
-            {
-                transactionsToSeed.Add(new TransactionLogTransaction { AuthorCNP = user3.CNP, Author = user3, StockSymbol = stockTesla.Symbol, StockName = stockTesla.Name, Type = "BUY", Amount = 20, PricePerStock = 750, Date = new DateTime(2025, 2, 20) });
-            }
-
             var user4 = users.FirstOrDefault(u => u.CNP == "3456789012345");
             var stockAmazon = stocks.FirstOrDefault(s => s.Name == "Amazon.com Inc.");
-            if (user4 != null && stockAmazon != null)
-            {
-                transactionsToSeed.Add(new TransactionLogTransaction { AuthorCNP = user4.CNP, Author = user4, StockSymbol = stockAmazon.Symbol, StockName = stockAmazon.Name, Type = "SELL", Amount = 8, PricePerStock = 3400, Date = new DateTime(2025, 1, 10) });
-            }
-
             var user5 = users.FirstOrDefault(u => u.CNP == "4567890123456");
             var stockMicrosoft = stocks.FirstOrDefault(s => s.Name == "Microsoft Corp.");
-            if (user5 != null && stockMicrosoft != null)
+            if (user1 != null && stockApple != null)
             {
-                transactionsToSeed.Add(new TransactionLogTransaction { AuthorCNP = user5.CNP, Author = user5, StockSymbol = stockMicrosoft.Symbol, StockName = stockMicrosoft.Name, Type = "BUY", Amount = 15, PricePerStock = 320, Date = new DateTime(2025, 5, 5) });
+                transactionsToSeed.Add(new TransactionLogTransaction
+                {
+                    Id = 1, // Assign a unique Id
+                    AuthorCNP = user1.CNP,
+                    Author = user1,
+                    StockSymbol = stockApple.Symbol,
+                    StockName = stockApple.Name,
+                    Type = "BUY",
+                    Amount = 10,
+                    PricePerStock = 150,
+                    Date = new DateTime(2025, 4, 1)
+                });
             }
 
-            if (transactionsToSeed.Any())
+            if (user2 != null && stockGoogle != null)
+            {
+                transactionsToSeed.Add(new TransactionLogTransaction
+                {
+                    Id = 2, // Assign a unique Id
+                    AuthorCNP = user2.CNP,
+                    Author = user2,
+                    StockSymbol = stockGoogle.Symbol,
+                    StockName = stockGoogle.Name,
+                    Type = "SELL",
+                    Amount = 5,
+                    PricePerStock = 2800,
+                    Date = new DateTime(2025, 3, 15)
+                });
+            }
+
+            if (user3 != null && stockTesla != null)
+            {
+                transactionsToSeed.Add(new TransactionLogTransaction
+                {
+                    Id = 3, // Assign a unique Id
+                    AuthorCNP = user3.CNP,
+                    Author = user3,
+                    StockSymbol = stockTesla.Symbol,
+                    StockName = stockTesla.Name,
+                    Type = "BUY",
+                    Amount = 20,
+                    PricePerStock = 750,
+                    Date = new DateTime(2025, 2, 20)
+                });
+            }
+
+            if (user4 != null && stockAmazon != null)
+            {
+                transactionsToSeed.Add(new TransactionLogTransaction
+                {
+                    Id = 4, // Assign a unique Id
+                    AuthorCNP = user4.CNP,
+                    Author = user4,
+                    StockSymbol = stockAmazon.Symbol,
+                    StockName = stockAmazon.Name,
+                    Type = "SELL",
+                    Amount = 8,
+                    PricePerStock = 3400,
+                    Date = new DateTime(2025, 1, 10)
+                });
+            }
+
+            if (user5 != null && stockMicrosoft != null)
+            {
+                transactionsToSeed.Add(new TransactionLogTransaction
+                {
+                    Id = 5, // Assign a unique Id
+                    AuthorCNP = user5.CNP,
+                    Author = user5,
+                    StockSymbol = stockMicrosoft.Symbol,
+                    StockName = stockMicrosoft.Name,
+                    Type = "BUY",
+                    Amount = 15,
+                    PricePerStock = 320,
+                    Date = new DateTime(2025, 5, 5)
+                });
+            }
+
+            if (transactionsToSeed.Count != 0)
             {
                 await context.TransactionLogTransactions.AddRangeAsync(transactionsToSeed);
             }

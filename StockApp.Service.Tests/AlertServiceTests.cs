@@ -1,15 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using BankApi.Repositories;
 using BankApi.Services;
-using BankApi.Repositories;
 using Common.Models;
-using Common.Services;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System;
+using System.Collections.Generic;
+using System.Runtime.Versioning;
+using System.Threading.Tasks;
 
 namespace StockApp.Service.Tests
 {
+    [SupportedOSPlatform("windows10.0.26100.0")]
     [TestClass]
     public class AlertServiceTests
     {
@@ -295,7 +296,7 @@ namespace StockApp.Service.Tests
         {
             // Arrange
             _mockRepository.Setup(r => r.GetAllAlertsAsync())
-                .ReturnsAsync(new List<Alert>());
+                .ReturnsAsync([]);
 
             // Act
             var result = await _service.GetAllAlertsAsync();
@@ -384,7 +385,7 @@ namespace StockApp.Service.Tests
         {
             // Arrange
             _mockRepository.Setup(r => r.GetTriggeredAlertsAsync())
-                .ReturnsAsync(new List<TriggeredAlert>());
+                .ReturnsAsync([]);
 
             // Act
             var result = await _service.GetTriggeredAlertsAsync();

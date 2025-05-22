@@ -1,15 +1,17 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using BankApi.Services;
 using BankApi.Repositories;
+using BankApi.Services;
 using Common.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System;
+using System.Collections.Generic;
+using System.Runtime.Versioning;
+using System.Threading.Tasks;
 
 namespace StockApp.Service.Tests
 {
     [TestClass]
+    [SupportedOSPlatform("windows10.0.26100.0")]
     public class UserServiceTests
     {
         private Mock<IUserRepository> _mockRepo;
@@ -50,7 +52,7 @@ namespace StockApp.Service.Tests
         [TestMethod]
         public async Task GetUsers_HappyCase_ReturnsList()
         {
-            var users = new List<User> { new User { CNP = "123" } };
+            var users = new List<User> { new() { CNP = "123" } };
             _mockRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(users);
             var result = await _service.GetUsers();
             Assert.AreEqual(1, result.Count);
@@ -179,4 +181,4 @@ namespace StockApp.Service.Tests
             await _service.AddDefaultRoleToAllUsersAsync();
         }
     }
-} 
+}

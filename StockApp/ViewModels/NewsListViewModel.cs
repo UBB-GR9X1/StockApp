@@ -39,7 +39,7 @@
 
         private NewsArticle? selectedArticle;
 
-        private User currentUser;
+        private User currentUser = null!;
 
         /// <summary>
         /// Gets or sets the collection of news articles.
@@ -127,9 +127,6 @@
             {
                 if (this.SetProperty(ref this.selectedArticle, value) && value != null)
                 {
-                    // Store the article ID before clearing the selection
-                    var articleId = value.ArticleId;
-
                     // Clear selection first to prevent UI issues
                     this.selectedArticle = null;
                     this.OnPropertyChanged(nameof(this.SelectedArticle));
@@ -202,11 +199,6 @@
         public ICommand LoginCommand { get; }
 
         /// <summary>
-        /// Gets the command to log out the current user.
-        /// </summary>
-        public ICommand LogoutCommand { get; }
-
-        /// <summary>
         /// Gets the command to clear the current search query.
         /// </summary>
         public ICommand ClearSearchCommand { get; }
@@ -226,6 +218,7 @@
             this.AdminPanelCommand = new StockNewsRelayCommand(async () => await this.OpenAdminPanelDialogAsync());
             this.LoginCommand = new StockNewsRelayCommand(async () => await ShowLoginDialogAsync());
             this.ClearSearchCommand = new StockNewsRelayCommand(() => this.SearchQuery = string.Empty);
+            this.Articles = [];
 
             this.Categories.Add("All");
             this.Categories.Add("Stock News");

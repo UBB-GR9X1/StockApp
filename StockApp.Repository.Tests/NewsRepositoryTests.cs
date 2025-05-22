@@ -1,16 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using BankApi.Data;
+﻿using BankApi.Data;
 using BankApi.Repositories.Impl;
 using Common.Models;
-using Microsoft.EntityFrameworkCore;
-using Moq;
-using Xunit;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Runtime.Versioning;
+using System.Threading.Tasks;
+using Xunit;
 
 namespace StockApp.Repository.Tests;
+[SupportedOSPlatform("windows10.0.26100.0")]
 
 public class NewsRepositoryTests
 {
@@ -31,7 +31,13 @@ public class NewsRepositoryTests
         // Arrange
         using var context = CreateContext();
 
-        var stock = new Stock { Name = "TEST" };
+        var stock = new Stock
+        {
+            Name = "TEST",
+            Price = 100,
+            Quantity = 10,
+            NewsArticles = []
+        };
         var author = new User { Id = 123 };
 
         await context.Stocks.AddAsync(stock);
@@ -41,7 +47,7 @@ public class NewsRepositoryTests
         var article = new NewsArticle
         {
             Author = author,
-            RelatedStocks = new List<Stock> { stock },
+            RelatedStocks = [stock],
             Title = "Test Title",
             Content = "Test Content",
             Category = "Test Category",
@@ -73,7 +79,7 @@ public class NewsRepositoryTests
         var article = new NewsArticle
         {
             Author = author,
-            RelatedStocks = new List<Stock> { new Stock { Name = "MISSING" } }
+            RelatedStocks = [new Stock { Name = "MISSING", Price = 100, Quantity = 10, NewsArticles = [] }],
         };
 
         var repo = new NewsRepository(context);
@@ -81,7 +87,7 @@ public class NewsRepositoryTests
         Func<Task> act = async () => await repo.AddNewsArticleAsync(article);
 
         await act.Should().ThrowAsync<Exception>()
-            .WithMessage("Error while adding news article.");
+        .WithMessage("Error while adding news article.");
     }
 
     [Fact]
@@ -89,7 +95,13 @@ public class NewsRepositoryTests
     {
         using var context = CreateContext();
 
-        var stock = new Stock { Name = "S1" };
+        var stock = new Stock
+        {
+            Name = "S1",
+            Price = 0,
+            Quantity = 0,
+            NewsArticles = [],
+        };
         var author = new User { Id = 1 };
         var articleId = Guid.NewGuid().ToString();
 
@@ -98,7 +110,7 @@ public class NewsRepositoryTests
             ArticleId = articleId,
             Author = author,
             Title = "Old",
-            RelatedStocks = new List<Stock> { stock },
+            RelatedStocks = [stock],
             Content = "Content",
             Category = "Category",
             Source = "Source",
@@ -117,7 +129,7 @@ public class NewsRepositoryTests
             ArticleId = articleId,
             Author = author,
             Title = "New",
-            RelatedStocks = new List<Stock> { stock },
+            RelatedStocks = [stock],
             Category = "Category",
             Source = "Source",
             Summary = "Summary"
@@ -181,7 +193,8 @@ public class NewsRepositoryTests
     {
         using var context = CreateContext();
 
-        var article = new NewsArticle { 
+        var article = new NewsArticle
+        {
             ArticleId = "123",
             Content = "Test Content",
             Title = "Test Title",
@@ -215,8 +228,9 @@ public class NewsRepositoryTests
     {
         using var context = CreateContext();
 
-        var article = new NewsArticle { 
-            ArticleId = "a1", 
+        var article = new NewsArticle
+        {
+            ArticleId = "a1",
             Author = new User { Id = 123 },
             Title = "Test Title",
             Content = "Test Content",
@@ -253,8 +267,8 @@ public class NewsRepositoryTests
     {
         using var context = CreateContext();
 
-        await context.NewsArticles.AddRangeAsync(new[]
-        {
+        await context.NewsArticles.AddRangeAsync(
+        [
             new NewsArticle
             {
                 ArticleId = "a",
@@ -275,7 +289,7 @@ public class NewsRepositoryTests
                 Source = "src",
                 Summary = "sum"
             }
-        });
+        ]);
         await context.SaveChangesAsync();
 
         var repo = new NewsRepository(context);
@@ -317,8 +331,8 @@ public class NewsRepositoryTests
     {
         using var context = CreateContext();
 
-        await context.NewsArticles.AddRangeAsync(new[]
-        {
+        await context.NewsArticles.AddRangeAsync(
+        [
             new NewsArticle
             {
                 ArticleId = "1",
@@ -341,7 +355,7 @@ public class NewsRepositoryTests
                 Source = "s",
                 Summary = "sum"
             }
-        });
+        ]);
         await context.SaveChangesAsync();
 
         var repo = new NewsRepository(context);
@@ -372,20 +386,20 @@ public class NewsRepositoryTests
 
         var articles = new List<NewsArticle>
     {
-        new NewsArticle {
+        new() {
             ArticleId = "a1",
             Category = category,
             Title = "Finance News 1",
             Author = author,
-            RelatedStocks = new List<Stock>(),
+            RelatedStocks = [],
             Source = "src", Summary = "sum", Content = "c"
         },
-        new NewsArticle {
+        new() {
             ArticleId = "a2",
             Category = "Tech",
             Title = "Tech News",
             Author = author,
-            RelatedStocks = new List<Stock>(),
+            RelatedStocks = [],
             Source = "src", Summary = "sum", Content = "c"
         }
     };
@@ -407,26 +421,38 @@ public class NewsRepositoryTests
     {
         using var context = CreateContext();
 
-        var stock1 = new Stock { Name = "AAPL" };
-        var stock2 = new Stock { Name = "MSFT" };
+        var stock1 = new Stock
+        {
+            Name = "AAPL",
+            Price = 150,
+            Quantity = 100,
+            NewsArticles = [],
+        };
+        var stock2 = new Stock
+        {
+            Name = "MSFT",
+            Price = 0,
+            Quantity = 0,
+            NewsArticles = [],
+        };
         var author = new User { Id = 2 };
 
         var articles = new List<NewsArticle>
     {
-        new NewsArticle {
+        new() {
             ArticleId = "s1",
             Title = "Apple Update",
             Category = "Tech",
             Author = author,
-            RelatedStocks = new List<Stock> { stock1 },
+            RelatedStocks = [stock1],
             Source = "src", Summary = "sum", Content = "c"
         },
-        new NewsArticle {
+        new() {
             ArticleId = "s2",
             Title = "Microsoft News",
             Category = "Tech",
             Author = author,
-            RelatedStocks = new List<Stock> { stock2 },
+            RelatedStocks = [stock2],
             Source = "src", Summary = "sum", Content = "c"
         }
     };
@@ -441,7 +467,7 @@ public class NewsRepositoryTests
         var result = await repo.GetNewsArticlesByStockAsync("AAPL");
 
         result.Should().ContainSingle()
-            .Which.Title.Should().Be("Apple Update");
+        .Which.Title.Should().Be("Apple Update");
     }
 
 }

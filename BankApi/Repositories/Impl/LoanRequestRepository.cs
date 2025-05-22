@@ -47,12 +47,7 @@ namespace BankApi.Repositories.Impl
 
             try
             {
-                var request = await _context.LoanRequests.FindAsync(loanRequestId);
-                if (request == null)
-                {
-                    throw new KeyNotFoundException($"Loan request with ID {loanRequestId} not found");
-                }
-
+                var request = await _context.LoanRequests.FindAsync(loanRequestId) ?? throw new KeyNotFoundException($"Loan request with ID {loanRequestId} not found");
                 request.Status = "Solved";
                 await _context.SaveChangesAsync();
 
@@ -72,12 +67,7 @@ namespace BankApi.Repositories.Impl
 
             try
             {
-                var request = await _context.LoanRequests.FindAsync(loanRequestId);
-                if (request == null)
-                {
-                    throw new KeyNotFoundException($"Loan request with ID {loanRequestId} not found");
-                }
-
+                var request = await _context.LoanRequests.FindAsync(loanRequestId) ?? throw new KeyNotFoundException($"Loan request with ID {loanRequestId} not found");
                 _context.LoanRequests.Remove(request);
                 await _context.SaveChangesAsync();
 
