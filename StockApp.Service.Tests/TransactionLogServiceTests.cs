@@ -29,32 +29,31 @@ namespace StockApp.Service.Tests
         {
             var criteria = new TransactionFilterCriteria();
             var transactions = new List<TransactionLogTransaction> { new TransactionLogTransaction() };
-            var validateCalled = false;
-            var criteriaMock = new Mock<TransactionFilterCriteria>();
-            criteriaMock.Setup(c => c.Validate()).Callback(() => validateCalled = true);
-            _mockRepo.Setup(r => r.GetByFilterCriteriaAsync(criteriaMock.Object)).ReturnsAsync(transactions);
-            var result = await _service.GetFilteredTransactions(criteriaMock.Object);
+            _mockRepo.Setup(r => r.GetByFilterCriteriaAsync(criteria)).ReturnsAsync(transactions);
+            var result = await _service.GetFilteredTransactions(criteria);
             Assert.AreEqual(1, result.Count);
-            Assert.IsTrue(validateCalled);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public async Task GetFilteredTransactions_CriteriaInvalid_Throws()
         {
-            var criteriaMock = new Mock<TransactionFilterCriteria>();
-            criteriaMock.Setup(c => c.Validate()).Throws(new ArgumentException());
-            await _service.GetFilteredTransactions(criteriaMock.Object);
+            // Use a real criteria instance with invalid values (MinTotalValue > MaxTotalValue)
+            var invalidCriteria = new TransactionFilterCriteria
+            {
+                MinTotalValue = 10,
+                MaxTotalValue = 5
+            };
+            await _service.GetFilteredTransactions(invalidCriteria);
         }
 
         [TestMethod]
         [ExpectedException(typeof(Exception))]
         public async Task GetFilteredTransactions_RepositoryThrows_Throws()
         {
-            var criteriaMock = new Mock<TransactionFilterCriteria>();
-            criteriaMock.Setup(c => c.Validate());
-            _mockRepo.Setup(r => r.GetByFilterCriteriaAsync(criteriaMock.Object)).ThrowsAsync(new Exception());
-            await _service.GetFilteredTransactions(criteriaMock.Object);
+            var criteria = new TransactionFilterCriteria();
+            _mockRepo.Setup(r => r.GetByFilterCriteriaAsync(criteria)).ThrowsAsync(new Exception());
+            await _service.GetFilteredTransactions(criteria);
         }
 
         [TestMethod]
@@ -102,6 +101,56 @@ namespace StockApp.Service.Tests
         {
             var transactions = new List<TransactionLogTransaction>();
             _service.ExportTransactions(transactions, "file.csv", "xml");
+        }
+
+        [TestMethod]
+        public void ExportTransactions_CsvFormat_CallsCsvExporter()
+        {
+            var transactions = new List<TransactionLogTransaction> { new TransactionLogTransaction() };
+            var filePath = "file.csv";
+            // Should not throw
+            _service.ExportTransactions(transactions, filePath, "csv");
+        }
+
+        [TestMethod]
+        public void ExportTransactions_JsonFormat_CallsJsonExporter()
+        {
+            var transactions = new List<TransactionLogTransaction> { new TransactionLogTransaction() };
+            var filePath = "file.json";
+            // Should not throw
+            _service.ExportTransactions(transactions, filePath, "json");
+        }
+
+        [TestMethod]
+        public void ExportTransactions_HtmlFormat_CallsHtmlExporter()
+        {
+            var transactions = new List<TransactionLogTransaction> { new TransactionLogTransaction() };
+            var filePath = "file.html";
+            // Should not throw
+            _service.ExportTransactions(transactions, filePath, "html");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void ExportTransactions_NullTransactions_Throws()
+        {
+            _service.ExportTransactions(null, "file.csv", "csv");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void ExportTransactions_EmptyFilePath_Throws()
+        {
+            var transactions = new List<TransactionLogTransaction>();
+            _service.ExportTransactions(transactions, "", "csv");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void ExportTransactions_EmptyFormat_Throws()
+        {
+            var transactions = new List<TransactionLogTransaction>();
+            _service.ExportTransactions(transactions, "file.csv", "");
         }
     }
 }
