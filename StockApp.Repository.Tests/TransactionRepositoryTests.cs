@@ -1,118 +1,242 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using BankApi.Data;
+using BankApi.Repositories.Impl;
+using Common.Models;
+using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
+using Xunit;
 
-namespace StockApp.Repository.Tests
+namespace StockApp.Repository.Tests;
+
+public class TransactionRepositoryTests
 {
-    // Mock model classes for testing
-    public class TransactionLogTransaction(
-        string stockSymbol,
-        string stockName,
-        string type,
-        int amount,
-        int pricePerStock,
-        DateTime date,
-        string author)
+    private readonly DbContextOptions<ApiDbContext> _dbOptions;
+
+    public TransactionRepositoryTests()
     {
-        public string StockSymbol { get; } = stockSymbol;
-        public string StockName { get; } = stockName;
-        public string Type { get; } = type;
-        public int Amount { get; } = amount;
-        public int PricePerStock { get; } = pricePerStock;
-        public int TotalValue => this.Amount * this.PricePerStock;
-        public DateTime Date { get; } = date;
-        public string Author { get; } = author;
+        _dbOptions = new DbContextOptionsBuilder<ApiDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
     }
 
-    public class TransactionFilterCriteria
-    {
-        public string? StockName { get; set; }
-        public string? Type { get; set; }
-        public int? MinTotalValue { get; set; }
-        public int? MaxTotalValue { get; set; }
-        public DateTime? StartDate { get; set; }
-        public DateTime? EndDate { get; set; }
+    private ApiDbContext CreateContext() => new(_dbOptions);
 
-        public static void Validate() { }
+    [Fact]
+    public async Task GetAllTransactions_Should_Return_All_With_Authors()
+    {
+        using var context = CreateContext();
+
+        var user = new User { Id = 1, CNP = "111" };
+        var txn = new TransactionLogTransaction
+        {
+            Id = 1,
+            StockName = "Apple",
+            StockSymbol = "AAPL",
+            Type = "BUY",
+            Amount = 10,
+            PricePerStock = 150,
+            Date = DateTime.UtcNow,
+            Author = user
+        };
+
+        await context.Users.AddAsync(user);
+        await context.TransactionLogTransactions.AddAsync(txn);
+        await context.SaveChangesAsync();
+
+        var repo = new TransactionRepository(context);
+        var result = await repo.getAllTransactions();
+
+        result.Should().ContainSingle();
+        result[0].Author.Should().NotBeNull();
+        result[0].StockName.Should().Be("Apple");
     }
 
-    public interface ITransactionRepository
+    [Fact]
+    public async Task GetByFilterCriteriaAsync_Should_Filter_By_StockName()
     {
-        Task<List<TransactionLogTransaction>> getAllTransactions();
-        Task<List<TransactionLogTransaction>> GetByFilterCriteria(TransactionFilterCriteria criteria);
-        Task AddTransaction(TransactionLogTransaction transaction);
+        using var context = CreateContext();
+        await context.TransactionLogTransactions.AddRangeAsync(
+            new TransactionLogTransaction
+            {
+                StockName = "TESLA",
+                StockSymbol = "TSL",
+                AuthorCNP = "123",
+                Type = "BUY",
+                Amount = 5,
+                PricePerStock = 100,
+                Date = DateTime.UtcNow,
+                Author = new User() { CNP = "123" }
+            },
+
+            new TransactionLogTransaction
+            {
+                StockName = "APPLE",
+                StockSymbol = "AAPL",
+                AuthorCNP = "456",
+                Type = "BUY",
+                Amount = 5,
+                PricePerStock = 100,
+                Date = DateTime.UtcNow,
+                Author = new User() { CNP = "456" }
+            }
+        );
+        await context.SaveChangesAsync();
+
+        var repo = new TransactionRepository(context);
+        var result = await repo.GetByFilterCriteriaAsync(new TransactionFilterCriteria { StockName = "APPLE" });
+
+        result.Should().ContainSingle(t => t.StockName == "APPLE");
     }
 
-    [TestClass]
-    public class TransactionRepositoryTests
+    [Fact]
+    public async Task GetByFilterCriteriaAsync_Should_Throw_On_Null()
     {
-        private ITransactionRepository _repo;
+        using var context = CreateContext();
+        var repo = new TransactionRepository(context);
 
-        [TestInitialize]
-        public void Init()
-        {
-            _repo = new FakeTransactionRepository();
-        }
+        await Assert.ThrowsAsync<ArgumentNullException>(() => repo.GetByFilterCriteriaAsync(null!));
+    }
 
-        [TestMethod]
-        public async Task AddTransaction_AppendsToList()
-        {
-            var transaction = new TransactionLogTransaction(
-                stockSymbol: "AAPL",
-                stockName: "Apple",
-                type: "BUY",
-                amount: 10,
-                pricePerStock: 15,
-                date: DateTime.Now,
-                author: "1234567890123");
+    [Fact]
+    public async Task GetByFilterCriteriaAsync_Should_Filter_By_Type_And_Value_And_Dates()
+    {
+        using var context = CreateContext();
 
-            await _repo.AddTransaction(transaction);
+        var now = DateTime.UtcNow;
 
-            var transactions = await _repo.getAllTransactions();
-            Assert.AreEqual(1, transactions.Count);
-            Assert.AreEqual("Apple", transactions[0].StockName);
-        }
-
-        [TestMethod]
-        public async Task GetByFilterCriteria_FiltersByType()
-        {
-            await _repo.AddTransaction(new TransactionLogTransaction(
-                stockSymbol: "MSFT",
-                stockName: "Microsoft",
-                type: "SELL",
-                amount: 20,
-                pricePerStock: 50,
-                date: DateTime.Today,
-                author: "999"));
-
-            var result = await _repo.GetByFilterCriteria(new TransactionFilterCriteria { Type = "SELL" });
-
-            Assert.AreEqual(1, result.Count);
-            Assert.AreEqual("SELL", result[0].Type);
-        }
-
-        private class FakeTransactionRepository : ITransactionRepository
-        {
-            private readonly List<TransactionLogTransaction> _transactions = [];
-
-            public async Task<List<TransactionLogTransaction>> getAllTransactions()
+        await context.TransactionLogTransactions.AddRangeAsync(
+            new TransactionLogTransaction
             {
-                return await Task.FromResult(_transactions);
-            }
-
-            public async Task AddTransaction(TransactionLogTransaction transaction)
+                StockName = "GOOGLE",
+                StockSymbol = "GOOG",
+                AuthorCNP = "123",
+                Type = "BUY",
+                Amount = 1,
+                PricePerStock = 1000,
+                Date = now,
+                Author = new User() { CNP = "123" }
+            },
+            new TransactionLogTransaction
             {
-                _transactions.Add(transaction);
-                await Task.CompletedTask;
+                StockName = "GOOGLE",
+                StockSymbol = "GOOG",
+                AuthorCNP = "456",
+                Type = "SELL",
+                Amount = 2,
+                PricePerStock = 200,
+                Date = now.AddDays(-1),
+                Author = new User() { CNP = "456" }
             }
+        );
+        await context.SaveChangesAsync();
 
-            public async Task<List<TransactionLogTransaction>> GetByFilterCriteria(TransactionFilterCriteria criteria)
-            {
-                return await Task.FromResult(_transactions.FindAll(t =>
-                    (string.IsNullOrEmpty(criteria.Type) || t.Type == criteria.Type)
-                ));
-            }
-        }
+        var repo = new TransactionRepository(context);
+        var criteria = new TransactionFilterCriteria
+        {
+            Type = "SELL",
+            MinTotalValue = 300,
+            StartDate = now.AddDays(-2),
+            EndDate = now
+        };
+
+        var result = await repo.GetByFilterCriteriaAsync(criteria);
+        result.Should().ContainSingle(t => t.Type == "SELL");
+    }
+
+    [Fact]
+    public async Task AddTransactionAsync_Should_Add_When_Stock_Exists_And_User_Provided()
+    {
+        using var context = CreateContext();
+
+        var user = new User { Id = 1, CNP = "999" };
+        var stock = new BaseStock { Id = 1, Name = "Microsoft" };
+
+        await context.Users.AddAsync(user);
+        await context.BaseStocks.AddAsync(stock);
+        await context.SaveChangesAsync();
+
+        var transaction = new TransactionLogTransaction
+        {
+            StockName = "Microsoft",
+            StockSymbol = "MSFT",
+            Type = "BUY",
+            Amount = 3,
+            PricePerStock = 300,
+            Date = DateTime.UtcNow,
+            Author = user
+        };
+
+        var repo = new TransactionRepository(context);
+        await repo.AddTransactionAsync(transaction);
+
+        context.TransactionLogTransactions.Count().Should().Be(1);
+        context.TransactionLogTransactions.First().Author.CNP.Should().Be("999");
+    }
+
+    [Fact]
+    public async Task AddTransactionAsync_Should_Throw_When_Transaction_Null()
+    {
+        using var context = CreateContext();
+        var repo = new TransactionRepository(context);
+
+        await Assert.ThrowsAsync<ArgumentNullException>(() => repo.AddTransactionAsync(null!));
+    }
+
+    [Fact]
+    public async Task AddTransactionAsync_Should_Throw_When_Stock_Does_Not_Exist()
+    {
+        using var context = CreateContext();
+
+        var user = new User { Id = 2, CNP = "123" };
+        await context.Users.AddAsync(user);
+        await context.SaveChangesAsync();
+
+        var txn = new TransactionLogTransaction
+        {
+            StockName = "NONEXISTENT",
+            StockSymbol = "NAN",
+            Type = "SELL",
+            Amount = 2,
+            PricePerStock = 100,
+            Date = DateTime.UtcNow,
+            Author = user
+        };
+
+        var repo = new TransactionRepository(context);
+        Func<Task> act = () => repo.AddTransactionAsync(txn);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("Stock with name*does not exist*");
+    }
+
+    [Fact]
+    public async Task AddTransactionAsync_Should_Reset_Id()
+    {
+        using var context = CreateContext();
+
+        var stock = new BaseStock { Id = 3, Name = "AMD" };
+        await context.BaseStocks.AddAsync(stock);
+        await context.SaveChangesAsync();
+
+        var txn = new TransactionLogTransaction
+        {
+            Id = 999,
+            StockName = "AMD",
+            StockSymbol = "AMD",
+            Type = "BUY",
+            Amount = 1,
+            PricePerStock = 80,
+            Date = DateTime.UtcNow,
+            Author = new User { CNP = "123" }
+        };
+
+        var repo = new TransactionRepository(context);
+        await repo.AddTransactionAsync(txn);
+
+        var savedTxn = await context.TransactionLogTransactions.FirstAsync();
+        savedTxn.Id.Should().NotBe(999); // EF will generate a new one
     }
 }
