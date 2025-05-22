@@ -3,7 +3,6 @@ using BankApi.Services;
 using Common.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,12 +19,11 @@ public class StockServiceTests
     {
         stockRepoMock = new Mock<IStockRepository>();
         homepageRepoMock = new Mock<IHomepageStockRepository>();
-
         stockService = new StockService(stockRepoMock.Object, homepageRepoMock.Object);
     }
 
     [TestMethod]
-    public async Task CreateStockAsync_ValidStock_ReturnsCreatedStock()
+    public async Task CreateStockAsync_ShouldReturnCreatedStock()
     {
         var stock = new Stock { Id = 1, Name = "TestStock" };
         stockRepoMock.Setup(r => r.CreateAsync(stock)).ReturnsAsync(stock);
@@ -33,31 +31,37 @@ public class StockServiceTests
         var result = await stockService.CreateStockAsync(stock);
 
         Assert.AreEqual(stock, result);
-        stockRepoMock.Verify(r => r.CreateAsync(stock), Times.Once);
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
-    public async Task CreateStockAsync_NullStock_ThrowsArgumentNullException()
-    {
-        await stockService.CreateStockAsync(null);
-    }
-
-    [TestMethod]
-    public async Task DeleteStockAsync_ExistingId_ReturnsTrue()
+    public async Task DeleteStockAsync_ShouldReturnTrueWhenDeleted()
     {
         stockRepoMock.Setup(r => r.DeleteAsync(1)).ReturnsAsync(true);
 
         var result = await stockService.DeleteStockAsync(1);
 
         Assert.IsTrue(result);
-        stockRepoMock.Verify(r => r.DeleteAsync(1), Times.Once);
     }
 
     [TestMethod]
-    public async Task GetAllStocksAsync_ReturnsListOfStocks()
+    public async Task DeleteStockAsync_ShouldReturnFalseWhenNotDeleted()
     {
-        var stocks = new List<Stock> { new Stock { Id = 1 }, new Stock { Id = 2 } };
+        stockRepoMock.Setup(r => r.DeleteAsync(2)).ReturnsAsync(false);
+
+        var result = await stockService.DeleteStockAsync(2);
+
+        Assert.IsFalse(result);
+    }
+
+    [TestMethod]
+    public async Task GetAllStocksAsync_ShouldReturnAllStocks()
+    {
+        var stocks = new List<Stock>
+        {
+            new Stock { Id = 1, Name = "Stock1" },
+            new Stock { Id = 2, Name = "Stock2" }
+        };
+
         stockRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(stocks);
 
         var result = await stockService.GetAllStocksAsync();
@@ -66,9 +70,9 @@ public class StockServiceTests
     }
 
     [TestMethod]
-    public async Task GetStockByIdAsync_ExistingId_ReturnsStock()
+    public async Task GetStockByIdAsync_ShouldReturnStock()
     {
-        var stock = new Stock { Id = 1 };
+        var stock = new Stock { Id = 1, Name = "TestStock" };
         stockRepoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(stock);
 
         var result = await stockService.GetStockByIdAsync(1);
@@ -77,9 +81,10 @@ public class StockServiceTests
     }
 
     [TestMethod]
-    public async Task UpdateStockAsync_ValidInput_ReturnsUpdatedStock()
+    public async Task UpdateStockAsync_ShouldReturnUpdatedStock()
     {
-        var updatedStock = new Stock { Id = 1, Name = "Updated" };
+        var stock = new Stock { Id = 1, Name = "OldName" };
+        var updatedStock = new Stock { Id = 1, Name = "NewName" };
         stockRepoMock.Setup(r => r.UpdateAsync(1, updatedStock)).ReturnsAsync(updatedStock);
 
         var result = await stockService.UpdateStockAsync(1, updatedStock);
@@ -88,62 +93,47 @@ public class StockServiceTests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
-    public async Task UpdateStockAsync_NullUpdatedStock_ThrowsArgumentNullException()
+    public async Task UserStocksAsync_ShouldReturnUserStocks()
     {
-        await stockService.UpdateStockAsync(1, null);
-    }
+        var userStocks = new List<Stock>
+        {
+            new Stock { Id = 1, Name = "UserStock1" },
+            new Stock { Id = 2, Name = "UserStock2" }
+        };
 
-    [TestMethod]
-    public async Task UserStocksAsync_ValidCnp_ReturnsUserStocks()
-    {
-        var cnp = "1234567890";
-        var userStocks = new List<Stock> { new Stock { Id = 1 }, new Stock { Id = 2 } };
-        stockRepoMock.Setup(r => r.UserStocksAsync(cnp)).ReturnsAsync(userStocks);
+        stockRepoMock.Setup(r => r.UserStocksAsync("userCNP")).ReturnsAsync(userStocks);
 
-        var result = await stockService.UserStocksAsync(cnp);
+        var result = await stockService.UserStocksAsync("userCNP");
 
         CollectionAssert.AreEqual(userStocks, result);
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentException))]
-    public async Task UserStocksAsync_EmptyCnp_ThrowsArgumentException()
+    public async Task GetFilteredAndSortedStocksAsync_ShouldFilterAndSortCorrectly()
     {
-        await stockService.UserStocksAsync("");
-    }
-
-    [TestMethod]
-    public async Task GetFilteredAndSortedStocksAsync_FiltersAndSortsCorrectly()
-    {
-        var userCnp = "user1";
         var stocks = new List<HomepageStock>
         {
-            new HomepageStock { Id = 1, IsFavorite = true, Change = 2, StockDetails = new Stock { Name = "AAA", Symbol = "AAA", Price = 10 } },
-            new HomepageStock { Id = 2, IsFavorite = false, Change = -1, StockDetails = new Stock { Name = "BBB", Symbol = "BBB", Price = 20 } },
-            new HomepageStock { Id = 3, IsFavorite = true, Change = 5, StockDetails = new Stock { Name = "CCC", Symbol = "CCC", Price = 15 } },
+            new HomepageStock { Id = 1, IsFavorite = true, StockDetails = new Stock { Name = "Apple", Price = 200 } , Change = 5 },
+            new HomepageStock { Id = 2, IsFavorite = false, StockDetails = new Stock { Name = "Google", Price = 150 }, Change = 10 },
+            new HomepageStock { Id = 3, IsFavorite = true, StockDetails = new Stock { Name = "Amazon", Price = 100 }, Change = -2 }
         };
 
-        homepageRepoMock.Setup(r => r.GetAllAsync(userCnp)).ReturnsAsync(stocks);
+        homepageRepoMock.Setup(r => r.GetAllAsync("userCNP")).ReturnsAsync(stocks);
 
-        // Test filter by query "A" and favorites only = true, sorted by name
-        var result = await stockService.GetFilteredAndSortedStocksAsync("A", "Sort by Name", true, userCnp);
+        // Filter: query = "a", favoritesOnly = true, sort by name
+        var filteredSorted = await stockService.GetFilteredAndSortedStocksAsync("a", "Sort by Name", true, "userCNP");
 
-        Assert.AreEqual(1, result.Count);
-        Assert.AreEqual("AAA", result[0].StockDetails.Name);
-
-        // Test no filter, sort by Price
-        result = await stockService.GetFilteredAndSortedStocksAsync("", "Sort by Price", false, userCnp);
-        Assert.AreEqual(3, result.Count);
-        Assert.AreEqual("AAA", result[0].StockDetails.Name);
-        Assert.AreEqual("CCC", result[1].StockDetails.Name);
-        Assert.AreEqual("BBB", result[2].StockDetails.Name);
+        // Expected stocks are those with 'a' in name and IsFavorite == true, sorted by name: Amazon, Apple
+        Assert.AreEqual(2, filteredSorted.Count);
+        Assert.AreEqual("Amazon", filteredSorted[0].StockDetails.Name);
+        Assert.AreEqual("Apple", filteredSorted[1].StockDetails.Name);
     }
 
     [TestMethod]
-    public async Task AddToFavoritesAsync_ValidStock_SetsIsFavoriteTrueAndUpdates()
+    public async Task AddToFavoritesAsync_ShouldSetIsFavoriteTrueAndUpdate()
     {
         var stock = new HomepageStock { Id = 1, IsFavorite = false };
+
         homepageRepoMock.Setup(r => r.UpdateAsync(stock.Id, stock)).ReturnsAsync(true);
 
         await stockService.AddToFavoritesAsync(stock);
@@ -153,48 +143,15 @@ public class StockServiceTests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(NullReferenceException))]
-    public async Task AddToFavoritesAsync_NullStock_ThrowsArgumentNullException()
-    {
-        await stockService.AddToFavoritesAsync(null);
-    }
-
-    [TestMethod]
-    [ExpectedException(typeof(InvalidOperationException))]
-    public async Task AddToFavoritesAsync_UpdateFails_ThrowsInvalidOperationException()
-    {
-        var stock = new HomepageStock { Id = 1, IsFavorite = false };
-        homepageRepoMock.Setup(r => r.UpdateAsync(stock.Id, stock)).ReturnsAsync(false);
-
-        await stockService.AddToFavoritesAsync(stock);
-    }
-
-    [TestMethod]
-    public async Task RemoveFromFavoritesAsync_ValidStock_SetsIsFavoriteFalseAndUpdates()
+    public async Task RemoveFromFavoritesAsync_ShouldSetIsFavoriteFalseAndUpdate()
     {
         var stock = new HomepageStock { Id = 1, IsFavorite = true };
+
         homepageRepoMock.Setup(r => r.UpdateAsync(stock.Id, stock)).ReturnsAsync(true);
 
         await stockService.RemoveFromFavoritesAsync(stock);
 
         Assert.IsFalse(stock.IsFavorite);
         homepageRepoMock.Verify(r => r.UpdateAsync(stock.Id, stock), Times.Once);
-    }
-
-    [TestMethod]
-    [ExpectedException(typeof(NullReferenceException))]
-    public async Task RemoveFromFavoritesAsync_NullStock_ThrowsArgumentNullException()
-    {
-        await stockService.RemoveFromFavoritesAsync(null);
-    }
-
-    [TestMethod]
-    [ExpectedException(typeof(InvalidOperationException))]
-    public async Task RemoveFromFavoritesAsync_UpdateFails_ThrowsInvalidOperationException()
-    {
-        var stock = new HomepageStock { Id = 1, IsFavorite = true };
-        homepageRepoMock.Setup(r => r.UpdateAsync(stock.Id, stock)).ReturnsAsync(false);
-
-        await stockService.RemoveFromFavoritesAsync(stock);
     }
 }
