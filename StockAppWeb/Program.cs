@@ -1,6 +1,10 @@
 using Common.Services;
-using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using StockAppWeb.Services;
+using System.Text;
+// Add for logging
+using Microsoft.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,36 +13,81 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
 // Configure authentication
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    var jwtKey = builder.Configuration["Jwt:Key"];
+    var jwtIssuer = builder.Configuration["Jwt:Issuer"];
+    var jwtAudience = builder.Configuration["Jwt:Audience"];
+
+    // Log the loaded JWT configuration values for verification
+    var loggerFactory = LoggerFactory.Create(loggingBuilder => loggingBuilder.AddConsole());
+    var startupLogger = loggerFactory.CreateLogger<Program>();
+
+    if (string.IsNullOrEmpty(jwtKey))
     {
-        options.LoginPath = "/Auth/Login";
-        options.LogoutPath = "/Auth/Logout";
-        options.AccessDeniedPath = "/Auth/AccessDenied";
-        options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
-        options.SlidingExpiration = true;
-    });
+        startupLogger.LogError("JWT Key (Jwt:Key) is not configured in appsettings.json or is empty.");
+    }
+    if (string.IsNullOrEmpty(jwtIssuer))
+    {
+        startupLogger.LogWarning("JWT Issuer (Jwt:Issuer) is not configured in appsettings.json or is empty. Depending on validation settings, this might be an issue.");
+    }
+    if (string.IsNullOrEmpty(jwtAudience))
+    {
+        startupLogger.LogWarning("JWT Audience (Jwt:Audience) is not configured in appsettings.json or is empty. Depending on validation settings, this might be an issue.");
+    }
 
-// Configure cookie options
-builder.Services.ConfigureApplicationCookie(options =>
-{
-    options.LoginPath = "/Auth/Login";
-    options.LogoutPath = "/Auth/Logout";
-    options.AccessDeniedPath = "/Auth/AccessDenied";
-    options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
-    options.SlidingExpiration = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = !string.IsNullOrEmpty(jwtIssuer),
+        ValidateAudience = !string.IsNullOrEmpty(jwtAudience),
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = !string.IsNullOrEmpty(jwtKey),
+        ValidIssuer = jwtIssuer,
+        ValidAudience = jwtAudience,
+        IssuerSigningKey = !string.IsNullOrEmpty(jwtKey)
+            ? new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+            : null,
+        ClockSkew = TimeSpan.FromMinutes(1) // Allow a small clock skew, default is 5 minutes. Adjust if necessary.
+    };
+
+    // Configure JWT Bearer to check for token in cookies
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<JwtBearerEvents>>();
+            if (context.Request.Cookies.TryGetValue("jwt_token", out var tokenFromCookie))
+            {
+                logger.LogInformation("JWT token found in cookie 'jwt_token'. Token: {Token}", tokenFromCookie);
+                context.Token = tokenFromCookie;
+            }
+            else
+            {
+                logger.LogWarning("JWT token not found in cookie 'jwt_token'.");
+            }
+            return Task.CompletedTask;
+        },
+        OnAuthenticationFailed = context =>
+        {
+            var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<JwtBearerEvents>>();
+            logger.LogError(context.Exception, "JWT Authentication FAILED. Exception: {ExceptionMessage}. Token (if present): {Token}", context.Exception.Message, context.Request.Cookies["jwt_token"]);
+            return Task.CompletedTask;
+        },
+        OnTokenValidated = context =>
+        {
+            var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<JwtBearerEvents>>();
+            logger.LogInformation("JWT token successfully VALIDATED. User: {User}, Claims: {Claims}", context.Principal?.Identity?.Name, context.Principal?.Claims.Select(c => $"{c.Type}={c.Value}"));
+            return Task.CompletedTask;
+        }
+    };
 });
 
-// Configure session services
-builder.Services.AddDistributedMemoryCache(); // Required for session state
-builder.Services.AddSession(options =>
-{
-    options.IdleTimeout = TimeSpan.FromMinutes(30); // Set session timeout
-    options.Cookie.HttpOnly = true;
-    options.Cookie.IsEssential = true;
-});
-
-// Register HttpContextAccessor for session access
+// Register HttpContextAccessor for session access - still needed for WebAuthenticationService to access User
 builder.Services.AddHttpContextAccessor();
 
 // Configure HttpClient for BankApi
@@ -56,22 +105,24 @@ builder.Services.AddHttpClient("BankApi", client =>
 // Register services
 builder.Services.AddScoped<IAuthenticationService, WebAuthenticationService>();
 builder.Services.AddScoped<IUserService, UserProxyService>();
+builder.Services.AddScoped<ILoanService, LoanProxyService>();
+builder.Services.AddScoped<ILoanRequestService, LoanRequestProxyService>();
+builder.Services.AddTransient<AuthenticationDelegatingHandler>();
 
 builder.Services.AddHttpClient<IUserService, UserProxyService>(context =>
 {
     context.BaseAddress = new Uri(apiBaseUrl);
-});
+}).AddHttpMessageHandler<AuthenticationDelegatingHandler>();
 
 builder.Services.AddHttpClient<ILoanService, LoanProxyService>(client =>
 {
     client.BaseAddress = new Uri(apiBaseUrl);
-});
+}).AddHttpMessageHandler<AuthenticationDelegatingHandler>();
 
 builder.Services.AddHttpClient<ILoanRequestService, LoanRequestProxyService>(client =>
 {
     client.BaseAddress = new Uri(apiBaseUrl);
-});
-
+}).AddHttpMessageHandler<AuthenticationDelegatingHandler>();
 
 var app = builder.Build();
 
@@ -93,9 +144,6 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
-// Add session support
-app.UseSession();
 
 app.MapControllerRoute(
     name: "default",

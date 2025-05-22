@@ -1,13 +1,12 @@
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Common.Models;
 using Common.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace StockAppWeb.Views.LoanRequest
 {
     using Common.Models;
 
-    public class IndexModel : PageModel
+    public partial class IndexModel : PageModel
     {
         private readonly ILoanRequestService _loanRequestService;
 

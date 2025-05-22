@@ -1,7 +1,6 @@
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Common.Models;
 using Common.Services;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace StockAppWeb.Views.Loans
 {
@@ -26,20 +25,6 @@ namespace StockAppWeb.Views.Loans
             catch (Exception ex)
             {
                 ErrorMessage = $"Error loading loans: {ex.Message}";
-            }
-        }
-
-        public async Task<IActionResult> OnPostIncrementPaymentAsync(int loanId, decimal penalty)
-        {
-            try
-            {
-                await _loanService.IncrementMonthlyPaymentsCompletedAsync(loanId, penalty);
-                return RedirectToPage();
-            }
-            catch (Exception ex)
-            {
-                ErrorMessage = $"Failed to update loan: {ex.Message}";
-                return Page();
             }
         }
     }

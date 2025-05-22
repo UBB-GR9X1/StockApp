@@ -1,5 +1,4 @@
-﻿@page
-@model StockAppWeb.Views.Loans.IndexModel
+﻿@model StockAppWeb.Views.Loans.IndexModel
 @{
     ViewData["Title"] = "Loans";
 }
@@ -9,6 +8,10 @@
 @if (!string.IsNullOrEmpty(Model.ErrorMessage))
 {
     <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+else
+{
+<a class="btn btn-secondary" asp-area="" asp-controller="Loans" asp-action="Create">Request a New Loan</a>
 }
 
 @if (Model.Loans.Count == 0)
@@ -22,8 +25,13 @@ else
             <tr>
                 <th>Amount</th>
                 <th>Interest</th>
-                <th>Repayment</th>
+                <th>Repayment Date</th>
                 <th>Status</th>
+                <th>Application Date</th>
+                <th>Number of Months</th>
+                <th>Monthly Payment</th>
+                <th>Payments Completed</th>
+                <th>Repaid Amount</th>
                 <th>Action</th>
             </tr>
         </thead>
@@ -35,6 +43,11 @@ else
                     <td>@loan.InterestRate %</td>
                     <td>@loan.RepaymentDate.ToShortDateString()</td>
                     <td>@loan.Status</td>
+                    <td>@loan.ApplicationDate.ToShortDateString()</td>
+                    <td>@loan.NumberOfMonths</td>
+                    <td>@loan.MonthlyPaymentAmount</td>
+                    <td>@loan.MonthlyPaymentsCompleted</td>
+                    <td>@loan.RepaidAmount</td>
                     <td>
                         <form method="post">
                             <input type="hidden" name="loanId" value="@loan.Id" />

@@ -1,7 +1,7 @@
 using Common.Models;
 using Common.Services;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
@@ -14,19 +14,21 @@ namespace StockAppWeb.Controllers
     {
         private readonly IUserService _userService;
         private readonly IAppAuthService _authenticationService;
+        private readonly IConfiguration _configuration;
 
         public AuthController(
             IUserService userService,
-            IAppAuthService authenticationService)
+            IAppAuthService authenticationService,
+            IConfiguration configuration)
         {
             _userService = userService ?? throw new ArgumentNullException(nameof(userService));
             _authenticationService = authenticationService ?? throw new ArgumentNullException(nameof(authenticationService));
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
         [HttpGet]
         public IActionResult Login(string? returnUrl = null)
         {
-            // If user is already logged in, redirect to home
             if (User.Identity?.IsAuthenticated == true)
             {
                 return RedirectToAction("Index", "Home");
@@ -45,34 +47,16 @@ namespace StockAppWeb.Controllers
             {
                 try
                 {
-                    // Use the LoginAsync method from IAuthenticationService
                     var session = await _authenticationService.LoginAsync(model.Username, model.Password);
 
-                    // Create claims for cookie authentication
-                    var claims = new List<Claim>
+                    // Store the JWT in an HttpOnly cookie
+                    Response.Cookies.Append("jwt_token", session.Token, new CookieOptions
                     {
-                        new Claim(ClaimTypes.Name, session.UserName),
-                        new Claim(ClaimTypes.NameIdentifier, session.UserId)
-                    };
-
-                    // Add role claims
-                    foreach (var role in session.Roles)
-                    {
-                        claims.Add(new Claim(ClaimTypes.Role, role));
-                    }
-
-                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                    var authProperties = new AuthenticationProperties
-                    {
-                        IsPersistent = model.RememberMe,
-                        ExpiresUtc = session.ExpiryTimestamp
-                    };
-
-                    // Sign in with cookie authentication
-                    await HttpContext.SignInAsync(
-                        CookieAuthenticationDefaults.AuthenticationScheme,
-                        new ClaimsPrincipal(claimsIdentity),
-                        authProperties);
+                        HttpOnly = true,
+                        Secure = true,
+                        SameSite = SameSiteMode.Strict,
+                        Expires = session.ExpiryTimestamp
+                    });
 
                     // Redirect to return URL or home page
                     if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
@@ -83,13 +67,10 @@ namespace StockAppWeb.Controllers
                 }
                 catch (Exception ex)
                 {
-                    // Login failed
                     ModelState.AddModelError(string.Empty, $"Invalid login attempt: {ex.Message}");
                     return View(model);
                 }
             }
-
-            // If we got this far, something failed, redisplay form
             return View(model);
         }
 
@@ -98,21 +79,24 @@ namespace StockAppWeb.Controllers
         [Authorize]
         public async Task<IActionResult> Logout()
         {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            // Clear the JWT cookie
+            Response.Cookies.Delete("jwt_token", new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+            });
             await _authenticationService.LogoutAsync();
-            HttpContext.Session.Clear(); // Clear session data
             return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
         [HttpGet]
         public IActionResult Register()
         {
-            // If user is already logged in, redirect to home
             if (User.Identity?.IsAuthenticated == true)
             {
                 return RedirectToAction("Index", "Home");
             }
-
             return View();
         }
 
@@ -122,7 +106,6 @@ namespace StockAppWeb.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Create new user
                 var user = new User
                 {
                     UserName = model.Username,
@@ -139,23 +122,7 @@ namespace StockAppWeb.Controllers
                 {
                     await _userService.CreateUser(user);
 
-                    // Create claims for cookie authentication after registration
-                    var claims = new List<Claim>
-                    {
-                        new Claim(ClaimTypes.Name, user.UserName),
-                        new Claim(ClaimTypes.NameIdentifier, user.CNP),
-                        new Claim("cnp", user.CNP),
-                        new Claim(ClaimTypes.Role, "User") // Default role
-                    };
-
-                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                    var authProperties = new AuthenticationProperties
-                    {
-                        IsPersistent = false,
-                        ExpiresUtc = DateTimeOffset.UtcNow.AddHours(24)
-                    };
-
-                    // Redirect to login page Auth/Login
+                    // After successful registration, redirect to login page.
                     return RedirectToAction("Login");
                 }
                 catch (Exception ex)
@@ -163,8 +130,6 @@ namespace StockAppWeb.Controllers
                     ModelState.AddModelError(string.Empty, $"Registration failed: {ex.Message}");
                 }
             }
-
-            // If we got this far, something failed, redisplay form
             return View(model);
         }
 
@@ -181,7 +146,7 @@ namespace StockAppWeb.Controllers
             var user = await _userService.GetCurrentUserAsync();
             if (user == null)
             {
-                return NotFound();
+                return Challenge(JwtBearerDefaults.AuthenticationScheme);
             }
 
             return View(user);
@@ -243,6 +208,6 @@ namespace StockAppWeb.Controllers
         [Required]
         [DataType(DataType.Date)]
         [Display(Name = "Date of Birth")]
-        public DateTime Birthday { get; set; } = DateTime.Today.AddYears(-18); // Default to 18 years ago
+        public DateTime Birthday { get; set; } = DateTime.Today.AddYears(-18);
     }
 }
