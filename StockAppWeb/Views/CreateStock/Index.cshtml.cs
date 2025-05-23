@@ -3,7 +3,6 @@ using Common.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
-using System.Security.Claims;
 
 namespace StockAppWeb.Views.CreateStock
 {
@@ -56,7 +55,6 @@ namespace StockAppWeb.Views.CreateStock
                     Symbol = Input.Symbol,
                     Price = Input.InitialPrice,
                     Quantity = Input.Quantity,
-                    AuthorCNP = User.FindFirstValue("CNP") ?? throw new InvalidOperationException("User CNP not found")
                 };
 
                 await _stockService.CreateStockAsync(stock);
@@ -70,4 +68,4 @@ namespace StockAppWeb.Views.CreateStock
             }
         }
     }
-} 
+}

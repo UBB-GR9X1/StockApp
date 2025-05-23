@@ -45,7 +45,7 @@ namespace BankApi.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<Stock>> CreateStock([FromBody] Stock stock)
+        public async Task<ActionResult<Stock>> CreateStock([FromBody] PartialStock partialStock)
         {
             try
             {
@@ -60,7 +60,15 @@ namespace BankApi.Controllers
                 {
                     return Forbid();
                 }
-                stock.AuthorCNP = user.CNP; // Set the AuthorCNP from the authenticated user
+
+                Stock stock = new()
+                {
+                    Price = partialStock.Price,
+                    Quantity = partialStock.Quantity,
+                    AuthorCNP = userId,
+                    Name = partialStock.Name,
+                    Symbol = partialStock.Symbol,
+                };
 
                 var createdStock = await _stockService.CreateStockAsync(stock);
                 return CreatedAtAction(nameof(GetStockById), new { id = createdStock.Id }, createdStock);
@@ -209,5 +217,13 @@ namespace BankApi.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+    }
+
+    public class PartialStock
+    {
+        required public string Name { get; set; }
+        required public string Symbol { get; set; }
+        required public int Price { get; set; }
+        required public int Quantity { get; set; }
     }
 }
