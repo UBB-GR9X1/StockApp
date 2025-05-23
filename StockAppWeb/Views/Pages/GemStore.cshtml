@@ -36,9 +36,17 @@
                             <option value="">Select Account</option>
                             @foreach (var acc in vm.UserBankAccounts)
                             {
-                                <option value="@acc" @(acc == vm.SelectedBankAccount ? "selected" : "")>@acc</option>
+                                if (acc == vm.SelectedBankAccount)
+                                {
+                                    <option value="@acc" selected>@acc</option>
+                                }
+                                else
+                                {
+                                    <option value="@acc">@acc</option>
+                                }
                             }
                         </select>
+
                         <button type="submit" class="btn" style="background:#5f815f; color:white; width:75px;">BUY</button>
                     </form>
                 </div>
@@ -63,9 +71,17 @@
                     <option value="">Select Account</option>
                     @foreach (var acc in vm.UserBankAccounts)
                     {
-                        <option value="@acc" @(acc == vm.SelectedBankAccount ? "selected" : "")>@acc</option>
+                        if (acc == vm.SelectedBankAccount)
+                        {
+                            <option value="@acc" selected>@acc</option>
+                        }
+                        else
+                        {
+                            <option value="@acc">@acc</option>
+                        }
                     }
                 </select>
+
                 <button type="submit" class="btn" style="background:#1a4919; color:white; width:150px; margin-top:10px;">SELL</button>
             </form>
             @if (!string.IsNullOrEmpty(vm.ErrorMessage))
