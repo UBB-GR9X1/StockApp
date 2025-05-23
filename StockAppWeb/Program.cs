@@ -1,10 +1,10 @@
 using Common.Services;
+using Common.Services.Impl;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using StockAppWeb.Services;
 using System.Text;
 // Add for logging
-using Microsoft.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -110,6 +110,9 @@ builder.Services.AddScoped<ILoanRequestService, LoanRequestProxyService>();
 builder.Services.AddScoped<IStockService, StockProxyService>();
 builder.Services.AddScoped<ITransactionService, TransactionProxyService>();
 builder.Services.AddScoped<ITransactionLogService, TransactionLogProxyService>();
+builder.Services.AddScoped<IChatReportService, ChatReportProxyService>();
+builder.Services.AddScoped<IProfanityChecker, ProfanityChecker>();
+builder.Services.AddScoped<IMessagesService, MessagesProxyService>();
 builder.Services.AddTransient<AuthenticationDelegatingHandler>();
 
 builder.Services.AddHttpClient<IUserService, UserProxyService>(context =>
@@ -138,6 +141,16 @@ builder.Services.AddHttpClient<ITransactionService, TransactionProxyService>(cli
 }).AddHttpMessageHandler<AuthenticationDelegatingHandler>();
 
 builder.Services.AddHttpClient<ITransactionLogService, TransactionLogProxyService>(client =>
+{
+    client.BaseAddress = new Uri(apiBaseUrl);
+}).AddHttpMessageHandler<AuthenticationDelegatingHandler>();
+
+builder.Services.AddHttpClient<IChatReportService, ChatReportProxyService>(client =>
+{
+    client.BaseAddress = new Uri(apiBaseUrl);
+}).AddHttpMessageHandler<AuthenticationDelegatingHandler>();
+
+builder.Services.AddHttpClient<IMessagesService, MessagesProxyService>(client =>
 {
     client.BaseAddress = new Uri(apiBaseUrl);
 }).AddHttpMessageHandler<AuthenticationDelegatingHandler>();

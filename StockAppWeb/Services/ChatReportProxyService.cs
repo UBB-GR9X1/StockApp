@@ -1,12 +1,7 @@
 using Common.Models;
 using Common.Services;
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Threading.Tasks;
 
-namespace StockApp.Services
+namespace StockAppWeb.Services
 {
     public class ChatReportProxyService(HttpClient httpClient) : IProxyService, IChatReportService
     {
