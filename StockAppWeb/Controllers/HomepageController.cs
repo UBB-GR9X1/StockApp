@@ -1,90 +1,55 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Common.Models;
+﻿using Common.Models;
+using Common.Services;
+using Microsoft.AspNetCore.Mvc;
 using StockAppWeb.Models;
-using StockAppWeb.Services; // Adjust if your service is elsewhere
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace StockAppWeb.Controllers
 {
     public class HomepageController : Controller
     {
-        private readonly StockDbContext _context;
-        private readonly StockProxyService _stockService;
+        private readonly IStockService _stockService;
+        private readonly IAuthenticationService _authenticationService;
 
-        public HomepageController(StockDbContext context, StockProxyService stockService)
+        public HomepageController(IStockService stockService, IAuthenticationService authenticationService)
         {
-            _context = context;
             _stockService = stockService;
+            _authenticationService = authenticationService;
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index(string? searchQuery, string? selectedSortOption)
+        public async Task<IActionResult> Index(string? searchQuery = "", string? selectedSortOption = "")
         {
-            // Step 1: Fetch all stocks from proxy service
-            var allStocks = await _stockService.GetAllStocksAsync(); // returns List<Stock>
-
-            // Step 2: Filter by search query
-            if (!string.IsNullOrWhiteSpace(searchQuery))
+            var viewModel = new HomepageViewModel(_stockService, _authenticationService)
             {
-                allStocks = allStocks.Where(s =>
-                    s.Symbol.Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ||
-                    s.Name.Contains(searchQuery, StringComparison.OrdinalIgnoreCase)).ToList();
-            }
-
-            // Step 3: Sort by option
-            allStocks = selectedSortOption switch
-            {
-                "Name" => allStocks.OrderBy(s => s.Name).ToList(),
-                "Price" => allStocks.OrderByDescending(s => s.Price).ToList(),
-                "Change" => allStocks.OrderByDescending(s => s.Change).ToList(),
-                _ => allStocks
+                SearchQuery = searchQuery ?? string.Empty,
+                SelectedSortOption = selectedSortOption ?? string.Empty
             };
 
-            // Step 4: Load favorites from DB
-            var favoriteSymbols = await _context.Favorites
-                .Select(f => f.StockSymbol)
-                .ToListAsync();
-
-            // Step 5: Convert to HomepageStock
-            var homepageStocks = allStocks.Select(s => new HomepageStock
-            {
-                StockDetails = s,
-                Change = s.Change,
-                IsFavorite = favoriteSymbols.Contains(s.Symbol)
-            }).ToList();
-
-            // Step 6: Build view model
-            var viewModel = new HomepageViewModel
-            {
-                SearchQuery = searchQuery,
-                SelectedSortOption = selectedSortOption,
-                FilteredStocks = homepageStocks,
-                FilteredFavoriteStocks = homepageStocks.Where(s => s.IsFavorite).ToList() 
-            };
-
-            return View("Homepage", viewModel);
+            await viewModel.LoadStocksAsync();
+            return View(viewModel);
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleFavorite(string symbol)
         {
-            var favorite = await _context.Favorites
-                .FirstOrDefaultAsync(f => f.StockSymbol == symbol);
+            if (string.IsNullOrWhiteSpace(symbol))
+                return RedirectToAction("Index");
 
-            if (favorite != null)
-            {
-                _context.Favorites.Remove(favorite);
-            }
+            var allStocks = await _stockService.GetFilteredAndSortedStocksAsync("", "", false);
+            var favoriteStocks = await _stockService.GetFilteredAndSortedStocksAsync("", "", true);
+
+            var stock = allStocks.FirstOrDefault(s => s.StockDetails.Symbol == symbol)
+                     ?? favoriteStocks.FirstOrDefault(s => s.StockDetails.Symbol == symbol);
+
+            if (stock == null)
+                return RedirectToAction("Index");
+
+            if (stock.IsFavorite)
+                await _stockService.RemoveFromFavoritesAsync(stock);
             else
-            {
-                _context.Favorites.Add(new Favorite { StockSymbol = symbol });
-            }
+                await _stockService.AddToFavoritesAsync(stock);
 
-            await _context.SaveChangesAsync();
             return RedirectToAction("Index");
         }
     }

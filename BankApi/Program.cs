@@ -207,7 +207,7 @@ app.Use(async (context, next) =>
 
     // Extract the role values
     IEnumerable<string> roles = roleClaims.Select(c => c.Value);
-
+    Console.WriteLine($"Path is: {context.GetEndpoint}");
     // Now you can iterate through the roles
     foreach (var role in roles)
     {
