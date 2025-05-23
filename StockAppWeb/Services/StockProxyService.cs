@@ -68,7 +68,7 @@ namespace StockAppWeb.Services
             var response = await _httpClient.PostAsJsonAsync("api/Stock/favorites/remove", stock);
             response.EnsureSuccessStatusCode();
         }
-        
+
         public async Task<List<HomepageStock>> GetFilteredAndSortedStocksAsync(string filterColumn, string filterValue, bool sortAscending, string? userCNP = null)
         {
             string query = $"api/Stock/filter?filterColumn={Uri.EscapeDataString(filterColumn)}&filterValue={Uri.EscapeDataString(filterValue)}&sortAscending={sortAscending}";
@@ -82,4 +82,4 @@ namespace StockAppWeb.Services
                 ?? throw new InvalidOperationException("Failed to deserialize filtered stocks response.");
         }
     }
-} 
+}
