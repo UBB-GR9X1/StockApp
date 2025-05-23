@@ -4,6 +4,14 @@
     ViewData["Title"] = "Homepage";
 }
 
+@if(Model.IsGuestUser)
+{
+    <div class="alert alert-warning mt-4" role="alert">
+          <strong>Welcome, Guest!</strong> Please log in to access your favorite stocks.
+     </div>
+}
+else
+{
 <div class="container mt-4">
     <!-- Search and Sort -->
     <form method="get" asp-action="Index">
@@ -105,3 +113,4 @@
         </tbody>
     </table>
 </div>
+        }
