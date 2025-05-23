@@ -1,4 +1,3 @@
-using Common.Models;
 using Common.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -33,10 +32,10 @@ namespace StockAppWeb.Controllers
                 await model.OnPostAsync();
                 if (string.IsNullOrEmpty(model.ErrorMessage))
                 {
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Index", "Homepage");
                 }
             }
             return View(model);
         }
     }
-} 
+}

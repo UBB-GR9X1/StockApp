@@ -1,11 +1,9 @@
 using Common.Models;
 using Common.Services;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
-using System.Security.Claims;
 using IAppAuthService = Common.Services.IAuthenticationService;
 
 namespace StockAppWeb.Controllers
@@ -31,7 +29,7 @@ namespace StockAppWeb.Controllers
         {
             if (User.Identity?.IsAuthenticated == true)
             {
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Index", "Homepage");
             }
 
             ViewData["ReturnUrl"] = returnUrl;
@@ -58,12 +56,12 @@ namespace StockAppWeb.Controllers
                         Expires = session.ExpiryTimestamp
                     });
 
-                    // Redirect to return URL or home page
+                    // Redirect to return URL or Homepage page
                     if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                     {
                         return Redirect(returnUrl);
                     }
-                    return RedirectToAction(nameof(HomeController.Index), "Home");
+                    return RedirectToAction(nameof(HomeController.Index), "Homepage");
                 }
                 catch (Exception ex)
                 {
@@ -87,7 +85,7 @@ namespace StockAppWeb.Controllers
                 SameSite = SameSiteMode.Strict,
             });
             await _authenticationService.LogoutAsync();
-            return RedirectToAction(nameof(HomeController.Index), "Home");
+            return RedirectToAction(nameof(HomeController.Index), "Homepage");
         }
 
         [HttpGet]
@@ -95,7 +93,7 @@ namespace StockAppWeb.Controllers
         {
             if (User.Identity?.IsAuthenticated == true)
             {
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Index", "Homepage");
             }
             return View();
         }
