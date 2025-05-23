@@ -25,8 +25,6 @@ builder.Services.AddDbContext<ApiDbContext>(options =>
         sqlOptions.EnableRetryOnFailure();
     }));
 
-builder.Services.AddAuthenticationCore();
-
 // Add ASP.NET Core Identity
 builder.Services.AddIdentity<User, IdentityRole<int>>(options =>
     {
@@ -66,6 +64,19 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = !string.IsNullOrEmpty(jwtKey)
             ? new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
             : null
+    };
+
+    // Add this block to read JWT from cookie
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            if (context.Request.Cookies.TryGetValue("jwt_token", out var token))
+            {
+                context.Token = token;
+            }
+            return Task.CompletedTask;
+        }
     };
 });
 
@@ -207,7 +218,6 @@ app.Use(async (context, next) =>
 
     // Extract the role values
     IEnumerable<string> roles = roleClaims.Select(c => c.Value);
-
     // Now you can iterate through the roles
     foreach (var role in roles)
     {

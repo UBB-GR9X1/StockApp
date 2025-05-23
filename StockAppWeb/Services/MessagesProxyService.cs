@@ -1,38 +1,40 @@
 using Common.Models;
 using Common.Services;
-using System.Net.Http.Json;
 
 namespace StockAppWeb.Services
 {
-    public class MessagesProxyService : IMessagesService
+    public class MessagesProxyService(HttpClient httpClient) : IProxyService, IMessagesService
     {
-        private readonly HttpClient _httpClient;
+        private readonly HttpClient _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
 
-        public MessagesProxyService(HttpClient httpClient)
+        public async Task GiveMessageToUserAsync(string userCNP)
         {
-            _httpClient = httpClient;
+            if (string.IsNullOrEmpty(userCNP))
+            {
+                throw new ArgumentException("User CNP cannot be empty", nameof(userCNP));
+            }
+
+            var response = await _httpClient.PostAsync($"api/Messages/user/{userCNP}/give", null);
+            response.EnsureSuccessStatusCode();
         }
 
         public async Task<List<Message>> GetMessagesForUserAsync(string userCnp)
         {
-            if (string.IsNullOrEmpty(userCnp))
+            // If userCnp is provided, get messages for the specified user (admin only)
+            if (!string.IsNullOrEmpty(userCnp))
             {
-                // Current user
-                var response = await _httpClient.GetFromJsonAsync<List<Message>>("api/messages/user");
-                return response ?? new List<Message>();
+                return await _httpClient.GetFromJsonAsync<List<Message>>($"api/Messages/user/{userCnp}") ??
+                    throw new InvalidOperationException("Failed to deserialize messages for user response.");
             }
-            else
-            {
-                // Admin: get messages for specific user
-                var response = await _httpClient.GetFromJsonAsync<List<Message>>($"api/messages/user/{userCnp}");
-                return response ?? new List<Message>();
-            }
-        }
 
+            // If no userCnp is provided, get messages for the current user
+            return await _httpClient.GetFromJsonAsync<List<Message>>("api/Messages/user") ??
+                throw new InvalidOperationException("Failed to deserialize messages response.");
+        }
         public async Task GiveMessageToUserAsync(string userCnp, string type, string messageText)
         {
             var request = new { Type = type, MessageText = messageText };
             await _httpClient.PostAsJsonAsync($"api/messages/user/{userCnp}/give", request);
         }
     }
-} 
+}

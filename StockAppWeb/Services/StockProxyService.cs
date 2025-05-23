@@ -1,18 +1,14 @@
-using Common.Models;
+﻿using Common.Models;
 using Common.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Threading.Tasks;
+using System.Text.Json;
 using System.Web;
 
-namespace StockApp.Services
+namespace StockAppWeb.Services
 {
     public class StockProxyService(HttpClient httpClient) : IProxyService, IStockService
     {
-        private readonly HttpClient _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        private readonly HttpClient _httpClient = httpClient;
+        private readonly JsonSerializerOptions _options = new() { PropertyNameCaseInsensitive = true };
 
         public async Task<Stock> CreateStockAsync(Stock stock)
         {
@@ -36,8 +32,9 @@ namespace StockApp.Services
 
         public async Task<Stock?> GetStockByIdAsync(int id)
         {
-            return await _httpClient.GetFromJsonAsync<Stock?>($"api/Stock/{id}");
+            return await _httpClient.GetFromJsonAsync<Stock?>($"api/Stock/{id}", _options);
         }
+
         public async Task<Stock?> GetStockByNameAsync(string name)
         {
             var allStocks = await this.GetAllStocksAsync();
@@ -48,14 +45,13 @@ namespace StockApp.Services
         {
             var response = await _httpClient.PutAsJsonAsync($"api/Stock/{id}", updatedStock);
             response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<Stock?>();
+            return await response.Content.ReadFromJsonAsync<Stock?>(_options);
         }
 
-        public async Task<List<Stock>> UserStocksAsync(string? userCNP)
+        public async Task<List<Stock>> UserStocksAsync(string? userCNP = null)
         {
-            return userCNP == null
-                ? await _httpClient.GetFromJsonAsync<List<Stock>>($"api/Stock/user") ?? throw new InvalidOperationException("Failed to deserialize user stocks response.")
-                : await _httpClient.GetFromJsonAsync<List<Stock>>($"api/Stock/user/{userCNP}") ?? throw new InvalidOperationException("Failed to deserialize user stocks response.");
+            string endpoint = string.IsNullOrEmpty(userCNP) ? "api/Stock/user" : $"api/Stock/user/{userCNP}";
+            return await _httpClient.GetFromJsonAsync<List<Stock>>(endpoint, _options) ?? [];
         }
 
         public async Task AddToFavoritesAsync(HomepageStock stock)
@@ -83,3 +79,4 @@ namespace StockApp.Services
         }
     }
 }
+
