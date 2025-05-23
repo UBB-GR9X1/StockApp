@@ -3,6 +3,8 @@ using Common.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Security.Claims;
 
 namespace StockAppWeb.Pages.Analysis
 {
@@ -12,22 +14,31 @@ namespace StockAppWeb.Pages.Analysis
         private readonly IUserService _userService;
         private readonly IActivityService _activityService;
         private readonly IHistoryService _historyService;
+        private readonly IConfiguration _configuration;
 
         public IndexModel(
             IUserService userService,
             IActivityService activityService,
-            IHistoryService historyService)
+            IHistoryService historyService,
+            IConfiguration configuration
+            )
         {
             _userService = userService;
             _activityService = activityService;
             _historyService = historyService;
+            _configuration = configuration;
         }
 
-        public User CurrentUser { get; set; } = null!;
-        public List<ActivityLog> Activities { get; set; } = new();
-        public string? ErrorMessage { get; set; }
+        public string ApiBase => _configuration["ApiBase"] ?? string.Empty;
 
-        public async Task<IActionResult> OnGetAsync()
+        public User CurrentUser { get; set; } = null!;
+        public List<ActivityLog> Activities { get; set; } = [];
+        public string? ErrorMessage { get; set; }
+        public bool IsAdmin { get; set; }
+        public List<SelectListItem> UserList { get; set; } = [];
+        public string SelectedUserCnp { get; set; } = string.Empty;
+
+        public async Task<IActionResult> OnGetAsync(string? userCnp = null)
         {
             try
             {
@@ -38,7 +49,33 @@ namespace StockAppWeb.Pages.Analysis
                     return Page();
                 }
 
-                Activities = await _activityService.GetActivityForUser(CurrentUser.CNP);
+                // Check if current user is admin
+                IsAdmin = User.IsInRole("Admin");
+
+                // If user is admin, load all users for dropdown
+                if (IsAdmin)
+                {
+                    var users = await _userService.GetUsers();
+                    UserList = users.Select(u => new SelectListItem
+                    {
+                        Value = u.CNP,
+                        Text = $"{u.UserName} - {u.FirstName} {u.LastName}",
+                        Selected = u.CNP == (userCnp ?? CurrentUser.CNP)
+                    }).ToList();
+
+                    // Set the selected user CNP
+                    SelectedUserCnp = userCnp ?? CurrentUser.CNP;
+
+                    // Get activities for selected user
+                    Activities = await _activityService.GetActivityForUser(SelectedUserCnp);
+                }
+                else
+                {
+                    // Regular user - only get their own activities
+                    SelectedUserCnp = CurrentUser.CNP;
+                    Activities = await _activityService.GetActivityForUser(CurrentUser.CNP);
+                }
+
                 return Page();
             }
             catch (Exception ex)
@@ -47,5 +84,12 @@ namespace StockAppWeb.Pages.Analysis
                 return Page();
             }
         }
+
+        [ValidateAntiForgeryToken]
+        public IActionResult OnPostChangeUser(string selectedUserCnp)
+        {
+            // Redirect to the same page with the selected user CNP
+            return RedirectToPage(new { userCnp = selectedUserCnp });
+        }
     }
-} 
+}

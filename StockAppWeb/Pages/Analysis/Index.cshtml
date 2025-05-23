@@ -28,8 +28,35 @@
             </div>
         </div>
 
-        <!-- Time Period Buttons -->
+        <!-- Time Period Buttons and Admin User Selector -->
         <div class="col-md-6">
+            @if (Model.IsAdmin)
+            {
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Select User</h5>
+                        <form method="post">
+                            <div class="d-flex gap-2">
+                                <select name="selectedUserCnp" class="form-select" id="userSelect">
+                                    @foreach (var user in Model.UserList)
+                                    {
+                                        if (user.Selected)
+                                        {
+                                            <option value="@user.Value" selected>@user.Text</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@user.Value">@user.Text</option>
+                                        }
+                                    }
+                                </select>
+                                <button type="submit" asp-page-handler="ChangeUser" class="btn btn-primary">Go</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            }
+
             <div class="card mb-4">
                 <div class="card-body">
                     <h5 class="card-title">Time Period</h5>
@@ -62,6 +89,7 @@
                             <th>Activity Name</th>
                             <th>Details</th>
                             <th>Amount</th>
+                            <th>Date</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -73,6 +101,7 @@
                                 <td class="@(activity.LastModifiedAmount >= 0 ? "text-success" : "text-danger")">
                                     @activity.LastModifiedAmount
                                 </td>
+                                <td>@activity.CreatedAt.ToShortDateString()</td>
                             </tr>
                         }
                     </tbody>
@@ -86,9 +115,21 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         let creditScoreChart;
+        const selectedUserCnp = "@Model.SelectedUserCnp";
 
         function loadHistory(period) {
-            fetch(`/api/history/user/${period}`)
+            let url = '';
+            
+            // If admin is viewing another user, use that user's CNP in the API call
+            if (selectedUserCnp !== "@Model.CurrentUser.CNP") {
+                url = `@(Model.ApiBase)/api/history/user/${selectedUserCnp}/${period}`;
+            } else {
+                url = `@(Model.ApiBase)/api/history/user/${period}`;
+            }
+            
+            fetch(url, {
+                credentials: 'include',
+            })  
                 .then(response => response.json())
                 .then(data => {
                     updateChart(data);
@@ -144,4 +185,4 @@
             loadHistory('monthly');
         });
     </script>
-} 
+}

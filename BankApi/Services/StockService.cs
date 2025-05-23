@@ -45,7 +45,7 @@
             return await stockRepository.GetByIdAsync(id);
         }
 
-        public async Task<Stock?> GetStockByNameAsync(string name)
+        public async Task<Stock> GetStockByNameAsync(string name)
         {
             var allStocks = await this.GetAllStocksAsync();
             return allStocks.FirstOrDefault(s => s.Name.Equals(name, StringComparison.OrdinalIgnoreCase));

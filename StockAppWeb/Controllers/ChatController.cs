@@ -50,7 +50,7 @@ namespace StockAppWeb.Controllers
                     // Send a warning message if message content is provided
                     if (sendMessage)
                     {
-                        await _messagesService.GiveMessageToUserAsync(report.ReportedUserCnp);
+                        await _messagesService.GiveMessageToUserAsync(report.ReportedUserCnp, "Warning", processActionDTO.MessageContent);
                     }
 
                     // Don't punish the user but close the report
@@ -62,7 +62,7 @@ namespace StockAppWeb.Controllers
                     // First send a message about the ban if message content is provided
                     if (sendMessage)
                     {
-                        await _messagesService.GiveMessageToUserAsync(report.ReportedUserCnp);
+                        await _messagesService.GiveMessageToUserAsync(report.ReportedUserCnp, "Ban", processActionDTO.MessageContent);
                     }
 
                     // Apply punishment
@@ -118,7 +118,7 @@ namespace StockAppWeb.Controllers
 
             try
             {
-                await _messagesService.GiveMessageToUserAsync(messageDTO.UserCNP);
+                await _messagesService.GiveMessageToUserAsync(messageDTO.UserCNP, "System", messageDTO.MessageContent);
                 TempData["SuccessMessage"] = "Message sent successfully";
                 return RedirectToAction("Reports");
             }

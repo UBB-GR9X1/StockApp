@@ -133,11 +133,13 @@ builder.Services.AddHttpClient<IProfanityChecker, ProfanityChecker>();
 // Add CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policyBuilder =>
+    options.AddPolicy("AllowSpecificOrigins", policyBuilder =>
     {
-        policyBuilder.AllowAnyOrigin()
+        policyBuilder
+               .WithOrigins(builder.Configuration.GetSection("AllowedOrigins").Get<string[]>()!)
                .AllowAnyMethod()
-               .AllowAnyHeader();
+               .AllowAnyHeader()
+               .AllowCredentials();
     });
 });
 
@@ -205,7 +207,7 @@ app.UseAuthorization(); // Add Authorization middleware
 
 app.UseSession(); // Add Session middleware
 
-app.UseCors("AllowAll");
+app.UseCors("AllowSpecificOrigins");
 
 app.MapControllers();
 
