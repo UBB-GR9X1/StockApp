@@ -7,12 +7,12 @@ namespace StockApp.Views
 
     public sealed partial class NewsArticleView : Page
     {
-        private NewsDetailViewModel viewModel;
+        private NewsDetailViewModel? viewModel;
 
         /// <summary>
         /// Gets a new instance of the <see cref="NewsArticleView"/> class.
         /// </summary>
-        public NewsDetailViewModel ViewModel
+        public NewsDetailViewModel? ViewModel
         {
             get => this.viewModel;
             set
@@ -43,7 +43,7 @@ namespace StockApp.Views
                 throw new ArgumentException("Sender is not a Button", nameof(sender));
             }
 
-            if (button.Content is not string stockName)
+            if (button.Content is not string)
             {
                 throw new ArgumentException("Button content is not a valid stock name", nameof(sender));
             }

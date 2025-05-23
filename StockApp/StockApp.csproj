@@ -107,6 +107,7 @@
     <None Remove="Views\Pages\LoginPage.xaml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\BankApi\BankApi.csproj" />
     <ProjectReference Include="..\Common\Common.csproj" />
   </ItemGroup>
   <ItemGroup>

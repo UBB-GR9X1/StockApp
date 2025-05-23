@@ -1,13 +1,13 @@
 namespace StockApp.Views.Components
 {
-    using Microsoft.UI.Xaml.Controls;
     using Common.Models;
+    using Microsoft.UI.Xaml.Controls;
 
     public sealed partial class InvestmentComponent : Page
     {
-        public string FirstName { get; set; }
+        public string FirstName { get; set; } = string.Empty;
 
-        public string SecondName { get; set; }
+        public string SecondName { get; set; } = string.Empty;
 
         public decimal TotalInvested { get; set; }
 

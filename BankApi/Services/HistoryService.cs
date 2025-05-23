@@ -38,10 +38,7 @@
 
         public async Task AddHistoryAsync(CreditScoreHistory history)
         {
-            if (history == null)
-            {
-                throw new ArgumentNullException(nameof(history));
-            }
+            ArgumentNullException.ThrowIfNull(history);
 
             if (history.Score < 0 || history.Score > 1000)
             {
@@ -60,10 +57,7 @@
 
         public async Task UpdateHistoryAsync(CreditScoreHistory history)
         {
-            if (history == null)
-            {
-                throw new ArgumentNullException(nameof(history));
-            }
+            ArgumentNullException.ThrowIfNull(history);
 
             if (history.Score < 0 || history.Score > 1000)
             {

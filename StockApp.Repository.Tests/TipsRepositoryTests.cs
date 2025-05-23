@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using BankApi.Data;
+﻿using BankApi.Data;
 using BankApi.Repositories.Impl;
 using Common.Models;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Runtime.Versioning;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace StockApp.Repository.Tests;
+[SupportedOSPlatform("windows10.0.26100.0")]
 
 public class TipsRepositoryTests
 {
@@ -122,7 +122,7 @@ public class TipsRepositoryTests
         using var context = CreateContext();
 
         var user = new User { CNP = "321" };
-        var tip = new Tip { Id = 10, TipText  = "Cut down on coffee", CreditScoreBracket = "0-600" };
+        var tip = new Tip { Id = 10, TipText = "Cut down on coffee", CreditScoreBracket = "0-600" };
 
         await context.Users.AddAsync(user);
         await context.Tips.AddAsync(tip);

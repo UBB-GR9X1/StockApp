@@ -10,24 +10,18 @@ namespace Common.Models
     public class Stock : BaseStock
     {
         /// <summary>
-        /// Gets or sets the unique identifier for the stock.
-        /// </summary>
-        [Key]
-        public int Id { get; set; }
-
-        /// <summary>
         /// Gets or sets the purchase price of each share.
         /// </summary>
         [Required]
         [Range(0, int.MaxValue)]
-        public int Price { get; set; }
+        required public int Price { get; set; }
 
         /// <summary>
         /// Gets or sets the number of shares held.
         /// </summary>
         [Required]
         [Range(0, int.MaxValue)]
-        public int Quantity { get; set; }
+        required public int Quantity { get; set; }
 
         /// <summary>
         /// Default constructor required by Entity Framework.
@@ -35,7 +29,7 @@ namespace Common.Models
         public Stock() { }
 
         [JsonIgnore]
-        public List<NewsArticle> NewsArticles { get; set; }
+        public List<NewsArticle> NewsArticles { get; set; } = [];
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Stock"/> class.

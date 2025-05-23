@@ -16,11 +16,10 @@
     public partial class NewsDetailViewModel : ViewModelBase
     {
         private readonly INewsService newsService;
-        private string currentArticleId;
         private bool isPreviewMode;
-        private readonly string previewId;
+        private readonly string previewId = null!;
 
-        private NewsArticle article;
+        private NewsArticle article = new();
         private bool isLoading;
         private bool hasRelatedStocks;
         private bool isAdminPreview;
@@ -154,7 +153,6 @@
             {
                 // Determine if this is a preview mode request
                 this.isPreviewMode = false;
-                this.currentArticleId = articleId;
                 this.IsAdminPreview = false;
 
                 var regularArticle = await this.newsService.GetNewsArticleByIdAsync(articleId);

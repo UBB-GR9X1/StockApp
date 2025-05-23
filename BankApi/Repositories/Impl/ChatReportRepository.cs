@@ -41,10 +41,7 @@
         {
             try
             {
-                var report = await _context.ChatReports.FindAsync(id);
-                if (report == null)
-                    throw new Exception($"Chat report with id {id} not found.");
-
+                var report = await _context.ChatReports.FindAsync(id) ?? throw new Exception($"Chat report with id {id} not found.");
                 _context.ChatReports.Remove(report);
                 await _context.SaveChangesAsync();
                 return true;

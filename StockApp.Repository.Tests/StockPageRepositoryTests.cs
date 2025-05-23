@@ -1,16 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using BankApi.Data;
+﻿using BankApi.Data;
 using BankApi.Repositories.Impl;
 using Common.Models;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Runtime.Versioning;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace StockApp.Repository.Tests;
 
+[SupportedOSPlatform("windows10.0.26100.0")]
 public class StockPageRepositoryTests
 {
     private readonly DbContextOptions<ApiDbContext> _options;
@@ -29,7 +29,13 @@ public class StockPageRepositoryTests
     {
         using var context = CreateContext();
         var user = new User { CNP = "123" };
-        var stock = new Stock { Name = "AAPL" };
+        var stock = new Stock
+        {
+            Name = "AAPL",
+            Price = 150,
+            Quantity = 100,
+            NewsArticles = []
+        };
         await context.Users.AddAsync(user);
         await context.Stocks.AddAsync(stock);
         await context.SaveChangesAsync();
@@ -46,7 +52,13 @@ public class StockPageRepositoryTests
     public async Task AddOrUpdateUserStockAsync_Should_Update_Existing_Stock()
     {
         using var context = CreateContext();
-        var stock = new Stock { Name = "GOOG" };
+        var stock = new Stock
+        {
+            Name = "GOOG",
+            Price = 200,
+            Quantity = 50,
+            NewsArticles = []
+        };
         var user = new User { CNP = "999" };
         var userStock = new UserStock { UserCnp = "999", StockName = "GOOG", Quantity = 5, Stock = stock, User = user };
 
@@ -79,11 +91,17 @@ public class StockPageRepositoryTests
     public async Task GetStockAsync_Should_Return_Stock()
     {
         using var context = CreateContext();
-        await context.Stocks.AddAsync(new Stock { Name = "NFLX" });
+        await context.Stocks.AddAsync(new Stock
+        {
+            Name = "NFLX",
+            Price = 300,
+            Quantity = 75,
+            NewsArticles = []
+        });
         await context.SaveChangesAsync();
 
         var repo = new StockPageRepository(context);
-        var result = await repo.GetStockAsync("nflx");
+        var result = await repo.GetStockAsync("NFLX");
 
         result.Should().NotBeNull();
         result.Name.Should().Be("NFLX");
@@ -104,14 +122,14 @@ public class StockPageRepositoryTests
     public async Task GetUserStockAsync_Should_Return_Existing()
     {
         using var context = CreateContext();
-        var stock = new Stock { Name = "AMZN" };
+        var stock = new Stock { Name = "AMZN", Price = 100, Quantity = 10, NewsArticles = [] };
         var userStock = new UserStock { UserCnp = "001", StockName = "AMZN", Quantity = 12, Stock = stock };
         await context.Stocks.AddAsync(stock);
         await context.UserStocks.AddAsync(userStock);
         await context.SaveChangesAsync();
 
         var repo = new StockPageRepository(context);
-        var result = await repo.GetUserStockAsync("001", "amzn");
+        var result = await repo.GetUserStockAsync("001", "AMZN");
 
         result.Quantity.Should().Be(12);
     }
@@ -133,18 +151,19 @@ public class StockPageRepositoryTests
     public async Task GetStockHistoryAsync_Should_Return_All_Prices()
     {
         using var context = CreateContext();
-        await context.StockValues.AddRangeAsync(new[]
-        {
-            new StockValue { StockName = "GOOG", Price = 100 },
-            new StockValue { StockName = "GOOG", Price = 200 },
-            new StockValue { StockName = "TSLA", Price = 300 }
-        });
+        var now = DateTime.UtcNow;
+        await context.StockValues.AddRangeAsync(
+        [
+            new StockValue { StockName = "GOOG", Price = 100, DateTime = now.AddDays(-2) },
+            new StockValue { StockName = "GOOG", Price = 200, DateTime = now.AddDays(-1) },
+            new StockValue { StockName = "TSLA", Price = 300, DateTime = now }
+        ]);
         await context.SaveChangesAsync();
 
         var repo = new StockPageRepository(context);
         var history = await repo.GetStockHistoryAsync("GOOG");
 
-        history.Should().HaveCount(2).And.Contain(new[] { 100, 200 });
+        history.Should().HaveCount(2).And.Contain([100, 200]);
     }
 
     [Fact]

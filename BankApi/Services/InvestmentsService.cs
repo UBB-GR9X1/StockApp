@@ -24,10 +24,7 @@ namespace BankApi.Services
 
         public async Task AddInvestmentAsync(Investment investment)
         {
-            if (investment == null)
-            {
-                throw new ArgumentNullException(nameof(investment));
-            }
+            ArgumentNullException.ThrowIfNull(investment);
 
             try
             {
@@ -190,7 +187,7 @@ namespace BankApi.Services
                 .Where(i => i.AmountReturned != investmentOpen)
                 .ToList();
 
-            if (!allInvestments.Any())
+            if (allInvestments.Count == 0)
             {
                 user.ROI = 1; // Set ROI to 1 if no closed transactions. This means no effect over credit score.
                 return;
@@ -267,7 +264,7 @@ namespace BankApi.Services
                         .Where(i => i.InvestorCnp == user.CNP)
                         .ToList();
 
-                    if (investments.Any())
+                    if (investments.Count != 0)
                     {
                         var totalAmountInvested = investments.Sum(i => i.AmountInvested);
                         var totalAmountReturned = investments.Sum(i => i.AmountReturned);

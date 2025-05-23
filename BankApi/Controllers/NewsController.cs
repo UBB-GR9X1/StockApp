@@ -26,7 +26,7 @@ namespace BankApi.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = await _userRepository.GetByIdAsync(int.Parse(userId));
-            return user == null ? throw new Exception("User not found") : user;
+            return user ?? throw new Exception("User not found");
         }
 
         [HttpGet]

@@ -18,13 +18,17 @@ namespace StockApp.ViewModels
         private readonly IStockService stockService;
         private readonly IUserService userService;
         private readonly IAuthenticationService authenticationService;
-        private string stockName;
-        private string stockSymbol;
-        private string authorCnp;
-        private string message;
+        private string stockName = null!;
+        private string stockSymbol = null!;
+        private int price = 0;
+        private int quantity = 0;
+        private string authorCnp = null!;
+        private string message = null!;
         private readonly bool suppressValidation;
         private bool isAdmin;
         private bool isInputValid;
+        private string priceText = string.Empty;
+        private string quantityText = string.Empty;
 
         /// <summary>
         /// Occurs when a property value changes.
@@ -36,7 +40,8 @@ namespace StockApp.ViewModels
         /// </summary>
         public ICommand CreateStockCommand { get; }
 
-        public CreateStockViewModel(IStockService stockService, IUserService userService, IAuthenticationService authenticationService)
+        public CreateStockViewModel(IStockService stockService, IUserService userService,
+            IAuthenticationService authenticationService)
         {
             this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
             this.stockService = stockService ?? throw new ArgumentNullException(nameof(stockService));
@@ -45,7 +50,10 @@ namespace StockApp.ViewModels
             this.suppressValidation = true;
             this.StockName = string.Empty;
             this.StockSymbol = string.Empty;
+            this.price = 0;
+            this.quantity = 0;
             this.AuthorCnp = string.Empty;
+            this.Message = string.Empty;
             this.suppressValidation = false;
             this.IsAdmin = this.CheckIfUserIsAdmin();
         }
@@ -97,6 +105,66 @@ namespace StockApp.ViewModels
                     this.ValidateInputs();
                     this.OnPropertyChanged();
                 }
+            }
+        }
+
+        public int Price
+        {
+            get => this.price;
+            set
+            {
+                if(this.price != value)
+                {
+                    this.price = value;
+                    this.ValidateInputs();
+                    this.OnPropertyChanged();
+                }
+            }
+        }
+
+        public int Quantity
+        {
+            get => this.quantity;
+            set
+            {
+                if (this.quantity != value)
+                {
+                    this.quantity = value;
+                    this.ValidateInputs();
+                    this.OnPropertyChanged();
+                }
+            }
+        }
+
+        public string PriceText
+        {
+            get => this.priceText;
+            set
+            {
+                this.priceText = value;
+                this.OnPropertyChanged();
+
+                if (int.TryParse(value, out int parsed))
+                {
+                    this.Price = parsed;
+                }
+                this.ValidateInputs();
+            }
+        }
+
+        public string QuantityText
+        {
+            get => this.quantityText;
+            set
+            {
+                this.quantityText = value;
+                this.OnPropertyChanged();
+
+                if (int.TryParse(value, out int parsed))
+                {
+                    this.Quantity = parsed;
+                }
+                this.ValidateInputs();
             }
         }
 
@@ -170,7 +238,7 @@ namespace StockApp.ViewModels
                 return;
             }
 
-            if (!Regex.IsMatch(this.StockName, @"^[A-Za-z ]{1,20}$"))
+            if (!StockNameRegex.IsMatch(this.StockName))
             {
                 // Only letters and spaces, up to 20 characters
                 this.Message = "Stock Name must be max 20 characters and contain only letters & spaces!";
@@ -186,10 +254,38 @@ namespace StockApp.ViewModels
                 return;
             }
 
-            if (!Regex.IsMatch(this.StockSymbol, @"^[A-Za-z0-9]{1,5}$"))
+            if (!StockSymbolRegex.IsMatch(this.StockSymbol))
             {
                 // Alphanumeric only, up to 5 characters
                 this.Message = "Stock Symbol must be alphanumeric and max 5 characters!";
+                this.IsInputValid = false;
+                return;
+            }
+
+            // Validate stock price
+            if (!int.TryParse(this.priceText, out int parsedPrice))
+            {
+                this.Message = "Price must be a valid number!";
+                this.IsInputValid = false;
+                return;
+            }
+            if (parsedPrice < 0)
+            {
+                this.Message = "Price cannot be negative!";
+                this.IsInputValid = false;
+                return;
+            }
+
+            // Validate Stock quantity
+            if (!int.TryParse(this.quantityText, out int parsedQuantity))
+            {
+                this.Message = "Quantity must be a valid number!";
+                this.IsInputValid = false;
+                return;
+            }
+            if (parsedQuantity < 0)
+            {
+                this.Message = "Quantity cannot be negative!";
                 this.IsInputValid = false;
                 return;
             }
@@ -202,7 +298,7 @@ namespace StockApp.ViewModels
                 return;
             }
 
-            if (!Regex.IsMatch(this.AuthorCnp, @"^\d{13}$"))
+            if (!CNPRegex.IsMatch(this.AuthorCnp))
             {
                 // Exactly 13 digits required
                 this.Message = "Author CNP must be exactly 13 digits!";
@@ -223,12 +319,24 @@ namespace StockApp.ViewModels
                 return;
             }
 
-            await this.stockService.CreateStockAsync(new Stock(
-                    name: this.StockName,
-                    symbol: this.StockSymbol,
-                    authorCNP: this.AuthorCnp,
-                    price: 0,
-                    quantity: 0));
+            var existingStock = await this.stockService.GetStockByNameAsync(this.StockName);
+            if (existingStock != null)
+            {
+                this.Message = $"A stock named '{this.StockName}' already exists!";
+                return;
+            }
+
+            await this.stockService.CreateStockAsync(new Stock()
+            {
+                Name = this.StockName,
+                Symbol = this.StockSymbol,
+                AuthorCNP = this.AuthorCnp,
+                NewsArticles = [],
+                Price = this.Price,
+                Quantity = this.Quantity,
+            });
+
+            this.Message = $"Stock '{this.StockName}' was successfully created.";
         }
 
         protected bool CheckIfUserIsAdmin()
@@ -245,5 +353,14 @@ namespace StockApp.ViewModels
         {
             this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        [GeneratedRegex(@"^[A-Za-z ]{1,20}$")]
+        private static partial Regex StockNameRegex { get; }
+
+        [GeneratedRegex(@"^[A-Za-z0-9]{1,5}$")]
+        private static partial Regex StockSymbolRegex { get; }
+
+        [GeneratedRegex(@"^\d{13}$")]
+        private static partial Regex CNPRegex { get; }
     }
 }

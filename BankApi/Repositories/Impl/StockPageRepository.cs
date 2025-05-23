@@ -55,7 +55,9 @@
             var stockValue = new StockValue
             {
                 StockName = stockName,
-                Price = price
+                Price = price,
+                DateTime = DateTime.UtcNow,
+                Stock = _context.Stocks.Where(s => s.Name == stockName).FirstOrDefault()!
             };
 
             await _context.AddAsync(stockValue);
@@ -82,7 +84,7 @@
         /// <returns>A <see cref="UserStock"/> instance with populated fields.</returns>
         public async Task<UserStock> GetUserStockAsync(string userCNP, string stockName)
         {
-            UserStock? stock = await _context.UserStocks
+            UserStock stock = await _context.UserStocks
                .Include(us => us.Stock)
                .Where(u => u.UserCnp == userCNP && u.Stock.Name.ToLower() == stockName.ToLower().Trim())
                .FirstOrDefaultAsync();

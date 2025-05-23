@@ -28,9 +28,9 @@ namespace BankApi.Repositories.Impl
             {
                 var report = await _dbContext.BillSplitReports.FindAsync(id);
 
-                return report == null ? throw new KeyNotFoundException($"Bill split report with ID {id} not found") : report;
+                return report ?? throw new KeyNotFoundException($"Bill split report with ID {id} not found");
             }
-            catch (Exception ex) when (!(ex is KeyNotFoundException))
+            catch (Exception ex) when (ex is not KeyNotFoundException)
             {
                 _logger.LogError(ex, "Error retrieving bill split report with ID {ReportId}", id);
                 throw;
@@ -56,19 +56,13 @@ namespace BankApi.Repositories.Impl
         {
             try
             {
-                var existingReport = await _dbContext.BillSplitReports.FindAsync(report.Id);
-
-                if (existingReport == null)
-                {
-                    throw new KeyNotFoundException($"Bill split report with ID {report.Id} not found");
-                }
-
+                var existingReport = await _dbContext.BillSplitReports.FindAsync(report.Id) ?? throw new KeyNotFoundException($"Bill split report with ID {report.Id} not found");
                 _dbContext.Entry(existingReport).CurrentValues.SetValues(report);
                 await _dbContext.SaveChangesAsync();
 
                 return existingReport;
             }
-            catch (Exception ex) when (!(ex is KeyNotFoundException))
+            catch (Exception ex) when (ex is not KeyNotFoundException)
             {
                 _logger.LogError(ex, "Error updating bill split report with ID {ReportId}", report.Id);
                 throw;

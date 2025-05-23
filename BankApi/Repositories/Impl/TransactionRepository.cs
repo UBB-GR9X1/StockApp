@@ -30,10 +30,7 @@ namespace BankApi.Repositories.Impl
         /// <returns>A list of transactions matching the criteria.</returns>
         public async Task<List<TransactionLogTransaction>> GetByFilterCriteriaAsync(TransactionFilterCriteria criteria)
         {
-            if (criteria == null)
-            {
-                throw new ArgumentNullException(nameof(criteria));
-            }
+            ArgumentNullException.ThrowIfNull(criteria);
 
             // Build the query dynamically based on the filter criteria
             IQueryable<TransactionLogTransaction> query = _context.TransactionLogTransactions.Include(t => t.Author);
@@ -77,10 +74,7 @@ namespace BankApi.Repositories.Impl
         /// <param name="transaction">The transaction to add.</param>
         public async Task AddTransactionAsync(TransactionLogTransaction transaction)
         {
-            if (transaction == null)
-            {
-                throw new ArgumentNullException(nameof(transaction));
-            }
+            ArgumentNullException.ThrowIfNull(transaction);
 
             // Ensure the stock exists before adding the transaction
             bool stockExists = await _context.BaseStocks.AnyAsync(s => s.Name == transaction.StockName);

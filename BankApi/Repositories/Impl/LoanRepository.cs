@@ -39,10 +39,7 @@
 
         public async Task AddLoanAsync(Loan loan)
         {
-            if (loan == null)
-            {
-                throw new ArgumentNullException(nameof(loan));
-            }
+            ArgumentNullException.ThrowIfNull(loan);
 
             try
             {
@@ -57,10 +54,7 @@
 
         public async Task UpdateLoanAsync(Loan loan)
         {
-            if (loan == null)
-            {
-                throw new ArgumentNullException(nameof(loan));
-            }
+            ArgumentNullException.ThrowIfNull(loan);
 
             try
             {
@@ -82,12 +76,7 @@
 
             try
             {
-                var loan = await _context.Loans.FindAsync(loanId);
-                if (loan == null)
-                {
-                    throw new Exception($"No loan found with ID: {loanId}");
-                }
-
+                var loan = await _context.Loans.FindAsync(loanId) ?? throw new Exception($"No loan found with ID: {loanId}");
                 _context.Loans.Remove(loan);
                 await _context.SaveChangesAsync();
             }
@@ -107,7 +96,7 @@
             try
             {
                 var loan = await _context.Loans.FindAsync(loanId);
-                return loan == null ? throw new Exception($"Loan with ID {loanId} not found") : loan;
+                return loan ?? throw new Exception($"Loan with ID {loanId} not found");
             }
             catch (Exception exception)
             {

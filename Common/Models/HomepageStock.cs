@@ -12,7 +12,16 @@
         public string Symbol { get; set; } = string.Empty;
 
         [Required]
-        public Stock StockDetails { get; set; } = new Stock();
+        public Stock StockDetails { get; set; } = new Stock()
+        {
+            Name = string.Empty,
+            Symbol = string.Empty,
+            AuthorCNP = string.Empty,
+            NewsArticles = [],
+            Favorites = [],
+            Price = 0,
+            Quantity = 0
+        };
 
         [NotMapped]
         public bool IsFavorite { get; set; }

@@ -15,7 +15,7 @@ namespace StockApp.Views.Components
 
         public int RequestID { get; set; }
 
-        public string RequestingUserCNP { get; set; }
+        public string? RequestingUserCNP { get; set; }
 
         public decimal RequestedAmount { get; set; }
 
@@ -23,9 +23,9 @@ namespace StockApp.Views.Components
 
         public DateTime RepaymentDate { get; set; }
 
-        public string State { get; set; }
+        public string State { get; set; } = string.Empty;
 
-        public string Suggestion { get; set; }
+        public string Suggestion { get; set; } = string.Empty;
 
         public LoanRequestComponent(ILoanRequestService loanRequestService, ILoanService loanService)
         {
@@ -36,6 +36,11 @@ namespace StockApp.Views.Components
 
         public async void OnDenyClick(object sender, RoutedEventArgs e)
         {
+            if (string.IsNullOrEmpty(this.RequestingUserCNP))
+            {
+                throw new Exception("Requesting user CNP cannot be null or empty.");
+            }
+
             LoanRequest loanRequest = new()
             {
                 Id = this.RequestID,
@@ -51,6 +56,11 @@ namespace StockApp.Views.Components
 
         public async void OnApproveClick(object sender, RoutedEventArgs e)
         {
+            if (string.IsNullOrEmpty(this.RequestingUserCNP))
+            {
+                throw new Exception("Requesting user CNP cannot be null or empty.");
+            }
+
             LoanRequest loanRequest = new()
             {
                 Id = this.RequestID,

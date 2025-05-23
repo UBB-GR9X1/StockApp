@@ -23,33 +23,33 @@
         /// </summary>
         [Required]
         [MaxLength(10)]
-        public string StockSymbol { get; set; }
+        required public string StockSymbol { get; set; }
 
         /// <summary>
         /// Gets or sets the display name of the stock involved in the transaction.
         /// </summary>
         [Required]
         [MaxLength(100)]
-        public string StockName { get; set; }
+        required public string StockName { get; set; }
 
         /// <summary>
         /// Gets or sets the type of transaction ("BUY" or "SELL").
         /// </summary>
         [Required]
         [MaxLength(4)]
-        public string Type { get; set; }
+        required public string Type { get; set; }
 
         /// <summary>
         /// Gets or sets the number of shares involved in the transaction.
         /// </summary>
         [Range(1, int.MaxValue)]
-        public int Amount { get; set; }
+        required public int Amount { get; set; }
 
         /// <summary>
         /// Gets or sets the price paid per share in the transaction.
         /// </summary>
         [Range(1, int.MaxValue)]
-        public int PricePerStock { get; set; }
+        required public int PricePerStock { get; set; }
 
         /// <summary>
         /// Gets the total value of the transaction (Amount multiplied by PricePerStock).
@@ -61,16 +61,16 @@
         /// Gets or sets the date and time when the transaction took place.
         /// </summary>
         [Required]
-        public DateTime Date { get; set; }
+        required public DateTime Date { get; set; }
 
         [Required]
-        public string AuthorCNP { get; set; }
+        required public string AuthorCNP { get; set; }
 
         /// <summary>
         /// Gets or sets the user who performed the transaction.
         /// </summary>
         [Required]
-        public User Author { get; set; }
+        required public User Author { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TransactionLogTransaction"/> class.

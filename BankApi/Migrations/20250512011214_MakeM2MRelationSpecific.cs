@@ -58,7 +58,7 @@ namespace BankApi.Migrations
             migrationBuilder.AddPrimaryKey(
                 name: "PK_NewsArticleStock",
                 table: "NewsArticleStock",
-                columns: new[] { "ArticleId", "StockId" });
+                columns: ["ArticleId", "StockId"]);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_NewsArticleStock_BaseStocks_StockId",
@@ -118,7 +118,7 @@ namespace BankApi.Migrations
             migrationBuilder.AddPrimaryKey(
                 name: "PK_NewsArticleStocks",
                 table: "NewsArticleStocks",
-                columns: new[] { "ArticleId", "StockId" });
+                columns: ["ArticleId", "StockId"]);
 
             migrationBuilder.CreateIndex(
                 name: "IX_NewsArticleStocks_NewsArticlesArticleId",

@@ -58,15 +58,9 @@ namespace BankApi.Repositories.Impl
 
         public async Task<bool> UpdateRolesAsync(User user, IEnumerable<string> roleNames)
         {
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            ArgumentNullException.ThrowIfNull(user);
 
-            if (roleNames == null)
-            {
-                throw new ArgumentNullException(nameof(roleNames));
-            }
+            ArgumentNullException.ThrowIfNull(roleNames);
 
             try
             {

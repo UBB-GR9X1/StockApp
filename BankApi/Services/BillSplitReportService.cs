@@ -35,10 +35,7 @@ namespace BankApi.Services
 
         public async Task DeleteBillSplitReportAsync(BillSplitReport report)
         {
-            if (report is null)
-            {
-                throw new ArgumentNullException(nameof(report));
-            }
+            ArgumentNullException.ThrowIfNull(report);
 
             _ = await _repo.DeleteReportAsync(report.Id).ConfigureAwait(false);
         }
@@ -47,10 +44,7 @@ namespace BankApi.Services
 
         public Task<int> GetDaysOverdueAsync(BillSplitReport report)
         {
-            if (report is null)
-            {
-                throw new ArgumentNullException(nameof(report));
-            }
+            ArgumentNullException.ThrowIfNull(report);
 
             var due = report.DateOfTransaction.AddDays(PaymentTermDays);
             var today = DateTime.UtcNow;
@@ -61,10 +55,7 @@ namespace BankApi.Services
 
         public async Task SolveBillSplitReportAsync(BillSplitReport report)
         {
-            if (report is null)
-            {
-                throw new ArgumentNullException(nameof(report));
-            }
+            ArgumentNullException.ThrowIfNull(report);
 
             int daysPastDue = await GetDaysOverdueAsync(report).ConfigureAwait(false);
             string userCnp = report.ReportedUserCnp;
