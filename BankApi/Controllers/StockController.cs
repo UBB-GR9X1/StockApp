@@ -7,6 +7,7 @@ using System.Security.Claims;
 
 namespace BankApi.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class StockController(IStockService stockService, IUserRepository userRepository) : ControllerBase
