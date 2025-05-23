@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace BankApi.Tests.Services
+namespace StockApp.Service.Tests
 {
     [TestClass]
     public class MessagesServiceTests

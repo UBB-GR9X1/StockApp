@@ -6,10 +6,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
-namespace BankApi.Tests.Services
+namespace StockApp.Service.Tests
 {
     [TestClass]
     public class NewsServiceTests
@@ -36,7 +35,7 @@ namespace BankApi.Tests.Services
                 source: "Test Source",
                 topic: "Finance",
                 publishedDate: DateTime.Now,
-                relatedStocks: new List<Stock> { new Stock { Symbol = "AAPL" } },
+                relatedStocks: new List<Stock> { new Stock { Symbol = "AAPL", Price = 10, Quantity = 10 } },
                 status: status);
         }
 
@@ -156,7 +155,7 @@ namespace BankApi.Tests.Services
         {
             // Arrange
             var articleId = "123";
-            var stocks = new List<Stock> { new Stock { Symbol = "AAPL" }, new Stock { Symbol = "MSFT" } };
+            var stocks = new List<Stock> { new Stock { Symbol = "AAPL", Price = 10, Quantity = 10 }, new Stock { Symbol = "MSFT", Price = 10, Quantity = 10 } };
             var article = CreateTestArticle(articleId);
             article.RelatedStocks = stocks;
 
@@ -176,7 +175,7 @@ namespace BankApi.Tests.Services
         public void NewsArticle_Constructor_SetsPropertiesCorrectly()
         {
             // Arrange
-            var stocks = new List<Stock> { new Stock { Symbol = "TSLA" } };
+            var stocks = new List<Stock> { new Stock { Symbol = "TSLA", Price = 10, Quantity = 10 } };
             var publishDate = DateTime.Now;
 
             // Act

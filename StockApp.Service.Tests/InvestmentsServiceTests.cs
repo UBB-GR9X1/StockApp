@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace BankApi.Tests.Services
+namespace StockApp.Service.Tests
 {
     [TestClass]
     public class InvestmentsServiceTests

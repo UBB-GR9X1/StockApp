@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace BankApi.Tests.Services
+namespace StockApp.Service.Tests
 {
     [TestClass]
     public class StockPageServiceTests
@@ -31,7 +31,7 @@ namespace BankApi.Tests.Services
         {
             // Arrange
             var stockName = "Test Stock";
-            var expectedStock = new Stock { Name = stockName, Symbol = "TST" };
+            var expectedStock = new Stock { Name = stockName, Symbol = "TST", Price = 10, Quantity = 10 };
             _mockStockRepo.Setup(x => x.GetStockAsync(stockName)).ReturnsAsync(expectedStock);
 
             // Act
@@ -48,7 +48,7 @@ namespace BankApi.Tests.Services
             // Arrange
             var stockName = "Test Stock";
             var expectedSymbol = "TST";
-            var expectedStock = new Stock { Name = stockName, Symbol = expectedSymbol };
+            var expectedStock = new Stock { Name = stockName, Symbol = expectedSymbol, Price = 10, Quantity = 10 };
             _mockStockRepo.Setup(x => x.GetStockAsync(stockName)).ReturnsAsync(expectedStock);
 
             // Act
@@ -140,7 +140,7 @@ namespace BankApi.Tests.Services
             var stockPrice = 100;
             var totalPrice = stockPrice * quantity;
             var user = new User { CNP = userCNP, GemBalance = totalPrice + 100 };
-            var stock = new Stock { Name = stockName, Price = stockPrice, Symbol = "TST" };
+            var stock = new Stock { Name = stockName, Price = stockPrice, Symbol = "TST", Quantity = 10 };
 
             _mockStockRepo.Setup(x => x.GetStockAsync(stockName)).ReturnsAsync(stock);
             _mockStockRepo.Setup(x => x.GetOwnedStocksAsync(userCNP, stockName)).ReturnsAsync(0);
@@ -171,7 +171,7 @@ namespace BankApi.Tests.Services
             var stockPrice = 100;
             var totalPrice = stockPrice * quantity;
             var user = new User { CNP = userCNP, GemBalance = totalPrice - 10 }; // Insufficient funds
-            var stock = new Stock { Name = stockName, Price = stockPrice };
+            var stock = new Stock { Name = stockName, Price = stockPrice, Quantity = 10 };
 
             _mockStockRepo.Setup(x => x.GetStockAsync(stockName)).ReturnsAsync(stock);
             _mockUserRepo.Setup(x => x.GetByCnpAsync(userCNP)).ReturnsAsync(user);
@@ -194,7 +194,7 @@ namespace BankApi.Tests.Services
             var stockPrice = 100;
             var totalPrice = stockPrice * quantity;
             var user = new User { CNP = userCNP, GemBalance = 500 };
-            var stock = new Stock { Name = stockName, Price = stockPrice, Symbol = "TST" };
+            var stock = new Stock { Name = stockName, Price = stockPrice, Symbol = "TST", Quantity = 10 };
 
             _mockStockRepo.Setup(x => x.GetStockAsync(stockName)).ReturnsAsync(stock);
             _mockStockRepo.Setup(x => x.GetOwnedStocksAsync(userCNP, stockName)).ReturnsAsync(quantity);
@@ -224,7 +224,7 @@ namespace BankApi.Tests.Services
             var quantity = 5;
             var stockPrice = 100;
             var user = new User { CNP = userCNP, GemBalance = 500 };
-            var stock = new Stock { Name = stockName, Price = stockPrice };
+            var stock = new Stock { Name = stockName, Price = stockPrice, Quantity = 10 };
 
             _mockStockRepo.Setup(x => x.GetStockAsync(stockName)).ReturnsAsync(stock);
             _mockStockRepo.Setup(x => x.GetOwnedStocksAsync(userCNP, stockName)).ReturnsAsync(quantity - 1); // Insufficient quantity
@@ -277,7 +277,7 @@ namespace BankApi.Tests.Services
             var stockName = "Test Stock";
             var authorCNP = "1234567890123";
             var author = new User { CNP = authorCNP, FirstName = "John" };
-            var stock = new Stock { Name = stockName, AuthorCNP = authorCNP };
+            var stock = new Stock { Name = stockName, AuthorCNP = authorCNP, Price = 10, Quantity = 10 };
 
             _mockStockRepo.Setup(x => x.GetStockAsync(stockName)).ReturnsAsync(stock);
             _mockUserRepo.Setup(x => x.GetByCnpAsync(authorCNP)).ReturnsAsync(author);
@@ -298,7 +298,7 @@ namespace BankApi.Tests.Services
             // Arrange
             var stockName = "Test Stock";
             var authorCNP = "1234567890123";
-            var stock = new Stock { Name = stockName, AuthorCNP = authorCNP };
+            var stock = new Stock { Name = stockName, AuthorCNP = authorCNP, Price = 10, Quantity = 10 };
 
             _mockStockRepo.Setup(x => x.GetStockAsync(stockName)).ReturnsAsync(stock);
             _mockUserRepo.Setup(x => x.GetByCnpAsync(authorCNP)).ReturnsAsync((User)null);
